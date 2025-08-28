@@ -1,0 +1,566 @@
+/* Promo Banner Base Styles */
+.helpmate-promo-banner {
+    position: relative;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease-in-out;
+    z-index: 9999;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Position Styles */
+.helpmate-promo-banner-top {
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.helpmate-promo-banner-bottom {
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* Sticky Bar */
+.helpmate-promo-banner-sticky {
+    position: fixed;
+}
+
+/* Content Layout */
+.helpmate-promo-banner-content {
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 0 1rem;
+}
+
+/* Text Styles */
+.helpmate-promo-banner-text {
+    flex: 1;
+}
+
+.helpmate-promo-banner-text p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Button Styles */
+.helpmate-promo-banner-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    gap: 0.5rem;
+}
+
+.helpmate-promo-banner-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Icon Styles */
+.helpmate-promo-banner-button-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Countdown Styles */
+.helpmate-promo-banner-countdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.1rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.helpmate-promo-banner-countdown-timer {
+    font-family: monospace;
+    font-weight: 600;
+}
+
+/* Close Button Styles */
+.helpmate-promo-banner-close {
+    position: absolute;
+    top: auto;
+    transform: none;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out;
+    opacity: 0.7;
+}
+
+.helpmate-promo-banner-close:hover {
+    opacity: 1;
+    background: none;
+}
+
+.helpmate-promo-banner-close .dashicons {
+    width: 30px;
+    height: 30px;
+    font-size: 30px;
+}
+
+/* Close Button Positions */
+.helpmate-promo-banner-close[data-position="left"] {
+    left: 0.5rem;
+}
+
+.helpmate-promo-banner-close[data-position="right"] {
+    right: 0.5rem;
+}
+
+/* Layout 1: Summer Sale Style */
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-text {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-main-text {
+    font-weight: 500;
+    font-size: 1.8em;
+    white-space: nowrap;
+}
+
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-separator {
+    width: 1px;
+    height: 1.2rem;
+    background-color: currentColor;
+    opacity: 0.7;
+}
+
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-description {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-countdown {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-countdown-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    padding: 0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-countdown-number {
+    font-size: 1.1em;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0.25rem 0.75rem 0.1rem;
+    width: 100%;
+    text-align: center;
+}
+
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-countdown-label {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.5rem 0.25rem;
+    width: 100%;
+    text-align: center;
+    font-weight: 500;
+    border-radius: 5px;
+}
+
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-button-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* Layout 2: Winter Sale Style */
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-text {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-main-text {
+    font-weight: bold;
+    font-size: 1.2em;
+    white-space: nowrap;
+}
+
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-description {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-separator {
+    width: 1px;
+    height: 1.2rem;
+    background-color: currentColor;
+    opacity: 0.7;
+}
+
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-countdown {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-countdown-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    padding: 0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-countdown-number {
+    font-size: 1.1em;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0.25rem 0.75rem 0.1rem;
+    width: 100%;
+    text-align: center;
+}
+
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-countdown-label {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.5rem 0.25rem;
+    width: 100%;
+    text-align: center;
+    font-weight: 500;
+}
+
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-button-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* Layout 3: Black Friday Style */
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-content {
+    padding: 0;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-content-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 2rem;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-countdown {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-shrink: 0;
+    border-right: 1px solid white;
+    border-left: 1px solid white;
+    border-radius: 0;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-countdown-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    padding: 0;
+    border-radius: 4px;
+    position: relative;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-countdown-box:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -0.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 60%;
+    background-color: white;
+    opacity: 1;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-countdown-number {
+    font-size: 1.1em;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0.25rem 0.75rem 0.1rem;
+    width: 100%;
+    text-align: center;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-countdown-label {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.5rem 0.25rem;
+    width: 100%;
+    text-align: center;
+    font-weight: 500;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-text {
+    flex: 1;
+    text-align: left;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-main-text {
+    font-weight: bold;
+    font-size: 1.2em;
+    white-space: nowrap;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-description {
+    font-size: 0.9em;
+    opacity: 0.9;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border: 1px solid currentColor;
+    background: transparent;
+    margin-left: auto;
+}
+
+.helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-button-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .helpmate-promo-banner {
+        padding: 0.75rem;
+    }
+
+    .helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-text {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-separator {
+        display: none;
+    }
+
+    .helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-countdown {
+        justify-content: center;
+    }
+
+    .helpmate-promo-banner[data-layout="1"] .helpmate-promo-banner-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+
+    .helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-text {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-separator {
+        display: none;
+    }
+
+    .helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-countdown {
+        justify-content: center;
+    }
+
+    .helpmate-promo-banner[data-layout="2"] .helpmate-promo-banner-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-content-wrapper {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-countdown {
+        order: 1;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-text {
+        order: 2;
+        text-align: center;
+    }
+
+    .helpmate-promo-banner[data-layout="3"] .helpmate-promo-banner-button {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .helpmate-promo-banner-button {
+        width: 100%;
+    }
+
+    .helpmate-promo-banner-countdown {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Hide on Mobile */
+    .helpmate-promo-banner-hide-mobile {
+        display: none !important;
+    }
+}
+
+/* Animation Classes */
+.helpmate-promo-banner-slide-in {
+    -webkit-animation: slideIn 0.5s ease-out forwards;
+            animation: slideIn 0.5s ease-out forwards;
+}
+
+.helpmate-promo-banner-slide-out {
+    -webkit-animation: slideOut 0.5s ease-in forwards;
+            animation: slideOut 0.5s ease-in forwards;
+}
+
+@-webkit-keyframes slideIn {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes slideOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+/* Accessibility */
+.helpmate-promo-banner:focus-within {
+    outline: 2px solid rgba(0, 0, 0, 0.2);
+    outline-offset: -2px;
+}
+
+.helpmate-promo-banner-button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.helpmate-promo-banner-close:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 4px;
+}

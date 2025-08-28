@@ -1,0 +1,33 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+.text-center {
+  text-align: center;
+}
+
+.toplevel_page_helpmate .wp-menu-image img {
+  padding: 0 !important;
+  opacity: 1 !important;
+}
+
+.helpmate-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #555;
+    border-radius: 50%;
+    -webkit-animation: helpmate-spin 0.7s linear infinite;
+            animation: helpmate-spin 0.7s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+@-webkit-keyframes helpmate-spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+}
+@keyframes helpmate-spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+}
