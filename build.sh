@@ -55,7 +55,7 @@ mkdir -p ../helpmate-build
 
 # Copy files excluding node_modules
 echo "Copying files..."
-rsync -av --progress . ../helpmate-build/ --exclude 'node_modules' --exclude '.git' --exclude '.gitignore' --exclude '.DS_Store' --exclude 'build.sh' --exclude 'composer.json' --exclude 'composer.lock'
+rsync -av --progress . ../helpmate-build/ --exclude 'node_modules' --exclude '.git' --exclude '.gitignore' --exclude 'README.md' --exclude '.DS_Store' --exclude 'build.sh' --exclude 'composer.json' --exclude 'composer.lock'
 
 # Verify copy operation
 if [ ! -d "../helpmate-build" ]; then
