@@ -7,7 +7,7 @@ import {
   HelpmateDocsURL,
   HelpmateLoginURL,
   HelpmatePricingURL,
-  HelpmateSupportURL,
+  HelpmateSupportURL
 } from '@/lib/constants';
 import { ArrowUpRight, HandCoins, KeyRound, RefreshCw } from 'lucide-react';
 
@@ -120,17 +120,22 @@ export default function TopBar({ onPageChange }: TopBarProps) {
               size="sm"
               className="py-1 h-auto !font-medium !text-xs -mr-0.5"
               onClick={() => {
-                window.open(
-                  licenseData?.product_slug !== 'helpmate-free'
-                    ? HelpmateLoginURL
-                    : HelpmatePricingURL,
-                  '_blank'
-                );
+                if (licenseData?.product_slug !== 'helpmate-free') {
+                  window.open(HelpmateLoginURL, '_blank');
+                } else {
+                  if (licenseData?.signup_credits) {
+                    window.open(HelpmatePricingURL, '_blank');
+                  } else {
+                    onPageChange('license');
+                  }
+                }
               }}
             >
               {licenseData?.product_slug !== 'helpmate-free'
                 ? 'Buy Credits'
-                : 'Boost Sales Now'}
+                : licenseData?.signup_credits
+                ? 'Start Automating My Store'
+                : 'Claim 300 Monthly Credits'}
               <HandCoins className="!w-3" />
             </Button>
           </div>

@@ -11,7 +11,8 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH'))
+    exit;
 
 class HelpMate_Backend_Routes
 {
@@ -43,7 +44,7 @@ class HelpMate_Backend_Routes
     public function register_routes()
     {
         // Force refresh of REST routes by clearing cache
-        add_action('init', function() {
+        add_action('init', function () {
             // Clear any cached REST routes
             if (function_exists('rest_get_server')) {
                 $server = rest_get_server();
@@ -58,6 +59,46 @@ class HelpMate_Backend_Routes
         register_rest_route('helpmate/v1', '/url-content-to-text', array(
             'methods' => 'POST',
             'callback' => fn($request) => $this->helpmate->get_chat()->url_content_to_text($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
+        ));
+
+        register_rest_route('helpmate/v1', '/get-consent', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                try {
+                    return new WP_REST_Response([
+                        'error' => false,
+                        'consent' => $this->helpmate->get_settings()->get_setting('ai')['consent']
+                    ], 200);
+                } catch (Exception $e) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
+        ));
+
+        register_rest_route('helpmate/v1', '/update-consent', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                $consent = rest_sanitize_boolean($request->get_param('consent'));
+                try {
+                    $ai_settings = $this->helpmate->get_settings()->get_setting('ai');
+                    $ai_settings['consent'] = $consent;
+                    $this->helpmate->get_settings()->set_setting('ai', $ai_settings);
+                    return new WP_REST_Response([
+                        'error' => false,
+                        'message' => 'Consent updated successfully'
+                    ], 200);
+                } catch (Exception $e) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
         ));
 

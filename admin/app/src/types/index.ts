@@ -1,4 +1,4 @@
-import { PageType } from '@/context/MainContext';
+import { PageType } from '@/contexts/MainContext';
 
 export interface PaginationParams {
   page: number;

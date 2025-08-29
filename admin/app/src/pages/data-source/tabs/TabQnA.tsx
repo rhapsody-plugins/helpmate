@@ -26,6 +26,7 @@ import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useConsent } from '@/contexts/ConsentContext';
 
 const formSchema = z.object({
   id: z.string().optional(),
@@ -44,6 +45,7 @@ export default function TabQnA() {
     content: string;
   } | null>(null);
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
+  const { requestConsent } = useConsent();
   const {
     getSourcesMutation,
     addSourceMutation,
@@ -122,7 +124,12 @@ export default function TabQnA() {
             fetchMutate('qa');
           },
           onError: (error) => {
-            console.error('Update failed:', error);
+            // If consent is required, request it through the context
+            if (error.message === 'CONSENT_REQUIRED') {
+              requestConsent(() => handleSubmit(data));
+            } else {
+              console.error('Update failed:', error);
+            }
           },
         });
       } else {
@@ -149,7 +156,12 @@ export default function TabQnA() {
             fetchMutate('qa');
           },
           onError: (error) => {
-            console.error('Add failed:', error);
+            // If consent is required, request it through the context
+            if (error.message === 'CONSENT_REQUIRED') {
+              requestConsent(() => handleSubmit(data));
+            } else {
+              console.error('Add failed:', error);
+            }
           },
         });
       }

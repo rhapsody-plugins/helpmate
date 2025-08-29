@@ -1,7 +1,7 @@
 import { AppSidebar } from '@/components/AppSidebar';
 import Loading from '@/components/Loading';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { useMain } from '@/context/MainContext';
+import { useMain } from '@/contexts/MainContext';
 import { lazy, Suspense } from 'react';
 
 const Dashboard = lazy(() => import('@/pages/Dashboard'));

@@ -13,7 +13,7 @@ import { Card } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { useMain } from '@/context/MainContext';
+import { useMain } from '@/contexts/MainContext';
 import { useCustomIcons } from '@/hooks/useCustomIcons';
 import { useSettings } from '@/hooks/useSettings';
 import { cn } from '@/lib/utils';

@@ -1,5 +1,4 @@
-export const HelpmateURL =
-  'https://rhapsodyplugins.com/helpmate';
+export const HelpmateURL = 'https://rhapsodyplugins.com/helpmate';
 export const HelpmatePricingURL =
   'https://rhapsodyplugins.com/helpmate/#pricing';
 export const HelpmateLoginURL = 'https://rhapsodyplugins.com/login';
@@ -9,3 +8,5 @@ export const HelpmateSignupURL =
     : 'https://rhapsodyplugins.com/claim-free-user';
 export const HelpmateSupportURL = 'https://rhapsodyplugins.com/contact';
 export const HelpmateDocsURL = 'https://rhapsodyplugins.com/docs';
+export const HelpmatePrivacyPolicyURL =
+  'https://rhapsodyplugins.com/privacy-policy/';

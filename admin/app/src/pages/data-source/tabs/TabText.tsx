@@ -15,6 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useConsent } from '@/contexts/ConsentContext';
 
 const formSchema = z.object({
   title: z.string(),
@@ -24,6 +25,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function TabText() {
+  const { requestConsent } = useConsent();
   const { getSourcesMutation, addSourceMutation, updateSourceMutation } =
     useDataSource();
 
@@ -75,6 +77,7 @@ export default function TabText() {
             document_type: 'text',
             title: data.title,
             content: data.content,
+            vector: fetchData[0].vector,
             metadata: {},
             last_updated: Math.floor(Date.now() / 1000),
           },
@@ -84,6 +87,12 @@ export default function TabText() {
                 title: data.title,
                 content: data.content,
               });
+            },
+            onError: (error) => {
+              // If consent is required, request it through the context
+              if (error.message === 'CONSENT_REQUIRED') {
+                requestConsent(() => handleSubmit(data));
+              }
             },
           }
         );
@@ -101,6 +110,12 @@ export default function TabText() {
                 title: data.title,
                 content: data.content,
               });
+            },
+            onError: (error) => {
+              // If consent is required, request it through the context
+              if (error.message === 'CONSENT_REQUIRED') {
+                requestConsent(() => handleSubmit(data));
+              }
             },
           }
         );

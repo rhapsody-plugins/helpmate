@@ -221,6 +221,7 @@ class HelpMate_Database
                 'tone' => 'friendly',
                 'language' => 'default',
                 'similarity_threshold' => 0.5,
+                'consent' => false,
             ],
             'behavior' => [
                 'welcome_message_sound' => true,

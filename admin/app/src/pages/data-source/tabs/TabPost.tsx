@@ -16,11 +16,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+
 import { useDataSource } from '@/hooks/useDataSource';
 import { DataSource, WordPressPost } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useConsent } from '@/contexts/ConsentContext';
 
 // Function to detect if content is dynamic (mostly HTML comments and empty divs)
 const isDynamicContent = (content: string): boolean => {
@@ -78,6 +80,8 @@ export default function TabPost() {
   const [selectedPostContent, setSelectedPostContent] = useState<string>('');
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
+
+  const { requestConsent } = useConsent();
   const {
     getPostTypesQuery,
     getPostsMutation,
@@ -193,8 +197,13 @@ export default function TabPost() {
         onSuccess: () => {
           setAddingPostId(null);
         },
-        onError: () => {
+        onError: (error) => {
           setAddingPostId(null);
+
+          // If consent is required, request it through the context
+          if (error.message === 'CONSENT_REQUIRED') {
+            requestConsent(() => handleAdd(ids));
+          }
         },
       });
     },
@@ -564,6 +573,7 @@ export default function TabPost() {
           </div>
         </SheetContent>
       </Sheet>
+
     </div>
   );
 }

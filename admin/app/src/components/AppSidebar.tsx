@@ -22,7 +22,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
-import { PageType, useMain } from '@/context/MainContext';
+import { PageType, useMain } from '@/contexts/MainContext';
 import { useSettings } from '@/hooks/useSettings';
 import { cn } from '@/lib/utils';
 import { SidebarMenuItemType } from '@/types';

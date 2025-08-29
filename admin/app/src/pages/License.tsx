@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useLicense } from '@/hooks/useLicense';
-import { HelpmatePricingURL, HelpmateSignupURL } from '@/lib/constants';
+import { HelpmatePricingURL, HelpmateSignupURL, HelpmateURL } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { Icon } from '@iconify/react';
 import { CrownIcon, HandCoins } from 'lucide-react';
@@ -190,7 +190,7 @@ export default function License({
                     {!licenseData?.signup_credits ? (
                       <div className="flex flex-col flex-1 justify-center items-center p-8 w-full">
                         <h2 className="mb-4 !text-2xl font-semibold !text-muted-foreground max-w-sm">
-                          Get 50 Free Chat Credits Just for Signing Up – It's
+                          Get 200 Free Chat Credits Just for Signing Up – It's
                           That Simple!
                         </h2>
                         <Button
@@ -226,7 +226,7 @@ export default function License({
                     {!licenseData?.social_credits && (
                       <div className="flex flex-col flex-1 justify-center items-center p-8 w-full">
                         <h3 className="mb-4 !text-xl !font-medium !text-muted-foreground max-w-sm">
-                          You Help Us Grow, We Reward You: 50 Credits for
+                          You Help Us Grow, We Reward You: 100 Credits for
                           Sharing
                         </h3>
                         <div className="flex gap-2">
@@ -236,7 +236,7 @@ export default function License({
                             onClick={() => {
                               claimCreditsMutation.mutate();
                               window.open(
-                                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://rhapsodyplugins.com/helpmate-woocommerce-ai-chatbot-plugin-built-for-sales-and-support')}`,
+                                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(HelpmateURL)}`,
                                 '_blank'
                               );
                             }}
@@ -249,7 +249,7 @@ export default function License({
                             onClick={() => {
                               claimCreditsMutation.mutate();
                               window.open(
-                                `https://twitter.com/intent/tweet?url=${encodeURIComponent('https://rhapsodyplugins.com/helpmate-woocommerce-ai-chatbot-plugin-built-for-sales-and-support')}&text=${encodeURIComponent('Check out this amazing WooCommerce AI chatbot plugin!')}`,
+                                `https://twitter.com/intent/tweet?url=${encodeURIComponent(HelpmateURL)}&text=${encodeURIComponent('Check out this amazing WooCommerce AI chatbot plugin!')}`,
                                 '_blank'
                               );
                             }}
@@ -262,7 +262,7 @@ export default function License({
                             onClick={() => {
                               claimCreditsMutation.mutate();
                               window.open(
-                                `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://rhapsodyplugins.com/helpmate-woocommerce-ai-chatbot-plugin-built-for-sales-and-support')}`,
+                                `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(HelpmateURL)}`,
                                 '_blank'
                               );
                             }}

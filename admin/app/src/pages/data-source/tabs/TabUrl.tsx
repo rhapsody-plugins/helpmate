@@ -27,6 +27,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { useConsent } from '@/contexts/ConsentContext';
 
 const formSchema = z.object({
   title: z.string(),
@@ -41,6 +42,7 @@ export default function TabUrl() {
   const [isContentSheetOpen, setIsContentSheetOpen] = useState(false);
   const [selectedContent, setSelectedContent] = useState<string>('');
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
+  const { requestConsent } = useConsent();
   const { getSourcesMutation, addSourceMutation, removeSourceMutation } =
     useDataSource();
 
@@ -95,6 +97,13 @@ export default function TabUrl() {
           content: response.data.content,
           metadata: {
             url: data.url,
+          },
+        }, {
+          onError: (error) => {
+            // If consent is required, request it through the context
+            if (error.message === 'CONSENT_REQUIRED') {
+              requestConsent(() => handleSubmit(data));
+            }
           },
         });
       } catch (error) {

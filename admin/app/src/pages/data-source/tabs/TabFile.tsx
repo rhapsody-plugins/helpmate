@@ -26,6 +26,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { useConsent } from '@/contexts/ConsentContext';
 
 const formSchema = z.object({
   title: z.string(),
@@ -36,6 +37,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function TabFile() {
+  const { requestConsent } = useConsent();
   const { getSourcesMutation, addSourceMutation, removeSourceMutation } =
     useDataSource();
 
@@ -96,6 +98,12 @@ export default function TabFile() {
             });
             if (fileInputRef.current) {
               fileInputRef.current.value = '';
+            }
+          },
+          onError: (error) => {
+            // If consent is required, request it through the context
+            if (error.message === 'CONSENT_REQUIRED') {
+              requestConsent(() => handleSubmit(data));
             }
           },
         }
