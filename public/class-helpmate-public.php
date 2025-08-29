@@ -180,7 +180,7 @@ class HelpMate_Public
 			if (HELPMATE_BASENAME . '-public-vite' !== $handle) {
 				return $tag;
 			}
-			return '<script type="module" src="' . esc_url($src) . '"></script>';
+			return '<script type="module" src="' . esc_url($src) . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		}
 
 	}
