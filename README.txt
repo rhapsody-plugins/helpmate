@@ -1,7 +1,6 @@
 === Helpmate – AI Chatbot That Sells & Supports While You Sleep for WooCommerce ===
 Contributors: rhapsodyplugins
-Donate link: https://rhapsodyplugins.com/
-Tags: ai chatbot, sales, customer support, ecommerce chatbot, woocommerce support
+Tags: ai chatbot, customer support, ecommerce chatbot, woocommerce support, wordpress chatbot
 Requires at least: 5.0
 Requires PHP: 7.4
 Tested up to: 6.8
