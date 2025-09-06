@@ -26,7 +26,8 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH'))
+    exit;
 
 class HelpMate_Chat_Helpers
 {
@@ -212,7 +213,7 @@ class HelpMate_Chat_Helpers
                 "Extract and format the web page content in a clean, structured markup format.
                         For each web page, include:
                         # Title: The main title or headline of the page
-                        ## Meta Description: The page\'s description if available
+                        ## Meta Description: The page\'s summary
 
                         ## Main Content
                         Break the content into logical sections based on headings (h1, h2, h3, etc.)
@@ -256,6 +257,284 @@ class HelpMate_Chat_Helpers
                 'message' => __('Error processing content: ', 'helpmate') . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Quick train homepage.
+     *
+     * @since 1.0.0
+     * @return WP_REST_Response The response.
+     */
+    public function quick_train_homepage()
+    {
+        $url = get_site_url();
+
+        if (empty($url)) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => __('URL is required', 'helpmate')
+            ], 400);
+        }
+
+        // Check if URL has http/https protocol, add if missing
+        if (!preg_match('/^https?:\/\//', $url)) {
+            $url = 'https://' . $url;
+        }
+
+        // Fetch the URL content with modified headers and options
+        $response = wp_remote_get($url, [
+            'timeout' => 30,
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language' => 'en-US,en;q=0.9',
+                'Accept-Encoding' => 'gzip, deflate', // Simplified encoding acceptance
+            ],
+            'sslverify' => false, // Disable SSL verification if needed
+            'redirection' => 5, // Allow up to 5 redirects
+            'blocking' => true,
+            'compress' => true,
+        ]);
+
+        if (is_wp_error($response)) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => __('Error fetching URL: ', 'helpmate') . $response->get_error_message()
+            ], 500);
+        }
+
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => __('Failed to fetch URL. Response code: ', 'helpmate') . $response_code
+            ], 500);
+        }
+
+        $html = wp_remote_retrieve_body($response);
+        if (empty($html)) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => __('Could not fetch URL content', 'helpmate')
+            ], 500);
+        }
+
+        // Remove all inline and internal CSS and JavaScript
+        $html = $this->remove_css_and_js($html);
+
+        // Create a DOMDocument instance with error handling
+        $dom = new DOMDocument();
+        libxml_use_internal_errors(true); // Enable error handling
+        @$dom->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
+        libxml_clear_errors(); // Clear any errors
+
+        // Get the title
+        $title = '';
+        $titleElements = $dom->getElementsByTagName('title');
+        if ($titleElements->length > 0) {
+            $title = trim($titleElements->item(0)->textContent);
+        }
+
+        // Check credits before processing any documents
+        $credits_check = $this->helpmate->get_license()->check_credits_before_operation(HELPMATE_FEATURES[1], 1);
+        if ($credits_check instanceof WP_REST_Response) {
+            return $credits_check;
+        }
+
+        // Process with OpenAI
+        try {
+            $response = $this->helpmate->get_chat()->get_chat_response(
+                $html,
+                [],
+                '',
+                'You are given the full HTML of a website homepage. Your task is to analyze it thoroughly and produce a structured document that captures all the information a customer or user might need when interacting with this website.
+
+                The document should be clear, factual, and free from hallucinations. Use only what is explicitly present in the HTML. If something is not available, leave it out.
+
+                <Steps_to_Follow>
+                1. Extract Core Identity
+                    - Website/brand name
+                    - Tagline or main heading
+                    - Description/what the site is about
+                    - Industry/category (e.g., eCommerce, SaaS, portfolio, blog, services, etc.)
+
+                2. Navigation & Structure
+                    - List all visible menu items (Home, About, Shop, Services, Blog, Contact, etc.)
+                    - Note dropdown items or sub-links if present.
+                    - Capture footer links and important quick links.
+
+                3. Main Offerings / Purpose
+                    - Products, services, or features highlighted.
+                    - Special categories (e.g., clothing types, SaaS features, blog topics).
+                    - Unique selling points, guarantees, or core benefits.
+
+                4. Content Highlights
+                    - Extract visible text sections like hero banners, promotional texts, featured posts/products, testimonials, pricing sections, etc.
+                    - Summarize images only if they contain relevant text (logos, banners with slogans).
+
+                5. Customer-Facing Information
+                    - Contact methods (phone, email, chat, forms).
+                    - Location/addresses if available.
+                    - Social media links.
+                    - Policies (shipping, returns, privacy, terms).
+                    - Calls to action (Sign up, Buy now, Book a demo, Subscribe, etc.).
+
+                6. Questions Customers Might Ask
+                    - Based on extracted content, create a list of possible realistic user questions and map them to answers from the homepage.
+                        <Examples>
+                        "What services do you offer?"
+                        "How can I contact you?"
+                        "Do you have a return policy?"
+                        "What products are available?"
+                        "Where is your company located?"
+                        "How can I sign up or get started?"
+                        "What makes your business unique?"
+                        </Examples>
+
+                7. Format Requirements
+                    - Use Markdown with clear headings.
+                    - Organize information into logical sections:
+                        -- Website Overview
+                        -- Navigation
+                        -- Main Offerings
+                        -- Content Highlights
+                        -- Customer Information
+                        -- Possible Questions & Answers
+                    - Keep everything concise, structured, and directly based on HTML content.
+                </Steps_to_Follow>
+        '
+            );
+
+            if (!isset($response)) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => __('Timeout! The request took too long to complete. Try Again.', 'helpmate')
+                ], 500);
+            }
+
+            if (isset($response['error']) && $response['error']) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => $response['message']
+                ], 500);
+            }
+
+            $text = $response['response']['message'] ?? '';
+
+            return new WP_REST_Response([
+                'error' => false,
+                'title' => $title,
+                'content' => $text
+            ]);
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => __('Error processing content: ', 'helpmate') . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remove all inline and internal CSS and JavaScript from HTML.
+     *
+     * @since 1.0.0
+     * @param string $html The HTML content.
+     * @return string The cleaned HTML content.
+     */
+    private function remove_css_and_js($html)
+    {
+        // Create a DOMDocument instance with error handling
+        $dom = new DOMDocument();
+        libxml_use_internal_errors(true);
+        @$dom->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
+        libxml_clear_errors();
+
+        // Remove script tags (both internal and external)
+        $scripts = $dom->getElementsByTagName('script');
+        $scriptsToRemove = [];
+        foreach ($scripts as $script) {
+            $scriptsToRemove[] = $script;
+        }
+        foreach ($scriptsToRemove as $script) {
+            if ($script->parentNode) {
+                $script->parentNode->removeChild($script);
+            }
+        }
+
+        // Remove style tags (internal CSS)
+        $styles = $dom->getElementsByTagName('style');
+        $stylesToRemove = [];
+        foreach ($styles as $style) {
+            $stylesToRemove[] = $style;
+        }
+        foreach ($stylesToRemove as $style) {
+            if ($style->parentNode) {
+                $style->parentNode->removeChild($style);
+            }
+        }
+
+        // Remove link tags that reference CSS files
+        $links = $dom->getElementsByTagName('link');
+        $linksToRemove = [];
+        foreach ($links as $link) {
+            if ($link instanceof DOMElement) {
+                $rel = $link->getAttribute('rel');
+                if (strtolower($rel) === 'stylesheet' || strpos(strtolower($rel), 'stylesheet') !== false) {
+                    $linksToRemove[] = $link;
+                }
+            }
+        }
+        foreach ($linksToRemove as $link) {
+            if ($link->parentNode) {
+                $link->parentNode->removeChild($link);
+            }
+        }
+
+        // Remove inline styles from all elements
+        $xpath = new DOMXPath($dom);
+        $elementsWithStyle = $xpath->query('//*[@style]');
+        foreach ($elementsWithStyle as $element) {
+            $element->removeAttribute('style');
+        }
+
+        // Remove onclick, onload, and other event handler attributes
+        $eventAttributes = [
+            'onclick', 'onload', 'onchange', 'onsubmit', 'onmouseover', 'onmouseout',
+            'onfocus', 'onblur', 'onkeydown', 'onkeyup', 'onkeypress', 'onmousedown',
+            'onmouseup', 'onmousemove', 'onmouseenter', 'onmouseleave', 'oncontextmenu',
+            'ondblclick', 'onresize', 'onscroll', 'onerror', 'onabort', 'onbeforeunload',
+            'onunload', 'onhashchange', 'onpopstate', 'onpageshow', 'onpagehide'
+        ];
+
+        foreach ($eventAttributes as $attr) {
+            $elementsWithEvent = $xpath->query('//*[@' . $attr . ']');
+            foreach ($elementsWithEvent as $element) {
+                $element->removeAttribute($attr);
+            }
+        }
+
+        // Remove noscript tags
+        $noscripts = $dom->getElementsByTagName('noscript');
+        $noscriptsToRemove = [];
+        foreach ($noscripts as $noscript) {
+            $noscriptsToRemove[] = $noscript;
+        }
+        foreach ($noscriptsToRemove as $noscript) {
+            if ($noscript->parentNode) {
+                $noscript->parentNode->removeChild($noscript);
+            }
+        }
+
+        // Get the cleaned HTML
+        $cleanedHtml = $dom->saveHTML();
+
+        // Additional regex cleanup for any remaining inline styles or scripts
+        $cleanedHtml = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi', '', $cleanedHtml);
+        $cleanedHtml = preg_replace('/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/mi', '', $cleanedHtml);
+        $cleanedHtml = preg_replace('/style\s*=\s*["\'][^"\']*["\']/', '', $cleanedHtml);
+        $cleanedHtml = preg_replace('/on\w+\s*=\s*["\'][^"\']*["\']/', '', $cleanedHtml);
+
+        return $cleanedHtml;
     }
 
     /**
@@ -304,13 +583,17 @@ class HelpMate_Chat_Helpers
         // Add chat history if session_id is provided and exists
         if (!empty($session_id)) {
             try {
-                $chat_history = $this->database->get_chat_history_data($session_id, 10);
+                $chat_history = $this->database->get_chat_history_data($session_id, 6);
 
                 if (!empty($chat_history)) {
                     foreach ($chat_history as $message) {
+                        $assistant_message = isset(json_decode($message['message'], true)['text']) ? json_decode($message['message'], true) : null;
+                        $context = isset(json_decode($message['metadata'], true)['rag_context']) ? json_decode($message['metadata'], true)['rag_context'] : '';
                         $messages[] = [
                             'role' => $message['role'],
-                            'content' => $message['message']
+                            'content' => $assistant_message ? $assistant_message['text'] . "\n\n[Tool Used: " . $assistant_message['type'] . "]" : (isset($context) ? '[RAG Context: ' . $context . '] User Asked: ' : '') . $message['message'],
+                            'timestamp' => $message['timestamp'],
+                            'id' => $message['id']
                         ];
                     }
                 }
@@ -318,6 +601,33 @@ class HelpMate_Chat_Helpers
                 $session_id = '';
             }
         }
+
+        // Sort messages using the same logic as the React component
+        usort($messages, function ($a, $b) {
+            // First sort by timestamp
+            $a_timestamp = isset($a['timestamp']) ? $a['timestamp'] : 0;
+            $b_timestamp = isset($b['timestamp']) ? $b['timestamp'] : 0;
+
+            $time_diff = $a_timestamp - $b_timestamp;
+            if ($time_diff !== 0) {
+                return $time_diff;
+            }
+
+            // If same timestamp, user messages should come before assistant messages
+            if (isset($a['role']) && isset($b['role'])) {
+                if ($a['role'] === 'user' && $b['role'] === 'assistant') {
+                    return -1;
+                }
+                if ($a['role'] === 'assistant' && $b['role'] === 'user') {
+                    return 1;
+                }
+            }
+
+            // If same role, sort by ID
+            $a_id = isset($a['id']) ? $a['id'] : 0;
+            $b_id = isset($b['id']) ? $b['id'] : 0;
+            return $a_id - $b_id;
+        });
 
         return $messages;
     }
@@ -337,15 +647,15 @@ class HelpMate_Chat_Helpers
     {
         // Store messages with the session_id
         try {
-            // Store user message
-            $user_message_id = $this->database->store_chat_message($session_id, $prompt, 'user', [
+            $metadata[] = [
                 'timestamp' => time()
-            ]);
+            ];
+            // Store user message
+            $user_message_id = $this->database->store_chat_message($session_id, $prompt, 'user', $metadata);
             // Store assistant response
             $assistant_message_id = $this->database->store_chat_message($session_id, $assistant_response, 'assistant', [
                 'timestamp' => time(),
                 'tokens' => $response->usage->totalTokens ?? null,
-                'metadata' => $metadata
             ]);
         } catch (Exception $e) {
             $user_message_id = false;

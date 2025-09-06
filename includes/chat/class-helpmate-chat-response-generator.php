@@ -47,7 +47,7 @@ class HelpMate_Chat_Response_Generator
      * @access   private
      * @var      float    $temperature    The temperature.
      */
-    private $temperature = 0.7;
+    private $temperature = 0;
 
     /**
      * Initialize the class and set its properties.
@@ -98,7 +98,10 @@ class HelpMate_Chat_Response_Generator
         $language = $this->helpmate->get_settings()->get_setting('ai')['language'];
 
         if (empty($custom_system_message)) {
-            $custom_system_message = 'You are ' . $chatbot_name . ', a ' . $tone . ', highly knowledgeable and efficient website assistant for "' . $website_title . '". You exist ONLY on this website and must never reference or suggest anything outside it. Always respond in ' . $language . '.';
+            $custom_system_message = 'You are ' . $chatbot_name . ', a ' . $tone . ', highly knowledgeable and efficient website assistant for "' . $website_title . '". You exist ONLY on this website and must never reference or suggest anything outside it.';
+            if ($language) {
+                $custom_system_message .= ' Always respond in ' . $language . '.';
+            }
         }
 
         $timestamp = time();
@@ -182,7 +185,8 @@ class HelpMate_Chat_Response_Generator
                     'type' => 'text',
                     'text' => $data['message']
                 ],
-                'session_id' => $session_id
+                'session_id' => $session_id,
+                'rag_context' => isset($data['rag_context']) ? $data['rag_context'] : ''
             ];
         }
 
@@ -201,7 +205,8 @@ class HelpMate_Chat_Response_Generator
 
             return [
                 'response' => $reply,
-                'session_id' => $session_id
+                'session_id' => $session_id,
+                'rag_context' => isset($data['rag_context']) ? $data['rag_context'] : ''
             ];
         } else {
             return [
@@ -209,7 +214,8 @@ class HelpMate_Chat_Response_Generator
                     'type' => 'text',
                     'text' => $data['message']
                 ],
-                'session_id' => $session_id
+                'session_id' => $session_id,
+                'rag_context' => isset($data['rag_context']) ? $data['rag_context'] : ''
             ];
         }
     }
@@ -267,7 +273,7 @@ class HelpMate_Chat_Response_Generator
     {
         $modules = $this->helpmate->get_settings()->get_setting('modules') ?? [];
         $modules_in_use = [];
-        if (isset($modules['image-search']) && !$modules['image-search']) {
+        if (isset($modules['image-search']) && !$modules['image-search'] && !$this->helpmate->is_woocommerce_active()) {
             $modules_in_use[] = 'show_image_search';
         }
         if (isset($modules['ticket-system']) && !$modules['ticket-system']) {
@@ -281,6 +287,10 @@ class HelpMate_Chat_Response_Generator
         }
         if (isset($modules['coupon-delivery']) && !$modules['coupon-delivery']) {
             $modules_in_use[] = 'show_coupon_delivery';
+        }
+        if (!$this->helpmate->is_woocommerce_active()) {
+            $modules_in_use[] = 'show_products';
+            $modules_in_use[] = 'show_products_by_keywords';
         }
         return $modules_in_use;
     }
@@ -297,9 +307,6 @@ class HelpMate_Chat_Response_Generator
             if (isset($data['tool_results']) && !empty($data['tool_results'])) {
                 $tool = $data['tool_results'][0]['tool_name'];
                 switch ($tool) {
-                    case 'show_faq_options':
-                        $data['tool_results'][0]['result'] = $this->helpmate->get_general_tools()->show_faq_options();
-                        break;
                     case 'show_ticket_options':
                         $data['tool_results'][0]['result'] = $this->helpmate->get_ticket()->show_ticket_options();
                         break;

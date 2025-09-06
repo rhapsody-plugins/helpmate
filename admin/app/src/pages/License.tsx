@@ -1,8 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { LicenseChangeConfirmationDialog } from '@/components/LicenseChangeConfirmationDialog';
 import { useLicense } from '@/hooks/useLicense';
-import { HelpmatePricingURL, HelpmateSignupURL, HelpmateURL } from '@/lib/constants';
+import {
+  HelpmatePricingURL,
+  HelpmateSignupURL,
+  HelpmateURL,
+} from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { Icon } from '@iconify/react';
 import { CrownIcon, HandCoins } from 'lucide-react';
@@ -69,6 +74,7 @@ export default function License({
     claimCreditsMutation,
   } = useLicense();
   const [licenseKey, setLicenseKey] = useState('');
+  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
 
   const { data: licenseData, isPending: isLicensePending } = licenseQuery;
   const { mutate: syncCredits, isPending: isFeatureUsagePending } =
@@ -89,6 +95,20 @@ export default function License({
 
   // Get first credit type for the circular progress (or fallback)
   const mainCredit = licenseData?.local_credits;
+
+  const handleLicenseChange = () => {
+    if (licenseData?.license_key) {
+      // Show confirmation dialog for existing license
+      setShowConfirmationDialog(true);
+    } else {
+      // Direct activation for new license
+      activateLicense(licenseKey);
+    }
+  };
+
+  const handleConfirmLicenseChange = () => {
+    activateLicense(licenseKey);
+  };
 
   return (
     <div className="min-h-[30vh] flex flex-col justify-between">
@@ -122,7 +142,7 @@ export default function License({
                       className="!border-input !rounded-md focus-visible:!border-ring focus-visible:!ring-ring/50 focus-visible:!ring-[3px]"
                     />
                     <Button
-                      onClick={() => activateLicense(licenseKey)}
+                      onClick={handleLicenseChange}
                       disabled={isActivateLicensePending}
                       className="bg-green-500 hover:bg-green-600"
                     >
@@ -185,96 +205,100 @@ export default function License({
             </div>
             {/* Right column */}
             {licenseData?.product_slug === 'helpmate-free' && (
-                <>
-                  <div className="flex flex-col justify-center items-center h-full text-center divide-y divide-gray-200">
-                    {!licenseData?.signup_credits ? (
-                      <div className="flex flex-col flex-1 justify-center items-center p-8 w-full">
-                        <h2 className="mb-4 !text-2xl font-semibold !text-muted-foreground max-w-sm">
-                          Get 200 Free Chat Credits Just for Signing Up – It's
-                          That Simple!
-                        </h2>
+              <>
+                <div className="flex flex-col justify-center items-center h-full text-center divide-y divide-gray-200">
+                  {!licenseData?.signup_credits ? (
+                    <div className="flex flex-col flex-1 justify-center items-center p-8 w-full">
+                      <h2 className="mb-4 !text-2xl font-semibold !text-muted-foreground max-w-sm">
+                        Get 200 Free Chat Credits Just for Signing Up – It's
+                        That Simple!
+                      </h2>
+                      <Button
+                        size="lg"
+                        onClick={() =>
+                          window.open(
+                            `${HelpmateSignupURL}?customer_id=${licenseData?.customer_id}&license_key=${licenseData?.license_key}`,
+                            '_blank'
+                          )
+                        }
+                      >
+                        Claim My Free Credits <HandCoins className="!w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col flex-1 justify-center items-center p-8 w-full">
+                      <h3 className="mb-4 !text-xl !font-medium !text-muted-foreground max-w-sm">
+                        Increase your sales by upgrading to a Pro Plan.
+                      </h3>
+                      <Button
+                        size="lg"
+                        onClick={() =>
+                          window.open(HelpmatePricingURL, '_blank')
+                        }
+                      >
+                        Upgrade to Pro <CrownIcon className="!w-3" />
+                      </Button>
+                    </div>
+                  )}
+                  {!licenseData?.social_credits && (
+                    <div className="flex flex-col flex-1 justify-center items-center p-8 w-full">
+                      <h3 className="mb-4 !text-xl !font-medium !text-muted-foreground max-w-sm">
+                        You Help Us Grow, We Reward You: 100 Credits for Sharing
+                      </h3>
+                      <div className="flex gap-2">
                         <Button
-                          size="lg"
-                          onClick={() =>
+                          variant="secondary"
+                          size="icon"
+                          onClick={() => {
+                            claimCreditsMutation.mutate();
                             window.open(
-                              `${HelpmateSignupURL}?customer_id=${licenseData?.customer_id}&license_key=${licenseData?.license_key}`,
+                              `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                                HelpmateURL
+                              )}`,
                               '_blank'
-                            )
-                          }
+                            );
+                          }}
                         >
-                          Claim My Free Credits <HandCoins className="!w-3" />
+                          <Icon icon="simple-icons:facebook" />
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          onClick={() => {
+                            claimCreditsMutation.mutate();
+                            window.open(
+                              `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+                                HelpmateURL
+                              )}&text=${encodeURIComponent(
+                                'Check out this amazing WooCommerce AI chatbot plugin!'
+                              )}`,
+                              '_blank'
+                            );
+                          }}
+                        >
+                          <Icon icon="simple-icons:x" />
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          onClick={() => {
+                            claimCreditsMutation.mutate();
+                            window.open(
+                              `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+                                HelpmateURL
+                              )}`,
+                              '_blank'
+                            );
+                          }}
+                        >
+                          <Icon icon="simple-icons:linkedin" />
                         </Button>
                       </div>
-                    ) : (
-                      <div className="flex flex-col flex-1 justify-center items-center p-8 w-full">
-                        <h3 className="mb-4 !text-xl !font-medium !text-muted-foreground max-w-sm">
-                          Increase your sales by upgrading to a Pro Plan.
-                        </h3>
-                        <Button
-                          size="lg"
-                          onClick={() =>
-                            window.open(
-                              HelpmatePricingURL,
-                              '_blank'
-                            )
-                          }
-                        >
-                          Upgrade to Pro <CrownIcon className="!w-3" />
-                        </Button>
-                      </div>
-                    )}
-                    {!licenseData?.social_credits && (
-                      <div className="flex flex-col flex-1 justify-center items-center p-8 w-full">
-                        <h3 className="mb-4 !text-xl !font-medium !text-muted-foreground max-w-sm">
-                          You Help Us Grow, We Reward You: 100 Credits for
-                          Sharing
-                        </h3>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            onClick={() => {
-                              claimCreditsMutation.mutate();
-                              window.open(
-                                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(HelpmateURL)}`,
-                                '_blank'
-                              );
-                            }}
-                          >
-                            <Icon icon="simple-icons:facebook" />
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            onClick={() => {
-                              claimCreditsMutation.mutate();
-                              window.open(
-                                `https://twitter.com/intent/tweet?url=${encodeURIComponent(HelpmateURL)}&text=${encodeURIComponent('Check out this amazing WooCommerce AI chatbot plugin!')}`,
-                                '_blank'
-                              );
-                            }}
-                          >
-                            <Icon icon="simple-icons:x" />
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            onClick={() => {
-                              claimCreditsMutation.mutate();
-                              window.open(
-                                `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(HelpmateURL)}`,
-                                '_blank'
-                              );
-                            }}
-                          >
-                            <Icon icon="simple-icons:linkedin" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -283,6 +307,20 @@ export default function License({
           ← Go Back
         </Button>
       </div>
+
+      <LicenseChangeConfirmationDialog
+        open={showConfirmationDialog}
+        onOpenChange={setShowConfirmationDialog}
+        onConfirm={handleConfirmLicenseChange}
+        onUpgrade={() =>
+          licenseData?.product_slug === 'helpmate-free'
+            ? window.open(
+                `${HelpmateSignupURL}?customer_id=${licenseData?.customer_id}&license_key=${licenseData?.license_key}`,
+                '_blank'
+              )
+            : window.open(HelpmatePricingURL, '_blank')
+        }
+      />
     </div>
   );
 }

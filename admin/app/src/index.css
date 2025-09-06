@@ -286,6 +286,21 @@ h3.tiptap-heading + h2.tiptap-heading {
   margin-bottom: 0.5rem;
 }
 
+@-webkit-keyframes flip {
+  0% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: rotateX(90deg);
+    opacity: 0;
+  }
+  100% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+}
+
 @keyframes flip {
   0% {
     transform: rotateX(0deg);
@@ -302,5 +317,6 @@ h3.tiptap-heading + h2.tiptap-heading {
 }
 
 .animate-flip {
-  animation: flip 0.6s ease-in-out;
+  -webkit-animation: flip 0.6s ease-in-out;
+          animation: flip 0.6s ease-in-out;
 }

@@ -4,8 +4,8 @@ import { ChatHeader } from '@/components/chat/ChatHeader';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { ChatMessages } from '@/components/chat/ChatMessages';
 import { ChatToggleButton } from '@/components/chat/ChatToggleButton';
-import { WelcomeMessagePopup } from '@/components/WelcomeMessagePopup';
 import LeadCollection from '@/components/LeadCollection';
+import { WelcomeMessagePopup } from '@/components/WelcomeMessagePopup';
 import { useTheme } from '@/context/ThemeContext';
 import { useAi } from '@/hooks/useAi';
 import { useSettings } from '@/hooks/useSettings';
@@ -18,7 +18,7 @@ import {
   storeMessages,
 } from '@/utils/message-storage';
 import type React from 'react';
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export default function ChatBot() {
   const { icon_shape } = useTheme();
@@ -272,11 +272,6 @@ export default function ChatBot() {
     sendMessage(message);
   }, []);
 
-  // Handle FAQ question click
-  const handleQuestionClick = useCallback((question: string) => {
-    sendMessage(question);
-  }, []);
-
   // Handle welcome popup close
   const handleWelcomePopupClose = useCallback(() => {
     setShowWelcomePopup(false);
@@ -439,7 +434,6 @@ export default function ChatBot() {
               <div className="overflow-y-auto flex-1 bg-neutral-100">
                 <ChatMessages
                   messages={messages}
-                  onQuestionClick={handleQuestionClick}
                   isTyping={isResponseLoading}
                 />
               </div>

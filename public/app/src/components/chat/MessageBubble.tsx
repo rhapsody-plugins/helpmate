@@ -3,25 +3,20 @@
 import { Avatar } from '@/components/chat/Avatar';
 import { ContactForm } from '@/components/chat/ContactForm';
 import { Coupon } from '@/components/chat/Coupon';
-import { FAQOptions } from '@/components/chat/FAQOptions';
 import { FormattedContent } from '@/components/chat/FormattedContent';
 import { Handover } from '@/components/chat/Handover';
 import { MessageActions } from '@/components/chat/MessageActions';
 import { ProductCarousel } from '@/components/chat/ProductCarousel';
 import { Ticket } from '@/components/chat/Ticket';
 import { useSettings } from '@/hooks/useSettings';
-import type { ChatMessage, FAQItem, HandoverData } from '@/types';
+import type { ChatMessage, HandoverData } from '@/types';
 import { useState } from 'react';
 
 interface MessageBubbleProps {
   message: ChatMessage;
-  onQuestionClick?: (question: string) => void;
 }
 
-export function MessageBubble({
-  message,
-  onQuestionClick,
-}: MessageBubbleProps) {
+export function MessageBubble({ message }: MessageBubbleProps) {
   const { getSettingsQuery } = useSettings();
   const { data: settings } = getSettingsQuery;
   const [updatedMessage, setUpdatedMessage] = useState<ChatMessage>(message);
@@ -120,13 +115,6 @@ export function MessageBubble({
                     onSubmit={handleContactFormSubmit}
                   />
                 )}
-
-              {updatedMessage.type === 'faq-options' && updatedMessage.data && (
-                <FAQOptions
-                  faqs={updatedMessage.data as FAQItem[]}
-                  onQuestionClick={onQuestionClick || (() => {})}
-                />
-              )}
 
               {updatedMessage.type === 'ticket' &&
                 updatedMessage.data &&

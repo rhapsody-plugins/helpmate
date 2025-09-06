@@ -67,7 +67,7 @@ class HelpMate_Document_Handler
      * @param string $title The title.
      * @param string $content The content.
      * @param string $vector The vector.
-     * @param string $documentType The document type. -- text, url, post, qa, file
+     * @param string $documentType The document type. -- text, url, post, qa, file, general
      * @param array $metadata The metadata.
      * @return bool
      */
@@ -128,7 +128,7 @@ class HelpMate_Document_Handler
      * Get indexed documents.
      *
      * @since 1.0.0
-     * @param string|WP_REST_Request $document_type The type of documents to retrieve. If null, returns all documents. -- text, url, post, qa, file
+     * @param string|WP_REST_Request $document_type The type of documents to retrieve. If null, returns all documents. -- text, url, post, qa, file, general
      * @return WP_REST_Response
      */
     public function get_indexed_documents($document_type = null)
@@ -238,10 +238,12 @@ class HelpMate_Document_Handler
         try {
             $vector = $this->chat->handle_embedding(['id' => $vector_id, 'title' => $title, 'content' => $content], 'update');
 
+            // error_log('Vector: ' . print_r($vector, true));
+
             if (empty($vector) || !isset($vector['data']) || !isset($vector['data']['id'])) {
                 return new WP_REST_Response([
                     'error' => true,
-                    'message' => $vector['message'] ?? __('Failed to update data', 'helpmate')
+                    'message' => $vector['message'] ?? __('Failed to update data. Try again.', 'helpmate')
                 ], 500);
             }
 

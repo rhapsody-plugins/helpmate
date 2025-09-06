@@ -1,20 +1,18 @@
 'use client';
 
-import { useRef, useEffect, useCallback } from 'react';
-import type { ChatMessage } from '@/types';
+import { Avatar } from '@/components/chat/Avatar';
 import { MessageBubble } from '@/components/chat/MessageBubble';
 import { TypingIndicator } from '@/components/chat/TypingIndicator';
-import { Avatar } from '@/components/chat/Avatar';
+import type { ChatMessage } from '@/types';
+import { useEffect, useRef } from 'react';
 
 interface ChatMessagesProps {
   messages: ChatMessage[];
-  onQuestionClick: (question: string) => void;
   isTyping?: boolean;
 }
 
 export function ChatMessages({
   messages,
-  onQuestionClick,
   isTyping = false,
 }: ChatMessagesProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -23,11 +21,6 @@ export function ChatMessages({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  // Memoize the question click handler
-  const handleQuestionClick = useCallback((question: string) => {
-    onQuestionClick(question);
-  }, [onQuestionClick]);
 
   return (
     <div className="overflow-y-auto p-4 pb-0 space-y-4 h-full">
@@ -38,11 +31,7 @@ export function ChatMessages({
       ) : (
         <>
           {messages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              onQuestionClick={handleQuestionClick}
-            />
+            <MessageBubble key={message.id} message={message} />
           ))}
           {isTyping && (
             <div className="flex items-start gap-2.5">

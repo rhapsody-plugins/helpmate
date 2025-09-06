@@ -35,7 +35,8 @@ interface HandoverProps {
 export function Handover({ handoverData, messageId, onSubmit }: HandoverProps) {
   const { getSettingsQuery } = useSettings();
   const settings = getSettingsQuery.data;
-  const showTicketCreationOption = settings?.settings?.show_ticket_creation_option;
+  const showTicketCreationOption =
+    settings?.settings?.show_ticket_creation_option;
   const { createTicket } = useTickets();
   const [isSubmitted, setIsSubmitted] = useState(
     handoverData.submitted || false
@@ -85,27 +86,27 @@ export function Handover({ handoverData, messageId, onSubmit }: HandoverProps) {
 
   return (
     <div className="my-2 space-y-2">
-      <p className="mb-1 text-xs text-slate-500">Select a option:</p>
       {handoverData.handover.map((handover, index) => (
-        <Button
-          key={index}
-          variant="outline"
-          size="sm"
-          className="justify-between px-3 py-2 w-full h-auto text-sm font-normal text-left"
-          onClick={() => handleHandoverClick(handover.title, handover.value)}
-        >
-          <span className="mr-2 truncate">
-            <span className="font-semibold">{handover.title}:</span>{' '}
-            {handover.value}
-          </span>
-          <ChevronRight size={16} className="flex-shrink-0 text-slate-400" />
-        </Button>
+        <>
+          <p className="mb-1 text-xs text-slate-500">Select a option:</p>
+          <Button
+            key={index}
+            variant="outline"
+            size="sm"
+            className="justify-between px-3 py-2 w-full h-auto text-sm font-normal text-left"
+            onClick={() => handleHandoverClick(handover.title, handover.value)}
+          >
+            <span className="mr-2 truncate">
+              <span className="font-semibold">{handover.title}:</span>{' '}
+              {handover.value}
+            </span>
+            <ChevronRight size={16} className="flex-shrink-0 text-slate-400" />
+          </Button>
+        </>
       ))}
       {showTicketCreationOption && (
         <>
-          <p className="mb-1 text-xs text-slate-500">
-            Or create a new ticket:
-          </p>
+          <p className="mb-1 text-xs text-slate-500">Create a new ticket:</p>
           {isSubmitted ? (
             <div className="overflow-hidden my-3 rounded-lg border">
               <div className="flex justify-between items-center p-3 border-b bg-slate-50">

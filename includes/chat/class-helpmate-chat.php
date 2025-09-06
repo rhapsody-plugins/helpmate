@@ -51,7 +51,7 @@ class HelpMate_Chat
      * @access   private
      * @var      float    $temperature    The temperature.
      */
-    private $temperature = 0.7;
+    private $temperature = 0;
 
     /**
      * The tone of the chat.
@@ -132,7 +132,7 @@ class HelpMate_Chat
             $result = $this->response_generator->generate_response($message, [], $session_id, $image_url, $product_id, $this->helpers);
 
             // Store the messages using helpers
-            $message_ids = $this->helpers->store_messages($result['session_id'], $message, json_encode($result['response']), (object) ['usage' => (object) ['totalTokens' => 0]], []);
+            $message_ids = $this->helpers->store_messages($result['session_id'], $message, json_encode($result['response']), (object) ['usage' => (object) ['totalTokens' => 0]], ['rag_context' => $result['rag_context']]);
 
             return new WP_REST_Response([
                 'error' => false,
@@ -287,6 +287,17 @@ class HelpMate_Chat
     public function url_content_to_text($request)
     {
         return $this->helpers->url_content_to_text($request);
+    }
+
+    /**
+     * Quick train homepage.
+     *
+     * @since 1.0.0
+     * @return WP_REST_Response The response.
+     */
+    public function quick_train_homepage()
+    {
+        return $this->helpers->quick_train_homepage();
     }
 
     /**

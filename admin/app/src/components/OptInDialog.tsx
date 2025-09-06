@@ -2,10 +2,9 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog';
 import { useDataSource } from '@/hooks/useDataSource';
 import { HelpmatePrivacyPolicyURL } from '@/lib/constants';
@@ -54,7 +53,7 @@ export function OptInDialog({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="!py-0 !my-0 text-left">{title}</DialogTitle>
-          <DialogDescription className="!py-0 !my-0 text-left">
+          <div className="!py-0 !my-0 text-left">
             <p className="mt-2 text-slate-600 dark:text-slate-300">
               We’re transparent about how your data is handled while ensuring
               you get the{' '}
@@ -127,7 +126,7 @@ export function OptInDialog({
                 </p>
               </section>
             </div>
-          </DialogDescription>
+          </div>
         </DialogHeader>
         <DialogFooter className="flex-col gap-2 sm:flex-row">
           <Button

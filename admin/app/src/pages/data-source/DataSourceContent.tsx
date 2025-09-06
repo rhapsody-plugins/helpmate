@@ -5,10 +5,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { OptInDialog } from '@/components/OptInDialog';
 import { useLicense } from '@/hooks/useLicense';
+import { useDataSource } from '@/hooks/useDataSource';
 import { HelpmateLoginURL, HelpmatePricingURL } from '@/lib/constants';
 import { MenuItem } from '@/types';
 import { RefreshCw } from 'lucide-react';
-import { Suspense, lazy, useMemo, useState } from 'react';
+import { Suspense, lazy, useMemo, useState, useEffect } from 'react';
 import { useConsent } from '@/contexts/ConsentContext';
 
 // Lazy load tab components
@@ -17,10 +18,13 @@ const TabUrl = lazy(() => import('@/pages/data-source/tabs/TabUrl'));
 const TabPost = lazy(() => import('@/pages/data-source/tabs/TabPost'));
 const TabQnA = lazy(() => import('@/pages/data-source/tabs/TabQnA'));
 const TabFile = lazy(() => import('@/pages/data-source/tabs/TabFile'));
+const TabGeneral = lazy(() => import('@/pages/data-source/tabs/TabGeneral'));
 
 export function DataSourceContent() {
   const { licenseQuery, syncCreditsMutation } = useLicense();
-  const [tab, setTab] = useState('WP Post');
+  const { getSourcesMutation } = useDataSource();
+  const [tab, setTab] = useState('Start Here');
+  const [hasGeneralContent, setHasGeneralContent] = useState(false);
   const {
     isConsentDialogOpen,
     setIsConsentDialogOpen,
@@ -34,32 +38,82 @@ export function DataSourceContent() {
   const MENU_ITEMS = useMemo<MenuItem[]>(
     () => [
       {
-        title: 'WP Post',
+        title: 'Start Here',
         status: true,
+      },
+      {
+        title: 'WP Posts',
+        status: hasGeneralContent,
       },
       {
         title: 'Text',
-        status: true,
+        status: hasGeneralContent,
       },
       {
         title: 'Url',
-        status: true,
+        status: hasGeneralContent,
       },
       {
         title: 'Q&A',
-        status: true,
+        status: hasGeneralContent,
       },
       {
         title: 'File',
-        status: true,
+        status: hasGeneralContent,
       },
     ],
-    []
+    [hasGeneralContent]
   );
+
+  // Check if general data source has content
+  useEffect(() => {
+    getSourcesMutation.mutate('general', {
+      onSuccess: (data) => {
+        const hasContent = Boolean(
+          data &&
+          data.length > 0 &&
+          data[0].content &&
+          data[0].content.trim().length > 0
+        );
+        setHasGeneralContent(hasContent);
+      },
+      onError: () => {
+        setHasGeneralContent(false);
+      },
+    });
+  }, []);
+
+  // Listen to general data changes from the mutation
+  useEffect(() => {
+    if (getSourcesMutation.data) {
+      const data = getSourcesMutation.data;
+      const hasContent = Boolean(
+        data &&
+        data.length > 0 &&
+        data[0].content &&
+        data[0].content.trim().length > 0
+      );
+      setHasGeneralContent(hasContent);
+    }
+  }, []);
+
+  // Handle tab change with validation
+  const handleTabChange = (newTab: string) => {
+    // Allow "Start Here" tab always
+    if (newTab === 'Start Here') {
+      setTab(newTab);
+      return;
+    }
+
+    // Only allow other tabs if general content exists
+    if (hasGeneralContent) {
+      setTab(newTab);
+    }
+  };
 
   return (
     <>
-      <Tabs className="gap-0" value={tab} onValueChange={setTab}>
+      <Tabs className="gap-0" value={tab} onValueChange={handleTabChange}>
         <PageHeader
           menuItems={MENU_ITEMS}
           title="Train Chatbot"
@@ -83,7 +137,7 @@ export function DataSourceContent() {
                           return (
                             <div key={i} className="min-w-[80px]">
                               <span className="flex gap-1 items-center text-xs leading-none">
-                                Trained: {spent}/{total}
+                                Trained Sources: {spent}/{total}
                                 <button
                                   className="p-0.5 text-gray-400 hover:text-primary-600 disabled:opacity-50"
                                   title="Sync Credits"
@@ -128,7 +182,8 @@ export function DataSourceContent() {
         />
         <TabsContent value={tab} className="p-6">
           <Suspense fallback={<PageSkeleton />}>
-            {tab === 'WP Post' && <TabPost />}
+            {tab === 'Start Here' && <TabGeneral setHasGeneralContent={setHasGeneralContent} />}
+            {tab === 'WP Posts' && <TabPost />}
             {tab === 'Text' && <TabText />}
             {tab === 'Url' && <TabUrl />}
             {tab === 'Q&A' && <TabQnA />}

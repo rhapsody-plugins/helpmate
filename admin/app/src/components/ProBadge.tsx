@@ -36,7 +36,7 @@ export function ProBadge({
       {topMessage && (
         <p
           className={cn(
-            'p-3 text-center rounded-lg text-md max-w-[400px]',
+            'p-3 text-center rounded-lg !text-base lg:!text-[16px] max-w-[400px]',
             messageBg
           )}
         >

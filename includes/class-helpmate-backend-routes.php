@@ -62,6 +62,12 @@ class HelpMate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
         ));
 
+        register_rest_route('helpmate/v1', '/quick-train-homepage', array(
+            'methods' => 'POST',
+            'callback' => fn() => $this->helpmate->get_chat()->quick_train_homepage(),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
+        ));
+
         register_rest_route('helpmate/v1', '/get-consent', array(
             'methods' => 'GET',
             'callback' => function () {
@@ -658,6 +664,32 @@ class HelpMate_Backend_Routes
                 'rest_base' => $post_type->rest_base,
             ];
         }
+
+        // Sort post types with product, page, post at the top
+        usort($formatted_post_types, function ($a, $b) {
+            $priority_order = ['product', 'page', 'post'];
+
+            $a_priority = array_search($a['name'], $priority_order);
+            $b_priority = array_search($b['name'], $priority_order);
+
+            // If both are in priority list, sort by priority order
+            if ($a_priority !== false && $b_priority !== false) {
+                return $a_priority - $b_priority;
+            }
+
+            // If only A is in priority list, A comes first
+            if ($a_priority !== false && $b_priority === false) {
+                return -1;
+            }
+
+            // If only B is in priority list, B comes first
+            if ($a_priority === false && $b_priority !== false) {
+                return 1;
+            }
+
+            // If neither is in priority list, sort alphabetically by name
+            return strcmp($a['name'], $b['name']);
+        });
 
         try {
             return new WP_REST_Response([

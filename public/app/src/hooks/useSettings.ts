@@ -33,6 +33,7 @@ export const useSettings = () => {
         coupon_collect_lead: false,
         welcome_message_sound: true,
         show_ticket_creation_option: true,
+        hide_on_mobile: false,
       },
     },
   });

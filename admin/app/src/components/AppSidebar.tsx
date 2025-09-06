@@ -134,6 +134,20 @@ export function AppSidebar() {
   const moduleItems: SidebarMenuItemType[] = useMemo(
     () => [
       {
+        label: 'Sales Notifications',
+        page: 'sales-notifications',
+        icon: <BellRing className="w-4 h-4" strokeWidth={1.5} />,
+        status: modules['sales-notifications'],
+        pro: true,
+      },
+      {
+        label: 'Promo Bar',
+        page: 'promo-banner',
+        icon: <ChangeSvgColor src={promoMegaphone} className="w-4 h-4" />,
+        status: modules['promo-banner'],
+        pro: true,
+      },
+      {
         label: 'Order Tracker',
         page: 'order-tracker',
         icon: <ChangeSvgColor src={truckLocation} className="w-4 h-4" />,
@@ -153,20 +167,6 @@ export function AppSidebar() {
         icon: <Rocket className="w-4 h-4" strokeWidth={1.5} />,
         status: modules['proactive-sales'],
         pro: isPro,
-      },
-      {
-        label: 'Sales Notifications',
-        page: 'sales-notifications',
-        icon: <BellRing className="w-4 h-4" strokeWidth={1.5} />,
-        status: modules['sales-notifications'],
-        pro: true,
-      },
-      {
-        label: 'Promo Bar',
-        page: 'promo-banner',
-        icon: <ChangeSvgColor src={promoMegaphone} className="w-4 h-4" />,
-        status: modules['promo-banner'],
-        pro: true,
       },
       {
         label: 'Coupon Delivery',

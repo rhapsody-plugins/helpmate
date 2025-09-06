@@ -13,7 +13,7 @@ export function FormattedContent({
 }: FormattedContentProps) {
   return (
     <div
-      className={`prose prose-sm max-w-none [&_*]:!text-inherit ${className}`}
+      className={`prose prose-sm max-w-none [&_*]:!text-inherit [&_a]:!text-primary ${className}`}
       style={{ fontSize: 'var(--font-size)', lineHeight: '1.2' }}
     >
       <ReactMarkdown>{content}</ReactMarkdown>

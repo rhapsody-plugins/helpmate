@@ -217,7 +217,7 @@ class HelpMate_Database
                 'validation_id' => '',
             ],
             'ai' => [
-                'temperature' => 0.7,
+                'temperature' => 0,
                 'tone' => 'friendly',
                 'language' => 'default',
                 'similarity_threshold' => 0.5,
@@ -225,10 +225,11 @@ class HelpMate_Database
             ],
             'behavior' => [
                 'welcome_message_sound' => true,
-                'welcome_message' => ['Need Help?'],
+                'welcome_message' => ['How can I help you today?'],
                 'show_ticket_creation_option' => true,
                 'collect_lead' => false,
                 'lead_form_fields' => ['name', 'email', 'message'],
+                'hide_on_mobile' => false,
                 'human_handover' => [
                     [
                         'enabled' => false,
@@ -269,7 +270,6 @@ class HelpMate_Database
                 'icon_size' => '60px',
                 'position' => 'right',
                 'icon_shape' => 'circle',
-                'hide_on_mobile' => false,
             ],
             'order_tracker' => [
                 'order_tracker_email_required' => true,

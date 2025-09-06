@@ -54,7 +54,7 @@ class HelpMate_Chat_Database
             ARRAY_A
         );
 
-        foreach ($messages as &$message) {
+        foreach ($messages as $message) {
             $message['metadata'] = json_decode($message['metadata'], true);
         }
 

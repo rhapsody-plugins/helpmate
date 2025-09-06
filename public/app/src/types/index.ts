@@ -269,6 +269,7 @@ export interface BotSettings {
     coupon_collect_lead: boolean;
     welcome_message_sound: boolean;
     show_ticket_creation_option: boolean;
+    hide_on_mobile: boolean;
   };
 }
 

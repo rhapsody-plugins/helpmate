@@ -248,7 +248,6 @@ class HelpMate_Frontend_Routes
             $salesNotifications = $this->helpmate->get_settings()->get_setting('sales_notifications') ?? [];
             $orderTracker = $this->helpmate->get_settings()->get_setting('order_tracker') ?? [];
             $modules = $this->helpmate->get_settings()->get_setting('modules') ?? [];
-            $aiSettings = $this->helpmate->get_settings()->get_setting('ai') ?? [];
             $behavior = $this->helpmate->get_settings()->get_setting('behavior') ?? [];
             $refundReturn = $this->helpmate->get_settings()->get_setting('refund_return') ?? [];
             $coupons = $this->helpmate->get_settings()->get_setting('coupons') ?? [];
@@ -259,6 +258,9 @@ class HelpMate_Frontend_Routes
                 $settings['refund_return_reasons'] = $refundReturn['reasons'];
             }
 
+            if (isset($behavior['hide_on_mobile'])) {
+                $settings['hide_on_mobile'] = $behavior['hide_on_mobile'];
+            }
             if (isset($behavior['collect_lead'])) {
                 $settings['collect_lead'] = $behavior['collect_lead'];
             }

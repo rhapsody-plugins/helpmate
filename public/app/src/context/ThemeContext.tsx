@@ -36,7 +36,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (getSettingsQuery.data) {
-      const { customization } = getSettingsQuery.data;
+      const { customization, settings } = getSettingsQuery.data;
       const {
         primary_color,
         primary_gradient,
@@ -49,8 +49,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
         icon_shape,
         sound_effect,
         bot_name,
-        hide_on_mobile,
       } = customization;
+      const { hide_on_mobile } = settings;
       const host = document.querySelector('#helpmate-root');
       if (host) {
         (host as HTMLElement).style.setProperty(

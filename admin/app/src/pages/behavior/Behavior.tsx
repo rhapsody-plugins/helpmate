@@ -36,6 +36,7 @@ const formSchema = z
     show_ticket_creation_option: z.boolean(),
     collect_lead: z.boolean(),
     lead_form_fields: z.array(z.string()),
+    hide_on_mobile: z.boolean(),
   })
   .refine(
     (data) => {
@@ -80,6 +81,7 @@ export default function Behavior() {
       show_ticket_creation_option: true,
       collect_lead: false,
       lead_form_fields: ['name', 'email', 'message'],
+      hide_on_mobile: false,
     },
     resolver: zodResolver(formSchema),
     mode: 'onChange',
@@ -227,6 +229,27 @@ export default function Behavior() {
                   </div>
                 ) : (
                   <>
+                    <Separator />
+
+                    <FormField
+                      control={form.control}
+                      name="hide_on_mobile"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="!flex gap-1 items-center !my-0">
+                            Hide on Mobile
+                            <InfoTooltip message="The chatbot will be hidden on screen under 768px." />
+                          </FormLabel>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
                     <Separator />
 
                     <div className="space-y-6">

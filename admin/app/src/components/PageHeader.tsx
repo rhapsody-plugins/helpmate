@@ -21,18 +21,20 @@ export default function PageHeader({
         <>
           <ChevronRight className="!w-4 !h-4 opacity-50" />
           <TabsList className="bg-transparent">
-            {menuItems.map(
-              (item) =>
-                item.status && (
-                  <TabsTrigger
-                    key={item.title}
-                    value={item.title}
-                    className="bg-transparent text-muted-foreground !font-semibold !shadow-none border-b-2 border-b-border rounded-none data-[state=active]:text-primary data-[state=active]:border-b-primary"
-                  >
-                    {item.title}
-                  </TabsTrigger>
-                )
-            )}
+            {menuItems.map((item) => (
+              <TabsTrigger
+                key={item.title}
+                value={item.title}
+                disabled={!item.status}
+                className={`bg-transparent !font-semibold !shadow-none border-b-2 border-b-border rounded-none data-[state=active]:text-primary data-[state=active]:border-b-primary ${
+                  item.status
+                    ? 'text-muted-foreground'
+                    : 'text-muted-foreground/50 cursor-not-allowed opacity-50'
+                }`}
+              >
+                {item.title}
+              </TabsTrigger>
+            ))}
           </TabsList>
         </>
       )}

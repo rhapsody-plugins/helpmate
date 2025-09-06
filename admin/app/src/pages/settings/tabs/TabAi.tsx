@@ -90,7 +90,7 @@ export default function TabAi() {
     th: { name: 'Thai' }
   };
 
-  const { mutate: getSettings, isPending: isFetching } = getSettingsMutation;
+  const { mutate: getSettings, data: getSettingsData, isPending: isFetching } = getSettingsMutation;
   const { mutate: updateSettings, isPending: isUpdating } =
     updateSettingsMutation;
 
@@ -134,6 +134,7 @@ export default function TabAi() {
     const submitData = {
       ...data,
       language: data.language === 'default' ? '' : data.language,
+      consent: getSettingsData?.consent,
     };
     updateSettings({ key: 'ai', data: submitData });
   };

@@ -22,7 +22,6 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
 import { useSettings } from '@/hooks/useSettings';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PlayIcon } from 'lucide-react';
@@ -52,7 +51,6 @@ const formSchema = z.object({
   icon_size: z.string(),
   position: z.string(),
   icon_shape: z.string(),
-  hide_on_mobile: z.boolean(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -78,7 +76,6 @@ export default function TabWidget() {
       icon_size: '60px',
       position: 'right',
       icon_shape: 'circle',
-      hide_on_mobile: false,
     },
     resolver: zodResolver(formSchema),
   });
@@ -475,22 +472,6 @@ export default function TabWidget() {
                                 />
                               </div>
                             }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="hide_on_mobile"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Hide on Mobile</FormLabel>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
                           />
                         </FormControl>
                       </FormItem>

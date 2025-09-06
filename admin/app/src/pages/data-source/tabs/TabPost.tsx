@@ -189,7 +189,6 @@ export default function TabPost() {
         )}`,
         metadata: {
           post_id: post.id,
-          is_trained: false,
         },
       }));
 
@@ -284,9 +283,7 @@ export default function TabPost() {
             <div className="flex gap-1 items-center max-w-[200px] truncate">
               {titleText}
               {isDynamic && (
-                <span className="text-xs text-muted-foreground">
-                  (Dynamic)
-                </span>
+                <span className="text-xs text-muted-foreground">(Dynamic)</span>
               )}
             </div>
           );
@@ -343,9 +340,7 @@ export default function TabPost() {
             <div className="flex gap-1 items-center">
               {title}
               {isDynamic && (
-                <span className="text-xs text-muted-foreground">
-                  (Dynamic)
-                </span>
+                <span className="text-xs text-muted-foreground">(Dynamic)</span>
               )}
             </div>
           );
@@ -368,22 +363,6 @@ export default function TabPost() {
         },
       },
       {
-        accessorKey: 'metadata.is_trained',
-        header: 'Trained',
-        cell: ({ row }) => {
-          const { metadata } = row.original;
-          const parsedMetadata = JSON.parse(metadata as unknown as string);
-          return (
-            <div
-              className="max-w-[150px] truncate"
-              title={parsedMetadata.is_trained ? 'Yes' : 'No'}
-            >
-              {parsedMetadata.is_trained ? 'Yes' : 'No'}
-            </div>
-          );
-        },
-      },
-      {
         accessorKey: 'last_updated',
         header: 'Last Updated',
         cell: ({ row }) => {
@@ -400,15 +379,13 @@ export default function TabPost() {
           const isRemoving = removingPostId === row.original.id;
           return (
             <div className="flex gap-2 justify-end">
-              {parsedMetadata.is_trained === true && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleContentDisplay(row.original.id)}
-                >
-                  See Trained Data
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleContentDisplay(row.original.id)}
+              >
+                See Trained Data
+              </Button>
               <Button
                 variant="destructive"
                 size="sm"
@@ -490,7 +467,7 @@ export default function TabPost() {
                     setSelectedRows([]);
                   }}
                 >
-                  {addIsPending ? 'Adding...' : 'Add Selected'}
+                  {addIsPending ? 'Training...' : 'Train Selected'}
                 </Button>
               </>
             }
@@ -556,7 +533,8 @@ export default function TabPost() {
             {isDynamicContent(selectedPostContent) && (
               <div className="p-3 mb-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800">
-                  <strong>Dynamic Content Detected:</strong> {getDynamicContentExplanation(selectedPostContent)}
+                  <strong>Dynamic Content Detected:</strong>{' '}
+                  {getDynamicContentExplanation(selectedPostContent)}
                 </p>
               </div>
             )}
@@ -573,7 +551,6 @@ export default function TabPost() {
           </div>
         </SheetContent>
       </Sheet>
-
     </div>
   );
 }

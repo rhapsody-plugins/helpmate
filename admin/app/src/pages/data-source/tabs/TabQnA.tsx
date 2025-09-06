@@ -32,7 +32,6 @@ const formSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, 'Title is required'),
   content: z.string().min(1, 'Content is required'),
-  show: z.boolean().optional(),
   show_as_quick_option: z.boolean().optional(),
 });
 
@@ -72,7 +71,6 @@ export default function TabQnA() {
       id: undefined,
       title: '',
       content: '',
-      show: true,
       show_as_quick_option: false,
     },
     resolver: zodResolver(formSchema),
@@ -105,7 +103,6 @@ export default function TabQnA() {
           vector: prevData?.vector,
           metadata: {
             ...metadata,
-            show: data.show,
             show_as_quick_option: data.show_as_quick_option,
           },
           last_updated: Math.floor(Date.now() / 1000),
@@ -117,7 +114,6 @@ export default function TabQnA() {
               id: undefined,
               title: '',
               content: '',
-              show: true,
               show_as_quick_option: false,
             });
             // Refetch table data after successful update
@@ -138,7 +134,6 @@ export default function TabQnA() {
           title: data.title,
           content: data.content,
           metadata: {
-            show: data.show,
             show_as_quick_option: data.show_as_quick_option,
           },
         };
@@ -149,7 +144,6 @@ export default function TabQnA() {
               id: undefined,
               title: '',
               content: '',
-              show: true,
               show_as_quick_option: false,
             });
             // Refetch table data after successful add
@@ -197,7 +191,6 @@ export default function TabQnA() {
           id: String(source.id),
           title: source.title,
           content: source.content,
-          show: metadata.show ?? false,
           show_as_quick_option: metadata.show_as_quick_option ?? false,
         };
 
@@ -233,20 +226,7 @@ export default function TabQnA() {
           return format(new Date(timestamp * 1000), 'PPpp');
         },
       },
-      {
-        id: 'show',
-        header: 'Show in FAQs',
-        cell: ({ row }) => {
-          const metadata = row.original.metadata
-            ? JSON.parse(row.original.metadata as unknown as string)
-            : {};
-          return (
-            <div className={`font-medium ${metadata.show ? 'text-green-600' : 'text-red-600'}`}>
-              {metadata.show ? 'True' : 'False'}
-            </div>
-          );
-        },
-      },
+
       {
         id: 'show_as_quick_option',
         header: 'Quick Option',
@@ -347,25 +327,7 @@ export default function TabQnA() {
                   </FormItem>
                 )}
               />
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="show"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row justify-between items-center p-2 h-9 rounded-md border border-input">
-                      <div className="flex gap-2 items-center">
-                        <FormLabel>Show in FAQs</FormLabel>
-                        <InfoTooltip message="If asked for FAQs AI will show a list where this item will be included." />
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+              <div className="grid grid-cols-1 gap-4">
                 <FormField
                   control={form.control}
                   name="show_as_quick_option"
