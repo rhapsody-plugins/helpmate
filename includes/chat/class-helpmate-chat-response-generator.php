@@ -193,9 +193,9 @@ class HelpMate_Chat_Response_Generator
         if (isset($data['status']) && $data['status'] == 'success') {
             if (isset($data['tool_results']) && !empty($data['tool_results'])) {
                 $reply = json_decode($data['tool_results'][0]['result']);
-                if (isset($data['response']['message']) && !empty($data['response']['message'])) {
-                    $reply->text = $data['response']['message'];
-                }
+                // if (isset($data['response']['message']) && !empty($data['response']['message'])) {
+                //     $reply->text = $data['response']['message'];
+                // }
             } else {
                 $reply = [
                     'type' => 'text',

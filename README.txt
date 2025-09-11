@@ -214,6 +214,17 @@ If you want to contribute, go to our [Helpmate GitHub Repository](https://github
 
 ---
 
+**External Service**
+
+This plugin connects to an API to do following things.
+- Verify license
+- Store documents uploaded by you in a vector database
+- Process AI chat
+
+This service is provided by "RhapsodyPlugins LLC": [terms of use](https://rhapsodyplugins.com/terms-of-use/), [privacy policy](https://rhapsodyplugins.com/privacy-policy/).
+
+---
+
 == Installation Requirements ==
 
 = Minimum Requirements =

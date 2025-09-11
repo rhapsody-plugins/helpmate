@@ -29,7 +29,8 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH'))
+	exit;
 
 class HelpMate
 {
@@ -207,6 +208,24 @@ class HelpMate
 	private $general_tools;
 
 	/**
+	 * The background processor instance.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      HelpMate_Background_Processor    $background_processor    The background processor instance.
+	 */
+	private $background_processor;
+
+	/**
+	 * The job tracker instance.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      HelpMate_Job_Tracker    $job_tracker    The job tracker instance.
+	 */
+	private $job_tracker;
+
+	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -222,11 +241,7 @@ class HelpMate
 		} else {
 			$this->version = '1.0.0';
 		}
-		if (defined('HELPMATE_BASENAME')) {
-			$this->plugin_name = HELPMATE_BASENAME;
-		} else {
-			$this->plugin_name = 'helpmate';
-		}
+		$this->plugin_name = 'helpmate';
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -247,6 +262,10 @@ class HelpMate
 
 		$this->document_handler = new HelpMate_Document_Handler($this->license, $this->chat);
 		$this->woocommerce = new HelpMate_WooCommerce($this->settings);
+
+		// Initialize background processing
+		$this->job_tracker = new HelpMate_Job_Tracker();
+		$this->background_processor = new HelpMate_Background_Processor($this->document_handler, $this->chat, $this->job_tracker);
 
 		$this->backend_routes = new HelpMate_Backend_Routes($this);
 		$this->frontend_routes = new HelpMate_Frontend_Routes($this);
@@ -311,6 +330,8 @@ class HelpMate
 			'includes/modules/class-helpmate-sales-notification.php',
 			'includes/modules/class-helpmate-ticket.php',
 			'includes/modules/class-helpmate-woocommerce.php',
+			'includes/class-helpmate-background-processor.php',
+			'includes/class-helpmate-job-tracker.php',
 		);
 
 		foreach ($required_files as $file) {
@@ -357,7 +378,7 @@ class HelpMate
 	 */
 	private function define_admin_hooks()
 	{
-		$plugin_admin = new HelpMate_Admin();
+		$plugin_admin = new HelpMate_Admin($this->get_plugin_name(), $this->get_version());
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_media');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
@@ -600,6 +621,28 @@ class HelpMate
 	public function get_general_tools()
 	{
 		return $this->general_tools;
+	}
+
+	/**
+	 * Get the background processor instance.
+	 *
+	 * @since 1.0.0
+	 * @return HelpMate_Background_Processor The background processor instance.
+	 */
+	public function get_background_processor()
+	{
+		return $this->background_processor;
+	}
+
+	/**
+	 * Get the job tracker instance.
+	 *
+	 * @since 1.0.0
+	 * @return HelpMate_Job_Tracker The job tracker instance.
+	 */
+	public function get_job_tracker()
+	{
+		return $this->job_tracker;
 	}
 
 	/**

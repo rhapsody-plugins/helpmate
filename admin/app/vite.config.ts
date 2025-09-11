@@ -9,6 +9,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), tailwindcss()],
     base: env.VITE_ENVIRONMENT === 'dev' ? '/wp-content/plugins/helpmate/admin/app/' : '',
+    publicDir: false,
     server: {
       cors: true,
       headers: {

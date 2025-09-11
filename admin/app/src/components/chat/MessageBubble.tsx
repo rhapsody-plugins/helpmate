@@ -233,7 +233,7 @@ export function MessageBubble({
                           Users Message:
                         </span>
                         <span className="text-sm font-normal">
-                          {messages[index + 1]?.content}
+                          {messages[index - 1]?.content}
                         </span>
                       </div>
                       <FormField

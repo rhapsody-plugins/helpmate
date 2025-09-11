@@ -170,17 +170,6 @@ class HelpMate_Security
     }
 
     /**
-     * Disable the plugin.
-     */
-    private function disable_plugin()
-    {
-        deactivate_plugins('helpmate/helpmate.php');
-        add_action('admin_notices', function () {
-            echo '<div class="error"><p>' . esc_html__('Helpmate has been disabled due to security concerns. Please contact support.', 'helpmate') . '</p></div>';
-        });
-    }
-
-    /**
      * Send a security alert.
      *
      * @param string $type The event type.

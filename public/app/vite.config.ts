@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
       env.VITE_ENVIRONMENT === 'dev'
         ? '/wp-content/plugins/helpmate/public/app/'
         : '/wp-content/plugins/helpmate/public/app/dist/',
+    publicDir: false,
     server: {
       cors: true,
       headers: {

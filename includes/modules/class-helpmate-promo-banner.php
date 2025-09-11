@@ -601,9 +601,6 @@ class HelpMate_Promo_Banner
         // Add inline script
         wp_add_inline_script('helpmate-promo-banner', $script_data);
 
-        // Add direct script tag as fallback
-        echo '<script type="text/javascript">' . wp_kses($script_data, array()) . '</script>';
-
         // Generate banner HTML
         $position_class = isset($metadata['position']) ? 'helpmate-promo-banner-' . esc_attr($metadata['position']) : 'helpmate-promo-banner-top';
         $sticky_class = isset($metadata['sticky_bar']) && $metadata['sticky_bar'] ? 'helpmate-promo-banner-sticky' : '';

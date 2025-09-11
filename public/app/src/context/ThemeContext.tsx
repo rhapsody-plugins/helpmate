@@ -26,7 +26,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkMobile = () => {
       const userAgentIsMobile = /Mobi|Android|iPhone|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent);
-      const widthIsMobile = window.innerWidth <= 768;
+      const widthIsMobile = window.innerWidth <= 600;
       setIsMobile(userAgentIsMobile || widthIsMobile);
     };
     checkMobile();

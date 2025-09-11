@@ -238,7 +238,7 @@ export default function Behavior() {
                         <FormItem>
                           <FormLabel className="!flex gap-1 items-center !my-0">
                             Hide on Mobile
-                            <InfoTooltip message="The chatbot will be hidden on screen under 768px." />
+                            <InfoTooltip message="The chatbot will be hidden on screen under 600px." />
                           </FormLabel>
                           <FormControl>
                             <Switch

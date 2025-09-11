@@ -142,28 +142,47 @@ class HelpMate_Public
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/helpmate-public.js', array('jquery'), $this->version, false);
 
 		// Localize the script with WordPress nonce
-		wp_localize_script($this->plugin_name, 'wpHelpmateApiSettings', array(
+		wp_localize_script($this->plugin_name, 'helpmateApiSettings', array(
 			'nonce' => wp_create_nonce('wp_rest'),
 			'site_url' => get_site_url()
 		));
-
-		// Localize the sale popup script
-		wp_localize_script($this->plugin_name, 'SalePopupAjax', [
-			'ajax_url' => admin_url('admin-ajax.php'),
-		]);
 
 		$this->promo_banner->enqueue_assets();
 
 		$is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV;
 
+		// Prepare configuration data
+		$vite_app_url = plugin_dir_url(__FILE__) . 'app/';
+		$dist_dir = plugin_dir_path(__FILE__) . 'app/dist/assets/';
+
+		$js_files = glob($dist_dir . 'index-*.js');
+		$css_files = glob($dist_dir . 'index-*.css');
+
+		$latest_js = !empty($js_files) ? basename(end($js_files)) : '';
+		$latest_css = !empty($css_files) ? basename(end($css_files)) : '';
+
+		// Localize configuration data
+		wp_localize_script($this->plugin_name, 'helpmateConfig', array(
+			'isDev' => $is_dev,
+			'viteAppUrl' => $vite_app_url,
+			'latestJs' => $latest_js,
+			'latestCss' => $latest_css,
+			'cssUrl' => $vite_app_url . 'dist/assets/' . $latest_css,
+			'jsUrl' => $vite_app_url . 'dist/assets/' . $latest_js
+		));
+
+		// Enqueue the shadow DOM setup script first
+		wp_enqueue_script(
+			$this->plugin_name . '-shadow-dom',
+			plugin_dir_url(__FILE__) . 'js/helpmate-shadow-dom.js',
+			array(),
+			$this->version,
+			true
+		);
+
 		if (!$is_dev) {
 			// Production mode - load compiled JS
-			$vite_app_url = plugin_dir_url(__FILE__) . 'app/';
-			$dist_dir = plugin_dir_path(__FILE__) . 'app/dist/assets/';
-			$js_files = glob($dist_dir . 'index-*.js');
-
 			if (!empty($js_files)) {
-				$latest_js = basename(end($js_files));
 				wp_enqueue_script(
 					$this->plugin_name . '-public-vite',
 					$vite_app_url . 'dist/assets/' . $latest_js,
@@ -171,18 +190,26 @@ class HelpMate_Public
 					$this->version,
 					false
 				);
+				add_filter('wp_script_attributes', array($this, 'add_type_attribute'), 10, 1);
+
 			}
 		}
 
-		add_filter('script_loader_tag', 'add_type_attribute', 10, 3);
-		function add_type_attribute($tag, $handle, $src)
-		{
-			if (HELPMATE_BASENAME . '-public-vite' !== $handle) {
-				return $tag;
-			}
-			return '<script type="module" src="' . esc_url($src) . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+	}
+
+	/**
+	 * Add the type attribute to the Vite script.
+	 *
+	 * @since    1.0.0
+	 */
+	public function add_type_attribute($attributes)
+	{
+		// Only do this for a specific script.
+		if (isset($attributes['id']) && $attributes['id'] === $this->plugin_name . '-public-vite-js') {
+			$attributes['type'] = 'module';
 		}
 
+		return $attributes;
 	}
 
 	/**

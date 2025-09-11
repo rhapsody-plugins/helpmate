@@ -10,11 +10,6 @@
  * @subpackage HelpMate/includes
  */
 
-// Include the separated class files
-require_once plugin_dir_path(__FILE__) . 'class-helpmate-chat-database.php';
-require_once plugin_dir_path(__FILE__) . 'class-helpmate-chat-response-generator.php';
-require_once plugin_dir_path(__FILE__) . 'class-helpmate-chat-helpers.php';
-
 /**
  * The chat functionality of the plugin.
  *
@@ -31,6 +26,11 @@ require_once plugin_dir_path(__FILE__) . 'class-helpmate-chat-helpers.php';
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
+
+// Include the separated class files
+require_once plugin_dir_path(__FILE__) . 'class-helpmate-chat-database.php';
+require_once plugin_dir_path(__FILE__) . 'class-helpmate-chat-response-generator.php';
+require_once plugin_dir_path(__FILE__) . 'class-helpmate-chat-helpers.php';
 
 class HelpMate_Chat
 {
@@ -204,11 +204,12 @@ class HelpMate_Chat
      * @since 1.0.0
      * @param array $prompt The prompt.
      * @param string $type The type of embedding.
+     * @param string $feature_slug The feature slug.
      * @return array The embedding.
      */
-    public function handle_embedding($prompt, $type)
+    public function handle_embedding($prompt, $type, $feature_slug = 'data_source')
     {
-        return $this->helpers->handle_embedding($prompt, $type);
+        return $this->helpers->handle_embedding($prompt, $type, $feature_slug);
     }
 
     /**

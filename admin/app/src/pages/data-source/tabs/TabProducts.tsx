@@ -3,13 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { BulkProcessingCard } from '@/components/shared/BulkProcessingCard';
 import { ContentDisplaySheet } from '@/components/shared/ContentDisplaySheet';
 import { isDynamicContent, getDynamicContentExplanation } from '@/components/shared/ContentUtils';
@@ -22,17 +15,14 @@ import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useConsent } from '@/contexts/ConsentContext';
 import { toast } from 'sonner';
 
-
-export default function TabPost() {
-  const [posts, setPosts] = useState<WordPressPost[]>([]);
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [postTypes, setPostTypes] = useState<string[]>([]);
-  const [addingPostId, setAddingPostId] = useState<number | null>(null);
-  const [removingPostId, setRemovingPostId] = useState<number | null>(null);
+export default function TabProducts() {
+  const [products, setProducts] = useState<WordPressPost[]>([]);
+  const [addingProductId, setAddingProductId] = useState<number | null>(null);
+  const [removingProductId, setRemovingProductId] = useState<number | null>(null);
   const [selectedRows, setSelectedRows] = useState<WordPressPost[]>([]);
   const [selectedRowsSaved, setSelectedRowsSaved] = useState<DataSource[]>([]);
   const [isContentSheetOpen, setIsContentSheetOpen] = useState(false);
-  const [selectedPostContent, setSelectedPostContent] = useState<string>('');
+  const [selectedProductContent, setSelectedProductContent] = useState<string>('');
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
   const [activeBulkJobId, setActiveBulkJobId] = useState<string | null>(null);
@@ -40,7 +30,6 @@ export default function TabPost() {
 
   const { requestConsent } = useConsent();
   const {
-    getPostTypesQuery,
     getPostsMutation,
     getSourcesMutation,
     removeSourceMutation,
@@ -60,62 +49,48 @@ export default function TabPost() {
     removeSourceMutation;
   const { mutate: getPostsMutate, isPending: getPostsIsPending } =
     getPostsMutation;
-  const { data: postTypesData } = getPostTypesQuery;
   const { data: bulkJobsData, refetch: refetchBulkJobs } = getBulkJobsQuery;
   const { mutate: cancelBulkJobMutate } = cancelBulkJobMutation;
   const { mutate: deleteBulkJobMutate } = deleteBulkJobMutation;
 
-  const fetchPosts = useCallback(() => {
-    getPostsMutate(selectedType, {
+  const fetchProducts = useCallback(() => {
+    getPostsMutate('product', {
       onSuccess: (data) => {
         if (!data) return;
-        const formattedPosts = data.map((post: WordPressPost) => ({
-          id: post.id,
+        const formattedProducts = data.map((product: WordPressPost) => ({
+          id: product.id,
           title:
-            typeof post.title === 'string' ? post.title : post.title.rendered,
-          type: post.type,
-          status: post.status,
-          date: new Date(post.date).toLocaleDateString(),
-          author: post.author,
-          content: post.content,
-          metadata: post.metadata,
+            typeof product.title === 'string' ? product.title : product.title.rendered,
+          type: product.type,
+          status: product.status,
+          date: new Date(product.date).toLocaleDateString(),
+          author: product.author,
+          content: product.content,
+          metadata: product.metadata,
         }));
-        setPosts(formattedPosts);
+        setProducts(formattedProducts);
       },
     });
-  }, [selectedType, getPostsMutate]);
-
-  /*
-  ┌─────────────────────────────────────────────────────────────────────────────┐
-  │   Handlers                                                                  │
-  └─────────────────────────────────────────────────────────────────────────────┘
- */
+  }, [getPostsMutate]);
 
   useEffect(() => {
-    if (postTypesData) {
-      setPostTypes(postTypesData.map((type) => type.name));
-    }
-  }, [postTypesData]);
+    fetchProducts();
+  }, [fetchProducts]);
 
   useEffect(() => {
-    fetchPosts();
-  }, [selectedType]);
-
-  useEffect(() => {
-    fetchMutate('post');
+    fetchMutate('product');
   }, [fetchMutate]);
 
-  // Track active bulk jobs for posts only
+  // Track active bulk jobs for products only
   useEffect(() => {
     if (bulkJobsData) {
-
-      // Filter jobs by document_type='post'
-      const postJobs = bulkJobsData.filter(
-        (job) => job.documents?.document_type === 'post'
+      // Filter jobs by document_type='product'
+      const productJobs = bulkJobsData.filter(
+        (job) => job.documents?.document_type === 'product'
       );
 
-      // Find any job (active or completed) for posts that should be displayed
-      const displayJob = postJobs.find(
+      // Find any job (active or completed) for products that should be displayed
+      const displayJob = productJobs.find(
         (job) =>
           job.status === 'processing' ||
           job.status === 'scheduled' ||
@@ -125,7 +100,7 @@ export default function TabPost() {
       );
 
       // Check if any job just completed or failed and refresh the trained data
-      const finishedJob = postJobs.find(
+      const finishedJob = productJobs.find(
         (job) =>
           (job.status === 'completed' ||
             job.status === 'failed' ||
@@ -134,14 +109,12 @@ export default function TabPost() {
       );
 
       if (finishedJob && !refreshedJobsRef.current.has(finishedJob.job_id)) {
-        // Mark this job as refreshed to avoid multiple refreshes
         refreshedJobsRef.current.add(finishedJob.job_id);
-        // Refresh the trained data sources when a job finishes (success or failure)
-        fetchMutate('post');
+        fetchMutate('product');
       }
 
       // Also check for any recently finished jobs that might not match activeBulkJobId
-      const anyFinishedJob = postJobs.find(
+      const anyFinishedJob = productJobs.find(
         (job) =>
           (job.status === 'completed' ||
             job.status === 'failed' ||
@@ -155,7 +128,7 @@ export default function TabPost() {
         !refreshedJobsRef.current.has(anyFinishedJob.job_id)
       ) {
         refreshedJobsRef.current.add(anyFinishedJob.job_id);
-        fetchMutate('post');
+        fetchMutate('product');
       }
 
       // Only set activeBulkJobId if there's a job to display and we don't already have one set
@@ -170,7 +143,7 @@ export default function TabPost() {
     if (activeBulkJobId) {
       const interval = setInterval(() => {
         refetchBulkJobs();
-      }, 1500); // Poll every 1.5 seconds when job is active
+      }, 1500);
 
       return () => clearInterval(interval);
     }
@@ -178,78 +151,71 @@ export default function TabPost() {
 
   // Ensure bulk jobs query is always running
   useEffect(() => {
-    // Trigger initial fetch when component mounts
     refetchBulkJobs();
   }, [refetchBulkJobs]);
 
-  const handlePosts = useCallback(
-    (savedPosts: DataSource[] | undefined, posts: WordPressPost[]) => {
-      if (!posts) return [];
+  const handleProducts = useCallback(
+    (savedProducts: DataSource[] | undefined, products: WordPressPost[]) => {
+      if (!products) return [];
 
-      // If fetch is pending (refreshing trained data), don't filter out posts
-      // to prevent the brief empty state
       if (fetchIsPending) {
-        return posts;
+        return products;
       }
 
-      if (!savedPosts) return posts;
+      if (!savedProducts) return products;
 
-      const savedPostsIds = savedPosts.map(
-        (post) => JSON.parse(post.metadata as unknown as string).post_id
+      const savedProductIds = savedProducts.map(
+        (product) => JSON.parse(product.metadata as unknown as string).post_id
       );
 
-      const formattedPosts = posts.filter(
-        (post) => !savedPostsIds?.includes(post.id)
+      const formattedProducts = products.filter(
+        (product) => !savedProductIds?.includes(product.id)
       );
 
-      return formattedPosts;
+      return formattedProducts;
     },
     [fetchIsPending]
   );
 
   const handleAdd = useCallback(
     (ids: number | number[]) => {
-      const postIds = Array.isArray(ids) ? ids : [ids];
-      const postsToAdd = posts.filter((post) => postIds.includes(post.id));
+      const productIds = Array.isArray(ids) ? ids : [ids];
+      const productsToAdd = products.filter((product) => productIds.includes(product.id));
 
-      if (postsToAdd.length === 0) return;
+      if (productsToAdd.length === 0) return;
 
-      // Check if there's already an active job for posts
+      // Check if there's already an active job for products
       if (activeBulkJobId) {
-        toast.error('Cannot start new job: there is already an active post job');
+        toast.error('Cannot start new job: there is already an active product job');
         return;
       }
 
-      if (postIds.length === 1) {
-        setAddingPostId(postIds[0]);
+      if (productIds.length === 1) {
+        setAddingProductId(productIds[0]);
       }
 
-      // For bulk operations, send only post IDs and basic info
-      if (postIds.length > 1) {
-        const bulkDocuments = postsToAdd.map((post) => ({
-          document_type: 'post',
-          post_id: post.id,
-          post_type: post.type,
-          // Include minimal data for job tracking
+      // For bulk operations, send only product IDs and basic info
+      if (productIds.length > 1) {
+        const bulkDocuments = productsToAdd.map((product) => ({
+          document_type: 'product',
+          post_id: product.id,
+          post_type: product.type,
           title:
-            typeof post.title === 'string' ? post.title : post.title.rendered,
+            typeof product.title === 'string' ? product.title : product.title.rendered,
         }));
 
         addMutate(bulkDocuments, {
           onSuccess: (data) => {
-            setAddingPostId(null);
+            setAddingProductId(null);
 
-            // If this was a bulk operation, track the job and start polling
             if (data?.job_id) {
               setActiveBulkJobId(data.job_id);
-              // Immediately refetch to get the job data
               refetchBulkJobs();
             }
           },
           onError: (error) => {
-            setAddingPostId(null);
+            setAddingProductId(null);
 
-            // If consent is required, request it through the context
             if (error.message === 'CONSENT_REQUIRED') {
               requestConsent(() => handleAdd(ids));
             }
@@ -259,74 +225,71 @@ export default function TabPost() {
       }
 
       // For single document, use the original approach
-      const documentsToAdd = postsToAdd.map((post) => ({
-        document_type: 'post',
+      const documentsToAdd = productsToAdd.map((product) => ({
+        document_type: 'product',
         title:
-          typeof post.title === 'string' ? post.title : post.title.rendered,
-        content: `${post.content || ''}\n\nMetadata:\n${JSON.stringify(
-          post.metadata,
+          typeof product.title === 'string' ? product.title : product.title.rendered,
+        content: `${product.content || ''}\n\nMetadata:\n${JSON.stringify(
+          product.metadata,
           null,
           2
         )}`,
         metadata: {
-          post_id: post.id,
+          post_id: product.id,
         },
       }));
 
       addMutate(documentsToAdd, {
         onSuccess: (data) => {
-          setAddingPostId(null);
+          setAddingProductId(null);
 
-          // If this was a bulk operation, track the job and start polling
           if (
             Array.isArray(documentsToAdd) &&
             documentsToAdd.length > 1 &&
             data?.job_id
           ) {
             setActiveBulkJobId(data.job_id);
-            // Immediately refetch to get the job data
             refetchBulkJobs();
           }
         },
         onError: (error) => {
-          setAddingPostId(null);
+          setAddingProductId(null);
 
-          // If consent is required, request it through the context
           if (error.message === 'CONSENT_REQUIRED') {
             requestConsent(() => handleAdd(ids));
           }
         },
       });
     },
-    [addMutate, posts, activeBulkJobId]
+    [addMutate, products, activeBulkJobId]
   );
 
   const handleRemove = useCallback(
     (ids: number | number[]) => {
-      const postIds = Array.isArray(ids) ? ids : [ids];
+      const productIds = Array.isArray(ids) ? ids : [ids];
       const sourcesToRemove = fetchData?.filter((source) =>
-        postIds.includes(
+        productIds.includes(
           JSON.parse(source.metadata as unknown as string).post_id
         )
       );
 
       if (!sourcesToRemove || sourcesToRemove.length === 0) return;
 
-      if (postIds.length === 1) {
-        setRemovingPostId(postIds[0]);
+      if (productIds.length === 1) {
+        setRemovingProductId(productIds[0]);
       }
 
       removeMutate(
         {
           ids: sourcesToRemove?.map((source) => source.id) || [],
-          type: 'post',
+          type: 'product',
         },
         {
           onSuccess: () => {
-            setRemovingPostId(null);
+            setRemovingProductId(null);
           },
           onError: () => {
-            setRemovingPostId(null);
+            setRemovingProductId(null);
           },
         }
       );
@@ -336,9 +299,9 @@ export default function TabPost() {
 
   const handleContentDisplay = useCallback(
     (id: number) => {
-      const post = fetchData?.find((p) => p.id === id);
-      if (post) {
-        setSelectedPostContent(post.content);
+      const product = fetchData?.find((p) => p.id === id);
+      if (product) {
+        setSelectedProductContent(product.content);
         setIsContentSheetOpen(true);
       }
     },
@@ -372,7 +335,6 @@ export default function TabPost() {
     }
   }, [activeBulkJobId, deleteBulkJobMutate]);
 
-
   const columns = useMemo<ColumnDef<WordPressPost>[]>(
     () => [
       {
@@ -384,7 +346,7 @@ export default function TabPost() {
           return featured_image ? (
             <img
               src={featured_image}
-              alt="Image"
+              alt="Product Image"
               className="w-10 h-10 rounded"
             />
           ) : (
@@ -429,7 +391,7 @@ export default function TabPost() {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => {
-          const isAdding = addingPostId === row.original.id;
+          const isAdding = addingProductId === row.original.id;
           return (
             <div className="flex gap-2 justify-end">
               <Button
@@ -445,7 +407,7 @@ export default function TabPost() {
         },
       },
     ],
-    [handleAdd, addIsPending, addingPostId]
+    [handleAdd, addIsPending, addingProductId]
   );
 
   const savedColumns = useMemo<ColumnDef<DataSource>[]>(
@@ -468,7 +430,7 @@ export default function TabPost() {
       },
       {
         accessorKey: 'metadata.post_id',
-        header: 'Post ID',
+        header: 'Product ID',
         cell: ({ row }) => {
           const { metadata } = row.original;
           const parsedMetadata = JSON.parse(metadata as unknown as string);
@@ -496,7 +458,7 @@ export default function TabPost() {
         cell: ({ row }) => {
           const { metadata } = row.original;
           const parsedMetadata = JSON.parse(metadata as unknown as string);
-          const isRemoving = removingPostId === row.original.id;
+          const isRemoving = removingProductId === row.original.id;
           return (
             <div className="flex gap-2 justify-end">
               <Button
@@ -520,14 +482,9 @@ export default function TabPost() {
         },
       },
     ],
-    [handleRemove, removeIsPending]
+    [handleRemove, removeIsPending, removingProductId, handleContentDisplay]
   );
 
-  /*
-  ┌─────────────────────────────────────────────────────────────────────────────┐
-  │   Renders                                                                   │
-  └─────────────────────────────────────────────────────────────────────────────┘
- */
   return (
     <div className="flex flex-col gap-4">
       {/* Bulk Processing Progress */}
@@ -542,29 +499,16 @@ export default function TabPost() {
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="flex gap-1 items-center text-xl font-bold">
-                Posts & Pages{' '}
+                Products{' '}
                 <InfoTooltip
-                  message="Train your post and page data to Chatbot for better
-                reply"
+                  message="Train your product data to Chatbot for better
+                product recommendations and support"
                 />
               </CardTitle>
             </div>
             <div className="flex gap-2 items-center">
-              <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select post type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  {postTypes.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               <Input
-                placeholder="Search posts..."
+                placeholder="Search products..."
                 value={searchFilter}
                 onChange={(event) => setSearchFilter(event.target.value)}
                 className="max-w-sm"
@@ -575,7 +519,7 @@ export default function TabPost() {
         <CardContent>
           <ReusableTable
             columns={columns}
-            data={handlePosts(fetchData, posts)}
+            data={handleProducts(fetchData, products)}
             className="w-full"
             loading={getPostsIsPending}
             onSelectionChange={setSelectedRows}
@@ -606,10 +550,10 @@ export default function TabPost() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl font-bold">
-              Trained Data Sources
+              Trained Product Sources
             </CardTitle>
             <Input
-              placeholder="Search saved posts..."
+              placeholder="Search saved products..."
               value={searchFilterSaved}
               onChange={(event) => setSearchFilterSaved(event.target.value)}
               className="max-w-sm"
@@ -652,8 +596,8 @@ export default function TabPost() {
       <ContentDisplaySheet
         isOpen={isContentSheetOpen}
         onClose={() => setIsContentSheetOpen(false)}
-        content={selectedPostContent}
-        title="Trained Content"
+        content={selectedProductContent}
+        title="Trained Product Content"
         isDynamicContent={isDynamicContent}
         getDynamicContentExplanation={getDynamicContentExplanation}
       />

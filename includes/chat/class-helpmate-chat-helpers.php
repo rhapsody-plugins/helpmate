@@ -686,9 +686,10 @@ class HelpMate_Chat_Helpers
      * @since 1.0.0
      * @param array $prompt The prompt.
      * @param string $type The type of embedding create | update | delete.
+     * @param string $feature_slug The feature slug.
      * @return array The embedding.
      */
-    public function handle_embedding($prompt, $type)
+    public function handle_embedding($prompt, $type, $feature_slug = 'data_source')
     {
         try {
             $api_key = $GLOBALS['helpmate']->get_license()->get_api_key();
@@ -715,7 +716,7 @@ class HelpMate_Chat_Helpers
                     "api_key" => $api_key,
                     "signature" => $signature,
                     "embedding_type" => $type,
-                    "feature_slug" => 'data_source',
+                    "feature_slug" => $feature_slug,
                 ]),
                 'timeout' => 30,
             ]);

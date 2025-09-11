@@ -14,7 +14,8 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH'))
+    exit;
 
 class HelpMate_Database
 {
@@ -46,6 +47,7 @@ class HelpMate_Database
         $abandoned_carts_table = $wpdb->prefix . 'helpmate_abandoned_carts';
         $tickets_table = $wpdb->prefix . 'helpmate_tickets';
         $leads_table = $wpdb->prefix . 'helpmate_leads';
+        $jobs_table = $wpdb->prefix . 'helpmate_jobs';
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
@@ -187,6 +189,29 @@ class HelpMate_Database
         ) $charset_collate;";
         dbDelta($sql);
 
+        // Jobs table for background processing
+        $sql = "CREATE TABLE IF NOT EXISTS {$jobs_table} (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            job_id varchar(255) NOT NULL,
+            user_id bigint(20) NOT NULL,
+            total_documents int(11) NOT NULL DEFAULT 0,
+            processed_documents int(11) NOT NULL DEFAULT 0,
+            successful_documents int(11) NOT NULL DEFAULT 0,
+            failed_documents int(11) NOT NULL DEFAULT 0,
+            status varchar(50) NOT NULL DEFAULT 'scheduled',
+            documents longtext,
+            errors longtext,
+            created_at datetime NOT NULL,
+            updated_at datetime NOT NULL,
+            completed_at datetime NULL,
+            PRIMARY KEY (id),
+            UNIQUE KEY job_id (job_id),
+            KEY user_id (user_id),
+            KEY status (status),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+        dbDelta($sql);
+
         $this->initialize_default_module_settings();
     }
 
@@ -284,103 +309,33 @@ class HelpMate_Database
                         'refund_return_template_name' => 'Default Email Template',
                         'refund_return_email_subject' => 'Your Refund/Return Request',
                         'refund_return_email_body' => '
-                        <!DOCTYPE html>
-                        <html>
-                            <head>
-                                <meta charset="UTF-8">
-                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                <title>Refund/Return Request Update</title>
-                                <style>
-                                    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #ffffff; }
-                                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                                    .greeting { color: #666666; font-size: 16px; margin-bottom: 10px; text-align: center; }
-                                    .heading { color: #455CFE; font-size: 28px; font-weight: bold; margin-bottom: 20px; text-align: center; }
-                                    .description { color: #666666; font-size: 14px; line-height: 1.5; margin-bottom: 25px; text-align: center; }
-                                    .status-card {
-                                        background: #ffffff;
-                                        border-radius: 8px;
-                                        padding: 20px;
-                                        margin: 20px auto;
-                                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-                                        max-width: 400px;
-                                        border: 2px solid #455CFE;
-                                    }
-                                    .status-badge {
-                                        background: #455CFE;
-                                        color: white;
-                                        padding: 8px 16px;
-                                        border-radius: 20px;
-                                        display: inline-block;
-                                        font-weight: bold;
-                                        font-size: 14px;
-                                        margin-bottom: 15px;
-                                    }
-                                    .order-info {
-                                        background: #f8f9fa;
-                                        border-radius: 8px;
-                                        padding: 15px;
-                                        margin: 15px 0;
-                                        border-left: 4px solid #455CFE;
-                                    }
-                                    .order-id {
-                                        color: #455CFE;
-                                        font-weight: bold;
-                                        font-size: 16px;
-                                        margin-bottom: 5px;
-                                    }
-                                    .order-details {
-                                        color: #666666;
-                                        font-size: 14px;
-                                        line-height: 1.5;
-                                    }
-                                    .cta-button {
-                                        background: #455CFE;
-                                        color: white;
-                                        padding: 15px 30px;
-                                        text-decoration: none;
-                                        border-radius: 8px;
-                                        display: inline-block;
-                                        font-weight: bold;
-                                        margin-top: 25px;
-                                        text-align: center;
-                                    }
-                                    .cta-button:hover { background: #3748c7; }
-                                    .footer { margin-top: 30px; color: #999999; font-size: 12px; text-align: center; }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="container">
-                                    <div class="greeting">Hello {customer_name},</div>
-
-                                    <div class="heading">Refund/Return Request Update</div>
-
-                                    <div class="description">
-                                        We have an update regarding your refund/return request.<br>
-                                        Please review the details below:
-                                    </div>
-
-                                    <div class="status-card">
-                                        <div class="status-badge">{status}</div>
-                                        <div class="order-info">
-                                            <div class="order-id">Order ID: {order_id}</div>
-                                            <div class="order-details">
-                                                Your request has been processed and updated.<br>
-                                                If you have any questions, please contact our support team.
-                                            </div>
+                        <div style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #ffffff;">
+                            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                                <div style="color: #666666; font-size: 16px; margin-bottom: 10px; text-align: center;">Hello {customer_name},</div>
+                                <div style="color: #455CFE; font-size: 28px; font-weight: bold; margin-bottom: 20px; text-align: center;">Refund/Return Request Update</div>
+                                <div style="color: #666666; font-size: 14px; line-height: 1.5; margin-bottom: 25px; text-align: center;">
+                                    We have an update regarding your refund/return request.<br>
+                                    Please review the details below:
+                                </div>
+                                <div style="background: #ffffff; border-radius: 8px; padding: 20px; margin: 20px auto; box-shadow: 0 2px 6px rgba(0,0,0,0.08); max-width: 400px; border: 2px solid #455CFE;">
+                                    <div style="background: #455CFE; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; font-weight: bold; font-size: 14px; margin-bottom: 15px;">{status}</div>
+                                    <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin: 15px 0; border-left: 4px solid #455CFE;">
+                                        <div style="color: #455CFE; font-weight: bold; font-size: 16px; margin-bottom: 5px;">Order ID: {order_id}</div>
+                                        <div style="color: #666666; font-size: 14px; line-height: 1.5;">
+                                            Your request has been processed and updated.<br>
+                                            If you have any questions, please contact our support team.
                                         </div>
                                     </div>
-
-                                    <div style="text-align: center;">
-                                        <a href="{order_url}" class="cta-button">View Order</a>
-                                    </div>
-
-                                    <div class="footer">
-                                        Best regards,<br>
-                                        {shop_name}
-                                    </div>
                                 </div>
-                            </body>
-                        </html>',
+                                <div style="text-align: center;">
+                                    <a href="{order_url}" style="background: #455CFE; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; margin-top: 25px;">View Order</a>
+                                </div>
+                                <div style="margin-top: 30px; color: #999999; font-size: 12px; text-align: center;">
+                                    Best regards,<br>
+                                    {shop_name}
+                                </div>
+                            </div>
+                        </div>',
                     ]
                 ],
                 'reasons' => [
@@ -404,89 +359,29 @@ class HelpMate_Database
                         'abandoned_cart_template_name' => 'Default Email Template',
                         'abandoned_cart_email_subject' => 'You left something behind?',
                         'abandoned_cart_email_body' => '
-                        <!DOCTYPE html>
-                        <html>
-                            <head>
-                                <meta charset="UTF-8">
-                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                <title>Your Cart is Waiting</title>
-                                <style>
-                                    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #ffffff; }
-                                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                                    .greeting { color: #666666; font-size: 16px; margin-bottom: 10px; text-align: center; }
-                                    .heading { color: #455CFE; font-size: 28px; font-weight: bold; margin-bottom: 20px; text-align: center; }
-                                    .description { color: #666666; font-size: 14px; line-height: 1.5; margin-bottom: 25px; text-align: center; }
-                                            .product-card {
-                                        background: #ffffff;
-                                        border-radius: 8px;
-                                        padding: 12px;
-                                        margin: 10px auto;
-                                        display: flex;
-                                        align-items: center;
-                                        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-                                        max-width: 300px;
-                                    }
-                                    .cart-items-container {
-                                        margin: 20px 0;
-                                    }
-                                    .product-image {
-                                        width: 50px;
-                                        height: 50px;
-                                        border-radius: 6px;
-                                        margin-right: 12px;
-                                        overflow: hidden;
-                                        background: #f8f9fa url({product_image}) center center no-repeat;
-                                        background-size: cover;
-                                    }
-                                    .product-details { flex: 1; }
-                                    .product-name { font-weight: bold; color: #333333; font-size: 14px; margin-bottom: 3px; }
-                                    .product-color { color: #999999; font-size: 12px; margin-bottom: 3px; }
-                                    .product-price { color: #455CFE; font-weight: bold; font-size: 16px; }
-                                    .cta-button {
-                                        background: #455CFE;
-                                        color: white;
-                                        padding: 15px 30px;
-                                        text-decoration: none;
-                                        border-radius: 8px;
-                                        display: inline-block;
-                                        font-weight: bold;
-                                        margin-top: 25px;
-                                        text-align: center;
-                                    }
-                                    .cta-button:hover { background: #3748c7; }
-                                    .footer { margin-top: 30px; color: #999999; font-size: 12px; text-align: center; }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="container">
-                                    <div class="greeting">Hello {customer_name},</div>
-
-                                    <div class="heading">You left something behind?</div>
-
-                                    <div class="description">
-                                        Looks like you didn\'t get a chance to complete your order.<br>
-                                        Don\'t worry—we\'ve saved your cart for you.<br>
-                                        Here\'s what\'s waiting for you:
-                                    </div>
-
-                                    {cart_items}
-
-                                    <div style="text-align: center;">
-                                        <a href="{cart_url}" class="cta-button">View cart</a>
-                                    </div>
-
-                                    <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border: 2px dashed #455CFE;">
-                                        <div style="color: #455CFE; font-weight: bold; font-size: 16px; margin-bottom: 5px;">Special Offer!</div>
-                                        <div style="color: #666666; font-size: 14px;">Use coupon code: <strong style="color: #455CFE;">{coupon_code}</strong></div>
-                                    </div>
-
-                                    <div class="footer">
-                                        Best regards,<br>
-                                        {shop_name}
-                                    </div>
+                        <div style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #ffffff;">
+                            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                                <div style="color: #666666; font-size: 16px; margin-bottom: 10px; text-align: center;">Hello {customer_name},</div>
+                                <div style="color: #455CFE; font-size: 28px; font-weight: bold; margin-bottom: 20px; text-align: center;">You left something behind?</div>
+                                <div style="color: #666666; font-size: 14px; line-height: 1.5; margin-bottom: 25px; text-align: center;">
+                                    Looks like you didn\'t get a chance to complete your order.<br>
+                                    Don\'t worry—we\'ve saved your cart for you.<br>
+                                    Here\'s what\'s waiting for you:
                                 </div>
-                            </body>
-                        </html>',
+                                {cart_items}
+                                <div style="text-align: center;">
+                                    <a href="{cart_url}" style="background: #455CFE; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; margin-top: 25px;">View cart</a>
+                                </div>
+                                <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border: 2px dashed #455CFE;">
+                                    <div style="color: #455CFE; font-weight: bold; font-size: 16px; margin-bottom: 5px;">Special Offer!</div>
+                                    <div style="color: #666666; font-size: 14px;">Use coupon code: <strong style="color: #455CFE;">{coupon_code}</strong></div>
+                                </div>
+                                <div style="margin-top: 30px; color: #999999; font-size: 12px; text-align: center;">
+                                    Best regards,<br>
+                                    {shop_name}
+                                </div>
+                            </div>
+                        </div>',
                     ]
                 ],
             ],

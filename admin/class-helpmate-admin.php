@@ -29,6 +29,39 @@ class HelpMate_Admin
 {
 
 	/**
+	 * The ID of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      string    $plugin_name    The ID of this plugin.
+	 */
+	private $plugin_name;
+
+	/**
+	 * The version of this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      string    $version    The current version of this plugin.
+	 */
+	private $version;
+
+	/**
+	 * Initialize the class and set its properties.
+	 *
+	 * @since    1.0.0
+	 * @param      string    $plugin_name       The name of the plugin.
+	 * @param      string    $version    The version of this plugin.
+	 */
+	public function __construct($plugin_name, $version)
+	{
+
+		$this->plugin_name = $plugin_name;
+		$this->version = $version;
+
+	}
+
+	/**
 	 * Register the stylesheets for the admin area.
 	 *
 	 * @since    1.0.0
@@ -48,7 +81,7 @@ class HelpMate_Admin
 		 * class.
 		 */
 
-		wp_enqueue_style(HELPMATE_BASENAME, plugin_dir_url(__FILE__) . 'css/helpmate-admin.css', array(), HELPMATE_VERSION, 'all');
+		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/helpmate-admin.css', array(), $this->version, 'all');
 
 
 		// Check if we're on the HelpMate admin page
@@ -65,10 +98,10 @@ class HelpMate_Admin
 				if (!empty($css_files)) {
 					$latest_css = basename(end($css_files));
 					wp_enqueue_style(
-						HELPMATE_BASENAME . '-admin-vite',
+						$this->plugin_name . '-admin-vite',
 						$vite_app_url . 'dist/assets/' . $latest_css,
 						array(),
-						HELPMATE_VERSION,
+						$this->version,
 						'all'
 					);
 				}
@@ -97,10 +130,10 @@ class HelpMate_Admin
 		 * class.
 		 */
 
-		wp_enqueue_script(HELPMATE_BASENAME, plugin_dir_url(__FILE__) . 'js/helpmate-admin.js', array('jquery'), HELPMATE_VERSION, false);
+		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/helpmate-admin.js', array('jquery'), $this->version, false);
 
 		// Localize the script with WordPress nonce
-		wp_localize_script(HELPMATE_BASENAME, 'wpHelpmateApiSettings', array(
+		wp_localize_script($this->plugin_name, 'helpmateApiSettings', array(
 			'nonce' => wp_create_nonce('wp_rest'),
 			'site_url' => get_site_url()
 		));
@@ -120,31 +153,32 @@ class HelpMate_Admin
 				if (!empty($js_files)) {
 					$latest_js = basename(end($js_files));
 					wp_enqueue_script(
-						HELPMATE_BASENAME . '-admin-vite',
+						$this->plugin_name . '-admin-vite',
 						$vite_app_url . 'dist/assets/' . $latest_js,
 						array(),
-						HELPMATE_VERSION,
+						$this->version,
 						false
 					);
+					add_filter('wp_script_attributes', array($this, 'add_type_attribute'), 10, 1);
 				}
 			}
-
-			// Localize the script with WordPress nonce
-			wp_localize_script(HELPMATE_BASENAME, 'wpHelpmateApiSettings', array(
-				'nonce' => wp_create_nonce('wp_rest'),
-				'site_url' => get_site_url()
-			));
 		}
 
-		add_filter('script_loader_tag', 'add_type_attribute', 10, 3);
-		function add_type_attribute($tag, $handle, $src)
-		{
-			if (HELPMATE_BASENAME . '-admin-vite' !== $handle) {
-				return $tag;
-			}
-			return '<script type="module" src="' . esc_url($src) . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+	}
+
+	/**
+	 * Add the type attribute to the Vite script.
+	 *
+	 * @since    1.0.0
+	 */
+	public function add_type_attribute($attributes)
+	{
+		// Only do this for a specific script.
+		if (isset($attributes['id']) && $attributes['id'] === $this->plugin_name . '-admin-vite-js') {
+			$attributes['type'] = 'module';
 		}
 
+		return $attributes;
 	}
 
 	/**

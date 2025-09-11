@@ -30,14 +30,11 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip.tsx';
 import { useSettings } from '@/hooks/useSettings.ts';
-import {
-  HelpMateProWindowType,
-  HelpMateWindowType
-} from '@/types';
+import { HelpMateProWindowType, HelpMateWindowType } from '@/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom';
-import { createRoot } from 'react-dom/client';
+import { createRoot, Root } from 'react-dom/client';
 import * as reactHookForm from 'react-hook-form';
 import { toast } from 'sonner';
 import App from './App.tsx';
@@ -45,7 +42,7 @@ import './index.css';
 
 declare global {
   interface Window {
-    wpHelpmateApiSettings: {
+    helpmateApiSettings: {
       nonce: string;
       site_url: string;
     };
@@ -53,6 +50,7 @@ declare global {
     HelpMatePro: HelpMateProWindowType;
     helpmateShadowRoot: ShadowRoot;
     helpmateReactRoot: HTMLElement;
+    helpmateReactRootInstance?: Root;
   }
 }
 
@@ -99,13 +97,45 @@ window.HelpMate = {
   },
 };
 
-// Mount React app inside the existing shadow DOM
+// Function to mount React app
+function mountReactApp() {
+  if (window.helpmateReactRoot) {
+    // Check if root already exists
+    if (window.helpmateReactRootInstance) {
+      // Update existing root
+      window.helpmateReactRootInstance.render(
+        <StrictMode>
+          <App />
+        </StrictMode>
+      );
+    } else {
+      // Create new root
+      window.helpmateReactRootInstance = createRoot(window.helpmateReactRoot);
+      window.helpmateReactRootInstance.render(
+        <StrictMode>
+          <App />
+        </StrictMode>
+      );
+    }
+  } else {
+    console.error('HelpMate: React root not found in shadow DOM');
+  }
+}
+
+// Wait for shadow DOM to be ready
 if (window.helpmateReactRoot) {
-  createRoot(window.helpmateReactRoot).render(
-    <StrictMode>
-      <App />
-    </StrictMode>
-  );
+  // Shadow DOM already exists
+  mountReactApp();
 } else {
-  console.error('HelpMate: React root not found in shadow DOM');
+  // Wait for shadow DOM to be created
+  window.addEventListener('helpmate-shadow-ready', mountReactApp);
+
+  // Fallback timeout
+  setTimeout(() => {
+    if (window.helpmateReactRoot) {
+      mountReactApp();
+    } else {
+      console.error('HelpMate: Shadow DOM not ready after timeout');
+    }
+  }, 1000);
 }

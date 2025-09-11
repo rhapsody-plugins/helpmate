@@ -13,7 +13,7 @@
  * @package           Helpmate
  *
  * @wordpress-plugin
- * Plugin Name:       Helpmate
+ * Plugin Name:       Helpmate - AI Chatbot That Sells & Supports While You Sleep for WooCommerce
  * Plugin URI:        https://rhapsodyplugins.com/helpmate
  * Description:       Helpmate is an AI-powered WooCommerce chatbot that boosts sales, automates support, and engages customers 24/7 with smart, human-like chat.
  * Version:           1.0.0

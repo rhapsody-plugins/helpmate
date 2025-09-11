@@ -435,8 +435,7 @@ export default function TabGeneral({ setHasGeneralContent }: { setHasGeneralCont
 
                   {/* Additional Info */}
                   <p className="max-w-lg !text-base !my-0">
-                    <strong>Note:</strong> Train Products, Pages and Posts in WP
-                    Posts tab.
+                    <strong>Note:</strong> Train Products, Pages and Posts in their respective tabs.
                     <br /> You need to train as many as possible data to get
                     good results.
                   </p>

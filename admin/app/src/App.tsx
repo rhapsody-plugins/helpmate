@@ -32,7 +32,7 @@ declare global {
         };
       };
     };
-    wpHelpmateApiSettings: {
+    helpmateApiSettings: {
       nonce: string;
       site_url: string;
     };

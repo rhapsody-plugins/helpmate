@@ -328,6 +328,119 @@ class HelpMate_Backend_Routes
         ));
 
         /* --------------------------------------- */
+        /*      Background processing endpoints    */
+        /* --------------------------------------- */
+        register_rest_route('helpmate/v1', '/bulk-job-status/(?P<job_id>[a-zA-Z0-9_-]+)', array(
+            'methods' => 'GET',
+            'callback' => fn($request) => $this->get_bulk_job_status($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options'),
+            'args' => array(
+                'job_id' => array(
+                    'required' => true,
+                    'validate_callback' => function ($param) {
+                        return !empty($param) && preg_match('/^[a-zA-Z0-9_-]+$/', $param);
+                    }
+                )
+            )
+        ));
+
+        register_rest_route('helpmate/v1', '/bulk-job-cancel/(?P<job_id>[a-zA-Z0-9_-]+)', array(
+            'methods' => 'POST',
+            'callback' => fn($request) => $this->cancel_bulk_job($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options'),
+            'args' => array(
+                'job_id' => array(
+                    'required' => true,
+                    'validate_callback' => function ($param) {
+                        return !empty($param) && preg_match('/^[a-zA-Z0-9_-]+$/', $param);
+                    }
+                )
+            )
+        ));
+
+        register_rest_route('helpmate/v1', '/bulk-jobs', array(
+            'methods' => 'GET',
+            'callback' => fn($request) => $this->get_user_bulk_jobs($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options'),
+            'args' => array(
+                'page' => array(
+                    'default' => 1,
+                    'sanitize_callback' => 'absint',
+                    'validate_callback' => function ($param) {
+                        return is_numeric($param) && $param > 0;
+                    }
+                ),
+                'per_page' => array(
+                    'default' => 10,
+                    'sanitize_callback' => 'absint',
+                    'validate_callback' => function ($param) {
+                        return is_numeric($param) && $param > 0 && $param <= 100;
+                    }
+                )
+            )
+        ));
+
+        register_rest_route('helpmate/v1', '/background-processing-status', array(
+            'methods' => 'GET',
+            'callback' => fn() => $this->get_background_processing_status(),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
+        ));
+
+        register_rest_route('helpmate/v1', '/debug-job/(?P<job_id>[a-zA-Z0-9_-]+)', array(
+            'methods' => 'GET',
+            'callback' => fn($request) => $this->debug_job($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options'),
+            'args' => array(
+                'job_id' => array(
+                    'required' => true,
+                    'validate_callback' => function ($param) {
+                        return !empty($param) && preg_match('/^[a-zA-Z0-9_-]+$/', $param);
+                    }
+                )
+            )
+        ));
+
+        register_rest_route('helpmate/v1', '/manual-process-job/(?P<job_id>[a-zA-Z0-9_-]+)', array(
+            'methods' => 'POST',
+            'callback' => fn($request) => $this->manual_process_job($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options'),
+            'args' => array(
+                'job_id' => array(
+                    'required' => true,
+                    'validate_callback' => function ($param) {
+                        return !empty($param) && preg_match('/^[a-zA-Z0-9_-]+$/', $param);
+                    }
+                )
+            )
+        ));
+
+        register_rest_route('helpmate/v1', '/force-process-stuck-jobs', array(
+            'methods' => 'POST',
+            'callback' => fn() => $this->force_process_stuck_jobs(),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
+        ));
+
+        register_rest_route('helpmate/v1', '/cleanup-completed-jobs', array(
+            'methods' => 'POST',
+            'callback' => fn() => $this->cleanup_completed_jobs(),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
+        ));
+
+        register_rest_route('helpmate/v1', '/bulk-job-delete/(?P<job_id>[a-zA-Z0-9_-]+)', array(
+            'methods' => 'POST',
+            'callback' => fn($request) => $this->delete_bulk_job($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options'),
+            'args' => array(
+                'job_id' => array(
+                    'required' => true,
+                    'validate_callback' => function ($param) {
+                        return !empty($param) && preg_match('/^[a-zA-Z0-9_-]+$/', $param);
+                    }
+                )
+            )
+        ));
+
+        /* --------------------------------------- */
         /*                   Chat                  */
         /* --------------------------------------- */
 
@@ -575,11 +688,25 @@ class HelpMate_Backend_Routes
     {
         $post_type = $request->get_param('post_type');
 
-        $args = [
-            'post_type' => $post_type ? $post_type : get_post_types([
+        // If no post_type specified, get all public post types except products
+        if (!$post_type) {
+            $all_post_types = get_post_types([
                 'public' => true,
                 'show_in_rest' => true,
-            ], 'names'),
+            ], 'names');
+
+            // Filter out product-related post types
+            $post_types = array_filter($all_post_types, function($type) {
+                return $type !== 'product' &&
+                       !strpos($type, 'product') &&
+                       $type !== 'woocommerce';
+            });
+        } else {
+            $post_types = $post_type;
+        }
+
+        $args = [
+            'post_type' => $post_types,
             'post_status' => 'publish',
             'posts_per_page' => -1,
         ];
@@ -602,32 +729,133 @@ class HelpMate_Backend_Routes
             if ($post->post_type === 'product') {
                 $product = wc_get_product($post->ID);
                 if ($product) {
+                    // Get all product meta
+                    $product_meta = get_post_meta($post->ID);
+
+                    // Get product attributes
+                    $attributes = [];
+                    $product_attributes = $product->get_attributes();
+                    foreach ($product_attributes as $attribute) {
+                        $attributes[$attribute->get_name()] = [
+                            'name' => $attribute->get_name(),
+                            'options' => $attribute->get_options(),
+                            'visible' => $attribute->get_visible(),
+                            'variation' => $attribute->get_variation(),
+                        ];
+                    }
+
+                    // Get product gallery images
+                    $gallery_ids = $product->get_gallery_image_ids();
+                    $gallery_images = [];
+                    foreach ($gallery_ids as $gallery_id) {
+                        $gallery_images[] = wp_get_attachment_url($gallery_id);
+                    }
+
+                    // Get product tags
+                    $product_tags = wp_get_post_terms($post->ID, 'product_tag', ['fields' => 'names']);
+
+                    // Get product categories with full data
+                    $product_categories = wp_get_post_terms($post->ID, 'product_cat', ['fields' => 'all']);
+                    $categories_data = [];
+                    foreach ($product_categories as $category) {
+                        $categories_data[] = [
+                            'id' => $category->term_id,
+                            'name' => $category->name,
+                            'slug' => $category->slug,
+                            'description' => $category->description,
+                        ];
+                    }
+
                     $metadata['product'] = [
+                        // Basic product info
+                        'name' => $product->get_name(),
+                        'description' => $product->get_description(),
+                        'short_description' => $product->get_short_description(),
+                        'sku' => $product->get_sku(),
+                        'type' => $product->get_type(),
+
+                        // Pricing
                         'price' => $product->get_price(),
                         'regular_price' => $product->get_regular_price(),
                         'sale_price' => $product->get_sale_price(),
+                        'price_html' => $product->get_price_html(),
+
+                        // Stock
                         'stock_status' => $product->get_stock_status(),
                         'stock_quantity' => $product->get_stock_quantity(),
-                        'sku' => $product->get_sku(),
-                        'type' => $product->get_type(),
-                        'categories' => wp_get_post_terms($post->ID, 'product_cat', ['fields' => 'names']),
-                        'attributes' => $product->get_attributes(),
+                        'manage_stock' => $product->get_manage_stock(),
+                        'backorders' => $product->get_backorders(),
+
+                        // Status flags
                         'is_on_sale' => $product->is_on_sale(),
                         'is_featured' => $product->is_featured(),
                         'is_visible' => $product->is_visible(),
+                        'is_purchasable' => $product->is_purchasable(),
+                        'is_in_stock' => $product->is_in_stock(),
+                        'is_virtual' => $product->is_virtual(),
+                        'is_downloadable' => $product->is_downloadable(),
+
+                        // Ratings
                         'rating_count' => $product->get_rating_count(),
                         'average_rating' => $product->get_average_rating(),
+
+                        // Categories and tags
+                        'categories' => $categories_data,
+                        'tags' => $product_tags,
+
+                        // Attributes
+                        'attributes' => $attributes,
+
+                        // Images
+                        'gallery_images' => $gallery_images,
+
+                        // Dimensions and weight
+                        'weight' => $product->get_weight(),
+                        'dimensions' => [
+                            'length' => $product->get_length(),
+                            'width' => $product->get_width(),
+                            'height' => $product->get_height(),
+                        ],
+
+                        // Shipping
+                        'shipping_class' => $product->get_shipping_class(),
+                        'shipping_class_id' => $product->get_shipping_class_id(),
+
+                        // Sales
+                        'total_sales' => $product->get_total_sales(),
+                        'date_on_sale_from' => $product->get_date_on_sale_from(),
+                        'date_on_sale_to' => $product->get_date_on_sale_to(),
+
+                        // All product meta
+                        'meta' => $product_meta,
+
+                        // Additional WooCommerce data
+                        'cross_sell_ids' => $product->get_cross_sell_ids(),
+                        'upsell_ids' => $product->get_upsell_ids(),
+                        'related_ids' => wc_get_related_products($product->get_id()),
+                        'downloads' => $product->get_downloads(),
+                        'download_limit' => $product->get_download_limit(),
+                        'download_expiry' => $product->get_download_expiry(),
                     ];
                 }
             }
 
+            // For products, use product name and description as title and content
+            if ($post->post_type === 'product' && isset($metadata['product'])) {
+                $title = $metadata['product']['name'];
+                $content = $metadata['product']['description'] ?: $post->post_content;
+            } else {
+                $title = get_the_title($post);
+                $content = $post->post_content;
+            }
+
             $posts[] = [
                 'id' => $post->ID,
-                'title' => get_the_title($post),
+                'title' => $title,
                 'type' => $post->post_type,
                 'status' => $post->post_status,
                 'date' => $post->post_date,
-                'content' => $post->post_content,
+                'content' => $content,
                 'author' => get_the_author_meta('display_name', $post->post_author),
                 'metadata' => $metadata
             ];
@@ -650,7 +878,10 @@ class HelpMate_Backend_Routes
         ], 'objects');
 
         $post_types = array_filter($post_types, function ($post_type) {
-            return $post_type->name !== 'attachment';
+            return $post_type->name !== 'attachment' &&
+                   $post_type->name !== 'product' &&
+                   strpos($post_type->name, 'product') === false &&
+                   $post_type->name !== 'woocommerce';
         });
 
         $formatted_post_types = [];
@@ -665,9 +896,9 @@ class HelpMate_Backend_Routes
             ];
         }
 
-        // Sort post types with product, page, post at the top
+        // Sort post types with page, post at the top
         usort($formatted_post_types, function ($a, $b) {
-            $priority_order = ['product', 'page', 'post'];
+            $priority_order = ['page', 'post'];
 
             $a_priority = array_search($a['name'], $priority_order);
             $b_priority = array_search($b['name'], $priority_order);
@@ -747,6 +978,388 @@ class HelpMate_Backend_Routes
             return new WP_REST_Response([
                 'error' => false,
                 'products' => $discounted_products
+            ], 200);
+
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get bulk job status.
+     *
+     * @since 1.0.0
+     * @param WP_REST_Request $request The request object.
+     * @return WP_REST_Response
+     */
+    public function get_bulk_job_status($request)
+    {
+        $job_id = $request->get_param('job_id');
+
+        try {
+            $background_processor = $this->helpmate->get_background_processor();
+
+            if (!$background_processor) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Background processing not available'
+                ], 503);
+            }
+
+            $job = $background_processor->get_job_status($job_id);
+
+            if (!$job) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Job not found'
+                ], 404);
+            }
+
+            // Calculate progress percentage
+            $progress = $job['total_documents'] > 0
+                ? round(($job['processed_documents'] / $job['total_documents']) * 100, 2)
+                : 0;
+
+            $response = new WP_REST_Response([
+                'error' => false,
+                'job' => [
+                    'job_id' => $job['job_id'],
+                    'status' => $job['status'],
+                    'total_documents' => $job['total_documents'],
+                    'processed_documents' => $job['processed_documents'],
+                    'successful_documents' => $job['successful_documents'],
+                    'failed_documents' => $job['failed_documents'],
+                    'progress' => $progress,
+                    'created_at' => $job['created_at'],
+                    'updated_at' => $job['updated_at'],
+                    'completed_at' => $job['completed_at'],
+                    'errors' => $job['errors']
+                ],
+                'timestamp' => current_time('mysql')
+            ], 200);
+
+            // Add cache-busting headers
+            $response->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+            $response->header('Pragma', 'no-cache');
+            $response->header('Expires', '0');
+
+            return $response;
+
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Cancel bulk job.
+     *
+     * @since 1.0.0
+     * @param WP_REST_Request $request The request object.
+     * @return WP_REST_Response
+     */
+    public function cancel_bulk_job($request)
+    {
+        $job_id = $request->get_param('job_id');
+
+        try {
+            $background_processor = $this->helpmate->get_background_processor();
+
+            if (!$background_processor) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Background processing not available'
+                ], 503);
+            }
+
+            $success = $background_processor->cancel_job($job_id);
+
+            if (!$success) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Failed to cancel job'
+                ], 500);
+            }
+
+            return new WP_REST_Response([
+                'error' => false,
+                'message' => 'Job cancelled successfully'
+            ], 200);
+
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get user bulk jobs.
+     *
+     * @since 1.0.0
+     * @param WP_REST_Request $request The request object.
+     * @return WP_REST_Response
+     */
+    public function get_user_bulk_jobs($request)
+    {
+        $page = $request->get_param('page');
+        $per_page = $request->get_param('per_page');
+        $offset = ($page - 1) * $per_page;
+
+        try {
+            $job_tracker = $this->helpmate->get_job_tracker();
+            $jobs = $job_tracker->get_user_jobs(get_current_user_id(), $per_page, $offset);
+
+            // Calculate progress for each job
+            foreach ($jobs as &$job) {
+                $job['progress'] = $job['total_documents'] > 0
+                    ? round(($job['processed_documents'] / $job['total_documents']) * 100, 2)
+                    : 0;
+            }
+
+            $response = new WP_REST_Response([
+                'error' => false,
+                'jobs' => $jobs,
+                'pagination' => [
+                    'page' => $page,
+                    'per_page' => $per_page,
+                    'total' => count($jobs)
+                ],
+                'timestamp' => current_time('mysql') // Add timestamp for cache busting
+            ], 200);
+
+            // Add cache-busting headers
+            $response->header('Cache-Control', 'no-cache, no-store, must-revalidate');
+            $response->header('Pragma', 'no-cache');
+            $response->header('Expires', '0');
+
+            return $response;
+
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get background processing status.
+     *
+     * @since 1.0.0
+     * @return WP_REST_Response
+     */
+    public function get_background_processing_status()
+    {
+        try {
+            $background_processor = $this->helpmate->get_background_processor();
+
+            if (!$background_processor) {
+                return new WP_REST_Response([
+                    'error' => false,
+                    'available' => false,
+                    'message' => 'Background processing not available. Using WordPress cron fallback.'
+                ], 200);
+            }
+
+            $action_scheduler_available = $background_processor->is_action_scheduler_available();
+
+            return new WP_REST_Response([
+                'error' => false,
+                'available' => true,
+                'action_scheduler_available' => $action_scheduler_available,
+                'message' => $action_scheduler_available
+                    ? 'Action Scheduler is available for optimal performance.'
+                    : 'Using WordPress cron fallback. Install Action Scheduler plugin for better performance.'
+            ], 200);
+
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Debug job status and scheduling.
+     *
+     * @since 1.0.0
+     * @param WP_REST_Request $request The request object.
+     * @return WP_REST_Response
+     */
+    public function debug_job($request)
+    {
+        $job_id = $request->get_param('job_id');
+
+        try {
+            $background_processor = $this->helpmate->get_background_processor();
+
+            if (!$background_processor) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Background processing not available'
+                ], 503);
+            }
+
+            $debug_info = $background_processor->debug_job($job_id);
+
+            return new WP_REST_Response([
+                'error' => false,
+                'debug_info' => $debug_info
+            ], 200);
+
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Manually process a job (for debugging).
+     *
+     * @since 1.0.0
+     * @param WP_REST_Request $request The request object.
+     * @return WP_REST_Response
+     */
+    public function manual_process_job($request)
+    {
+        $job_id = $request->get_param('job_id');
+
+        try {
+            $background_processor = $this->helpmate->get_background_processor();
+
+            if (!$background_processor) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Background processing not available'
+                ], 503);
+            }
+
+            $success = $background_processor->manual_process_job($job_id);
+
+            if (!$success) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Failed to start manual processing'
+                ], 500);
+            }
+
+            return new WP_REST_Response([
+                'error' => false,
+                'message' => 'Manual processing started successfully'
+            ], 200);
+
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Force process all stuck jobs.
+     *
+     * @since 1.0.0
+     * @return WP_REST_Response
+     */
+    public function force_process_stuck_jobs()
+    {
+        try {
+            $background_processor = $this->helpmate->get_background_processor();
+
+            if (!$background_processor) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Background processing not available'
+                ], 503);
+            }
+
+            $job_tracker = $this->helpmate->get_job_tracker();
+            $stuck_jobs = $job_tracker->get_jobs_by_status('processing', 10);
+
+            $processed_count = 0;
+            foreach ($stuck_jobs as $job) {
+                if ($job['processed_documents'] == 0) {
+                    $background_processor->manual_process_job($job['job_id']);
+                    $processed_count++;
+                }
+            }
+
+            return new WP_REST_Response([
+                'error' => false,
+                'message' => "Processed {$processed_count} stuck jobs",
+                'processed_count' => $processed_count
+            ], 200);
+
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Cleanup completed jobs.
+     *
+     * @since 1.0.0
+     * @return WP_REST_Response
+     */
+    public function cleanup_completed_jobs()
+    {
+        try {
+            $job_tracker = $this->helpmate->get_job_tracker();
+            $cleaned_count = $job_tracker->cleanup_completed_jobs(7); // Clean jobs older than 7 days
+
+            return new WP_REST_Response([
+                'error' => false,
+                'message' => "Cleaned up $cleaned_count completed jobs",
+                'cleaned_jobs' => $cleaned_count
+            ], 200);
+
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete bulk job.
+     *
+     * @since 1.0.0
+     * @param WP_REST_Request $request The request object.
+     * @return WP_REST_Response
+     */
+    public function delete_bulk_job($request)
+    {
+        $job_id = $request->get_param('job_id');
+
+        try {
+            $job_tracker = $this->helpmate->get_job_tracker();
+            $success = $job_tracker->delete_job($job_id);
+
+            if (!$success) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Failed to delete job'
+                ], 500);
+            }
+
+            return new WP_REST_Response([
+                'error' => false,
+                'message' => 'Job deleted successfully'
             ], 200);
 
         } catch (Exception $e) {

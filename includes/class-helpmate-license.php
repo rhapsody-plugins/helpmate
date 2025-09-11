@@ -142,20 +142,6 @@ class HelpMate_License
 
         // Add credit check before critical operations
         add_action('helpmate_critical_operation', array($this, 'check_credits_before_operation'));
-
-        // Add license validation on plugin load
-        // add_action('plugins_loaded', array($this, 'validate_license_on_load'));
-    }
-
-    /**
-     * Disable the plugin.
-     */
-    public function disable_plugin()
-    {
-        deactivate_plugins('helpmate/helpmate.php');
-        add_action('admin_notices', function () {
-            echo '<div class="error"><p>' . esc_html__('Helpmate has been disabled due to security concerns. Try to turn on again. If the issue persists, please contact support.', 'helpmate') . '</p></div>';
-        });
     }
 
     /**
@@ -344,37 +330,6 @@ class HelpMate_License
     }
 
     /**
-     * Validate the license on load.
-     */
-    public function validate_license_on_load()
-    {
-        if (!$this->license_key) {
-            $this->log_security_event('license_missing');
-            add_action('admin_notices', function () {
-                echo '<div class="error"><p>' . esc_html__('Helpmate requires a valid license key to function. Please enter your license key in the settings.', 'helpmate') . '</p></div>';
-            });
-            return;
-        }
-
-        // Force sync if last sync was more than 24 hours ago
-        if (time() - $this->last_sync > $this->sync_interval) {
-            $this->sync_with_server();
-        }
-
-        // Validate license on every page load
-        $validation = $this->rp_validate_plugin_license();
-        if (!$validation['valid']) {
-            $this->log_security_event('license_validation_failed', array(
-                'status' => $validation['status'],
-                'message' => $validation['message']
-            ));
-            add_action('admin_notices', function () use ($validation) {
-                echo '<div class="error"><p>' . esc_html($validation['message']) . '</p></div>';
-            });
-        }
-    }
-
-    /**
      * Check the credits before operation.
      *
      * @param string $feature_slug The feature slug.
@@ -485,7 +440,7 @@ class HelpMate_License
             // Update local credits with server values
             $previous_settings = $this->settings->get_setting('license');
             $previous_settings['last_sync'] = $this->encrypt_data(time());
-            $previous_settings['product_slug'] = $this->encrypt_data($this->product_slug);
+            $previous_settings['product_slug'] = $this->encrypt_data($validation['product_slug']);
             $previous_settings['credits'] = $this->encrypt_data($validation['credits']);
             $previous_settings['api_key'] = $this->encrypt_data($validation['api_key']);
             $previous_settings['signup_credits'] = $this->encrypt_data($validation['signup_credits']);

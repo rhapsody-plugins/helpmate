@@ -54,7 +54,7 @@ export default function ChatBot() {
   const notificationSound = useMemo(() => {
     if (settings?.customization?.sound_effect !== 'none') {
       return new Audio(
-        `${window.wpHelpmateApiSettings?.site_url}/wp-content/plugins/helpmate/public/sounds/${settings?.customization?.sound_effect}`
+        `${window.helpmateApiSettings?.site_url}/wp-content/plugins/helpmate/public/sounds/${settings?.customization?.sound_effect}`
       );
     }
     return null;

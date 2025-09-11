@@ -14,7 +14,7 @@ import { CrownIcon, HandCoins } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 // Simple SVG circular progress
-function CircularProgress({ value, max }: { value: number; max: number }) {
+function CircularProgress({ value, max, isUnlimited = false }: { value: number; max: number; isUnlimited?: boolean }) {
   const radius = 80;
   const stroke = 4;
   const normalizedRadius = radius - stroke * 2;
@@ -31,33 +31,62 @@ function CircularProgress({ value, max }: { value: number; max: number }) {
         cx={radius}
         cy={radius}
       />
-      <circle
-        stroke="#3b82f6"
-        fill="transparent"
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        strokeDasharray={circumference + ' ' + circumference}
-        style={{
-          strokeDashoffset,
-          transition: 'stroke-dashoffset 0.35s',
-          transform: 'rotate(-90deg)',
-          transformOrigin: '50% 50%',
-        }}
-        r={normalizedRadius}
-        cx={radius}
-        cy={radius}
-      />
-      <text
-        x="50%"
-        y="50%"
-        textAnchor="middle"
-        dy=".3em"
-        fontSize="1.25rem"
-        fill="#3b82f6"
-        fontWeight="bold"
-      >
-        {value}/{max}
-      </text>
+      {/* Progress circle - only show if not unlimited */}
+      {!isUnlimited && (
+        <circle
+          stroke="#3b82f6"
+          fill="transparent"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={circumference + ' ' + circumference}
+          style={{
+            strokeDashoffset,
+            transition: 'stroke-dashoffset 0.35s',
+            transform: 'rotate(-90deg)',
+            transformOrigin: '50% 50%',
+          }}
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+        />
+      )}
+      {isUnlimited ? (
+        <>
+          <text
+            x="50%"
+            y="45%"
+            textAnchor="middle"
+            dy=".3em"
+            fontSize="1.25rem"
+            fill="#16a34a"
+            fontWeight="bold"
+          >
+            {value}/∞
+          </text>
+          <text
+            x="50%"
+            y="60%"
+            textAnchor="middle"
+            dy=".3em"
+            fontSize="0.75rem"
+            fill="#6b7280"
+          >
+            Unlimited
+          </text>
+        </>
+      ) : (
+        <text
+          x="50%"
+          y="50%"
+          textAnchor="middle"
+          dy=".3em"
+          fontSize="1.25rem"
+          fill="#3b82f6"
+          fontWeight="bold"
+        >
+          {value}/{max}
+        </text>
+      )}
     </svg>
   );
 }
@@ -165,26 +194,23 @@ export default function License({
                     isActivateLicensePending ? (
                       <p>Loading credits...</p>
                     ) : mainCredit ? (
-                      mainCredit
-                        .filter(
-                          (credit) => credit.feature_slug !== 'max_tokens'
-                        )
-                        .map((credit) => (
-                          <div
-                            className="flex flex-col items-center"
-                            key={credit.feature_slug}
-                          >
-                            <div className="p-2 bg-gray-100 rounded-xl">
-                              <CircularProgress
-                                value={credit.usages}
-                                max={credit.credits}
-                              />
-                            </div>
-                            <span className="mt-1 text-xs capitalize text-muted-foreground">
-                              {credit.feature_slug.replace(/_/g, ' ')}
-                            </span>
+                      mainCredit.map((credit) => (
+                        <div
+                          className="flex flex-col items-center"
+                          key={credit.feature_slug}
+                        >
+                          <div className="p-2 bg-gray-100 rounded-xl">
+                            <CircularProgress
+                              value={credit.usages}
+                              max={Number(credit.credits) === -1 ? 1 : credit.credits}
+                              isUnlimited={Number(credit.credits) === -1}
+                            />
                           </div>
-                        ))
+                          <span className="mt-1 text-xs capitalize text-muted-foreground">
+                            {credit.feature_slug.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                      ))
                     ) : (
                       <p>No credits available</p>
                     )}

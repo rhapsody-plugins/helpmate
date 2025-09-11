@@ -180,6 +180,13 @@ class HelpMate_Document_Handler
 
         // Handle both single document and array of documents
         $documents = isset($body[0]) ? $body : [$body];
+
+        // Check if this is a bulk operation (more than 1 document)
+        if (count($documents) > 1) {
+            return $this->handle_bulk_document_storage($documents);
+        }
+
+        // Single document processing (existing logic)
         $results = [];
 
         foreach ($documents as $document) {
@@ -189,7 +196,9 @@ class HelpMate_Document_Handler
             $metadata = $document['metadata'] ?? [];
 
             try {
-                $vector = $this->chat->handle_embedding(['title' => $title, 'content' => $content], 'create');
+                // Set feature_slug to 'product' only for product document type, otherwise use default
+                $feature_slug = ($documentType === 'product') ? 'product' : 'data_source';
+                $vector = $this->chat->handle_embedding(['title' => $title, 'content' => $content], 'create', $feature_slug);
             } catch (Exception $e) {
                 $results[] = false;
                 return new WP_REST_Response([
@@ -202,7 +211,7 @@ class HelpMate_Document_Handler
                 $results[] = false;
                 return new WP_REST_Response([
                     'error' => true,
-                    'message' => $vector['message'] ?? __('Failed to store data', 'helpmate')
+                    'message' => $vector['message'] ?? __('Failed to store data. Please try again.', 'helpmate')
                 ], 500);
             }
 
@@ -216,6 +225,143 @@ class HelpMate_Document_Handler
             'error' => !$success,
             'message' => $success ? __('Documents stored successfully', 'helpmate') : __('Failed to store some documents. Contact support if the issue persists.', 'helpmate'),
         ], $success ? 200 : 500);
+    }
+
+    /**
+     * Handle bulk document storage with background processing.
+     *
+     * @since 1.0.0
+     * @param array $documents Array of documents to process.
+     * @return WP_REST_Response
+     */
+    private function handle_bulk_document_storage($documents)
+    {
+        // Get the background processor instance
+        $background_processor = $this->get_background_processor();
+
+        if (!$background_processor) {
+            // Fallback to synchronous processing if background processor is not available
+            return $this->process_documents_synchronously($documents);
+        }
+
+        // For bulk operations, we only store post IDs and basic info
+        $bulk_data = [
+            'post_ids' => array_column($documents, 'post_id'),
+            'post_types' => array_column($documents, 'post_type'),
+            'titles' => array_column($documents, 'title'),
+            'document_type' => $documents[0]['document_type'] ?? 'post'
+        ];
+
+        // Schedule background job with minimal data
+        $job_id = $background_processor->schedule_bulk_processing($bulk_data, get_current_user_id());
+
+        if (!$job_id) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => __('Failed to schedule background processing. Please try again.', 'helpmate')
+            ], 500);
+        }
+
+        // Return immediate response with job ID
+        return new WP_REST_Response([
+            'error' => false,
+            'message' => __('Bulk document processing started in the background.', 'helpmate'),
+            'job_id' => $job_id,
+            'total_documents' => count($documents),
+            'status' => 'scheduled'
+        ], 202); // 202 Accepted - processing started
+    }
+
+    /**
+     * Process documents synchronously (fallback method).
+     *
+     * @since 1.0.0
+     * @param array $documents Array of documents to process.
+     * @return WP_REST_Response
+     */
+    private function process_documents_synchronously($documents)
+    {
+        $results = [];
+        $successful = 0;
+        $failed = 0;
+        $errors = [];
+
+        foreach ($documents as $document) {
+            $title = $document['title'];
+            $content = $document['content'];
+            $documentType = $document['document_type'];
+            $metadata = $document['metadata'] ?? [];
+
+            try {
+                // Set feature_slug to 'product' only for product document type, otherwise use default
+                $feature_slug = ($documentType === 'product') ? 'product' : 'data_source';
+                $vector = $this->chat->handle_embedding(['title' => $title, 'content' => $content], 'create', $feature_slug);
+            } catch (Exception $e) {
+                $failed++;
+                $errors[] = [
+                    'document_title' => $title,
+                    'error' => $e->getMessage()
+                ];
+                continue;
+            }
+
+            if (empty($vector) || !isset($vector['data']) || !isset($vector['data']['id'])) {
+                $failed++;
+                $errors[] = [
+                    'document_title' => $title,
+                    'error' => $vector['message'] ?? 'Failed to generate embedding'
+                ];
+                continue;
+            }
+
+            $result = $this->store_in_database($title, $content, $vector['data']['id'], $documentType, $metadata);
+
+            if ($result) {
+                $successful++;
+            } else {
+                $failed++;
+                $errors[] = [
+                    'document_title' => $title,
+                    'error' => 'Failed to store document in database'
+                ];
+            }
+        }
+
+        $total = count($documents);
+        $success = $failed === 0;
+
+        $message = $success
+            // translators: %d is the number of successfully processed documents
+            ? sprintf(__('Successfully processed %d documents.', 'helpmate'), $successful)
+            // translators: %1$d is the number of successfully processed documents, %2$d is the total number of documents, %3$d is the number of failed documents
+            : sprintf(__('Processed %1$d of %2$d documents successfully. %3$d failed.', 'helpmate'), $successful, $total, $failed);
+
+        return new WP_REST_Response([
+            'error' => !$success,
+            'message' => $message,
+            'successful' => $successful,
+            'failed' => $failed,
+            'total' => $total,
+            'errors' => $errors
+        ], $success ? 200 : 207); // 207 Multi-Status for partial success
+    }
+
+    /**
+     * Get the background processor instance.
+     *
+     * @since 1.0.0
+     * @return HelpMate_Background_Processor|null
+     */
+    private function get_background_processor()
+    {
+        // Access the global helpmate instance
+        global $helpmate;
+
+        if (isset($helpmate) && method_exists($helpmate, 'get_background_processor')) {
+            return $helpmate->get_background_processor();
+        }
+
+        return null;
     }
 
     /**
@@ -235,8 +381,17 @@ class HelpMate_Document_Handler
         $metadata = $body['metadata'] ?? [];
         $lastUpdated = $body['last_updated'];
 
+        // Get document type from database
+        global $wpdb;
+        $document_type = $wpdb->get_var($wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            "SELECT document_type FROM {$wpdb->prefix}helpmate_documents WHERE id = %d",
+            $id
+        ));
+
         try {
-            $vector = $this->chat->handle_embedding(['id' => $vector_id, 'title' => $title, 'content' => $content], 'update');
+            // Set feature_slug to 'product' only for product document type, otherwise use default
+            $feature_slug = ($document_type === 'product') ? 'product' : 'data_source';
+            $vector = $this->chat->handle_embedding(['id' => $vector_id, 'title' => $title, 'content' => $content], 'update', $feature_slug);
 
             // error_log('Vector: ' . print_r($vector, true));
 
@@ -287,14 +442,15 @@ class HelpMate_Document_Handler
         $ids = array_map('intval', $ids);
 
         $documents = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-            $wpdb->prepare("SELECT id, vector FROM {$wpdb->prefix}helpmate_documents WHERE id IN (" . implode(',', array_fill(0, count($ids), '%d')) . ")", $ids),  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare("SELECT id, document_type, vector FROM {$wpdb->prefix}helpmate_documents WHERE id IN (" . implode(',', array_fill(0, count($ids), '%d')) . ")", $ids),  // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             ARRAY_A
         );
 
         $results = [];
 
         foreach ($documents as $document) {
-            $response = $this->chat->handle_embedding(['id' => $document['vector']], 'delete');
+            $feature_slug = ($document['document_type'] === 'product') ? 'product' : 'data_source';
+            $response = $this->chat->handle_embedding(['id' => $document['vector']], 'delete', $feature_slug);
             if (isset($response['status']) && $response['status'] !== 'success') {
                 return new WP_REST_Response([
                     'error' => true,

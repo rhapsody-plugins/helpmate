@@ -388,7 +388,7 @@ export default function TabWidget() {
                               size="icon"
                               onClick={() => {
                                 const audio = new Audio(
-                                  `${window.wpHelpmateApiSettings?.site_url}/wp-content/plugins/helpmate/public/sounds/${field.value}`
+                                  `${window.helpmateApiSettings?.site_url}/wp-content/plugins/helpmate/public/sounds/${field.value}`
                                 );
                                 audio.play();
                               }}

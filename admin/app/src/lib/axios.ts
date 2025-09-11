@@ -2,10 +2,10 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: `${window.wpHelpmateApiSettings?.site_url || window.location.origin}/?rest_route=/helpmate/v1`,
+  baseURL: `${window.helpmateApiSettings?.site_url || window.location.origin}/?rest_route=/helpmate/v1`,
   headers: {
     'Content-Type': 'application/json',
-    'X-WP-Nonce': window.wpHelpmateApiSettings?.nonce || '', // WordPress nonce for authentication
+    'X-WP-Nonce': window.helpmateApiSettings?.nonce || '', // WordPress nonce for authentication
   },
 });
 

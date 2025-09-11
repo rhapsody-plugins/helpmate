@@ -74,6 +74,10 @@ echo "Removing development code from display files..."
 sed -i '' '/<?php if ($is_dev): ?>/,/<?php else: ?>/d' admin/partials/helpmate-admin-display.php
 # Remove the final endif that closes the main if ($is_dev) block
 sed -i '' '$d' admin/partials/helpmate-admin-display.php
+# Remove dev mode blocks from admin display (remove if-else-endif structure, keep production code)
+sed -i '' '/<?php if ($is_dev): ?>/,/<?php else: ?>/d' public/partials/helpmate-public-display.php
+# Remove the final endif that closes the main if ($is_dev) block
+sed -i '' '$d' public/partials/helpmate-public-display.php
 
 cd ../helpmate-build
 
@@ -83,6 +87,8 @@ cd admin/app
 echo "VITE_ENVIRONMENT=prod" > .env
 pnpm install
 pnpm build
+# Delete index.html from dist folder
+rm -f dist/index.html
 # Keep only dist folder
 find . -mindepth 1 -maxdepth 1 ! -name 'dist' -exec rm -rf {} +
 
@@ -92,6 +98,8 @@ cd ../../public/app
 echo "VITE_ENVIRONMENT=prod" > .env
 pnpm install
 pnpm build
+# Delete index.html from dist folder
+rm -f dist/index.html
 # Keep only dist folder
 find . -mindepth 1 -maxdepth 1 ! -name 'dist' -exec rm -rf {} +
 
