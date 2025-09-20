@@ -1,30 +1,22 @@
 <?php
 
 /**
- * License class for HelpMate plugin.
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes
- */
-
-/**
- * License class for HelpMate plugin.
+ * License class for Helpmate plugin.
  *
  * This class defines all code necessary to run during the plugin's license checks.
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_License
+class Helpmate_License
 {
     /**
      * The plugin slug.
@@ -35,7 +27,7 @@ class HelpMate_License
     /**
      * The settings instance.
      *
-     * @var HelpMate_Settings
+     * @var Helpmate_Settings
      */
     private $settings;
     /**
@@ -114,10 +106,10 @@ class HelpMate_License
     /**
      * Constructor
      *
-     * @param HelpMate_Settings $settings The settings instance.
+     * @param Helpmate_Settings $settings The settings instance.
      * @param string $plugin_slug The plugin slug.
      */
-    public function __construct(HelpMate_Settings $settings, $plugin_slug)
+    public function __construct(Helpmate_Settings $settings, $plugin_slug)
     {
         $this->plugin_slug = $plugin_slug;
         $this->settings = $settings;
@@ -341,14 +333,14 @@ class HelpMate_License
         if (empty($feature_slug)) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Feature slug is required for credit check.', 'helpmate')
+                'message' => __('Feature slug is required for credit check.', 'helpmate-ai-chatbot')
             ], 400);
         }
 
         if ($operation_count < 1) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Operation count must be at least 1.', 'helpmate')
+                'message' => __('Operation count must be at least 1.', 'helpmate-ai-chatbot')
             ], 400);
         }
 
@@ -379,7 +371,7 @@ class HelpMate_License
                     'error' => true,
                     'message' => sprintf(
                         /* translators: 1: Available credits, 2: Requested credits */
-                        __('You have reached the maximum number of documents for this feature. Available credits: %1$d, Requested: %2$d. Please purchase more credits to continue.', 'helpmate'),
+                        __('You have reached the maximum number of documents for this feature. Available credits: %1$d, Requested: %2$d. Please purchase more credits to continue.', 'helpmate-ai-chatbot'),
                         $feature_credits['credits'],
                         $operation_count
                     )
@@ -401,7 +393,7 @@ class HelpMate_License
                     'error' => true,
                     'message' => sprintf(
                         /* translators: 1: Feature name, 2: Available credits, 3: Requested credits */
-                        __('Insufficient credits for feature "%1$s". Available: %2$d, Requested: %3$d. Please purchase more credits to continue.', 'helpmate'),
+                        __('Insufficient credits for feature "%1$s". Available: %2$d, Requested: %3$d. Please purchase more credits to continue.', 'helpmate-ai-chatbot'),
                         $feature_slug,
                         $feature_credits['credits'],
                         $operation_count
@@ -567,12 +559,12 @@ class HelpMate_License
             $this->settings->set_setting('license', $settings);
             return new WP_REST_Response([
                 'success' => true,
-                'message' => esc_html__('License activated successfully', 'helpmate')
+                'message' => esc_html__('License activated successfully', 'helpmate-ai-chatbot')
             ], 200);
         }
 
         // Handle specific error cases
-        $error_message = isset($result['error']) ? $result['error'] : __('Failed to activate license', 'helpmate');
+        $error_message = isset($result['error']) ? $result['error'] : __('Failed to activate license', 'helpmate-ai-chatbot');
         $status_code = 400;
 
         // Map specific error codes to appropriate HTTP status codes
@@ -663,7 +655,7 @@ class HelpMate_License
         // If we get here, something unexpected happened
         return array(
             'success' => false,
-            'error' => __('Invalid response from license server', 'helpmate'),
+            'error' => __('Invalid response from license server', 'helpmate-ai-chatbot'),
             'code' => 'invalid_response'
         );
     }
@@ -700,13 +692,13 @@ class HelpMate_License
             $this->settings->set_setting('license', $previous_settings);
             return new WP_REST_Response([
                 'success' => true,
-                'message' => __('Credits claimed successfully', 'helpmate')
+                'message' => __('Credits claimed successfully', 'helpmate-ai-chatbot')
             ], 200);
         }
 
         return new WP_REST_Response([
             'success' => false,
-            'error' => __('Failed to claim credits', 'helpmate')
+            'error' => __('Failed to claim credits', 'helpmate-ai-chatbot')
         ], 400);
     }
 

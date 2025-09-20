@@ -1,20 +1,20 @@
 <?php
 
 /**
- * The analytics handler for the HelpMate plugin.
+ * The analytics handler for the Helpmate plugin.
  *
- * @link       https://rhapsodyplugins.com
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
  *
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ * @package    Helpmate
+ * @subpackage Helpmate/includes
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Analytics
+class Helpmate_Analytics
 {
     /**
      * Store an analytics event in the database.

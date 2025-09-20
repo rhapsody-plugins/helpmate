@@ -64,7 +64,7 @@ export function ChatInput({
 
   // Memoize hasProAccess check
   const hasProAccess = useMemo(() => {
-    return settings?.is_pro && window?.HelpMatePro?.isPro;
+    return settings?.is_pro && window?.HelpmatePro?.isPro;
   }, [settings?.is_pro]);
 
   // Check if running on localhost
@@ -243,10 +243,10 @@ export function ChatInput({
         />
         <div className="absolute bottom-3 left-3 z-10">
           {settings?.is_pro &&
-            window?.HelpMatePro?.isPro &&
-            window?.HelpMatePro?.components?.ImageSearch &&
+            window?.HelpmatePro?.isPro &&
+            window?.HelpmatePro?.components?.ImageSearch &&
             imageSearch && (
-              <window.HelpMatePro.components.ImageSearch
+              <window.HelpmatePro.components.ImageSearch
                 image={image}
                 handleImageChange={handleImageChange}
                 handleImageButtonClick={handleImageButtonClick}

@@ -2,20 +2,20 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Helpmate 1.0.0\n"
+"Project-Id-Version: Helpmate - AI Chatbot That Sells & Supports While You Sleep for WooCommerce 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/helpmate\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-07-14T09:30:38+00:00\n"
+"POT-Creation-Date: 2025-09-15T05:34:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
-"X-Domain: helpmate\n"
+"X-Domain: helpmate-ai-chatbot\n"
 
 #. Plugin Name of the plugin
-msgid "Helpmate"
+msgid "Helpmate - Ai Chatbot for Sales and Support"
 msgstr ""
 
 #. Plugin URI of the plugin
@@ -23,7 +23,7 @@ msgid "https://rhapsodyplugins.com/helpmate"
 msgstr ""
 
 #. Description of the plugin
-msgid "An Ai rag chatbot with all the necessary features combined for woocommerce."
+msgid "Helpmate is an AI-powered WooCommerce chatbot that boosts sales, automates support, and engages customers 24/7 with smart, human-like chat."
 msgstr ""
 
 #. Author of the plugin
@@ -34,176 +34,267 @@ msgstr ""
 msgid "https://rhapsodyplugins.com/"
 msgstr ""
 
-#: includes/class-helpmate-activator.php:52
-msgid "Helpmate could not be activated due to a license error. Please contact support."
+#: helpmate.php:140
+msgid "Train Chatbot"
 msgstr ""
 
-#: includes/class-helpmate-activator.php:53
-msgid "Plugin Activation Error"
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:53
-msgid "Every 5 Minutes"
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:162
-msgid "Document type is required"
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:290
-msgid "Documents stored successfully"
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:290
-msgid "Failed to store some documents. Contact support if the issue persists."
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:313
-msgid "No document IDs provided"
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:329
-msgid "Documents removed successfully"
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:329
-msgid "Failed to remove documents"
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:394
-msgid "Failed to update document vector in Helpmate"
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:415
-msgid "No untrained documents found"
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:424
-msgid "Document training started for "
-msgstr ""
-
-#: includes/class-helpmate-document-handler.php:424
-msgid "documents"
-msgstr ""
-
-#: includes/class-helpmate-frontend-routes.php:49
-msgid "Invalid security token"
-msgstr ""
-
-#: includes/class-helpmate-license.php:132
-#: includes/class-helpmate-security.php:175
-msgid "Helpmate has been disabled due to security concerns. Please contact support."
-msgstr ""
-
-#: includes/class-helpmate-license.php:277
-msgid "Helpmate requires a valid license key to function. Please enter your license key in the settings."
-msgstr ""
-
-#: includes/class-helpmate-license.php:312
-#: includes/class-helpmate-license.php:400
-msgid "Feature slug is required for credit check."
-msgstr ""
-
-#: includes/class-helpmate-license.php:319
-#: includes/class-helpmate-license.php:407
-msgid "Operation count must be at least 1."
-msgstr ""
-
-#: includes/class-helpmate-license.php:349
-msgid "You have reached the maximum number of documents for this feature. Available credits: %d, Requested: %d. Please purchase more credits to continue."
-msgstr ""
-
-#: includes/class-helpmate-license.php:370
-msgid "Insufficient credits for feature \"%s\". Available: %d, Requested: %d. Please purchase more credits to continue."
-msgstr ""
-
-#: includes/class-helpmate-license.php:440
-msgid "Credits removed successfully"
-msgstr ""
-
-#: includes/class-helpmate-license.php:446
-msgid "Failed to remove credits"
-msgstr ""
-
-#: includes/class-helpmate-license.php:587
-msgid "License activated successfully"
-msgstr ""
-
-#: includes/class-helpmate-license.php:592
-msgid "Failed to activate license"
-msgstr ""
-
-#: includes/class-helpmate-license.php:681
-msgid "Invalid response from license server"
-msgstr ""
-
-#: includes/class-helpmate-security.php:70
-msgid "Every 5 minutes"
-msgstr ""
-
-#: includes/class-helpmate-security.php:249
-msgid "Helpmate Security Alert:"
-msgstr ""
-
-#: includes/class-helpmate.php:211
-msgid "Helpmate Pro license requires the Pro version of the plugin to be installed. Please install the Pro version of the plugin to continue."
-msgstr ""
-
-#: includes/class-helpmate.php:271
-msgid "Required file %s not found."
-msgstr ""
-
-#: includes/class-middleware.php:50
-msgid "Failed to encode payload: "
-msgstr ""
-
-#: includes/modules/class-helpmate-chat.php:397
+#: includes/chat/class-helpmate-chat-database.php:189
 msgid "ID, key, and value are required"
 msgstr ""
 
-#: includes/modules/class-helpmate-chat.php:413
+#: includes/chat/class-helpmate-chat-database.php:205
 msgid "Chat message not found"
 msgstr ""
 
-#: includes/modules/class-helpmate-chat.php:442
+#: includes/chat/class-helpmate-chat-database.php:234
 msgid "Failed to update chat metadata"
 msgstr ""
 
-#: includes/modules/class-helpmate-chat.php:479
-#: includes/modules/class-helpmate-chat.php:512
-#: includes/modules/class-helpmate-chat.php:545
-msgid "Session ID is required"
-msgstr ""
-
-#: includes/modules/class-helpmate-chat.php:583
+#: includes/chat/class-helpmate-chat-helpers.php:69
+#: includes/chat/class-helpmate-chat-helpers.php:267
 msgid "URL is required"
 msgstr ""
 
-#: includes/modules/class-helpmate-chat.php:605
+#: includes/chat/class-helpmate-chat-helpers.php:96
+#: includes/chat/class-helpmate-chat-helpers.php:294
 msgid "Error fetching URL: "
 msgstr ""
 
-#: includes/modules/class-helpmate-chat.php:613
+#: includes/chat/class-helpmate-chat-helpers.php:104
+#: includes/chat/class-helpmate-chat-helpers.php:302
 msgid "Failed to fetch URL. Response code: "
 msgstr ""
 
-#: includes/modules/class-helpmate-chat.php:621
+#: includes/chat/class-helpmate-chat-helpers.php:112
+#: includes/chat/class-helpmate-chat-helpers.php:310
 msgid "Could not fetch URL content"
 msgstr ""
 
-#: includes/modules/class-helpmate-chat.php:668
+#: includes/chat/class-helpmate-chat-helpers.php:159
 msgid "Could not find main content area"
 msgstr ""
 
-#: includes/modules/class-helpmate-chat.php:753
+#: includes/chat/class-helpmate-chat-helpers.php:249
+#: includes/chat/class-helpmate-chat-helpers.php:424
 msgid "Error processing content: "
 msgstr ""
 
-#: includes/modules/class-helpmate-leads.php:92
+#: includes/chat/class-helpmate-chat-helpers.php:403
+msgid "Timeout! The request took too long to complete. Try Again."
+msgstr ""
+
+#: includes/chat/class-helpmate-chat.php:221
+#: includes/chat/class-helpmate-chat.php:254
+msgid "Session ID is required"
+msgstr ""
+
+#: includes/class-helpmate-activator.php:48
+msgid "Helpmate could not be activated due to a license error. Please contact support."
+msgstr ""
+
+#: includes/class-helpmate-activator.php:49
+msgid "Plugin Activation Error"
+msgstr ""
+
+#. translators: %d is the number of successfully processed documents
+#: includes/class-helpmate-background-processor.php:660
+#: includes/class-helpmate-document-handler.php:335
+msgid "Successfully processed %d documents."
+msgstr ""
+
+#. translators: %d is the number of failed documents
+#: includes/class-helpmate-background-processor.php:666
+msgid "Failed to process all %d documents."
+msgstr ""
+
+#. translators: %1$d is the number of successfully processed documents, %2$d is the total number of documents, %3$d is the number of failed documents
+#: includes/class-helpmate-background-processor.php:672
+#: includes/class-helpmate-document-handler.php:337
+msgid "Processed %1$d of %2$d documents successfully. %3$d failed."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:55
+msgid "Every 5 Minutes"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:148
+msgid "Document type is required"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:214
+msgid "Failed to store data. Please try again."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:226
+msgid "Documents stored successfully"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:226
+msgid "Failed to store some documents. Contact support if the issue persists."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:261
+msgid "Failed to schedule background processing. Please try again."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:268
+msgid "Bulk document processing started in the background."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:401
+msgid "Failed to update data. Try again."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:408
+msgid "Document updated successfully"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:408
+msgid "Failed to update document"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:437
+msgid "No document IDs provided"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:457
+#: includes/class-helpmate-document-handler.php:468
+msgid "Failed to remove documents"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:468
+msgid "Documents removed successfully"
+msgstr ""
+
+#: includes/class-helpmate-license.php:336
+msgid "Feature slug is required for credit check."
+msgstr ""
+
+#: includes/class-helpmate-license.php:343
+msgid "Operation count must be at least 1."
+msgstr ""
+
+#. translators: 1: Available credits, 2: Requested credits
+#: includes/class-helpmate-license.php:374
+msgid "You have reached the maximum number of documents for this feature. Available credits: %1$d, Requested: %2$d. Please purchase more credits to continue."
+msgstr ""
+
+#. translators: 1: Feature name, 2: Available credits, 3: Requested credits
+#: includes/class-helpmate-license.php:396
+msgid "Insufficient credits for feature \"%1$s\". Available: %2$d, Requested: %3$d. Please purchase more credits to continue."
+msgstr ""
+
+#: includes/class-helpmate-license.php:562
+msgid "License activated successfully"
+msgstr ""
+
+#: includes/class-helpmate-license.php:567
+msgid "Failed to activate license"
+msgstr ""
+
+#: includes/class-helpmate-license.php:658
+msgid "Invalid response from license server"
+msgstr ""
+
+#: includes/class-helpmate-license.php:695
+msgid "Credits claimed successfully"
+msgstr ""
+
+#: includes/class-helpmate-license.php:701
+msgid "Failed to claim credits"
+msgstr ""
+
+#: includes/class-helpmate-security.php:66
+#: includes/modules/class-helpmate-promo-banner.php:81
+msgid "Every 5 minutes"
+msgstr ""
+
+#: includes/class-helpmate-security.php:234
+msgid "Helpmate Security Alert:"
+msgstr ""
+
+#: includes/class-helpmate.php:264
+msgid "Helpmate Pro license requires the Pro version of the plugin to be installed. Please install the Pro version of the plugin to continue."
+msgstr ""
+
+#. translators: 1: File name
+#: includes/class-helpmate.php:333
+msgid "Required file %s not found."
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:93
 msgid "Name is required"
 msgstr ""
 
-#: includes/modules/class-helpmate-leads.php:112
-#: includes/modules/class-helpmate-leads.php:123
+#: includes/modules/class-helpmate-leads.php:113
+#: includes/modules/class-helpmate-leads.php:124
 msgid "Failed to create lead"
+msgstr ""
+
+#. translators: %s: The name of the required field that is missing
+#: includes/modules/class-helpmate-ticket.php:346
+#: includes/modules/class-helpmate-ticket.php:430
+msgid "Missing required field: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:365
+msgid "Failed to create ticket"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:373
+msgid "Ticket created successfully"
+msgstr ""
+
+#. translators: 1: Site name, 2: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:397
+msgid "[%1$s] New Support Ticket: %2$s"
+msgstr ""
+
+#. translators: 1: Ticket subject, 2: Sender name or email, 3: Sender email, 4: Priority, 5: Status, 6: Message content
+#: includes/modules/class-helpmate-ticket.php:401
+msgid ""
+"A new support ticket has been created:\n"
+"\n"
+"Subject: %1$s\n"
+"From: %2$s (%3$s)\n"
+"Priority: %4$s\n"
+"Status: %5$s\n"
+"\n"
+"Message:\n"
+"%6$s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:444
+msgid "Failed to add reply"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:459
+msgid "Reply added successfully"
+msgstr ""
+
+#. translators: 1: Site name, 2: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:494
+msgid "[%1$s] Reply to your ticket: %2$s"
+msgstr ""
+
+#. translators: 1: Site name, 2: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:500
+msgid "[%1$s] New reply to ticket: %2$s"
+msgstr ""
+
+#. translators: 1: Ticket ID, 2: Ticket subject, 3: Sender name or email, 4: Ticket status, 5: Reply message
+#: includes/modules/class-helpmate-ticket.php:506
+msgid ""
+"A new reply has been added to ticket #%1$s:\n"
+"\n"
+"Subject: %2$s\n"
+"From: %3$s\n"
+"Status: %4$s\n"
+"\n"
+"Message:\n"
+"%5$s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:534
+msgid "Ticket not found"
 msgstr ""

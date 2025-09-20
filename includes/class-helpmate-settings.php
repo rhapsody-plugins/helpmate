@@ -1,22 +1,22 @@
 <?php
 
 /**
- * The settings handler class for the HelpMate plugin.
+ * The settings handler class for the Helpmate plugin.
  *
- * A class that handles all settings-related functionality for the HelpMate plugin.
+ * A class that handles all settings-related functionality for the Helpmate plugin.
  *
- * @link       https://rhapsodyplugins.com
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
  *
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ * @package    Helpmate
+ * @subpackage Helpmate/includes
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Settings
+class Helpmate_Settings
 {
 
     private $settings_cache = [];

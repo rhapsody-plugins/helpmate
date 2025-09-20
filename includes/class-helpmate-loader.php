@@ -1,31 +1,24 @@
 <?php
 
 /**
- * Register all actions and filters for the plugin
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes
- */
-
-/**
  * Register all actions and filters for the plugin.
  *
  * Maintain a list of all hooks that are registered throughout
  * the plugin, and register them with the WordPress API. Call the
  * run function to execute the list of actions and filters.
  *
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ * @link       https://rhapsodyplugins.com/helpmate
+ * @since      1.0.0
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Loader {
+class Helpmate_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.

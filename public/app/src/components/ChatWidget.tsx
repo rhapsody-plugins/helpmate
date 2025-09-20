@@ -54,7 +54,7 @@ export default function ChatBot() {
   const notificationSound = useMemo(() => {
     if (settings?.customization?.sound_effect !== 'none') {
       return new Audio(
-        `${window.helpmateApiSettings?.site_url}/wp-content/plugins/helpmate/public/sounds/${settings?.customization?.sound_effect}`
+        `${window.helpmateApiSettings?.site_url}/wp-content/plugins/helpmate-ai-chatbot/public/sounds/${settings?.customization?.sound_effect}`
       );
     }
     return null;
@@ -460,18 +460,18 @@ export default function ChatBot() {
       </div>
 
       {settings?.is_pro &&
-        window.HelpMatePro?.isPro &&
-        window.HelpMatePro?.components?.ProactiveSales && (
-          <window.HelpMatePro.components.ProactiveSales
+        window.HelpmatePro?.isPro &&
+        window.HelpmatePro?.components?.ProactiveSales && (
+          <window.HelpmatePro.components.ProactiveSales
             onOpenChat={(id) => handleOpenChat(id)}
             isChatOpen={isChatOpen}
           />
         )}
 
       {settings?.is_pro &&
-        window.HelpMatePro?.isPro &&
-        window.HelpMatePro?.components?.ExitIntentCoupon && (
-          <window.HelpMatePro.components.ExitIntentCoupon />
+        window.HelpmatePro?.isPro &&
+        window.HelpmatePro?.components?.ExitIntentCoupon && (
+          <window.HelpmatePro.components.ExitIntentCoupon />
         )}
 
       {/* Welcome Message Popup */}

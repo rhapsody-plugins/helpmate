@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   return {
     plugins: [react(), tailwindcss()],
-    base: env.VITE_ENVIRONMENT === 'dev' ? '/wp-content/plugins/helpmate/admin/app/' : '',
+    base: env.VITE_ENVIRONMENT === 'dev' ? '/wp-content/plugins/helpmate-ai-chatbot/admin/app/' : '',
     publicDir: false,
     server: {
       cors: true,

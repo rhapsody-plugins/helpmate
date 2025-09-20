@@ -1,22 +1,22 @@
 <?php
 
 /**
- * The document handler class for the HelpMate plugin.
+ * The document handler class for the Helpmate plugin.
  *
- * A class that handles all document-related operations for the HelpMate plugin.
+ * A class that handles all document-related operations for the Helpmate plugin.
  *
- * @link       https://rhapsodyplugins.com
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
  *
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ * @package    Helpmate
+ * @subpackage Helpmate/includes
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Document_Handler
+class Helpmate_Document_Handler
 {
 
     /**
@@ -24,7 +24,7 @@ class HelpMate_Document_Handler
      *
      * @since 1.0.0
      * @access private
-     * @var HelpMate_License
+     * @var Helpmate_License
      */
     private $license;
 
@@ -33,7 +33,7 @@ class HelpMate_Document_Handler
      *
      * @since 1.0.0
      * @access private
-     * @var HelpMate_Chat
+     * @var Helpmate_Chat
      */
     private $chat;
 
@@ -41,9 +41,9 @@ class HelpMate_Document_Handler
      * Construct the document handler.
      *
      * @since 1.0.0
-     * @param HelpMate_License $license The license instance.
+     * @param Helpmate_License $license The license instance.
      */
-    public function __construct(HelpMate_License $license, HelpMate_Chat $chat)
+    public function __construct(Helpmate_License $license, Helpmate_Chat $chat)
     {
         $this->license = $license;
         $this->chat = $chat;
@@ -52,7 +52,7 @@ class HelpMate_Document_Handler
         add_filter('cron_schedules', function ($schedules) {
             $schedules['every_five_minutes'] = array(
                 'interval' => 300,
-                'display' => __('Every 5 Minutes', 'helpmate')
+                'display' => __('Every 5 Minutes', 'helpmate-ai-chatbot')
             );
             return $schedules;
         });
@@ -145,7 +145,7 @@ class HelpMate_Document_Handler
         if ($document_type === null) {
             return new WP_REST_Response([
                 'error' => false,
-                'message' => __('Document type is required', 'helpmate')
+                'message' => __('Document type is required', 'helpmate-ai-chatbot')
             ], 400);
         }
 
@@ -211,7 +211,7 @@ class HelpMate_Document_Handler
                 $results[] = false;
                 return new WP_REST_Response([
                     'error' => true,
-                    'message' => $vector['message'] ?? __('Failed to store data. Please try again.', 'helpmate')
+                    'message' => $vector['message'] ?? __('Failed to store data. Please try again.', 'helpmate-ai-chatbot')
                 ], 500);
             }
 
@@ -223,7 +223,7 @@ class HelpMate_Document_Handler
 
         return new WP_REST_Response([
             'error' => !$success,
-            'message' => $success ? __('Documents stored successfully', 'helpmate') : __('Failed to store some documents. Contact support if the issue persists.', 'helpmate'),
+            'message' => $success ? __('Documents stored successfully', 'helpmate-ai-chatbot') : __('Failed to store some documents. Contact support if the issue persists.', 'helpmate-ai-chatbot'),
         ], $success ? 200 : 500);
     }
 
@@ -258,14 +258,14 @@ class HelpMate_Document_Handler
         if (!$job_id) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Failed to schedule background processing. Please try again.', 'helpmate')
+                'message' => __('Failed to schedule background processing. Please try again.', 'helpmate-ai-chatbot')
             ], 500);
         }
 
         // Return immediate response with job ID
         return new WP_REST_Response([
             'error' => false,
-            'message' => __('Bulk document processing started in the background.', 'helpmate'),
+            'message' => __('Bulk document processing started in the background.', 'helpmate-ai-chatbot'),
             'job_id' => $job_id,
             'total_documents' => count($documents),
             'status' => 'scheduled'
@@ -332,9 +332,9 @@ class HelpMate_Document_Handler
 
         $message = $success
             // translators: %d is the number of successfully processed documents
-            ? sprintf(__('Successfully processed %d documents.', 'helpmate'), $successful)
+            ? sprintf(__('Successfully processed %d documents.', 'helpmate-ai-chatbot'), $successful)
             // translators: %1$d is the number of successfully processed documents, %2$d is the total number of documents, %3$d is the number of failed documents
-            : sprintf(__('Processed %1$d of %2$d documents successfully. %3$d failed.', 'helpmate'), $successful, $total, $failed);
+            : sprintf(__('Processed %1$d of %2$d documents successfully. %3$d failed.', 'helpmate-ai-chatbot'), $successful, $total, $failed);
 
         return new WP_REST_Response([
             'error' => !$success,
@@ -350,7 +350,7 @@ class HelpMate_Document_Handler
      * Get the background processor instance.
      *
      * @since 1.0.0
-     * @return HelpMate_Background_Processor|null
+     * @return Helpmate_Background_Processor|null
      */
     private function get_background_processor()
     {
@@ -398,14 +398,14 @@ class HelpMate_Document_Handler
             if (empty($vector) || !isset($vector['data']) || !isset($vector['data']['id'])) {
                 return new WP_REST_Response([
                     'error' => true,
-                    'message' => $vector['message'] ?? __('Failed to update data. Try again.', 'helpmate')
+                    'message' => $vector['message'] ?? __('Failed to update data. Try again.', 'helpmate-ai-chatbot')
                 ], 500);
             }
 
             $success = $this->update_in_database($id, $title, $content, $lastUpdated, $metadata);
             return new WP_REST_Response([
                 'error' => !$success,
-                'message' => $success ? __('Document updated successfully', 'helpmate') : __('Failed to update document', 'helpmate'),
+                'message' => $success ? __('Document updated successfully', 'helpmate-ai-chatbot') : __('Failed to update document', 'helpmate-ai-chatbot'),
             ], $success ? 200 : 500);
         } catch (Exception $e) {
             return new WP_REST_Response([
@@ -434,7 +434,7 @@ class HelpMate_Document_Handler
         if (empty($ids)) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('No document IDs provided', 'helpmate')
+                'message' => __('No document IDs provided', 'helpmate-ai-chatbot')
             ], 400);
         }
 
@@ -454,7 +454,7 @@ class HelpMate_Document_Handler
             if (isset($response['status']) && $response['status'] !== 'success') {
                 return new WP_REST_Response([
                     'error' => true,
-                    'message' => $response['message'] ?? __('Failed to remove documents', 'helpmate')
+                    'message' => $response['message'] ?? __('Failed to remove documents', 'helpmate-ai-chatbot')
                 ], 500);
             }
 
@@ -465,7 +465,7 @@ class HelpMate_Document_Handler
 
         return new WP_REST_Response([
             'error' => !$success,
-            'message' => $success ? __('Documents removed successfully', 'helpmate') : __('Failed to remove documents', 'helpmate'),
+            'message' => $success ? __('Documents removed successfully', 'helpmate-ai-chatbot') : __('Failed to remove documents', 'helpmate-ai-chatbot'),
             'removed_count' => $success ? count($ids) : 0
         ], $success ? 200 : 500);
     }

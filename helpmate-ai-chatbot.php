@@ -8,12 +8,12 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              https://rhapsodyplugins.com
+ * @link              https://rhapsodyplugins.com/helpmate
  * @since             1.0.0
  * @package           Helpmate
  *
  * @wordpress-plugin
- * Plugin Name:       Helpmate - AI Chatbot That Sells & Supports While You Sleep for WooCommerce
+ * Plugin Name:       Helpmate - Ai Chatbot for Sales and Support
  * Plugin URI:        https://rhapsodyplugins.com/helpmate
  * Description:       Helpmate is an AI-powered WooCommerce chatbot that boosts sales, automates support, and engages customers 24/7 with smart, human-like chat.
  * Version:           1.0.0
@@ -25,7 +25,7 @@
  * Requires PHP:      7.4
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       helpmate
+ * Text Domain:       helpmate-ai-chatbot
  * Domain Path:       /languages
  */
 
@@ -81,7 +81,7 @@ define('HELPMATE_MODULE_DEFAULT_SETTINGS', [
 function activate_helpmate()
 {
 	require_once plugin_dir_path(__FILE__) . 'includes/class-helpmate-activator.php';
-	HelpMate_Activator::activate();
+	Helpmate_Activator::activate();
 }
 
 /**
@@ -91,7 +91,7 @@ function activate_helpmate()
 function deactivate_helpmate()
 {
 	require_once plugin_dir_path(__FILE__) . 'includes/class-helpmate-deactivator.php';
-	HelpMate_Deactivator::deactivate();
+	Helpmate_Deactivator::deactivate();
 }
 
 register_activation_hook(__FILE__, 'activate_helpmate');
@@ -110,7 +110,7 @@ require plugin_dir_path(__FILE__) . 'includes/class-helpmate.php';
  */
 function helpmate_set_script_translations()
 {
-	wp_set_script_translations(HELPMATE_BASENAME, 'helpmate', plugin_dir_path(__FILE__) . 'languages');
+	wp_set_script_translations(HELPMATE_BASENAME, 'helpmate-ai-chatbot', plugin_dir_path(__FILE__) . 'languages');
 }
 add_action('init', 'helpmate_set_script_translations');
 
@@ -125,7 +125,7 @@ add_action('init', 'helpmate_set_script_translations');
  */
 function run_helpmate()
 {
-	$plugin = new HelpMate();
+	$plugin = new Helpmate();
 	$GLOBALS['helpmate'] = $plugin;
 	$plugin->run();
 }
@@ -137,7 +137,7 @@ function run_helpmate()
  */
 function helpmate_plugin_action_links($links)
 {
-	$settings_link = '<a href="' . admin_url('admin.php?page=helpmate') . '">' . __('Train Chatbot', 'helpmate') . '</a>';
+	$settings_link = '<a href="' . admin_url('admin.php?page=helpmate') . '">' . __('Train Chatbot', 'helpmate-ai-chatbot') . '</a>';
 	array_unshift($links, $settings_link);
 	return $links;
 }

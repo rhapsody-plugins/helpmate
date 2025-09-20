@@ -3,37 +3,27 @@
 /**
  * The promo banner module class.
  *
- * This class handles all functionality related to promo banners within the plugin.
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes/modules
- */
-
-/**
- * The promo banner module class.
- *
  * This is used to define all functionality related to promo banners.
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes/modules
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes/modules
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Promo_Banner
+class Helpmate_Promo_Banner
 {
     /**
      * The plugin instance.
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate_Settings    $settings    The settings instance.
+     * @var      Helpmate_Settings    $settings    The settings instance.
      */
     private $settings;
 
@@ -41,7 +31,7 @@ class HelpMate_Promo_Banner
      * Initialize the class and set its properties.
      *
      * @since    1.0.0
-     * @param    HelpMate_Settings    $settings    The settings instance.
+     * @param    Helpmate_Settings    $settings    The settings instance.
      */
     public function __construct($settings)
     {
@@ -88,7 +78,7 @@ class HelpMate_Promo_Banner
     {
         $schedules['helpmate_banner_expiration_interval'] = array(
             'interval' => 300, // 5 minutes
-            'display' => __('Every 5 minutes', 'helpmate')
+            'display' => __('Every 5 minutes', 'helpmate-ai-chatbot')
         );
         return $schedules;
     }

@@ -1,15 +1,15 @@
 <?php
 
 /**
- * The job tracker class for the HelpMate plugin.
+ * The job tracker class for the Helpmate plugin.
  *
  * Handles tracking and management of background job metadata.
  *
- * @link       https://rhapsodyplugins.com
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
  *
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ * @package    Helpmate
+ * @subpackage Helpmate/includes
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class HelpMate_Job_Tracker
+class Helpmate_Job_Tracker
 {
     /**
      * The database table name.

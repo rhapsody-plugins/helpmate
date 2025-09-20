@@ -3,21 +3,14 @@
 /**
  * The admin-specific functionality of the plugin.
  *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/admin
- */
-
-/**
- * The admin-specific functionality of the plugin.
- *
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the admin-specific stylesheet and JavaScript.
  *
- * @package    HelpMate
- * @subpackage HelpMate/admin
+ * @link       https://rhapsodyplugins.com/helpmate
+ * @since      1.0.0
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/admin
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
@@ -25,7 +18,7 @@
 if (!defined('ABSPATH'))
 	exit;
 
-class HelpMate_Admin
+class Helpmate_Admin
 {
 
 	/**
@@ -73,10 +66,10 @@ class HelpMate_Admin
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
-		 * defined in HelpMate_Loader as all of the hooks are defined
+		 * defined in Helpmate_Loader as all of the hooks are defined
 		 * in that particular class.
 		 *
-		 * The HelpMate_Loader will then create the relationship
+		 * The Helpmate_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
@@ -84,7 +77,7 @@ class HelpMate_Admin
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/helpmate-admin.css', array(), $this->version, 'all');
 
 
-		// Check if we're on the HelpMate admin page
+		// Check if we're on the Helpmate admin page
 		$screen = get_current_screen();
 		if ($screen && $screen->id === 'toplevel_page_helpmate') {
 			$is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV;
@@ -122,10 +115,10 @@ class HelpMate_Admin
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
-		 * defined in HelpMate_Loader as all of the hooks are defined
+		 * defined in Helpmate_Loader as all of the hooks are defined
 		 * in that particular class.
 		 *
-		 * The HelpMate_Loader will then create the relationship
+		 * The Helpmate_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
@@ -139,7 +132,7 @@ class HelpMate_Admin
 		));
 
 
-		// Check if we're on the HelpMate admin page
+		// Check if we're on the Helpmate admin page
 		$screen = get_current_screen();
 		if ($screen && $screen->id === 'toplevel_page_helpmate') {
 			$is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV;

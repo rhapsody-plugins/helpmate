@@ -68,7 +68,7 @@ export type TooltipContentType = typeof TooltipContent;
 export type TooltipProviderType = typeof TooltipProvider;
 export type TooltipTriggerType = typeof TooltipTrigger;
 
-export interface HelpMateWindowType {
+export interface HelpmateWindowType {
   React: ReactType;
   ReactDOM: ReactDOMType;
   useQuery: UseQueryType;
@@ -111,7 +111,7 @@ export interface HelpMateWindowType {
   };
 }
 
-export interface HelpMateProWindowType {
+export interface HelpmateProWindowType {
   isPro: boolean;
   components: {
     ImageSearch: React.ComponentType<ImageSearchProps> | null;

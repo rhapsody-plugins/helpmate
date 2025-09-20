@@ -3,21 +3,14 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/public
- */
-
-/**
- * The public-facing functionality of the plugin.
- *
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the public-facing stylesheet and JavaScript.
  *
- * @package    HelpMate
- * @subpackage HelpMate/public
+ * @link       https://rhapsodyplugins.com/helpmate
+ * @since      1.0.0
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/public
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
@@ -25,7 +18,7 @@
 if (!defined('ABSPATH'))
 	exit;
 
-class HelpMate_Public
+class Helpmate_Public
 {
 
 	/**
@@ -51,7 +44,7 @@ class HelpMate_Public
 	 *
 	 * @since    1.0.0
 	 * @access   private
-	 * @var      HelpMate_Promo_Banner    $promo_banner    The promo banner instance.
+	 * @var      Helpmate_Promo_Banner    $promo_banner    The promo banner instance.
 	 */
 	private $promo_banner;
 
@@ -61,7 +54,7 @@ class HelpMate_Public
 	 * @since    1.0.0
 	 * @param      string    $plugin_name       The name of the plugin.
 	 * @param      string    $version    The version of this plugin.
-	 * @param      HelpMate_Promo_Banner    $promo_banner    The promo banner instance.
+	 * @param      Helpmate_Promo_Banner    $promo_banner    The promo banner instance.
 	 */
 	public function __construct($plugin_name, $version, $promo_banner)
 	{
@@ -70,7 +63,7 @@ class HelpMate_Public
 		$this->version = $version;
 		$this->promo_banner = $promo_banner;
 
-		// Add action to display HelpMate on all frontend pages
+		// Add action to display Helpmate on all frontend pages
 		add_action('wp_footer', array($this, 'display_helpmate'));
 
 	}
@@ -87,10 +80,10 @@ class HelpMate_Public
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
-		 * defined in HelpMate_Loader as all of the hooks are defined
+		 * defined in Helpmate_Loader as all of the hooks are defined
 		 * in that particular class.
 		 *
-		 * The HelpMate_Loader will then create the relationship
+		 * The Helpmate_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
@@ -131,10 +124,10 @@ class HelpMate_Public
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
-		 * defined in HelpMate_Loader as all of the hooks are defined
+		 * defined in Helpmate_Loader as all of the hooks are defined
 		 * in that particular class.
 		 *
-		 * The HelpMate_Loader will then create the relationship
+		 * The Helpmate_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
@@ -213,7 +206,7 @@ class HelpMate_Public
 	}
 
 	/**
-	 * Display the HelpMate interface on all frontend pages.
+	 * Display the Helpmate interface on all frontend pages.
 	 *
 	 * @since    1.0.0
 	 */

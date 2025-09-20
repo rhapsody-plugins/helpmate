@@ -1,8 +1,7 @@
-// HelpMate Shadow DOM Setup
+// Helpmate Shadow DOM Setup
 (function () {
     // Prevent multiple initializations
     if (window.helpmateShadowRoot) {
-      console.log('HelpMate: Shadow DOM already initialized');
       return;
     }
 
@@ -87,7 +86,7 @@
 
     function loadProductionStyles(shadowRoot) {
       const wpCss = document.querySelector(
-        'link[href*="helpmate/public/app/dist/assets/index-"][href*=".css"]'
+        'link[href*="helpmate-ai-chatbot/public/app/dist/assets/index-"][href*=".css"]'
       );
       if (wpCss) {
         const cssLink = document.createElement('link');

@@ -1,16 +1,6 @@
 <?php
 
 /**
- * The file that defines the chat response generation functionality of the plugin
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes
- */
-
-/**
  * The chat response generation functionality of the plugin.
  *
  * This class handles all AI response generation operations:
@@ -20,23 +10,25 @@
  * - RAG context integration
  * - Final response generation
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes/chat
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Chat_Response_Generator
+class Helpmate_Chat_Response_Generator
 {
     /**
      * The helpmate instance.
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate    $helpmate    The helpmate instance.
+     * @var      Helpmate    $helpmate    The helpmate instance.
      */
     private $helpmate;
 
@@ -54,7 +46,7 @@ class HelpMate_Chat_Response_Generator
      *
      * @since    1.0.0
      */
-    public function __construct(HelpMate $helpmate)
+    public function __construct(Helpmate $helpmate)
     {
         $this->helpmate = $helpmate;
         $this->temperature = $this->helpmate->get_settings()->get_setting('ai')['temperature'];
@@ -155,7 +147,7 @@ class HelpMate_Chat_Response_Generator
      * @param string $session_id Optional session ID for chat history.
      * @param string $image_url Optional image URL for image search.
      * @param string $product_id Optional product ID.
-     * @param HelpMate_Chat_Helpers $helpers The helpers instance.
+     * @param Helpmate_Chat_Helpers $helpers The helpers instance.
      * @return array The response with session_id.
      */
     public function generate_response(string $prompt, array $context = [], string $session_id = '', string $image_url = '', $product_id = '', $helpers = null): array
@@ -227,7 +219,7 @@ class HelpMate_Chat_Response_Generator
      * @param array $context The context array.
      * @param string $session_id The session ID.
      * @param string $image_url Optional image URL.
-     * @param HelpMate_Chat_Helpers $helpers The helpers instance.
+     * @param Helpmate_Chat_Helpers $helpers The helpers instance.
      * @return array The prepared messages.
      */
     private function prepare_initial_messages($prompt, $context, $session_id, $image_url, $helpers)

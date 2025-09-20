@@ -1,20 +1,20 @@
 <?php
 
 /**
- * The leads database handler for the HelpMate plugin.
+ * The leads database handler for the Helpmate plugin.
  *
- * @link       https://rhapsodyplugins.com
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
  *
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ * @package    Helpmate
+ * @subpackage Helpmate/includes/modules
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Leads
+class Helpmate_Leads
 {
 
     /**
@@ -90,7 +90,7 @@ class HelpMate_Leads
             if (empty($params['name'])) {
                 return new WP_REST_Response([
                     'error' => true,
-                    'message' => __('Name is required', 'helpmate')
+                    'message' => __('Name is required', 'helpmate-ai-chatbot')
                 ], 400);
             }
 
@@ -110,7 +110,7 @@ class HelpMate_Leads
             );
 
             if ($result === false) {
-                throw new Exception(__('Failed to create lead', 'helpmate'));
+                throw new Exception(__('Failed to create lead', 'helpmate-ai-chatbot'));
             }
 
             return new WP_REST_Response([
@@ -121,7 +121,7 @@ class HelpMate_Leads
         } catch (Exception $e) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Failed to create lead', 'helpmate')
+                'message' => __('Failed to create lead', 'helpmate-ai-chatbot')
             ], 500);
         }
     }

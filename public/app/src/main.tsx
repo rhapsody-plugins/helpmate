@@ -30,7 +30,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip.tsx';
 import { useSettings } from '@/hooks/useSettings.ts';
-import { HelpMateProWindowType, HelpMateWindowType } from '@/types';
+import { HelpmateProWindowType, HelpmateWindowType } from '@/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom';
@@ -46,15 +46,15 @@ declare global {
       nonce: string;
       site_url: string;
     };
-    HelpMate: HelpMateWindowType;
-    HelpMatePro: HelpMateProWindowType;
+    Helpmate: HelpmateWindowType;
+    HelpmatePro: HelpmateProWindowType;
     helpmateShadowRoot: ShadowRoot;
     helpmateReactRoot: HTMLElement;
     helpmateReactRootInstance?: Root;
   }
 }
 
-window.HelpMate = {
+window.Helpmate = {
   React,
   ReactDOM,
   useQuery,
@@ -118,7 +118,7 @@ function mountReactApp() {
       );
     }
   } else {
-    console.error('HelpMate: React root not found in shadow DOM');
+    console.error('Helpmate: React root not found in shadow DOM');
   }
 }
 
@@ -135,7 +135,7 @@ if (window.helpmateReactRoot) {
     if (window.helpmateReactRoot) {
       mountReactApp();
     } else {
-      console.error('HelpMate: Shadow DOM not ready after timeout');
+      console.error('Helpmate: Shadow DOM not ready after timeout');
     }
   }, 1000);
 }

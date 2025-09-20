@@ -1,30 +1,22 @@
 <?php
 
 /**
- * The sales notification functionality of the plugin.
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes/modules
- */
-
-/**
  * The sales notification class.
  *
  * This is used to handle sales notifications and related functionality.
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes/modules
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes/modules
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Sales_Notification
+class Helpmate_Sales_Notification
 {
 
     /**
@@ -32,7 +24,7 @@ class HelpMate_Sales_Notification
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate_Settings    $settings    The settings handler instance.
+     * @var      Helpmate_Settings    $settings    The settings handler instance.
      */
     private $settings;
 
@@ -40,7 +32,7 @@ class HelpMate_Sales_Notification
      * Initialize the class and set its properties.
      *
      * @since    1.0.0
-     * @param    HelpMate_Settings    $settings    The settings handler instance.
+     * @param    Helpmate_Settings    $settings    The settings handler instance.
      */
     public function __construct($settings)
     {

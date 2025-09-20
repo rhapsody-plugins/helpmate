@@ -10,8 +10,8 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), tailwindcss()],
     base:
       env.VITE_ENVIRONMENT === 'dev'
-        ? '/wp-content/plugins/helpmate/public/app/'
-        : '/wp-content/plugins/helpmate/public/app/dist/',
+        ? '/wp-content/plugins/helpmate-ai-chatbot/public/app/'
+        : '/wp-content/plugins/helpmate-ai-chatbot/public/app/dist/',
     publicDir: false,
     server: {
       cors: true,

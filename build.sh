@@ -38,8 +38,8 @@ export LICENSE_SERVER_URL
 echo "Building for environment: $ENVIRONMENT"
 echo "License server URL: $LICENSE_SERVER_URL"
 
-# Get plugin version from helpmate.php
-PLUGIN_VERSION=$(grep "HELPMATE_VERSION" "$(dirname "$0")/helpmate.php" | sed -E "s/.*HELPMATE_VERSION', *'([^']+)'.*/\1/")
+# Get plugin version from helpmate-ai-chatbot.php
+PLUGIN_VERSION=$(grep "HELPMATE_VERSION" "$(dirname "$0")/helpmate-ai-chatbot.php" | sed -E "s/.*HELPMATE_VERSION', *'([^']+)'.*/\1/")
 
 # Set zip name based on environment
 if [ "$ENVIRONMENT" = "production" ]; then
@@ -111,10 +111,10 @@ rm -rf $ZIP_NAME
 rm -rf temp_zip
 mkdir -p temp_zip
 # Move contents to a helpmate folder
-mv helpmate-build temp_zip/helpmate
+mv helpmate-build temp_zip/helpmate-ai-chatbot
 # Create zip from the temp directory
 cd temp_zip
-zip -r $ZIP_NAME helpmate -x "*.git*" "*.DS_Store"
+zip -r $ZIP_NAME helpmate-ai-chatbot -x "*.git*" "*.DS_Store"
 # Move zip to parent directory
 mv $ZIP_NAME ../
 # Clean up

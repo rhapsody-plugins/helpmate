@@ -5,11 +5,11 @@
  *
  * This file is used to markup the public-facing aspects of the plugin.
  *
- * @link       https://rhapsodyplugins.com
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
  *
- * @package    HelpMate
- * @subpackage HelpMate/public/partials
+ * @package    Helpmate
+ * @subpackage Helpmate/public/partials
  */
 
 // If this file is called directly, abort.
@@ -27,14 +27,14 @@ $is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV;
     <!-- Development mode - Vite dev scripts with proper preamble -->
     <?php /* phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript */ ?>
     <script type="module">
-        import RefreshRuntime from 'http://localhost:5174/wp-content/plugins/helpmate/public/app/@react-refresh'
+        import RefreshRuntime from 'http://localhost:5174/wp-content/plugins/helpmate-ai-chatbot/public/app/@react-refresh'
         RefreshRuntime.injectIntoGlobalHook(window)
         window.$RefreshReg$ = () => { }
         window.$RefreshSig$ = () => (type) => type
         window.__vite_plugin_react_preamble_installed__ = true
     </script>
     <?php /* phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript */ ?>
-    <script type="module" src="http://localhost:5174/wp-content/plugins/helpmate/public/app/@vite/client"></script>
+    <script type="module" src="http://localhost:5174/wp-content/plugins/helpmate-ai-chatbot/public/app/@vite/client"></script>
     <?php /* phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript */ ?>
-    <script type="module" src="http://localhost:5174/wp-content/plugins/helpmate/public/app/src/main.tsx"></script>
+    <script type="module" src="http://localhost:5174/wp-content/plugins/helpmate-ai-chatbot/public/app/src/main.tsx"></script>
 <?php endif; ?>

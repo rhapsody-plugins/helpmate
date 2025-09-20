@@ -1,30 +1,22 @@
 <?php
 
 /**
- * The ticket system functionality of the plugin.
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes/modules
- */
-
-/**
  * The ticket system class.
  *
  * This is used to handle ticket creation and management.
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes/modules
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes/modules
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Ticket
+class Helpmate_Ticket
 {
 
     /**
@@ -32,7 +24,7 @@ class HelpMate_Ticket
      *
      * @since 1.0.0
      * @access private
-     * @var HelpMate_Settings
+     * @var Helpmate_Settings
      */
     private $settings;
 
@@ -49,7 +41,7 @@ class HelpMate_Ticket
      * Initialize the class and set its properties.
      *
      * @since    1.0.0
-     * @param    HelpMate_Settings    $settings    The settings instance.
+     * @param    Helpmate_Settings    $settings    The settings instance.
      */
     public function __construct($settings)
     {
@@ -351,7 +343,7 @@ class HelpMate_Ticket
                     return new WP_REST_Response([
                         'error' => true,
                         /* translators: %s: The name of the required field that is missing */
-                        'message' => sprintf(__('Missing required field: %s', 'helpmate'), $field)
+                        'message' => sprintf(__('Missing required field: %s', 'helpmate-ai-chatbot'), $field)
                     ], 400);
                 }
             }
@@ -370,7 +362,7 @@ class HelpMate_Ticket
             $ticket_id = $this->store_ticket($ticket_data);
 
             if (!$ticket_id) {
-                throw new Exception(__('Failed to create ticket', 'helpmate'));
+                throw new Exception(__('Failed to create ticket', 'helpmate-ai-chatbot'));
             }
 
             // Send notification email to admin
@@ -378,7 +370,7 @@ class HelpMate_Ticket
 
             return new WP_REST_Response([
                 'error' => false,
-                'message' => __('Ticket created successfully', 'helpmate'),
+                'message' => __('Ticket created successfully', 'helpmate-ai-chatbot'),
                 'ticket_id' => $ticket_id
             ], 200);
 
@@ -402,11 +394,11 @@ class HelpMate_Ticket
         $site_name = get_bloginfo('name');
 
         /* translators: 1: Site name, 2: Ticket subject */
-        $subject = sprintf(__('[%1$s] New Support Ticket: %2$s', 'helpmate'), $site_name, $ticket_data['subject']);
+        $subject = sprintf(__('[%1$s] New Support Ticket: %2$s', 'helpmate-ai-chatbot'), $site_name, $ticket_data['subject']);
 
         $message = sprintf(
             /* translators: 1: Ticket subject, 2: Sender name or email, 3: Sender email, 4: Priority, 5: Status, 6: Message content */
-            __("A new support ticket has been created:\n\nSubject: %1\$s\nFrom: %2\$s (%3\$s)\nPriority: %4\$s\nStatus: %5\$s\n\nMessage:\n%6\$s", 'helpmate'),
+            __("A new support ticket has been created:\n\nSubject: %1\$s\nFrom: %2\$s (%3\$s)\nPriority: %4\$s\nStatus: %5\$s\n\nMessage:\n%6\$s", 'helpmate-ai-chatbot'),
             $ticket_data['subject'],
             $ticket_data['name'] ?: $ticket_data['email'],
             $ticket_data['email'],
@@ -435,7 +427,7 @@ class HelpMate_Ticket
                     return new WP_REST_Response([
                         'error' => true,
                         /* translators: %s: The name of the required field that is missing */
-                        'message' => sprintf(__('Missing required field: %s', 'helpmate'), $field)
+                        'message' => sprintf(__('Missing required field: %s', 'helpmate-ai-chatbot'), $field)
                     ], 400);
                 }
             }
@@ -449,7 +441,7 @@ class HelpMate_Ticket
             $reply_id = $this->add_ticket_reply($ticket_id, $message, $role);
 
             if (!$reply_id) {
-                throw new Exception(__('Failed to add reply', 'helpmate'));
+                throw new Exception(__('Failed to add reply', 'helpmate-ai-chatbot'));
             }
 
             // Update ticket status to pending if reply is from user
@@ -464,7 +456,7 @@ class HelpMate_Ticket
 
             return new WP_REST_Response([
                 'error' => false,
-                'message' => __('Reply added successfully', 'helpmate')
+                'message' => __('Reply added successfully', 'helpmate-ai-chatbot')
             ], 200);
 
         } catch (Exception $e) {
@@ -499,19 +491,19 @@ class HelpMate_Ticket
             // Notify user
             if (isset($first_message['metadata']['email'])) {
                 /* translators: 1: Site name, 2: Ticket subject */
-                $subject = sprintf(__('[%1$s] Reply to your ticket: %2$s', 'helpmate'), $site_name, $first_message['subject']);
+                $subject = sprintf(__('[%1$s] Reply to your ticket: %2$s', 'helpmate-ai-chatbot'), $site_name, $first_message['subject']);
                 $recipient = $first_message['metadata']['email'];
             }
         } else {
             // Notify admin
             /* translators: 1: Site name, 2: Ticket subject */
-            $subject = sprintf(__('[%1$s] New reply to ticket: %2$s', 'helpmate'), $site_name, $first_message['subject']);
+            $subject = sprintf(__('[%1$s] New reply to ticket: %2$s', 'helpmate-ai-chatbot'), $site_name, $first_message['subject']);
             $recipient = $admin_email;
         }
 
         $message_content = sprintf(
             /* translators: 1: Ticket ID, 2: Ticket subject, 3: Sender name or email, 4: Ticket status, 5: Reply message */
-            __("A new reply has been added to ticket #%1\$s:\n\nSubject: %2\$s\nFrom: %3\$s\nStatus: %4\$s\n\nMessage:\n%5\$s", 'helpmate'),
+            __("A new reply has been added to ticket #%1\$s:\n\nSubject: %2\$s\nFrom: %3\$s\nStatus: %4\$s\n\nMessage:\n%5\$s", 'helpmate-ai-chatbot'),
             $ticket_id,
             $first_message['subject'],
             $role === 'admin' ? 'Admin' : ($first_message['metadata']['name'] ?: $first_message['metadata']['email']),
@@ -539,7 +531,7 @@ class HelpMate_Ticket
             if (empty($messages)) {
                 return new WP_REST_Response([
                     'error' => true,
-                    'message' => __('Ticket not found', 'helpmate')
+                    'message' => __('Ticket not found', 'helpmate-ai-chatbot')
                 ], 404);
             }
 

@@ -138,9 +138,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 updatedMessage.data &&
                 'orderId' in updatedMessage.data &&
                 settings?.is_pro &&
-                window?.HelpMatePro?.isPro &&
-                window?.HelpMatePro?.components?.OrderTracker && (
-                  <window.HelpMatePro.components.OrderTracker
+                window?.HelpmatePro?.isPro &&
+                window?.HelpmatePro?.components?.OrderTracker && (
+                  <window.HelpmatePro.components.OrderTracker
                     data={updatedMessage.data}
                     messageId={updatedMessage.id}
                     onSubmit={handleOrderTrackSubmit}
@@ -151,9 +151,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 updatedMessage.data &&
                 'submitted' in updatedMessage.data &&
                 settings?.is_pro &&
-                window?.HelpMatePro?.isPro &&
-                window?.HelpMatePro?.components?.RefundReturn && (
-                  <window.HelpMatePro.components.RefundReturn
+                window?.HelpmatePro?.isPro &&
+                window?.HelpmatePro?.components?.RefundReturn && (
+                  <window.HelpmatePro.components.RefundReturn
                     data={updatedMessage.data}
                     messageId={updatedMessage.id}
                     onSubmit={handleRefundReturnSubmit}

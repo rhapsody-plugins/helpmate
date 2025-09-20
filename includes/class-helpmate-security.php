@@ -1,35 +1,27 @@
 <?php
 
 /**
- * Security class for HelpMate plugin.
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes
- */
-
-/**
- * Security class for HelpMate plugin.
+ * Security class for Helpmate plugin.
  *
  * This class defines all code necessary to run during the plugin's security checks.
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Security
+class Helpmate_Security
 {
     /**
      * The settings instance.
      *
-     * @var HelpMate_Settings
+     * @var Helpmate_Settings
      */
     private $settings;
 
@@ -43,9 +35,9 @@ class HelpMate_Security
     /**
      * Constructor
      *
-     * @param HelpMate_Settings $settings The settings instance.
+     * @param Helpmate_Settings $settings The settings instance.
      */
-    public function __construct(HelpMate_Settings $settings)
+    public function __construct(Helpmate_Settings $settings)
     {
         $this->settings = $settings;
 
@@ -71,7 +63,7 @@ class HelpMate_Security
     {
         $schedules['helpmate_five_minutes'] = array(
             'interval' => $this->heartbeat_interval,
-            'display' => __('Every 5 minutes', 'helpmate')
+            'display' => __('Every 5 minutes', 'helpmate-ai-chatbot')
         );
         return $schedules;
     }
@@ -82,7 +74,7 @@ class HelpMate_Security
     public function run_security_checks()
     {
         // Check if plugin is disabled
-        if (!is_plugin_active('helpmate/helpmate.php')) {
+        if (!is_plugin_active('helpmate-ai-chatbot/helpmate-ai-chatbot.php')) {
             $this->log_security_event('plugin_disabled', array(
                 'time' => current_time('mysql'),
                 'user' => wp_get_current_user()->user_login
@@ -239,7 +231,7 @@ class HelpMate_Security
     private function show_security_alert($message)
     {
         add_action('admin_notices', function () use ($message) {
-            echo '<div class="error"><p><strong>' . esc_html__('Helpmate Security Alert:', 'helpmate') . '</strong> ' . esc_html($message) . '</p></div>';
+            echo '<div class="error"><p><strong>' . esc_html__('Helpmate Security Alert:', 'helpmate-ai-chatbot') . '</strong> ' . esc_html($message) . '</p></div>';
         });
     }
 }

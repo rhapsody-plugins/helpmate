@@ -1,16 +1,6 @@
 <?php
 
 /**
- * The file that defines the chat database functionality of the plugin
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes
- */
-
-/**
  * The chat database functionality of the plugin.
  *
  * This class handles all database-related operations for chat functionality:
@@ -18,16 +8,18 @@
  * - Managing chat sessions
  * - Handling chat history and metadata
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes/chat
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_Chat_Database
+class Helpmate_Chat_Database
 {
     /**
      * Get chat history data for a specific session.
@@ -194,7 +186,7 @@ class HelpMate_Chat_Database
         if (!$id || !$key || $value === null) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('ID, key, and value are required', 'helpmate')
+                'message' => __('ID, key, and value are required', 'helpmate-ai-chatbot')
             ], 400);
         }
 
@@ -210,7 +202,7 @@ class HelpMate_Chat_Database
             if (!$metadata) {
                 return new WP_REST_Response([
                     'error' => true,
-                    'message' => __('Chat message not found', 'helpmate')
+                    'message' => __('Chat message not found', 'helpmate-ai-chatbot')
                 ], 404);
             }
 
@@ -239,7 +231,7 @@ class HelpMate_Chat_Database
         } catch (Exception $e) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Failed to update chat metadata', 'helpmate')
+                'message' => __('Failed to update chat metadata', 'helpmate-ai-chatbot')
             ], 500);
         }
     }

@@ -1,16 +1,16 @@
 <?php
 
 /**
- * The background processor class for the HelpMate plugin.
+ * The background processor class for the Helpmate plugin.
  *
  * Handles background processing of bulk document operations using Action Scheduler
  * with WordPress cron fallback.
  *
- * @link       https://rhapsodyplugins.com
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
  *
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ * @package    Helpmate
+ * @subpackage Helpmate/includes
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
@@ -19,14 +19,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class HelpMate_Background_Processor
+class Helpmate_Background_Processor
 {
     /**
      * The document handler instance.
      *
      * @since 1.0.0
      * @access private
-     * @var HelpMate_Document_Handler
+     * @var Helpmate_Document_Handler
      */
     private $document_handler;
 
@@ -35,7 +35,7 @@ class HelpMate_Background_Processor
      *
      * @since 1.0.0
      * @access private
-     * @var HelpMate_Chat
+     * @var Helpmate_Chat
      */
     private $chat;
 
@@ -44,7 +44,7 @@ class HelpMate_Background_Processor
      *
      * @since 1.0.0
      * @access private
-     * @var HelpMate_Job_Tracker
+     * @var Helpmate_Job_Tracker
      */
     private $job_tracker;
 
@@ -61,9 +61,9 @@ class HelpMate_Background_Processor
      * Construct the background processor.
      *
      * @since 1.0.0
-     * @param HelpMate_Document_Handler $document_handler The document handler instance.
-     * @param HelpMate_Chat $chat The chat instance.
-     * @param HelpMate_Job_Tracker $job_tracker The job tracker instance.
+     * @param Helpmate_Document_Handler $document_handler The document handler instance.
+     * @param Helpmate_Chat $chat The chat instance.
+     * @param Helpmate_Job_Tracker $job_tracker The job tracker instance.
      */
     public function __construct($document_handler, $chat, $job_tracker)
     {
@@ -652,24 +652,24 @@ class HelpMate_Background_Processor
         $errors = $notice['errors'];
 
         $class = 'notice notice-' . ($status === 'completed' ? 'success' : ($status === 'failed' ? 'error' : 'warning'));
-        $title = 'HelpMate Bulk Processing';
+        $title = 'Helpmate Bulk Processing';
 
         if ($status === 'completed') {
             $message = sprintf(
                 // translators: %d is the number of successfully processed documents
-                __('Successfully processed %d documents.', 'helpmate'),
+                __('Successfully processed %d documents.', 'helpmate-ai-chatbot'),
                 $successful
             );
         } elseif ($status === 'failed') {
             $message = sprintf(
                 // translators: %d is the number of failed documents
-                __('Failed to process all %d documents.', 'helpmate'),
+                __('Failed to process all %d documents.', 'helpmate-ai-chatbot'),
                 $failed
             );
         } else {
             $message = sprintf(
                 // translators: %1$d is the number of successfully processed documents, %2$d is the total number of documents, %3$d is the number of failed documents
-                __('Processed %1$d of %2$d documents successfully. %3$d failed.', 'helpmate'),
+                __('Processed %1$d of %2$d documents successfully. %3$d failed.', 'helpmate-ai-chatbot'),
                 $successful,
                 $successful + $failed,
                 $failed

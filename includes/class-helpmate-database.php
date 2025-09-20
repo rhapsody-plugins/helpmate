@@ -1,15 +1,15 @@
 <?php
 
 /**
- * The database class for the HelpMate plugin.
+ * The database class for the Helpmate plugin.
  *
- * A class that handles the database operations for the HelpMate plugin.
+ * A class that handles the database operations for the Helpmate plugin.
  *
- * @link       https://rhapsodyplugins.com
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
  *
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ * @package    Helpmate
+ * @subpackage Helpmate/includes
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
@@ -17,7 +17,7 @@
 if (!defined('ABSPATH'))
     exit;
 
-class HelpMate_Database
+class Helpmate_Database
 {
 
     /**

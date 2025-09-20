@@ -1,25 +1,17 @@
 <?php
 
 /**
- * The file that defines the general tools functionality of the plugin
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes
- */
-
-/**
  * The general tools functionality of the plugin.
  *
  * This class handles general tools including:
  * - FAQ options tool
  * - Handover to human tool
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes/chat
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
@@ -27,7 +19,7 @@
 if (!defined('ABSPATH'))
     exit;
 
-class HelpMate_General_Tools
+class Helpmate_General_Tools
 {
 
     /**
@@ -35,7 +27,7 @@ class HelpMate_General_Tools
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate    $helpmate    The helpmate instance.
+     * @var      Helpmate    $helpmate    The helpmate instance.
      */
     private $helpmate;
 
@@ -44,7 +36,7 @@ class HelpMate_General_Tools
      *
      * @since    1.0.0
      */
-    public function __construct(HelpMate $helpmate)
+    public function __construct(Helpmate $helpmate)
     {
         $this->helpmate = $helpmate;
     }

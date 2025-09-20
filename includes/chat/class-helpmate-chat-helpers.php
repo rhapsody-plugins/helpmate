@@ -1,16 +1,6 @@
 <?php
 
 /**
- * The file that defines the chat helpers functionality of the plugin
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes
- */
-
-/**
  * The chat helpers functionality of the plugin.
  *
  * This class handles all utility and helper operations for chat functionality:
@@ -19,9 +9,11 @@
  * - Context handling
  * - Various utility methods
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes/chat
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
@@ -29,14 +21,14 @@
 if (!defined('ABSPATH'))
     exit;
 
-class HelpMate_Chat_Helpers
+class Helpmate_Chat_Helpers
 {
     /**
      * The helpmate instance.
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate    $helpmate    The helpmate instance.
+     * @var      Helpmate    $helpmate    The helpmate instance.
      */
     private $helpmate;
 
@@ -45,7 +37,7 @@ class HelpMate_Chat_Helpers
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate_Chat_Database    $database    The database instance.
+     * @var      Helpmate_Chat_Database    $database    The database instance.
      */
     private $database;
 
@@ -54,7 +46,7 @@ class HelpMate_Chat_Helpers
      *
      * @since    1.0.0
      */
-    public function __construct(HelpMate $helpmate, HelpMate_Chat_Database $database)
+    public function __construct(Helpmate $helpmate, Helpmate_Chat_Database $database)
     {
         $this->helpmate = $helpmate;
         $this->database = $database;
@@ -74,7 +66,7 @@ class HelpMate_Chat_Helpers
         if (empty($url)) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('URL is required', 'helpmate')
+                'message' => __('URL is required', 'helpmate-ai-chatbot')
             ], 400);
         }
 
@@ -101,7 +93,7 @@ class HelpMate_Chat_Helpers
         if (is_wp_error($response)) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Error fetching URL: ', 'helpmate') . $response->get_error_message()
+                'message' => __('Error fetching URL: ', 'helpmate-ai-chatbot') . $response->get_error_message()
             ], 500);
         }
 
@@ -109,7 +101,7 @@ class HelpMate_Chat_Helpers
         if ($response_code !== 200) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Failed to fetch URL. Response code: ', 'helpmate') . $response_code
+                'message' => __('Failed to fetch URL. Response code: ', 'helpmate-ai-chatbot') . $response_code
             ], 500);
         }
 
@@ -117,7 +109,7 @@ class HelpMate_Chat_Helpers
         if (empty($html)) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Could not fetch URL content', 'helpmate')
+                'message' => __('Could not fetch URL content', 'helpmate-ai-chatbot')
             ], 500);
         }
 
@@ -164,7 +156,7 @@ class HelpMate_Chat_Helpers
         if (!$mainContent) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Could not find main content area', 'helpmate')
+                'message' => __('Could not find main content area', 'helpmate-ai-chatbot')
             ], 500);
         }
 
@@ -254,7 +246,7 @@ class HelpMate_Chat_Helpers
         } catch (Exception $e) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Error processing content: ', 'helpmate') . $e->getMessage()
+                'message' => __('Error processing content: ', 'helpmate-ai-chatbot') . $e->getMessage()
             ], 500);
         }
     }
@@ -272,7 +264,7 @@ class HelpMate_Chat_Helpers
         if (empty($url)) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('URL is required', 'helpmate')
+                'message' => __('URL is required', 'helpmate-ai-chatbot')
             ], 400);
         }
 
@@ -299,7 +291,7 @@ class HelpMate_Chat_Helpers
         if (is_wp_error($response)) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Error fetching URL: ', 'helpmate') . $response->get_error_message()
+                'message' => __('Error fetching URL: ', 'helpmate-ai-chatbot') . $response->get_error_message()
             ], 500);
         }
 
@@ -307,7 +299,7 @@ class HelpMate_Chat_Helpers
         if ($response_code !== 200) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Failed to fetch URL. Response code: ', 'helpmate') . $response_code
+                'message' => __('Failed to fetch URL. Response code: ', 'helpmate-ai-chatbot') . $response_code
             ], 500);
         }
 
@@ -315,7 +307,7 @@ class HelpMate_Chat_Helpers
         if (empty($html)) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Could not fetch URL content', 'helpmate')
+                'message' => __('Could not fetch URL content', 'helpmate-ai-chatbot')
             ], 500);
         }
 
@@ -408,7 +400,7 @@ class HelpMate_Chat_Helpers
             if (!isset($response)) {
                 return new WP_REST_Response([
                     'error' => true,
-                    'message' => __('Timeout! The request took too long to complete. Try Again.', 'helpmate')
+                    'message' => __('Timeout! The request took too long to complete. Try Again.', 'helpmate-ai-chatbot')
                 ], 500);
             }
 
@@ -429,7 +421,7 @@ class HelpMate_Chat_Helpers
         } catch (Exception $e) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Error processing content: ', 'helpmate') . $e->getMessage()
+                'message' => __('Error processing content: ', 'helpmate-ai-chatbot') . $e->getMessage()
             ], 500);
         }
     }

@@ -1,16 +1,6 @@
 <?php
 
 /**
- * The file that defines the chat functionality of the plugin
- *
- * @link       https://rhapsodyplugins.com
- * @since      1.0.0
- *
- * @package    HelpMate
- * @subpackage HelpMate/includes
- */
-
-/**
  * The chat functionality of the plugin.
  *
  * This class handles all chat-related functionality including:
@@ -18,9 +8,11 @@
  * - Managing chat sessions
  * - Retrieving chat history
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes/chat
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
@@ -32,7 +24,7 @@ require_once plugin_dir_path(__FILE__) . 'class-helpmate-chat-database.php';
 require_once plugin_dir_path(__FILE__) . 'class-helpmate-chat-response-generator.php';
 require_once plugin_dir_path(__FILE__) . 'class-helpmate-chat-helpers.php';
 
-class HelpMate_Chat
+class Helpmate_Chat
 {
 
     /**
@@ -40,7 +32,7 @@ class HelpMate_Chat
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate    $helpmate    The helpmate instance.
+     * @var      Helpmate    $helpmate    The helpmate instance.
      */
     private $helpmate;
 
@@ -67,7 +59,7 @@ class HelpMate_Chat
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate_Chat_Database    $database    The database handler instance.
+     * @var      Helpmate_Chat_Database    $database    The database handler instance.
      */
     private $database;
 
@@ -76,7 +68,7 @@ class HelpMate_Chat
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate_Chat_Response_Generator    $response_generator    The response generator instance.
+     * @var      Helpmate_Chat_Response_Generator    $response_generator    The response generator instance.
      */
     private $response_generator;
 
@@ -85,7 +77,7 @@ class HelpMate_Chat
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate_Chat_Helpers    $helpers    The helpers instance.
+     * @var      Helpmate_Chat_Helpers    $helpers    The helpers instance.
      */
     private $helpers;
 
@@ -94,16 +86,16 @@ class HelpMate_Chat
      *
      * @since    1.0.0
      */
-    public function __construct(HelpMate $helpmate)
+    public function __construct(Helpmate $helpmate)
     {
         $this->helpmate = $helpmate;
         $this->temperature = $this->helpmate->get_settings()->get_setting('ai')['temperature'];
         $this->tone = $this->helpmate->get_settings()->get_setting('ai')['tone'];
 
         // Initialize the component instances
-        $this->database = new HelpMate_Chat_Database();
-        $this->helpers = new HelpMate_Chat_Helpers($this->helpmate, $this->database);
-        $this->response_generator = new HelpMate_Chat_Response_Generator($this->helpmate);
+        $this->database = new Helpmate_Chat_Database();
+        $this->helpers = new Helpmate_Chat_Helpers($this->helpmate, $this->database);
+        $this->response_generator = new Helpmate_Chat_Response_Generator($this->helpmate);
     }
 
     /**
@@ -226,7 +218,7 @@ class HelpMate_Chat
         if (empty($session_id)) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Session ID is required', 'helpmate')
+                'message' => __('Session ID is required', 'helpmate-ai-chatbot')
             ], 400);
         }
 
@@ -259,7 +251,7 @@ class HelpMate_Chat
         if (empty($session_id)) {
             return new WP_REST_Response([
                 'error' => true,
-                'message' => __('Session ID is required', 'helpmate')
+                'message' => __('Session ID is required', 'helpmate-ai-chatbot')
             ], 400);
         }
 

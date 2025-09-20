@@ -5,23 +5,26 @@
  *
  * This class handles all the public-facing routes for the plugin.
  *
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/includes
+ * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if (!defined('ABSPATH'))
     exit;
 
-class HelpMate_Frontend_Routes
+class Helpmate_Frontend_Routes
 {
     /**
      * The helpmate instance.
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate    $helpmate    The helpmate instance.
+     * @var      Helpmate    $helpmate    The helpmate instance.
      */
     private $helpmate;
 
@@ -29,7 +32,7 @@ class HelpMate_Frontend_Routes
      * Initialize the class and set its properties.
      *
      * @since    1.0.0
-     * @param    HelpMate    $helpmate    The helpmate instance.
+     * @param    Helpmate    $helpmate    The helpmate instance.
      */
     public function __construct($helpmate)
     {

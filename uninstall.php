@@ -19,10 +19,12 @@
  * For more information, see the following discussion:
  * https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate/pull/123#issuecomment-28541913
  *
- * @link       https://rhapsodyplugins.com
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
  *
- * @package    HelpMate
+ * @package    Helpmate
+ * @subpackage Helpmate/uninstall
+ * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If uninstall not called from WordPress, then exit.

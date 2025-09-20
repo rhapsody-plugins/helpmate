@@ -5,28 +5,18 @@
  *
  * This class handles all WooCommerce related functionality.
  *
- * @link       https://rhapsodyplugins.com
+ * @link       https://rhapsodyplugins.com/helpmate
  * @since      1.0.0
  *
- * @package    HelpMate_Pro
- * @subpackage HelpMate_Pro/includes
- */
-
-/**
- * The WooCommerce integration class.
- *
- * This is used to define WooCommerce specific functionality.
- *
- * @since      1.0.0
- * @package    HelpMate
- * @subpackage HelpMate/includes
+ * @package    Helpmate
+ * @subpackage Helpmate/includes/modules
  * @author     Rhapsody Plugins <hello@rhapsodyplugins.com>
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class HelpMate_WooCommerce
+class Helpmate_WooCommerce
 {
 
     /**
@@ -34,7 +24,7 @@ class HelpMate_WooCommerce
      *
      * @since    1.0.0
      * @access   private
-     * @var      HelpMate_Settings    $settings    The settings handler instance.
+     * @var      Helpmate_Settings    $settings    The settings handler instance.
      */
     private $settings;
 
@@ -42,7 +32,7 @@ class HelpMate_WooCommerce
      * Initialize the class and set its properties.
      *
      * @since    1.0.0
-     * @param    HelpMate_Settings    $settings    The settings handler instance.
+     * @param    Helpmate_Settings    $settings    The settings handler instance.
      */
     public function __construct($settings)
     {
