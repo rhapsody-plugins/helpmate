@@ -10,6 +10,7 @@ export const useSettings = () => {
       return res.data;
     },
     initialData: {
+      api: false,
       is_pro: false,
       is_woocommerce_active: false,
       modules: {},

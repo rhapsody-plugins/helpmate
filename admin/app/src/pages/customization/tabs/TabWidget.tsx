@@ -2,6 +2,7 @@ import HelpmateIcon from '@/assets/helpmate-logo-icon.svg';
 import ChatBotPreview from '@/components/ChatBotPreview';
 import GradientPicker from '@/components/GradientPicker';
 import MediaPicker from '@/components/MediaPicker';
+import { ProBadge } from '@/components/ProBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -20,9 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
 import { useSettings } from '@/hooks/useSettings';
+import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PlayIcon } from 'lucide-react';
 import { useCallback, useEffect } from 'react';
@@ -56,7 +59,9 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function TabWidget() {
-  const { getSettingsMutation, updateSettingsMutation } = useSettings();
+  const { getSettingsMutation, updateSettingsMutation, getProQuery } =
+    useSettings();
+  const { data: isPro } = getProQuery;
 
   const { mutate: getSettings, isPending: isFetching } = getSettingsMutation;
   const { mutate: updateSettings, isPending: isUpdating } =
@@ -196,44 +201,6 @@ export default function TabWidget() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="bot_icon"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Bot Icon</FormLabel>
-                        <FormControl>
-                          <MediaPicker
-                            imageUrl={field.value}
-                            setImageUrl={field.onChange}
-                            defaultImage={
-                              <div className="flex justify-center items-center">
-                                <ChangeSvgColor
-                                  src={HelpmateIcon}
-                                  fill="black"
-                                  className="flex justify-center items-center"
-                                />
-                              </div>
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="bot_name"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Bot Name</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Helpmate" {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
                   <FormField
                     control={form.control}
                     name="primary_color"
@@ -453,30 +420,93 @@ export default function TabWidget() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="icon"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Button Icon</FormLabel>
-                        <FormControl>
-                          <MediaPicker
-                            imageUrl={field.value}
-                            setImageUrl={field.onChange}
-                            defaultImage={
-                              <div className="flex justify-center items-center">
-                                <ChangeSvgColor
-                                  src={HelpmateIcon}
-                                  fill="black"
-                                  className="flex justify-center items-center"
-                                />
-                              </div>
-                            }
-                          />
-                        </FormControl>
-                      </FormItem>
+                  <div className="col-span-2">
+                    <Separator />
+                  </div>
+
+                  <div className="relative col-span-2">
+                    {!isPro && (
+                      <ProBadge
+                        topMessage="Customize your chatbot to your brand."
+                        buttonText="Customize"
+                        tooltipMessage={null}
+                      />
                     )}
-                  />
+                    <div
+                      className={cn(
+                        !isPro &&
+                          'opacity-15 cursor-not-allowed pointer-events-none',
+                        'grid grid-cols-2 gap-4'
+                      )}
+                    >
+                      <FormField
+                        control={form.control}
+                        name="bot_icon"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col gap-2">
+                            <FormLabel>Bot Icon</FormLabel>
+                            <FormControl>
+                              <MediaPicker
+                                imageUrl={field.value}
+                                setImageUrl={field.onChange}
+                                defaultImage={
+                                  <div className="flex justify-center items-center">
+                                    <ChangeSvgColor
+                                      src={HelpmateIcon}
+                                      fill="black"
+                                      className="flex justify-center items-center"
+                                    />
+                                  </div>
+                                }
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="bot_name"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col gap-2">
+                            <FormLabel>Bot Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Helpmate" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="icon"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col gap-2">
+                            <FormLabel>Button Icon</FormLabel>
+                            <FormControl>
+                              <MediaPicker
+                                imageUrl={field.value}
+                                setImageUrl={field.onChange}
+                                defaultImage={
+                                  <div className="flex justify-center items-center">
+                                    <ChangeSvgColor
+                                      src={HelpmateIcon}
+                                      fill="black"
+                                      className="flex justify-center items-center"
+                                    />
+                                  </div>
+                                }
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="col-span-2">
+                    <Separator />
+                  </div>
 
                   <div className="col-span-2">
                     <Button

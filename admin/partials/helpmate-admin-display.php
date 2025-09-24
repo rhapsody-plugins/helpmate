@@ -40,5 +40,5 @@ $is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV;
     <?php /* phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript */ ?>
     <script type="module" src="http://localhost:5173/wp-content/plugins/helpmate-ai-chatbot/admin/app/@vite/client"></script>
     <?php /* phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript */ ?>
-    <script type="module" src="http://localhost:5173/wp-content/plugins/helpmate-ai-chatbot /admin/app/src/main.tsx"></script>
+    <script type="module" src="http://localhost:5173/wp-content/plugins/helpmate-ai-chatbot/admin/app/src/main.tsx"></script>
 <?php endif; ?>

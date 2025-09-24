@@ -14,19 +14,20 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH'))
+    exit;
 
 class Helpmate_Document_Handler
 {
 
     /**
-     * The license instance.
+     * The api instance.
      *
      * @since 1.0.0
      * @access private
-     * @var Helpmate_License
+     * @var Helpmate_Api
      */
-    private $license;
+    private $api;
 
     /**
      * The chat helpers instance.
@@ -41,11 +42,11 @@ class Helpmate_Document_Handler
      * Construct the document handler.
      *
      * @since 1.0.0
-     * @param Helpmate_License $license The license instance.
+     * @param Helpmate_Api $api The api instance.
      */
-    public function __construct(Helpmate_License $license, Helpmate_Chat $chat)
+    public function __construct(Helpmate_Api $api, Helpmate_Chat $chat)
     {
-        $this->license = $license;
+        $this->api = $api;
         $this->chat = $chat;
 
         // Add custom 5-minute cron schedule

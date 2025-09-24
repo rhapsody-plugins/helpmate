@@ -52,6 +52,9 @@ class Helpmate_Admin
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 
+		// Add menu highlighting hook
+		add_action('admin_head', array($this, 'add_menu_highlighting_css'));
+
 	}
 
 	/**
@@ -190,6 +193,42 @@ class Helpmate_Admin
 			plugin_dir_url(__FILE__) . 'image/helpmate-wp-menu-icon.svg',
 			58
 		);
+
+		add_submenu_page(
+			'helpmate',
+			'Train Chatbot',
+			'Train Chatbot',
+			'manage_options',
+			'helpmate'
+		);
+
+		// Add submenus
+		add_submenu_page(
+			'helpmate',
+			'App Center',
+			'App Center',
+			'manage_options',
+			'helpmate&tab=apps',
+			array($this, 'display_plugin_setup_page')
+		);
+
+		add_submenu_page(
+			'helpmate',
+			'Get Help',
+			'Get Help',
+			'manage_options',
+			'helpmate-get-help',
+			array($this, 'redirect_to_support')
+		);
+
+		add_submenu_page(
+			'helpmate',
+			'Upgrade',
+			'Upgrade',
+			'manage_options',
+			'helpmate-upgrade',
+			array($this, 'redirect_to_pricing')
+		);
 	}
 
 	/**
@@ -214,6 +253,54 @@ class Helpmate_Admin
 			return;
 
 		wp_enqueue_media();
+	}
+
+	/**
+	 * Redirect to support page.
+	 *
+	 * @since    1.0.0
+	 */
+	public function redirect_to_support()
+	{
+		wp_redirect('https://rhapsodyplugins.com/contact');
+		exit;
+	}
+
+	/**
+	 * Redirect to pricing page.
+	 *
+	 * @since    1.0.0
+	 */
+	public function redirect_to_pricing()
+	{
+		wp_redirect('https://rhapsodyplugins.com/helpmate/#pricing');
+		exit;
+	}
+
+	/**
+	 * Add custom CSS for menu highlighting.
+	 *
+	 * @since    1.0.0
+	 */
+	public function add_menu_highlighting_css()
+	{
+		$screen = get_current_screen();
+		if ($screen && $screen->id === 'toplevel_page_helpmate') {
+			$tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : '';
+
+			if ($tab === 'apps') {
+				echo '<style>
+					#adminmenu .wp-submenu a {
+    					color: rgba(240, 246, 252, .7) !important;
+						font-weight: 400 !important;
+					}
+					#adminmenu .wp-submenu a[href*="helpmate&tab=apps"] {
+						color: #ffffff !important;
+						font-weight: 600 !important;
+					}
+				</style>';
+			}
+		}
 	}
 
 }

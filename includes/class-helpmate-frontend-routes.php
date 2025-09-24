@@ -243,6 +243,11 @@ class Helpmate_Frontend_Routes
     public function get_bot_settings()
     {
         try {
+            if ($this->helpmate->get_api()->get_key()) {
+                $api = true;
+            } else {
+                $api = false;
+            }
             $is_pro = $this->helpmate->get_product_slug() !== 'helpmate-free' && $this->helpmate->is_helpmate_pro_active();
             $is_woocommerce_active = $this->helpmate->is_woocommerce_active();
             $settings = [];
@@ -313,6 +318,7 @@ class Helpmate_Frontend_Routes
 
             return new WP_REST_Response([
                 'error' => false,
+                'api' => $api,
                 'is_pro' => $is_pro,
                 'is_woocommerce_active' => $is_woocommerce_active,
                 'modules' => $modules,

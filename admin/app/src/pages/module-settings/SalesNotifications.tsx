@@ -29,6 +29,7 @@ import { z } from 'zod';
 import template1 from '@/assets/templates/sales-notification-template-1.webp';
 import template2 from '@/assets/templates/sales-notification-template-2.webp';
 import template3 from '@/assets/templates/sales-notification-template-3.webp';
+import { HelpmatePricingURL } from '@/lib/constants';
 
 const formSchema = z.object({
   sales_notification: z.boolean().optional(),
@@ -53,7 +54,8 @@ type FormData = z.infer<typeof formSchema>;
 export default function SalesNotifications() {
   const { getSettingsMutation, updateSettingsMutation, getProQuery } =
     useSettings();
-  const { isWooCommerceInstalled, isLoading: isWooCommerceLoading } = useWooCommerce();
+  const { isWooCommerceInstalled, isLoading: isWooCommerceLoading } =
+    useWooCommerce();
   // const icons = useCustomIcons(['woocommerce']);
 
   const { mutate: getSettings, isPending: isFetching } = getSettingsMutation;
@@ -226,7 +228,9 @@ export default function SalesNotifications() {
                                     ? 'opacity-50 cursor-not-allowed'
                                     : ''
                                 )}
-                                onClick={() => isWooCommerceInstalled && field.onChange('1')}
+                                onClick={() =>
+                                  isWooCommerceInstalled && field.onChange('1')
+                                }
                               >
                                 <img
                                   src={template1}
@@ -247,12 +251,20 @@ export default function SalesNotifications() {
                                     ? 'border-primary'
                                     : 'border-border/50',
                                   !getProQuery.data || !isWooCommerceInstalled
-                                    ? 'opacity-50 cursor-not-allowed'
+                                    ? 'opacity-50'
                                     : 'hover:border-primary'
                                 )}
-                                onClick={() =>
-                                  getProQuery.data && isWooCommerceInstalled && field.onChange('2')
-                                }
+                                onClick={() => {
+                                  if (
+                                    getProQuery.data &&
+                                    isWooCommerceInstalled
+                                  ) {
+                                    field.onChange('2');
+                                  }
+                                  if (!getProQuery.data) {
+                                    window.open(HelpmatePricingURL, '_blank');
+                                  }
+                                }}
                               >
                                 <img
                                   src={template2}
@@ -266,7 +278,7 @@ export default function SalesNotifications() {
                                   </span>
                                 </div>
                                 {!getProQuery.data && (
-                                  <div className="absolute top-2 right-2 px-2 py-1 text-xs bg-orange-500 rounded">
+                                  <div className="absolute top-2 right-2 px-2 py-1 text-xs text-white bg-orange-500 rounded">
                                     Pro Only
                                   </div>
                                 )}
@@ -279,12 +291,20 @@ export default function SalesNotifications() {
                                     ? 'border-primary'
                                     : 'border-border/50',
                                   !getProQuery.data || !isWooCommerceInstalled
-                                    ? 'opacity-50 cursor-not-allowed'
+                                    ? 'opacity-50'
                                     : 'hover:border-primary'
                                 )}
-                                onClick={() =>
-                                  getProQuery.data && isWooCommerceInstalled && field.onChange('3')
-                                }
+                                onClick={() => {
+                                  if (
+                                    getProQuery.data &&
+                                    isWooCommerceInstalled
+                                  ) {
+                                    field.onChange('3');
+                                  }
+                                  if (!getProQuery.data) {
+                                    window.open(HelpmatePricingURL, '_blank');
+                                  }
+                                }}
                               >
                                 <img
                                   src={template3}
@@ -298,7 +318,7 @@ export default function SalesNotifications() {
                                   </span>
                                 </div>
                                 {!getProQuery.data && (
-                                  <div className="absolute top-2 right-2 px-2 py-1 text-xs bg-orange-500 rounded">
+                                  <div className="absolute top-2 right-2 px-2 py-1 text-xs text-white bg-orange-500 rounded">
                                     Pro Only
                                   </div>
                                 )}

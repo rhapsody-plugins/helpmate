@@ -89,7 +89,7 @@ msgid "Session ID is required"
 msgstr ""
 
 #: includes/class-helpmate-activator.php:48
-msgid "Helpmate could not be activated due to a license error. Please contact support."
+msgid "Helpmate could not be activated due to a api error. Please contact support."
 msgstr ""
 
 #: includes/class-helpmate-activator.php:49
@@ -166,41 +166,41 @@ msgstr ""
 msgid "Documents removed successfully"
 msgstr ""
 
-#: includes/class-helpmate-license.php:336
+#: includes/class-helpmate-api.php:336
 msgid "Feature slug is required for credit check."
 msgstr ""
 
-#: includes/class-helpmate-license.php:343
+#: includes/class-helpmate-api.php:343
 msgid "Operation count must be at least 1."
 msgstr ""
 
 #. translators: 1: Available credits, 2: Requested credits
-#: includes/class-helpmate-license.php:374
+#: includes/class-helpmate-api.php:374
 msgid "You have reached the maximum number of documents for this feature. Available credits: %1$d, Requested: %2$d. Please purchase more credits to continue."
 msgstr ""
 
 #. translators: 1: Feature name, 2: Available credits, 3: Requested credits
-#: includes/class-helpmate-license.php:396
+#: includes/class-helpmate-api.php:396
 msgid "Insufficient credits for feature \"%1$s\". Available: %2$d, Requested: %3$d. Please purchase more credits to continue."
 msgstr ""
 
-#: includes/class-helpmate-license.php:562
-msgid "License activated successfully"
+#: includes/class-helpmate-api.php:562
+msgid "Api key activated successfully"
 msgstr ""
 
-#: includes/class-helpmate-license.php:567
-msgid "Failed to activate license"
+#: includes/class-helpmate-api.php:567
+msgid "Failed to activate api key"
 msgstr ""
 
-#: includes/class-helpmate-license.php:658
-msgid "Invalid response from license server"
+#: includes/class-helpmate-api.php:658
+msgid "Invalid response from api server"
 msgstr ""
 
-#: includes/class-helpmate-license.php:695
+#: includes/class-helpmate-api.php:695
 msgid "Credits claimed successfully"
 msgstr ""
 
-#: includes/class-helpmate-license.php:701
+#: includes/class-helpmate-api.php:701
 msgid "Failed to claim credits"
 msgstr ""
 
@@ -214,7 +214,7 @@ msgid "Helpmate Security Alert:"
 msgstr ""
 
 #: includes/class-helpmate.php:264
-msgid "Helpmate Pro license requires the Pro version of the plugin to be installed. Please install the Pro version of the plugin to continue."
+msgid "Helpmate Pro Api key requires the Pro version of the plugin to be installed. Please install the Pro version of the plugin to continue."
 msgstr ""
 
 #. translators: 1: File name

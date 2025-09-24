@@ -71,22 +71,13 @@ class Helpmate
 	protected $settings;
 
 	/**
-	 * The security instance.
+	 * The api instance.
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      Helpmate_Security    $security    The security instance.
+	 * @var      Helpmate_Api    $api    The api instance.
 	 */
-	protected $security;
-
-	/**
-	 * The license instance.
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      Helpmate_License    $license    The license instance.
-	 */
-	protected $license;
+	protected $api;
 
 	/**
 	 * The chat instance.
@@ -237,8 +228,7 @@ class Helpmate
 
 		$this->database = new Helpmate_Database();
 		$this->settings = new Helpmate_Settings;
-		$this->security = new Helpmate_Security($this->settings);
-		$this->license = new Helpmate_License($this->settings, $this->plugin_name);
+		$this->api = new Helpmate_Api($this->settings, $this->plugin_name);
 		$this->dashboard = new Helpmate_Dashboard;
 		$this->analytics = new Helpmate_Analytics();
 
@@ -249,7 +239,7 @@ class Helpmate
 		$this->sales_notification = new Helpmate_Sales_Notification($this->settings);
 		$this->ticket = new Helpmate_Ticket($this->settings);
 
-		$this->document_handler = new Helpmate_Document_Handler($this->license, $this->chat);
+		$this->document_handler = new Helpmate_Document_Handler($this->api, $this->chat);
 		$this->woocommerce = new Helpmate_WooCommerce($this->settings);
 
 		// Initialize background processing
@@ -259,9 +249,9 @@ class Helpmate
 		$this->backend_routes = new Helpmate_Backend_Routes($this);
 		$this->frontend_routes = new Helpmate_Frontend_Routes($this);
 
-		if (!$this->is_helpmate_pro_active() && $this->license->get_product_slug() !== 'helpmate-free') {
+		if (!$this->is_helpmate_pro_active() && $this->api->get_key() && $this->api->get_product_slug() !== 'helpmate-free') {
 			add_action('admin_notices', function () {
-				echo '<div class="error"><p>' . esc_html__('Helpmate Pro license requires the Pro version of the plugin to be installed. Please install the Pro version of the plugin to continue.', 'helpmate-ai-chatbot') . '</p></div>';
+				echo '<div class="error"><p>' . esc_html__('Helpmate Pro Api key requires the Pro version of the plugin to be installed. Please install the Pro version of the plugin to continue.', 'helpmate-ai-chatbot') . '</p></div>';
 			});
 		}
 
@@ -280,7 +270,7 @@ class Helpmate
 	 * - Helpmate_Public. Defines all hooks for the public side of the site.
 	 * - Helpmate_Database. Defines the database functionality.
 	 * - Helpmate_Settings. Defines the settings functionality.
-	 * - Helpmate_License. Defines the license functionality.
+	 * - Helpmate_Api. Defines the api functionality.
 	 * - Helpmate_Security. Defines the security functionality.
 	 * - Helpmate_Dashboard. Defines the dashboard functionality.
 	 * - Helpmate_Analytics. Defines the analytics functionality.
@@ -305,8 +295,7 @@ class Helpmate
 			'public/class-helpmate-public.php',
 			'includes/class-helpmate-database.php',
 			'includes/class-helpmate-settings.php',
-			'includes/class-helpmate-license.php',
-			'includes/class-helpmate-security.php',
+			'includes/class-helpmate-api.php',
 			'includes/class-helpmate-dashboard.php',
 			'includes/class-helpmate-analytics.php',
 			'includes/class-helpmate-document-handler.php',
@@ -422,17 +411,6 @@ class Helpmate
 	public function get_settings()
 	{
 		return $this->settings;
-	}
-
-	/**
-	 * Get the security instance.
-	 *
-	 * @since 1.0.0
-	 * @return Helpmate_Security The security instance.
-	 */
-	public function get_security()
-	{
-		return $this->security;
 	}
 
 	/**
@@ -635,14 +613,14 @@ class Helpmate
 	}
 
 	/**
-	 * Get the license instance.
+	 * Get the api instance.
 	 *
 	 * @since 1.0.0
-	 * @return Helpmate_License The license instance.
+	 * @return Helpmate_Api The api instance.
 	 */
-	public function get_license()
+	public function get_api()
 	{
-		return $this->license;
+		return $this->api;
 	}
 
 	/**
@@ -664,6 +642,6 @@ class Helpmate
 	 */
 	public function get_product_slug()
 	{
-		return $this->license->get_product_slug();
+		return $this->api->get_product_slug();
 	}
 }

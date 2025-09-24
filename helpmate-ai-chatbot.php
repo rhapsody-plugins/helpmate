@@ -63,15 +63,15 @@ define('HELPMATE_MODULE_COUPON_DELIVERY', 'coupon-delivery');
 define('HELPMATE_MODULE_PROMO_BANNER', 'promo-banner');
 define('HELPMATE_MODULE_DEFAULT_SETTINGS', [
 	HELPMATE_MODULE_CHATBOT => true,
-	HELPMATE_MODULE_IMAGE_SEARCH => true,
-	HELPMATE_MODULE_PROACTIVE_SALES => true,
-	HELPMATE_MODULE_REFUND_RETURN => true,
 	HELPMATE_MODULE_SALES_NOTIFICATIONS => true,
+	HELPMATE_MODULE_PROMO_BANNER => true,
 	HELPMATE_MODULE_TICKET_SYSTEM => true,
-	HELPMATE_MODULE_ABANDONED_CART => true,
-	HELPMATE_MODULE_ORDER_TRACKER => true,
-	HELPMATE_MODULE_COUPON_DELIVERY => true,
-	HELPMATE_MODULE_PROMO_BANNER => true
+	HELPMATE_MODULE_IMAGE_SEARCH => false,
+	HELPMATE_MODULE_PROACTIVE_SALES => false,
+	HELPMATE_MODULE_REFUND_RETURN => false,
+	HELPMATE_MODULE_ABANDONED_CART => false,
+	HELPMATE_MODULE_ORDER_TRACKER => false,
+	HELPMATE_MODULE_COUPON_DELIVERY => false,
 ]);
 
 /**
@@ -138,7 +138,8 @@ function run_helpmate()
 function helpmate_plugin_action_links($links)
 {
 	$settings_link = '<a href="' . admin_url('admin.php?page=helpmate') . '">' . __('Train Chatbot', 'helpmate-ai-chatbot') . '</a>';
-	array_unshift($links, $settings_link);
+	$upgrade_link = '<a href="https://rhapsodyplugins.com/helpmate/#pricing" style="font-weight: bold;" target="_blank">' . __('Upgrade', 'helpmate-ai-chatbot') . '</a>';
+	array_unshift($links, $settings_link, $upgrade_link);
 	return $links;
 }
 add_filter('plugin_action_links_' . HELPMATE_BASENAME, 'helpmate_plugin_action_links');

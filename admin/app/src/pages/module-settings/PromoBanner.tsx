@@ -68,6 +68,7 @@ import { z } from 'zod';
 import template1 from '@/assets/templates/promo-template-1.webp';
 import template2 from '@/assets/templates/promo-template-2.webp';
 import template3 from '@/assets/templates/promo-template-3.webp';
+import { HelpmatePricingURL } from '@/lib/constants';
 
 // Icon options for button
 const ICON_OPTIONS = [
@@ -706,13 +707,15 @@ export default function PromoBanner() {
                                     ? 'border-blue-500 bg-blue-50'
                                     : 'border-gray-200',
                                   !getProQuery.data
-                                    ? 'opacity-50 cursor-not-allowed'
+                                    ? 'opacity-50'
                                     : 'hover:border-primary'
                                 )}
                                 onClick={() => {
                                   if (getProQuery.data) {
                                     field.onChange('2');
                                     applyTemplate('2');
+                                  } else {
+                                    window.open(HelpmatePricingURL, '_blank');
                                   }
                                 }}
                               >
@@ -727,7 +730,7 @@ export default function PromoBanner() {
                                   </span>
                                 </div>
                                 {!getProQuery.data && (
-                                  <div className="absolute top-2 right-2 px-2 py-1 text-xs bg-orange-500 rounded">
+                                  <div className="absolute top-1 right-1 px-2 py-1 text-xs text-white bg-orange-500 rounded">
                                     Pro Only
                                   </div>
                                 )}
@@ -740,13 +743,15 @@ export default function PromoBanner() {
                                     ? 'border-blue-500 bg-blue-50'
                                     : 'border-gray-200',
                                   !getProQuery.data
-                                    ? 'opacity-50 cursor-not-allowed'
+                                    ? 'opacity-50'
                                     : 'hover:border-primary'
                                 )}
                                 onClick={() => {
                                   if (getProQuery.data) {
                                     field.onChange('3');
                                     applyTemplate('3');
+                                  } else {
+                                    window.open(HelpmatePricingURL, '_blank');
                                   }
                                 }}
                               >
@@ -761,7 +766,7 @@ export default function PromoBanner() {
                                   </span>
                                 </div>
                                 {!getProQuery.data && (
-                                  <div className="absolute top-2 right-2 px-2 py-1 text-xs bg-orange-500 rounded">
+                                  <div className="absolute top-1 right-1 px-2 py-1 text-xs text-white bg-orange-500 rounded">
                                     Pro Only
                                   </div>
                                 )}

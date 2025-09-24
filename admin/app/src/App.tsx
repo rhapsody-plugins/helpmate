@@ -2,7 +2,7 @@ import Layout from '@/components/Layout';
 import TopBar from '@/components/TopBar';
 import { Toaster } from '@/components/ui/sonner';
 import { MainProvider } from '@/contexts/MainContext';
-import License from '@/pages/License';
+import ManageApi from '@/pages/ManageApi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -46,7 +46,7 @@ function App() {
       <MainProvider>
         <TopBar onPageChange={setPage} />
         {page === 'home' && <Layout />}
-        {page === 'license' && <License setPage={setPage} />}
+        {page === 'manage-api' && <ManageApi setPage={setPage} />}
         <Toaster />
       </MainProvider>
     </QueryClientProvider>

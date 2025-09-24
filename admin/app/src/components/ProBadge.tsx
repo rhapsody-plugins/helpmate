@@ -33,6 +33,9 @@ export function ProBadge({
         className
       )}
     >
+      <div className="px-2 py-1 mx-auto text-xs text-white bg-orange-500 rounded">
+        Pro Only
+      </div>
       {topMessage && (
         <p
           className={cn(

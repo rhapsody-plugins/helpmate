@@ -131,18 +131,18 @@ class Helpmate_Backend_Routes
         ));
 
         /* --------------------------------------- */
-        /*                 License                 */
+        /*                   API                   */
         /* --------------------------------------- */
 
         register_rest_route('helpmate/v1', '/feature-usage', array(
             'methods' => 'GET',
-            'callback' => fn() => $this->helpmate->get_license()->sync_with_server(),
+            'callback' => fn() => $this->helpmate->get_api()->sync_with_server(),
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
         ));
 
-        register_rest_route('helpmate/v1', '/activate-license', array(
+        register_rest_route('helpmate/v1', '/activate-api-key', array(
             'methods' => 'POST',
-            'callback' => fn($request) => $this->helpmate->get_license()->handle_license_activation($request->get_param('license_key')),
+            'callback' => fn($request) => $this->helpmate->get_api()->handle_api_key_activation($request->get_param('api_key')),
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
         ));
 
@@ -152,26 +152,22 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
         ));
 
-        register_rest_route('helpmate/v1', '/license', array(
+        register_rest_route('helpmate/v1', '/api-key', array(
             'methods' => 'GET',
             'callback' => function () {
-                $license = $this->helpmate->get_license();
+                $api_key = $this->helpmate->get_api();
                 return [
-                    'license_key' => $license->get_license_key(),
-                    'local_credits' => $license->get_local_credits(),
-                    'last_sync' => $license->get_last_sync(),
-                    'product_slug' => $license->get_product_slug(),
-                    'customer_id' => $license->get_customer_id(),
-                    'social_credits' => $license->get_social_credits(),
-                    'signup_credits' => $license->get_signup_credits(),
+                    'api_key' => $api_key->get_key(),
+                    'local_credits' => $api_key->get_local_credits(),
+                    'product_slug' => $api_key->get_product_slug(),
                 ];
             },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
         ));
 
-        register_rest_route('helpmate/v1', '/claim-credits', array(
+        register_rest_route('helpmate/v1', '/get-free-api-key', array(
             'methods' => 'POST',
-            'callback' => fn() => $this->helpmate->get_license()->claim_credits(),
+            'callback' => fn($request) => $this->helpmate->get_api()->rp_register_free_api_key($request),
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
         ));
 
@@ -699,10 +695,10 @@ class Helpmate_Backend_Routes
             ], 'names');
 
             // Filter out product-related post types
-            $post_types = array_filter($all_post_types, function($type) {
+            $post_types = array_filter($all_post_types, function ($type) {
                 return $type !== 'product' &&
-                       !strpos($type, 'product') &&
-                       $type !== 'woocommerce';
+                    !strpos($type, 'product') &&
+                    $type !== 'woocommerce';
             });
         } else {
             $post_types = $post_type;
@@ -882,9 +878,9 @@ class Helpmate_Backend_Routes
 
         $post_types = array_filter($post_types, function ($post_type) {
             return $post_type->name !== 'attachment' &&
-                   $post_type->name !== 'product' &&
-                   strpos($post_type->name, 'product') === false &&
-                   $post_type->name !== 'woocommerce';
+                $post_type->name !== 'product' &&
+                strpos($post_type->name, 'product') === false &&
+                $post_type->name !== 'woocommerce';
         });
 
         $formatted_post_types = [];

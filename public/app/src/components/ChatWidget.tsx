@@ -43,6 +43,8 @@ export default function ChatBot() {
   const { getSettingsQuery } = useSettings();
   const { data: settings } = getSettingsQuery;
 
+  const apiActive = settings?.api;
+  const chatbotActive = settings?.modules?.chatbot;
   const coupon = settings?.settings?.exit_intent_coupon;
 
   // Memoize expensive computations
@@ -382,6 +384,8 @@ export default function ChatBot() {
   │   Render                                                                    │
   └─────────────────────────────────────────────────────────────────────────────┘
  */
+
+  if (!apiActive || !chatbotActive) return null;
 
   return (
     <div className="fixed bottom-4 right-4 z-[10] flex flex-col items-end">

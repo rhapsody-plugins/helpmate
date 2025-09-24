@@ -17,13 +17,13 @@ ENVIRONMENT=$1
 # Use the environment parameter to set URLs
 case $ENVIRONMENT in
     "staging")
-        LICENSE_SERVER_URL="https://staging-license.rhapsodyplugins.com"
+        API_SERVER_URL="https://staging-api.rhapsodyplugins.com"
         ;;
     "production")
-        LICENSE_SERVER_URL="https://license.rhapsodyplugins.com"
+        API_SERVER_URL="https://api.rhapsodyplugins.com"
         ;;
     "local")
-        LICENSE_SERVER_URL="http://localhost:10024"
+        API_SERVER_URL="http://localhost:10024"
         ;;
     *)
         echo "Unknown environment: $ENVIRONMENT"
@@ -33,10 +33,10 @@ case $ENVIRONMENT in
 esac
 
 # Export for use in build process
-export LICENSE_SERVER_URL
+export API_SERVER_URL
 
 echo "Building for environment: $ENVIRONMENT"
-echo "License server URL: $LICENSE_SERVER_URL"
+echo "Api server URL: $API_SERVER_URL"
 
 # Get plugin version from helpmate-ai-chatbot.php
 PLUGIN_VERSION=$(grep "HELPMATE_VERSION" "$(dirname "$0")/helpmate-ai-chatbot.php" | sed -E "s/.*HELPMATE_VERSION', *'([^']+)'.*/\1/")
@@ -63,10 +63,10 @@ if [ ! -d "../helpmate-build" ]; then
     exit 1
 fi
 
-# Update license server URLs based on environment
-echo "Updating license server URLs for $ENVIRONMENT..."
+# Update api server URLs based on environment
+echo "Updating api server URLs for $ENVIRONMENT..."
 cd ../helpmate-build
-sed -i '' "s|http://localhost:10024|$LICENSE_SERVER_URL|g" includes/class-helpmate-license.php
+sed -i '' "s|http://localhost:10024|$API_SERVER_URL|g" includes/class-helpmate-api.php
 
 # Remove development-related code from display files
 echo "Removing development code from display files..."
