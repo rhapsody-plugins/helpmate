@@ -5,11 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useTheme } from '@/context/ThemeContext';
 import { useSettings } from '@/hooks/useSettings';
-import { HelpmateURL } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { Send, X } from 'lucide-react';
 import type React from 'react';
-import { useRef, useEffect, useMemo, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 interface ChatInputProps {
   input: string;
@@ -273,17 +272,6 @@ export function ChatInput({
           </p>
         </div>
       )}
-      <div className="mt-2 text-xs text-center text-muted-foreground">
-        Powered by{' '}
-        <a
-          href={HelpmateURL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-semibold cursor-pointer text-primary"
-        >
-          Helpmate
-        </a>
-      </div>
     </div>
   );
 }

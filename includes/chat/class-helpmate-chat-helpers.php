@@ -190,12 +190,6 @@ class Helpmate_Chat_Helpers
             $content .= "\n\nLinks:\n" . implode("\n", $links);
         }
 
-        // Check credits before processing any documents
-        $credits_check = $this->helpmate->get_license()->check_credits_before_operation(HELPMATE_FEATURES[1], 1);
-        if ($credits_check instanceof WP_REST_Response) {
-            return $credits_check;
-        }
-
         // Process with OpenAI
         try {
             $response = $this->helpmate->get_chat()->get_chat_response(
@@ -325,12 +319,6 @@ class Helpmate_Chat_Helpers
         $titleElements = $dom->getElementsByTagName('title');
         if ($titleElements->length > 0) {
             $title = trim($titleElements->item(0)->textContent);
-        }
-
-        // Check credits before processing any documents
-        $credits_check = $this->helpmate->get_license()->check_credits_before_operation(HELPMATE_FEATURES[1], 1);
-        if ($credits_check instanceof WP_REST_Response) {
-            return $credits_check;
         }
 
         // Process with OpenAI
@@ -684,17 +672,16 @@ class Helpmate_Chat_Helpers
     public function handle_embedding($prompt, $type, $feature_slug = 'data_source')
     {
         try {
-            $api_key = $GLOBALS['helpmate']->get_license()->get_api_key();
-            $last_sync = $GLOBALS['helpmate']->get_license()->get_last_sync();
-            $license_key = $GLOBALS['helpmate']->get_license()->get_license_key();
+            $api_key = $GLOBALS['helpmate']->get_api()->get_key();
+            $validation_key = $GLOBALS['helpmate']->get_api()->get_validation_key();
 
             $timestamp = time();
             $nonce = bin2hex(random_bytes(8));
-            $dataToSign = json_encode($prompt) . '|' . $timestamp . '|' . $nonce . '|' . $last_sync;
-            $signature = hash_hmac('sha256', $dataToSign, $api_key);
+            $dataToSign = json_encode($prompt) . '|' . $timestamp . '|' . $nonce;
+            $signature = hash_hmac('sha256', $dataToSign, $validation_key);
 
             // Call the AI API
-            $response = wp_remote_post($this->helpmate->get_license()->get_license_server() . '/wp-json/rp/v1/proxy', [
+            $response = wp_remote_post($this->helpmate->get_api()->get_api_server() . '/wp-json/rp/v1/proxy', [
                 'method' => 'POST',
                 'headers' => [
                     'Content-Type' => 'application/json',
@@ -702,10 +689,9 @@ class Helpmate_Chat_Helpers
                 'body' => json_encode([
                     "prompt" => json_encode($prompt),
                     "timestamp" => $timestamp,
-                    "last_sync" => $last_sync,
                     "nonce" => $nonce,
-                    "license_key" => $license_key,
                     "api_key" => $api_key,
+                    "validation_key" => $validation_key,
                     "signature" => $signature,
                     "embedding_type" => $type,
                     "feature_slug" => $feature_slug,

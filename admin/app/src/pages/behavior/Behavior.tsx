@@ -1,4 +1,5 @@
 import PageHeader from '@/components/PageHeader';
+import { ProBadge } from '@/components/ProBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -15,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useSettings } from '@/hooks/useSettings';
+import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -61,7 +63,9 @@ const formSchema = z
 type FormData = z.infer<typeof formSchema>;
 
 export default function Behavior() {
-  const { getSettingsMutation, updateSettingsMutation } = useSettings();
+  const { getSettingsMutation, updateSettingsMutation, getProQuery } =
+    useSettings();
+  const { data: isPro } = getProQuery;
   const [newWelcomeMessage, setNewWelcomeMessage] = useState('');
 
   const { mutate: getSettings, isPending: isFetching } = getSettingsMutation;
@@ -181,6 +185,10 @@ export default function Behavior() {
 
                     <Separator />
 
+                    <Skeleton className="w-20 h-10" />
+
+                    <Separator />
+
                     {/* Human Handover Section Skeleton */}
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
@@ -222,10 +230,6 @@ export default function Behavior() {
                         </div>
                       </div>
                     </div>
-
-                    <Separator />
-
-                    <Skeleton className="w-20 h-10" />
                   </div>
                 ) : (
                   <>
@@ -328,120 +332,6 @@ export default function Behavior() {
 
                       <Separator />
 
-                      {/* Human Handover Section */}
-                      <div className="space-y-1">
-                        <div className="flex justify-between items-center mb-3">
-                          <h3 className="!flex gap-1 items-center text-lg font-medium !my-0">
-                            Human Handover Options{' '}
-                            <InfoTooltip message="Shows contact options when users ask for a human." />
-                          </h3>
-                          <div className="flex gap-2 items-center">
-                            <div className="flex gap-2 items-center">
-                              <h4 className="!flex gap-1 items-center text-lg font-medium !my-0">
-                                Show Ticket Creation Option
-                                <InfoTooltip message="Whether to show the ticket creation option also when users ask for a human." />
-                              </h4>
-                              <Switch
-                                checked={form.watch(
-                                  'show_ticket_creation_option'
-                                )}
-                                onCheckedChange={(checked) =>
-                                  form.setValue(
-                                    'show_ticket_creation_option',
-                                    checked
-                                  )
-                                }
-                              />
-                            </div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() =>
-                                append({ enabled: false, title: '', value: '' })
-                              }
-                            >
-                              <Plus className="w-4 h-4" />
-                              Add Option
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                          {fields.map((field, index) => (
-                            <Card
-                              key={field.id}
-                              className="py-0 bg-transparent border border-gray-200 shadow-none"
-                            >
-                              <CardContent className="p-1">
-                                <div className="flex gap-2 items-center">
-                                  <FormField
-                                    control={form.control}
-                                    name={`human_handover.${index}.enabled`}
-                                    render={({ field }) => (
-                                      <FormItem className="flex items-center mb-0">
-                                        <FormControl>
-                                          <Switch
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                            className="scale-90"
-                                          />
-                                        </FormControl>
-                                        <FormLabel className="mb-0 text-xs">
-                                          Enable
-                                        </FormLabel>
-                                      </FormItem>
-                                    )}
-                                  />
-                                  <FormField
-                                    control={form.control}
-                                    name={`human_handover.${index}.title`}
-                                    render={({ field }) => (
-                                      <FormItem className="flex-1 mb-0">
-                                        <FormControl>
-                                          <Input
-                                            className="h-8 text-sm bg-white"
-                                            placeholder="Title"
-                                            {...field}
-                                          />
-                                        </FormControl>
-                                      </FormItem>
-                                    )}
-                                  />
-                                  <FormField
-                                    control={form.control}
-                                    name={`human_handover.${index}.value`}
-                                    render={({ field }) => (
-                                      <FormItem className="flex-1 mb-0">
-                                        <FormControl>
-                                          <Input
-                                            className="h-8 text-sm bg-white"
-                                            placeholder="Value"
-                                            {...field}
-                                          />
-                                        </FormControl>
-                                      </FormItem>
-                                    )}
-                                  />
-                                  {fields.length > 1 && (
-                                    <Button
-                                      type="button"
-                                      variant="destructive"
-                                      size="icon"
-                                      className="p-1 h-8"
-                                      onClick={() => remove(index)}
-                                    >
-                                      <Trash className="w-3 h-3" />
-                                    </Button>
-                                  )}
-                                </div>
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      </div>
-
-                      <Separator />
-
                       <div className="flex flex-col gap-3">
                         <h3 className="!flex gap-1 items-center text-lg font-medium !my-0">
                           Collect Lead
@@ -522,6 +412,139 @@ export default function Behavior() {
                             </FormItem>
                           )}
                         />
+                      </div>
+
+                      <Separator />
+
+                      {/* Human Handover Section */}
+                      <div className="relative">
+                        {!isPro && (
+                          <ProBadge
+                            topMessage="Get more human interactions with your customers."
+                            buttonText="Boost Conversations"
+                            tooltipMessage={null}
+                          />
+                        )}
+                        <div
+                          className={cn(
+                            !isPro &&
+                              'opacity-15 cursor-not-allowed pointer-events-none',
+                            'space-y-1'
+                          )}
+                        >
+                          <div className="flex justify-between items-center mb-3">
+                            <h3 className="!flex gap-1 items-center text-lg font-medium !my-0">
+                              Human Handover Options{' '}
+                              <InfoTooltip message="Shows contact options when users ask for a human." />
+                            </h3>
+                            <div className="flex gap-2 items-center">
+                              <div className="flex gap-2 items-center">
+                                <h4 className="!flex gap-1 items-center text-lg font-medium !my-0">
+                                  Show Ticket Creation Option
+                                  <InfoTooltip message="Whether to show the ticket creation option also when users ask for a human." />
+                                </h4>
+                                <Switch
+                                  checked={form.watch(
+                                    'show_ticket_creation_option'
+                                  )}
+                                  onCheckedChange={(checked) =>
+                                    form.setValue(
+                                      'show_ticket_creation_option',
+                                      checked
+                                    )
+                                  }
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  append({
+                                    enabled: false,
+                                    title: '',
+                                    value: '',
+                                  })
+                                }
+                              >
+                                <Plus className="w-4 h-4" />
+                                Add Option
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                            {fields.map((field, index) => (
+                              <Card
+                                key={field.id}
+                                className="py-0 bg-transparent border border-gray-200 shadow-none"
+                              >
+                                <CardContent className="p-1">
+                                  <div className="flex gap-2 items-center">
+                                    <FormField
+                                      control={form.control}
+                                      name={`human_handover.${index}.enabled`}
+                                      render={({ field }) => (
+                                        <FormItem className="flex items-center mb-0">
+                                          <FormControl>
+                                            <Switch
+                                              checked={field.value}
+                                              onCheckedChange={field.onChange}
+                                              className="scale-90"
+                                            />
+                                          </FormControl>
+                                          <FormLabel className="mb-0 text-xs">
+                                            Enable
+                                          </FormLabel>
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={form.control}
+                                      name={`human_handover.${index}.title`}
+                                      render={({ field }) => (
+                                        <FormItem className="flex-1 mb-0">
+                                          <FormControl>
+                                            <Input
+                                              className="h-8 text-sm bg-white"
+                                              placeholder="Title"
+                                              {...field}
+                                            />
+                                          </FormControl>
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={form.control}
+                                      name={`human_handover.${index}.value`}
+                                      render={({ field }) => (
+                                        <FormItem className="flex-1 mb-0">
+                                          <FormControl>
+                                            <Input
+                                              className="h-8 text-sm bg-white"
+                                              placeholder="Value"
+                                              {...field}
+                                            />
+                                          </FormControl>
+                                        </FormItem>
+                                      )}
+                                    />
+                                    {fields.length > 1 && (
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="icon"
+                                        className="p-1 h-8"
+                                        onClick={() => remove(index)}
+                                      >
+                                        <Trash className="w-3 h-3" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </div>
 

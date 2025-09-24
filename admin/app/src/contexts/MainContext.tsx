@@ -18,7 +18,9 @@ export type PageType =
   | 'image-search'
   | 'promo-banner'
   | 'ticket-system'
-  | 'refund-return';
+  | 'refund-return'
+  | 'app-center'
+  | 'train-chatbot';
 
 interface MainContextProps {
   page: PageType;
@@ -45,10 +47,15 @@ interface MainProviderProps {
 export function MainProvider({ children }: MainProviderProps) {
   const { getModulesQuery } = useSettings();
   const { data: modules } = getModulesQuery;
-  const [page, setPage] = useState<PageType>('data-source');
+
+  // Get tab from URL search params
+  const urlParams = new URLSearchParams(window.location.search);
+  const tab = urlParams.get('tab') as PageType;
+
+  const [page, setPage] = useState<PageType>(tab ?? 'data-source');
 
   const moduleScores: Record<string, number> = {
-    chatbot: 30,
+    chatbot: 25,
     'ticket-system': 10,
     'image-search': 10,
     'proactive-sales': 10,
@@ -57,6 +64,7 @@ export function MainProvider({ children }: MainProviderProps) {
     'order-tracker': 10,
     'coupon-delivery': 5,
     'refund-return': 10,
+    'promo-banner': 5,
   };
 
   const totalScore = useMemo(() => {

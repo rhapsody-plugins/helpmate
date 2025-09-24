@@ -1,11 +1,12 @@
+import Loading from '@/components/Loading';
 import { OptInDialog } from '@/components/OptInDialog';
 import PageHeader from '@/components/PageHeader';
-import PageSkeleton from '@/components/PageSkeleton';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useConsent } from '@/contexts/ConsentContext';
+import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
-import { useLicense } from '@/hooks/useLicense';
+import { useSettings } from '@/hooks/useSettings';
 import { useWooCommerce } from '@/hooks/useWooCommerce';
 import { MenuItem } from '@/types';
 import { RefreshCw } from 'lucide-react';
@@ -22,37 +23,38 @@ const TabGeneral = lazy(() => import('@/pages/data-source/tabs/TabGeneral'));
 
 // Simple component for right actions - no hooks to avoid violations
 function RightActions({
-  isLicensePending,
+  isApiKeyPending,
   tab,
-  licenseData,
+  apiKeyData,
   syncCredits,
-  isSyncing
+  isSyncing,
 }: {
-  isLicensePending: boolean;
+  isApiKeyPending: boolean;
   tab: string;
-  licenseData: {
-    local_credits?: {
-      feature_slug: string;
-      credits: number;
-      usages: number;
-    }[];
-  } | null | undefined;
+  apiKeyData:
+    | {
+        local_credits?: {
+          feature_slug: string;
+          credits: number;
+          usages: number;
+        }[];
+      }
+    | null
+    | undefined;
   syncCredits: () => void;
   isSyncing: boolean;
 }) {
-  if (isLicensePending) {
+  if (isApiKeyPending) {
     return <Skeleton className="w-10 h-10" />;
   }
 
   const isProductTab = tab === 'Products';
   const creditsToShow = isProductTab
-    ? licenseData?.local_credits?.filter(
+    ? apiKeyData?.local_credits?.filter(
         (credit) => credit.feature_slug === 'product'
       ) || []
-    : licenseData?.local_credits?.filter(
-        (credit) =>
-          credit.feature_slug &&
-          credit.feature_slug.includes('data')
+    : apiKeyData?.local_credits?.filter(
+        (credit) => credit.feature_slug && credit.feature_slug.includes('data')
       ) || [];
 
   return (
@@ -64,7 +66,8 @@ function RightActions({
         return (
           <div key={i} className="min-w-[80px]">
             <span className="flex gap-1 items-center text-xs leading-none">
-              {isProductTab ? 'Trained Products' : 'Trained Sources'}: {isUnlimited ? `${spent}/∞` : `${spent}/${total}`}
+              {isProductTab ? 'Trained Products' : 'Trained Sources'}:{' '}
+              {isUnlimited ? `${spent}/∞` : `${spent}/${total}`}
               <button
                 className="p-0.5 text-gray-400 hover:text-primary-600 disabled:opacity-50"
                 title="Sync Credits"
@@ -74,9 +77,7 @@ function RightActions({
               >
                 <RefreshCw
                   className={
-                    isSyncing
-                      ? 'w-3 h-3 animate-spin'
-                      : 'w-3 h-3 text-primary'
+                    isSyncing ? 'w-3 h-3 animate-spin' : 'w-3 h-3 text-primary'
                   }
                 />
               </button>
@@ -90,7 +91,9 @@ function RightActions({
 
 export function DataSourceContent() {
   // All hooks must be called at the top level in the same order every time
-  const { licenseQuery, syncCreditsMutation } = useLicense();
+  const { getProQuery } = useSettings();
+  const { data: isPro } = getProQuery;
+  const { apiKeyQuery, syncCreditsMutation } = useApi();
   const { getSourcesMutation } = useDataSource();
   const { isWooCommerceInstalled } = useWooCommerce();
   const [tab, setTab] = useState('Start Here');
@@ -103,7 +106,7 @@ export function DataSourceContent() {
   } = useConsent();
 
   // Extract data from queries after all hooks are called
-  const { data: licenseData, isPending: isLicensePending } = licenseQuery;
+  const { data: apiKeyData, isPending: isApiKeyPending } = apiKeyQuery;
   const { mutate: syncCredits, isPending: isSyncing } = syncCreditsMutation;
 
   // Move useMemo after all other hooks
@@ -154,9 +157,9 @@ export function DataSourceContent() {
       onSuccess: (data) => {
         const hasContent = Boolean(
           data &&
-          data.length > 0 &&
-          data[0].content &&
-          data[0].content.trim().length > 0
+            data.length > 0 &&
+            data[0].content &&
+            data[0].content.trim().length > 0
         );
         setHasGeneralContent(hasContent);
       },
@@ -172,9 +175,9 @@ export function DataSourceContent() {
       const data = getSourcesMutation.data;
       const hasContent = Boolean(
         data &&
-        data.length > 0 &&
-        data[0].content &&
-        data[0].content.trim().length > 0
+          data.length > 0 &&
+          data[0].content &&
+          data[0].content.trim().length > 0
       );
       setHasGeneralContent(hasContent);
     }
@@ -201,19 +204,25 @@ export function DataSourceContent() {
           menuItems={MENU_ITEMS}
           title="Train Chatbot"
           rightActions={
-            <RightActions
-              isLicensePending={isLicensePending}
-              tab={tab}
-              licenseData={licenseData}
-              syncCredits={syncCredits}
-              isSyncing={isSyncing}
-            />
+            isPro ? (
+              <RightActions
+                isApiKeyPending={isApiKeyPending}
+                tab={tab}
+                apiKeyData={apiKeyData}
+                syncCredits={syncCredits}
+                isSyncing={isSyncing}
+              />
+            ) : (
+              <></>
+            )
           }
         />
         <TabsContent value={tab} className="p-6">
-          <Suspense fallback={<PageSkeleton />}>
-            {tab === 'Start Here' && <TabGeneral setHasGeneralContent={setHasGeneralContent} />}
-            {isWooCommerceInstalled && tab === 'Products' && <TabProducts />}
+          <Suspense fallback={<Loading />}>
+            {tab === 'Start Here' && (
+              <TabGeneral setHasGeneralContent={setHasGeneralContent} />
+            )}
+            {tab === 'Products' && <TabProducts />}
             {tab === 'WP Posts' && <TabPost />}
             {tab === 'Text' && <TabText />}
             {tab === 'Url' && <TabUrl />}

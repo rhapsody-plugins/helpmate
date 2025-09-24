@@ -9,19 +9,19 @@ import {
 import { HelpmatePricingURL } from '@/lib/constants';
 import { CrownIcon } from 'lucide-react';
 
-interface LicenseChangeConfirmationDialogProps {
+interface ApiKeyChangeConfirmationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void;
   onUpgrade?: () => void;
 }
 
-export function LicenseChangeConfirmationDialog({
+export function ApiKeyChangeConfirmationDialog({
   open,
   onOpenChange,
   onConfirm,
   onUpgrade,
-}: LicenseChangeConfirmationDialogProps) {
+}: ApiKeyChangeConfirmationDialogProps) {
   const handleConfirm = () => {
     onConfirm();
     onOpenChange(false);
@@ -45,20 +45,20 @@ export function LicenseChangeConfirmationDialog({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="!py-0 !my-0 text-left">
-            Change License Key
+            Change Api Key
           </DialogTitle>
           <div className="!py-0 !my-0 text-left">
             <p className="mt-2 text-slate-600 dark:text-slate-300">
               Your trained data is{' '}
-              <span className="font-semibold">bound to your current license</span>.
-              Changing your license key will require you to delete all your trained
+              <span className="font-semibold">bound to your current api key</span>.
+              Changing your api key will require you to delete all your trained
               data and train them again.
             </p>
 
             <div className="space-y-6">
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  What happens when you change your license:
+                  What happens when you change your api key:
                 </h4>
                 <ul className="!pl-6 mt-3 space-y-3 !list-disc text-slate-700 dark:text-slate-200">
                   <li>
@@ -79,7 +79,7 @@ export function LicenseChangeConfirmationDialog({
 
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  Better alternative: Upgrade your license
+                  Better alternative: Upgrade your api key
                 </h4>
                 <ul className="!pl-6 mt-3 space-y-3 !list-disc text-slate-700 dark:text-slate-200">
                   <li>
@@ -101,7 +101,7 @@ export function LicenseChangeConfirmationDialog({
               <section className="px-4 rounded-xl border bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
                 <p className="text-slate-700 dark:text-slate-200">
                   💡 <span className="font-semibold">Recommendation:</span> If you need
-                  more features or credits, consider upgrading your license instead of
+                  more features or credits, consider upgrading your api key instead of
                   changing it. This way you keep all your trained data and get better
                   performance.
                 </p>
@@ -120,17 +120,17 @@ export function LicenseChangeConfirmationDialog({
           <Button
             variant="default"
             onClick={handleUpgrade}
-            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+            className="w-full bg-blue-600 sm:w-auto hover:bg-blue-700"
           >
-            <CrownIcon className="w-4 h-4 mr-2" />
-            Upgrade License
+            <CrownIcon className="mr-2 w-4 h-4" />
+            Upgrade ApiKey
           </Button>
           <Button
             variant="destructive"
             onClick={handleConfirm}
             className="w-full sm:w-auto"
           >
-            Change License Anyway
+            Change ApiKey Anyway
           </Button>
         </DialogFooter>
       </DialogContent>

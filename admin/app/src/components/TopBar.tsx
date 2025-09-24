@@ -2,12 +2,12 @@ import logo from '@/assets/helpmate-logo-bg-icon.svg';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { useLicense } from '@/hooks/useLicense';
+import { useApi } from '@/hooks/useApi';
 import {
   HelpmateDocsURL,
   HelpmateLoginURL,
   HelpmatePricingURL,
-  HelpmateSupportURL
+  HelpmateSupportURL,
 } from '@/lib/constants';
 import { ArrowUpRight, HandCoins, KeyRound, RefreshCw } from 'lucide-react';
 
@@ -16,12 +16,12 @@ interface TopBarProps {
 }
 
 export default function TopBar({ onPageChange }: TopBarProps) {
-  const { licenseQuery, syncCreditsMutation } = useLicense();
-  const { data: licenseData } = licenseQuery;
+  const { apiKeyQuery, syncCreditsMutation } = useApi();
+  const { data: apiKeyData } = apiKeyQuery;
   const { mutate: syncCredits, isPending: isSyncing } = syncCreditsMutation;
 
   const total_credits =
-    licenseData?.local_credits
+    apiKeyData?.local_credits
       ?.filter(
         (credit) =>
           (credit.feature_slug &&
@@ -31,7 +31,7 @@ export default function TopBar({ onPageChange }: TopBarProps) {
       .reduce((acc, credit) => acc + Number(credit.credits), 0) ?? 0;
 
   const total_spent_credits =
-    licenseData?.local_credits
+    apiKeyData?.local_credits
       ?.filter(
         (credit) =>
           (credit.feature_slug &&
@@ -57,14 +57,16 @@ export default function TopBar({ onPageChange }: TopBarProps) {
           {/* <Button size="icon" className="w-6 h-6 bg-primary-600">
             <Bell className="!w-3" />
           </Button> */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="px-2 py-1 h-6 text-gray-100 bg-transparent rounded-sm border-gray-100 hover:bg-primary hover:text-white hover:border-primary"
-            onClick={() => onPageChange('license')}
-          >
-            Manage License <KeyRound className="!w-3" />
-          </Button>
+          {apiKeyData?.api_key && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="px-2 py-1 h-6 text-gray-100 bg-transparent rounded-sm border-gray-100 hover:bg-primary hover:text-white hover:border-primary"
+              onClick={() => onPageChange('manage-api')}
+            >
+              Manage Api Key <KeyRound className="!w-3" />
+            </Button>
+          )}
         </div>
         <div className="flex gap-3 items-center">
           <Button
@@ -87,58 +89,77 @@ export default function TopBar({ onPageChange }: TopBarProps) {
           >
             Docs <ArrowUpRight className="!w-3" />
           </Button>
-          <div className="flex gap-2 items-center px-2 py-1 bg-white rounded-sm">
-            <div className="flex flex-col">
-              <div className="mb-1 min-w-[80px]">
-                <div className="flex gap-1 items-center text-xs leading-none">
-                  Spent Credits: {total_spent_credits}/{total_credits}
-                  <button
-                    className="p-0.5 text-gray-400 hover:text-primary-600 disabled:opacity-50"
-                    title="Sync Credits"
-                    onClick={() => syncCredits()}
-                    disabled={isSyncing}
-                    style={{ lineHeight: 0 }}
-                  >
-                    <RefreshCw
-                      className={isSyncing ? 'w-3 h-3 animate-spin' : 'w-3 h-3'}
+          {apiKeyData?.api_key ? (
+            <div className="flex gap-2 items-center px-2 py-1 bg-white rounded-sm">
+              <div className="flex flex-col">
+                <div className="mb-1 min-w-[80px]">
+                  <div className="flex gap-1 items-center text-xs leading-none">
+                    Monthly Usages: {total_spent_credits}/{total_credits}
+                    <button
+                      className="p-0.5 text-gray-400 hover:text-primary-600 disabled:opacity-50"
+                      title="Sync Credits"
+                      onClick={() => syncCredits()}
+                      disabled={isSyncing}
+                      style={{ lineHeight: 0 }}
+                    >
+                      <RefreshCw
+                        className={
+                          isSyncing ? 'w-3 h-3 animate-spin' : 'w-3 h-3'
+                        }
+                      />
+                    </button>
+                  </div>
+                  <div className="mt-0.5 w-full h-1 bg-gray-200 rounded">
+                    <div
+                      className="h-1 rounded"
+                      style={{
+                        width: `${percent}%`,
+                        background:
+                          'linear-gradient(90deg, #3b82f6 0%, #9333ea 100%)',
+                      }}
                     />
-                  </button>
-                </div>
-                <div className="mt-0.5 w-full h-1 bg-gray-200 rounded">
-                  <div
-                    className="h-1 rounded"
-                    style={{
-                      width: `${percent}%`,
-                      background:
-                        'linear-gradient(90deg, #3b82f6 0%, #9333ea 100%)',
-                    }}
-                  />
+                  </div>
                 </div>
               </div>
+              <Button
+                size="sm"
+                className="py-1 h-auto !font-medium !text-xs -mr-0.5"
+                onClick={() => {
+                  if (apiKeyData?.product_slug !== 'helpmate-free') {
+                    window.open(HelpmateLoginURL, '_blank');
+                  } else {
+                    window.open(HelpmatePricingURL, '_blank');
+                  }
+                }}
+              >
+                {apiKeyData?.product_slug &&
+                apiKeyData?.product_slug !== 'helpmate-free'
+                  ? 'Buy Credits'
+                  : 'Start Automating My Store'}
+                <HandCoins className="!w-3" />
+              </Button>
             </div>
+          ) : (
             <Button
-              size="sm"
-              className="py-1 h-auto !font-medium !text-xs -mr-0.5"
+              className="!font-medium"
               onClick={() => {
-                if (licenseData?.product_slug !== 'helpmate-free') {
+                if (
+                  apiKeyData?.product_slug &&
+                  apiKeyData?.product_slug !== 'helpmate-free'
+                ) {
                   window.open(HelpmateLoginURL, '_blank');
                 } else {
-                  if (licenseData?.signup_credits) {
-                    window.open(HelpmatePricingURL, '_blank');
-                  } else {
-                    onPageChange('license');
-                  }
+                  window.open(HelpmatePricingURL, '_blank');
                 }
               }}
             >
-              {licenseData?.product_slug !== 'helpmate-free'
+              {apiKeyData?.product_slug &&
+              apiKeyData?.product_slug !== 'helpmate-free'
                 ? 'Buy Credits'
-                : licenseData?.signup_credits
-                ? 'Start Automating My Store'
-                : 'Claim 300 Monthly Credits'}
+                : 'Start Automating My Store'}
               <HandCoins className="!w-3" />
             </Button>
-          </div>
+          )}
         </div>
       </div>
     </Card>

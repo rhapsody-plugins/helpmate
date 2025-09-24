@@ -80,9 +80,8 @@ class Helpmate_Chat_Response_Generator
 
         $website_title = get_bloginfo('name');
         $website_url = get_bloginfo('url');
-        $api_key = $this->helpmate->get_license()->get_api_key();
-        $last_sync = $this->helpmate->get_license()->get_last_sync();
-        $license_key = $this->helpmate->get_license()->get_license_key();
+        $api_key = $this->helpmate->get_api()->get_key();
+        $validation_key = $this->helpmate->get_api()->get_validation_key();
         $tone = $this->helpmate->get_settings()->get_setting('ai')['tone'];
         $temperature = $this->helpmate->get_settings()->get_setting('ai')['temperature'];
         $similarity_threshold = $this->helpmate->get_settings()->get_setting('ai')['similarity_threshold'];
@@ -98,11 +97,11 @@ class Helpmate_Chat_Response_Generator
 
         $timestamp = time();
         $nonce = bin2hex(random_bytes(8));
-        $dataToSign = $prompt . '|' . $timestamp . '|' . $nonce . '|' . $last_sync;
-        $signature = hash_hmac('sha256', $dataToSign, $api_key);
+        $dataToSign = $prompt . '|' . $timestamp . '|' . $nonce;
+        $signature = hash_hmac('sha256', $dataToSign, $validation_key);
 
         // Call the AI API
-        $response = wp_remote_post($this->helpmate->get_license()->get_license_server() . '/wp-json/rp/v1/proxy', [
+        $response = wp_remote_post($this->helpmate->get_api()->get_api_server() . '/wp-json/rp/v1/proxy', [
             'method' => 'POST',
             'headers' => [
                 'Content-Type' => 'application/json',
@@ -115,10 +114,9 @@ class Helpmate_Chat_Response_Generator
                 "image_url" => $image_url,
                 "session_id" => $session_id,
                 "timestamp" => $timestamp,
-                "last_sync" => $last_sync,
                 "nonce" => $nonce,
-                "license_key" => $license_key,
                 "api_key" => $api_key,
+                "validation_key" => $validation_key,
                 "signature" => $signature,
                 "feature_slug" => 'ai_response',
                 'temperature' => $temperature,
@@ -265,6 +263,9 @@ class Helpmate_Chat_Response_Generator
     {
         $modules = $this->helpmate->get_settings()->get_setting('modules') ?? [];
         $modules_in_use = [];
+        if (!$this->helpmate->is_helpmate_pro_active()) {
+            $modules_in_use[] = 'show_handover_to_human';
+        }
         if (isset($modules['image-search']) && !$modules['image-search'] && !$this->helpmate->is_woocommerce_active()) {
             $modules_in_use[] = 'show_image_search';
         }

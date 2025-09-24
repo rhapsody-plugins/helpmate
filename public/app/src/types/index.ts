@@ -246,6 +246,7 @@ export interface OrderItem {
 }
 
 export interface BotSettings {
+  api: boolean;
   is_pro: boolean;
   is_woocommerce_active: boolean;
   modules: Record<string, boolean>;

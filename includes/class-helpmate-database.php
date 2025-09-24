@@ -233,13 +233,12 @@ class Helpmate_Database
         // Define all default settings
         $default_settings = [
             'modules' => HELPMATE_MODULE_DEFAULT_SETTINGS,
-            'license' => [
-                'license_key' => '',
+            'api' => [
                 'api_key' => '',
+                'validation_key' => '',
                 'credits' => [],
                 'last_sync' => 0,
                 'customer_id' => '',
-                'validation_id' => '',
             ],
             'ai' => [
                 'temperature' => 0,
@@ -251,7 +250,7 @@ class Helpmate_Database
             'behavior' => [
                 'welcome_message_sound' => true,
                 'welcome_message' => ['How can I help you today?'],
-                'show_ticket_creation_option' => true,
+                'show_ticket_creation_option' => false,
                 'collect_lead' => false,
                 'lead_form_fields' => ['name', 'email', 'message'],
                 'hide_on_mobile' => false,

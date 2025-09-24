@@ -38,6 +38,7 @@ import {
 import { useMemo, useState } from 'react';
 import Score from './Score';
 import { ChangeSvgColor } from 'svg-color-tools';
+import { useApi } from '@/hooks/useApi';
 
 interface MenuItemProps {
   label: string | React.ReactNode;
@@ -90,7 +91,10 @@ function MenuItem({
       </SidebarMenuButton>
       {pro && (
         <SidebarMenuBadge
-          className={cn("transition-opacity", (currentPage === page || isHovered) ? "opacity-100" : "opacity-0")}
+          className={cn(
+            'transition-opacity',
+            currentPage === page || isHovered ? 'opacity-100' : 'opacity-0'
+          )}
         >
           <Crown className="w-4 h-4 text-primary" strokeWidth={1.5} />
         </SidebarMenuBadge>
@@ -103,6 +107,8 @@ export function AppSidebar() {
   const { page, setPage, modules, totalScore } = useMain();
   const { getProQuery } = useSettings();
   const isPro = getProQuery.data ?? false;
+  const { apiKeyQuery } = useApi();
+  const apiKey = apiKeyQuery.data?.api_key;
 
   const menuItems: SidebarMenuItemType[] = [
     {
@@ -212,7 +218,22 @@ export function AppSidebar() {
             </SidebarMenuSubItem>
           </SidebarMenu>
         </div>
-        {modules['chatbot'] && (
+        {modules['chatbot'] && !apiKey && (
+          <div className="p-2">
+            <SidebarMenu>
+              <SidebarMenuSubItem className="!mb-0">
+                <SidebarMenuButton
+                  className="cursor-pointer"
+                  onClick={() => setPage('data-source')}
+                  isActive={page === 'data-source'}
+                >
+                  <img src={aiChatbot} className="w-4 h-4" /> AI Chatbot
+                </SidebarMenuButton>
+              </SidebarMenuSubItem>
+            </SidebarMenu>
+          </div>
+        )}
+        {modules['chatbot'] && apiKey && (
           <div className="p-2">
             <SidebarMenu>
               <Collapsible defaultOpen className="group/collapsible">
@@ -274,9 +295,9 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <div className="flex flex-col gap-2 items-center">
-          <Score score={totalScore} />
+          <Score score={totalScore} isPro={isPro} />
           <div className="pt-2 w-full text-xs text-center text-gray-400 border-t border-gray-200">
-            Helpmate v0.0.1
+            Helpmate v1.0.0
           </div>
         </div>
       </SidebarFooter>
