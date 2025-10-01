@@ -169,6 +169,17 @@ class Helpmate_Chat_Response_Generator
 
         $data = $this->execute_tool_call($data);
 
+        if (empty($data)) {
+            return [
+                'response' => [
+                    'type' => 'text',
+                    'text' => 'Sorry, I\'m having trouble processing your request. Please try again later.'
+                ],
+                'session_id' => $session_id,
+                'rag_context' => ''
+            ];
+        }
+
         if (isset($data['error']) && $data['error']) {
             return [
                 'response' => [

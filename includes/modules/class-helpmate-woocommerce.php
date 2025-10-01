@@ -360,7 +360,7 @@ class Helpmate_WooCommerce
         } else {
             return json_encode([
                 'type' => 'product-carousel',
-                'text' => $products_response['text'],
+                'text' => 'Here are some products that matches your query:',
                 'data' => ['products' => $products_response['data']['products']]
             ]);
         }
@@ -379,7 +379,7 @@ class Helpmate_WooCommerce
         $products_response = $this->get_products_by_keywords($keywords);
         return json_encode([
             'type' => 'product-carousel',
-            'text' => 'Here are the products related to the keywords you provided',
+            'text' => 'Here are the products related to the keywords you provided:',
             'data' => ['products' => $products_response]
         ]);
     }

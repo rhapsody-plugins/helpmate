@@ -31,3 +31,14 @@
     0% { transform: rotate(0deg);}
     100% { transform: rotate(360deg);}
 }
+
+/* Menu highlighting for Apps tab */
+.helpmate-apps-tab #adminmenu .wp-submenu a {
+    color: rgba(240, 246, 252, .7) !important;
+    font-weight: 400 !important;
+}
+
+.helpmate-apps-tab #adminmenu .wp-submenu a[href*="helpmate&tab=apps"] {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}

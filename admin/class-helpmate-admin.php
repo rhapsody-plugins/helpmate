@@ -286,19 +286,14 @@ class Helpmate_Admin
 	{
 		$screen = get_current_screen();
 		if ($screen && $screen->id === 'toplevel_page_helpmate') {
-			$tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : '';
+			// Sanitize tab parameter for CSS highlighting
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Used for CSS highlighting only, not security-sensitive
+			$tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';
 
 			if ($tab === 'apps') {
-				echo '<style>
-					#adminmenu .wp-submenu a {
-    					color: rgba(240, 246, 252, .7) !important;
-						font-weight: 400 !important;
-					}
-					#adminmenu .wp-submenu a[href*="helpmate&tab=apps"] {
-						color: #ffffff !important;
-						font-weight: 600 !important;
-					}
-				</style>';
+				add_filter('admin_body_class', function($classes) {
+					return $classes . ' helpmate-apps-tab';
+				});
 			}
 		}
 	}
