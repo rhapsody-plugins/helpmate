@@ -1,34 +1,38 @@
 import { ReusableTable } from '@/components/ReusableTable';
+import { BulkProcessingCard } from '@/components/shared/BulkProcessingCard';
+import { ContentDisplaySheet } from '@/components/shared/ContentDisplaySheet';
+import {
+  getDynamicContentExplanation,
+  isDynamicContent,
+} from '@/components/shared/ContentUtils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Input } from '@/components/ui/input';
-import { BulkProcessingCard } from '@/components/shared/BulkProcessingCard';
-import { ContentDisplaySheet } from '@/components/shared/ContentDisplaySheet';
-import { isDynamicContent, getDynamicContentExplanation } from '@/components/shared/ContentUtils';
 
 import { useDataSource } from '@/hooks/useDataSource';
 import { DataSource, WordPressPost } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { useConsent } from '@/contexts/ConsentContext';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 export default function TabProducts() {
   const [products, setProducts] = useState<WordPressPost[]>([]);
   const [addingProductId, setAddingProductId] = useState<number | null>(null);
-  const [removingProductId, setRemovingProductId] = useState<number | null>(null);
+  const [removingProductId, setRemovingProductId] = useState<number | null>(
+    null
+  );
   const [selectedRows, setSelectedRows] = useState<WordPressPost[]>([]);
   const [selectedRowsSaved, setSelectedRowsSaved] = useState<DataSource[]>([]);
   const [isContentSheetOpen, setIsContentSheetOpen] = useState(false);
-  const [selectedProductContent, setSelectedProductContent] = useState<string>('');
+  const [selectedProductContent, setSelectedProductContent] =
+    useState<string>('');
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
   const [activeBulkJobId, setActiveBulkJobId] = useState<string | null>(null);
   const refreshedJobsRef = useRef<Set<string>>(new Set());
 
-  const { requestConsent } = useConsent();
   const {
     getPostsMutation,
     getSourcesMutation,
@@ -60,7 +64,9 @@ export default function TabProducts() {
         const formattedProducts = data.map((product: WordPressPost) => ({
           id: product.id,
           title:
-            typeof product.title === 'string' ? product.title : product.title.rendered,
+            typeof product.title === 'string'
+              ? product.title
+              : product.title.rendered,
           type: product.type,
           status: product.status,
           date: new Date(product.date).toLocaleDateString(),
@@ -180,13 +186,17 @@ export default function TabProducts() {
   const handleAdd = useCallback(
     (ids: number | number[]) => {
       const productIds = Array.isArray(ids) ? ids : [ids];
-      const productsToAdd = products.filter((product) => productIds.includes(product.id));
+      const productsToAdd = products.filter((product) =>
+        productIds.includes(product.id)
+      );
 
       if (productsToAdd.length === 0) return;
 
       // Check if there's already an active job for products
       if (activeBulkJobId) {
-        toast.error('Cannot start new job: there is already an active product job');
+        toast.error(
+          'Cannot start new job: there is already an active product job'
+        );
         return;
       }
 
@@ -201,7 +211,9 @@ export default function TabProducts() {
           post_id: product.id,
           post_type: product.type,
           title:
-            typeof product.title === 'string' ? product.title : product.title.rendered,
+            typeof product.title === 'string'
+              ? product.title
+              : product.title.rendered,
         }));
 
         addMutate(bulkDocuments, {
@@ -213,12 +225,8 @@ export default function TabProducts() {
               refetchBulkJobs();
             }
           },
-          onError: (error) => {
+          onError: () => {
             setAddingProductId(null);
-
-            if (error.message === 'CONSENT_REQUIRED') {
-              requestConsent(() => handleAdd(ids));
-            }
           },
         });
         return;
@@ -228,7 +236,9 @@ export default function TabProducts() {
       const documentsToAdd = productsToAdd.map((product) => ({
         document_type: 'product',
         title:
-          typeof product.title === 'string' ? product.title : product.title.rendered,
+          typeof product.title === 'string'
+            ? product.title
+            : product.title.rendered,
         content: `${product.content || ''}\n\nMetadata:\n${JSON.stringify(
           product.metadata,
           null,
@@ -252,12 +262,8 @@ export default function TabProducts() {
             refetchBulkJobs();
           }
         },
-        onError: (error) => {
+        onError: () => {
           setAddingProductId(null);
-
-          if (error.message === 'CONSENT_REQUIRED') {
-            requestConsent(() => handleAdd(ids));
-          }
         },
       });
     },

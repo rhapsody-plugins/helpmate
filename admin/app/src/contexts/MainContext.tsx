@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 
 export type PageType =
   | 'apps'
-  | 'dashboard'
+  | 'analytics'
   | 'activity'
   | 'data-source'
   | 'customization'

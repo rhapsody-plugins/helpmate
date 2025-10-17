@@ -1,5 +1,4 @@
 import Loading from '@/components/Loading';
-import { ConsentProvider } from '@/contexts/ConsentContext';
 import { useApi } from '@/hooks/useApi';
 import ActivateApi from '@/pages/ActivateApi';
 import { DataSourceContent } from '@/pages/data-source/DataSourceContent';
@@ -16,9 +15,5 @@ export default function DataSource() {
     return <ActivateApi />;
   }
 
-  return (
-    <ConsentProvider>
-      <DataSourceContent />
-    </ConsentProvider>
-  );
+  return <DataSourceContent />;
 }

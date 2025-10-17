@@ -93,6 +93,7 @@
         cssLink.rel = 'stylesheet';
         cssLink.href = wpCss.href;
         shadowRoot.appendChild(cssLink);
+        wpCss.remove();
       }
     }
   })();

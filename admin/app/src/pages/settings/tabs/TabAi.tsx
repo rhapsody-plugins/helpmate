@@ -14,8 +14,6 @@ import {
   RadioCardGroup,
   RadioCardLabel,
 } from '@/components/ui/radio-card';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
   SelectContent,
@@ -23,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
 import { useSettings } from '@/hooks/useSettings';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -87,10 +87,10 @@ export default function TabAi() {
     el: { name: 'Greek' },
     he: { name: 'Hebrew' },
     vi: { name: 'Vietnamese' },
-    th: { name: 'Thai' }
+    th: { name: 'Thai' },
   };
 
-  const { mutate: getSettings, data: getSettingsData, isPending: isFetching } = getSettingsMutation;
+  const { mutate: getSettings, isPending: isFetching } = getSettingsMutation;
   const { mutate: updateSettings, isPending: isUpdating } =
     updateSettingsMutation;
 
@@ -128,13 +128,10 @@ export default function TabAi() {
     });
   }, [getSettings, form]);
 
-
-
   const handleSubmit = (data: FormData) => {
     const submitData = {
       ...data,
       language: data.language === 'default' ? '' : data.language,
-      consent: getSettingsData?.consent,
     };
     updateSettings({ key: 'ai', data: submitData });
   };

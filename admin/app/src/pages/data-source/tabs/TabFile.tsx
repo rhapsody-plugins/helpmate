@@ -18,6 +18,8 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { useDataSource } from '@/hooks/useDataSource';
+import { useSettings } from '@/hooks/useSettings';
+import api from '@/lib/axios';
 import { DataSource } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef } from '@tanstack/react-table';
@@ -26,20 +28,32 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { useConsent } from '@/contexts/ConsentContext';
 
-const formSchema = z.object({
-  title: z.string(),
-  content: z.string().min(1, 'Content is required'),
-  file_name: z.string(),
-});
+const formSchema = z
+  .object({
+    title: z.string().min(1, 'Title is required'),
+    content: z.string().optional(),
+    file_name: z.string().optional(),
+    selectedFile: z.instanceof(File).optional(),
+  })
+  .refine(
+    (data) => {
+      // Either content must be provided OR a file must be selected
+      return data.content || data.selectedFile;
+    },
+    {
+      message: 'Either provide content or select a file',
+      path: ['content'],
+    }
+  );
 
 type FormData = z.infer<typeof formSchema>;
 
 export default function TabFile() {
-  const { requestConsent } = useConsent();
   const { getSourcesMutation, addSourceMutation, removeSourceMutation } =
     useDataSource();
+  const { getProQuery } = useSettings();
+  const { data: isPro } = getProQuery;
 
   const {
     data: fetchData,
@@ -55,11 +69,13 @@ export default function TabFile() {
   const form = useForm<FormData>({
     defaultValues: {
       title: '',
-      content: '',
-      file_name: '',
+      content: undefined,
+      file_name: undefined,
+      selectedFile: undefined,
     },
     resolver: zodResolver(formSchema),
   });
+  console.log(form.formState.errors);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
@@ -79,37 +95,96 @@ export default function TabFile() {
   }, [fetchMutate]);
 
   const handleSubmit = useCallback(
-    (data: FormData) => {
+    async (data: FormData) => {
+      // If we have a selected file, extract text first
+      if (data.selectedFile) {
+        try {
+          toast.loading('Extracting text from file...');
+
+          const file = data.selectedFile;
+          const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+
+          // Handle office files (PDF, DOCX, XLSX) - upload to backend for extraction
+          const officeTypes = ['.pdf', '.doc', '.docx', '.xls', '.xlsx'];
+          if (officeTypes.includes(fileExtension)) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Call the Helpmate backend which proxies to license server
+            const response = await api.post('/extract-file-text', formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            });
+
+            const responseData = response.data;
+            toast.dismiss();
+
+            if (responseData.error) {
+              toast.error(
+                responseData.message || 'Failed to extract text from file.'
+              );
+              return;
+            }
+
+            data.content = responseData.text;
+            data.file_name = file.name;
+            toast.success('Text extracted successfully!');
+          } else {
+            // Handle text-based files (CSV, TXT, JSON)
+            const content = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = (e) => resolve(e.target?.result as string);
+              reader.onerror = reject;
+              reader.readAsText(file);
+            });
+
+            data.content = content;
+            data.file_name = file.name;
+            toast.dismiss();
+          }
+        } catch (error) {
+          toast.dismiss();
+          console.error('Error extracting text:', error);
+          toast.error(
+            'Failed to extract text from file. Please try another file.'
+          );
+          return;
+        }
+      }
+
+      // Ensure we have content before submitting
+      if (!data.content) {
+        toast.error('No content available to submit.');
+        return;
+      }
+
       addMutate(
         {
           document_type: 'file',
           title: data.title,
           content: data.content,
           metadata: {
-            file_name: data.file_name,
+            file_name: data.file_name || '',
           },
         },
         {
           onSuccess: () => {
             form.reset({
               title: '',
-              content: '',
-              file_name: '',
+              content: undefined,
+              file_name: undefined,
+              selectedFile: undefined,
             });
             if (fileInputRef.current) {
               fileInputRef.current.value = '';
             }
-          },
-          onError: (error) => {
-            // If consent is required, request it through the context
-            if (error.message === 'CONSENT_REQUIRED') {
-              requestConsent(() => handleSubmit(data));
-            }
+            setSelectedFileName('');
           },
         }
       );
     },
-    [addMutate]
+    [addMutate, form]
   );
 
   const handleRemove = useCallback(
@@ -126,11 +201,12 @@ export default function TabFile() {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       if (file) {
-        // Check file size (3MB = 3 * 1024 * 1024 bytes)
-        const maxSize = 3 * 1024 * 1024;
+        // Check file size - 300kb for free, 500kb for pro
+        const maxSize = isPro ? 500 * 1024 : 300 * 1024;
+        const maxSizeLabel = isPro ? '500KB' : '300KB';
         if (file.size > maxSize) {
           toast.error(
-            'File size exceeds 3MB limit. Please choose a smaller file.'
+            `File size exceeds ${maxSizeLabel} limit. Please choose a smaller file.`
           );
           if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -140,11 +216,20 @@ export default function TabFile() {
         }
 
         // Check file type
-        const allowedTypes = ['.csv', '.txt', '.json'];
+        const allowedTypes = [
+          '.csv',
+          '.txt',
+          '.json',
+          '.pdf',
+          '.doc',
+          '.docx',
+          '.xls',
+          '.xlsx',
+        ];
         const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
         if (!allowedTypes.includes(fileExtension)) {
           toast.error(
-            'Invalid file type. Please choose a CSV, TXT, or JSON file.'
+            'Invalid file type. Please choose a CSV, TXT, JSON, PDF, DOC, DOCX, XLS, or XLSX file.'
           );
           if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -154,18 +239,13 @@ export default function TabFile() {
         }
 
         setSelectedFileName(file.name);
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const content = e.target?.result as string;
-          form.setValue('content', content);
-          form.setValue('file_name', file.name);
-        };
-        reader.readAsText(file);
+        form.setValue('selectedFile', file);
       } else {
         setSelectedFileName('');
+        form.setValue('selectedFile', undefined);
       }
     },
-    [form]
+    [form, isPro]
   );
 
   const columns = useMemo<ColumnDef<DataSource>[]>(
@@ -285,7 +365,7 @@ export default function TabFile() {
                         <Input
                           ref={fileInputRef}
                           type="file"
-                          accept=".csv,.txt,.json"
+                          accept=".csv,.txt,.json,.pdf,.doc,.docx,.xls,.xlsx"
                           className="hidden"
                           onChange={handleFileChange}
                         />
@@ -302,8 +382,8 @@ export default function TabFile() {
                       </div>
                     </FormControl>
                     <FormDescription>
-                      CSV, TXT, and JSON formats are supported. Maximum file
-                      size: 3MB.
+                      CSV, TXT, JSON, PDF, DOC, DOCX, XLS, and XLSX formats are
+                      supported. Maximum file size: {isPro ? '500KB' : '300KB'}.
                     </FormDescription>
                   </FormItem>
                 )}

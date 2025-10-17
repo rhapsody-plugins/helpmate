@@ -53,14 +53,6 @@ export const useDataSource = () => {
     DocumentInput | DocumentInput[] | BulkDocumentInput[]
   >({
     mutationFn: async (data) => {
-      // Check consent before proceeding
-      const consentResponse = await api.get('/get-consent');
-      const hasConsent = consentResponse.data.consent;
-
-      if (!hasConsent) {
-        throw new Error('CONSENT_REQUIRED');
-      }
-
       const response = await api.post('/save-documents', data);
 
       // Check if this is a bulk operation
@@ -78,20 +70,18 @@ export const useDataSource = () => {
     onSuccess: (data, variables) => {
       // Check if this was a bulk operation
       if (Array.isArray(variables) && variables.length > 1 && data?.job_id) {
-        toast.success(`Bulk processing started for ${variables.length} documents. You'll be notified when complete.`);
+        toast.success(
+          `Bulk processing started for ${variables.length} documents. You'll be notified when complete.`
+        );
         return;
       }
 
       toast.success('Data source(s) added successfully');
     },
     onError: (error, data) => {
-      if (error.message === 'CONSENT_REQUIRED') {
-        // Don't show error toast for consent requirement
-        return;
-      }
       toast.error(
         (error as AxiosError<{ message: string }>).response?.data?.message ??
-          'Failed to add data source(s)'
+          'Failed to add data source(s). Try again.'
       );
       const documentType = Array.isArray(data)
         ? data[0].document_type
@@ -102,14 +92,6 @@ export const useDataSource = () => {
 
   const updateSourceMutation = useMutation<void, Error, DataSource>({
     mutationFn: async (data) => {
-      // Check consent before proceeding
-      const consentResponse = await api.get('/get-consent');
-      const hasConsent = consentResponse.data.consent;
-
-      if (!hasConsent) {
-        throw new Error('CONSENT_REQUIRED');
-      }
-
       await api.post('/update-documents', data);
       getSourcesMutation.mutate(data.document_type);
     },
@@ -117,13 +99,9 @@ export const useDataSource = () => {
       toast.success('Data source updated successfully');
     },
     onError: (error) => {
-      if (error.message === 'CONSENT_REQUIRED') {
-        // Don't show error toast for consent requirement
-        return;
-      }
       toast.error(
         (error as AxiosError<{ message: string }>).response?.data?.message ??
-          'Failed to update data source'
+          'Failed to update data source. Try again.'
       );
     },
   });
@@ -202,36 +180,6 @@ export const useDataSource = () => {
     }
   );
 
-  const getConsentQuery = useQuery<boolean, Error>({
-    queryKey: ['consent'],
-    queryFn: async () => {
-      const response = await api.get('/get-consent');
-      return response.data.consent;
-    },
-  });
-
-  const updateConsentMutation = useMutation<void, Error, boolean>({
-    mutationFn: async (consent) => {
-      const response = await api.post('/update-consent', { consent });
-      if (!response.data.error) {
-        return response.data.message;
-      }
-      if (response.data.error && response.data.message) {
-        toast.error(response.data.message);
-      }
-    },
-  });
-
-  // Helper function to handle consent requirement
-  const handleConsentRequired = async (): Promise<boolean> => {
-    try {
-      const consentResponse = await api.get('/get-consent');
-      return consentResponse.data.consent;
-    } catch {
-      return false;
-    }
-  };
-
   // Bulk job management hooks
   const getBulkJobStatusMutation = useMutation<BulkJobStatus, Error, string>({
     mutationFn: async (jobId: string) => {
@@ -286,8 +234,9 @@ export const useDataSource = () => {
     refetchInterval: (query) => {
       // Only refetch if there are active jobs (processing or scheduled)
       const data = query.state.data;
-      const hasActiveJobs = data?.some((job: BulkJob) =>
-        job.status === 'processing' || job.status === 'scheduled'
+      const hasActiveJobs = data?.some(
+        (job: BulkJob) =>
+          job.status === 'processing' || job.status === 'scheduled'
       );
       return hasActiveJobs ? 2000 : false; // 2 seconds for active jobs, no polling when no active jobs
     },
@@ -297,7 +246,10 @@ export const useDataSource = () => {
     enabled: true, // Always enabled to start polling immediately
   });
 
-  const getBackgroundProcessingStatusQuery = useQuery<BackgroundProcessingStatus, Error>({
+  const getBackgroundProcessingStatusQuery = useQuery<
+    BackgroundProcessingStatus,
+    Error
+  >({
     queryKey: ['background-processing-status'],
     queryFn: async () => {
       const response = await api.get('/background-processing-status');
@@ -314,9 +266,6 @@ export const useDataSource = () => {
     getPostTypesQuery,
     getPostsMutation,
     getDiscountedProductsMutation,
-    getConsentQuery,
-    updateConsentMutation,
-    handleConsentRequired,
     // Bulk job management
     getBulkJobStatusMutation,
     cancelBulkJobMutation,

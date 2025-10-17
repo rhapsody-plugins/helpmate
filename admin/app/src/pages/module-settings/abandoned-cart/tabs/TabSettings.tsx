@@ -42,13 +42,7 @@ import useCoupons from '@/hooks/useCoupons';
 import { useSettings } from '@/hooks/useSettings';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Check,
-  ChevronsUpDown,
-  Pencil,
-  Plus,
-  Trash,
-} from 'lucide-react';
+import { Check, ChevronsUpDown, Pencil, Plus, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -129,6 +123,7 @@ function TimeInput({
           <Input
             type="number"
             min="0"
+            max="23"
             value={days.toString().padStart(2, '0')}
             onChange={(e) => handleChange('days', e.target.value)}
             className="w-16 p-2 text-center !border-input !rounded-md focus-visible:!border-ring focus-visible:!ring-ring/50 focus-visible:!ring-[3px]"
@@ -154,7 +149,7 @@ function TimeInput({
           <Input
             type="number"
             min="0"
-            max="59"
+            max="23"
             value={minutes.toString().padStart(2, '0')}
             onChange={(e) => handleChange('minutes', e.target.value)}
             className="w-16 p-2 text-center !border-input !rounded-md focus-visible:!border-ring focus-visible:!ring-ring/50 focus-visible:!ring-[3px]"
@@ -167,7 +162,7 @@ function TimeInput({
           <Input
             type="number"
             min="0"
-            max="59"
+            max="23"
             value={seconds.toString().padStart(2, '0')}
             onChange={(e) => handleChange('seconds', e.target.value)}
             className="w-16 p-2 text-center !border-input !rounded-md focus-visible:!border-ring focus-visible:!ring-ring/50 focus-visible:!ring-[3px]"
@@ -312,11 +307,8 @@ export default function TabSettings() {
   const { getSettingsMutation, updateSettingsMutation, getProQuery } =
     useSettings();
   const { getCouponsQuery } = useCoupons();
-  const {
-    saveEmailTemplate,
-    updateEmailTemplate,
-    deleteEmailTemplate,
-  } = useAbandonedCart();
+  const { saveEmailTemplate, updateEmailTemplate, deleteEmailTemplate } =
+    useAbandonedCart();
   const { data: coupons } = getCouponsQuery;
 
   const {
@@ -520,7 +512,10 @@ export default function TabSettings() {
                       </div>
                       <div className="space-y-2">
                         <Skeleton className="w-32 h-4" />
-                        <Skeleton className="w-full h-10" />
+                        <div className="flex gap-2">
+                          <Skeleton className="w-full h-10" />
+                          <Skeleton className="w-10 h-10" />
+                        </div>
                       </div>
                     </div>
                     <Skeleton className="w-20 h-10" />
@@ -645,79 +640,97 @@ export default function TabSettings() {
                         render={({ field }) => (
                           <FormItem className="flex flex-col">
                             <FormLabel>Abandoned Cart Coupon</FormLabel>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    className={cn(
-                                      'w-full justify-between',
-                                      !field.value && 'text-muted-foreground'
-                                    )}
-                                  >
-                                    {field.value
-                                      ? coupons?.find(
-                                          (coupon) =>
-                                            coupon.code === field.value
-                                        )?.code
-                                      : 'Select coupon'}
-                                    <ChevronsUpDown className="ml-2 w-4 h-4 opacity-50 shrink-0" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="p-0 w-full">
-                                <Command>
-                                  <CommandInput
-                                    className="!border-none !ring-0 !ring-offset-0 h-5"
-                                    placeholder="Search coupon..."
-                                  />
-                                  <CommandEmpty>
-                                    No coupon found.
-                                  </CommandEmpty>
-                                  <CommandGroup>
-                                    <CommandItem
-                                      value=""
-                                      onSelect={() => {
-                                        form.setValue('coupon_code', '');
-                                      }}
-                                    >
-                                      <Check
+                            <FormControl>
+                              <div className="flex gap-2">
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <FormControl>
+                                      <Button
+                                        variant="outline"
+                                        role="combobox"
                                         className={cn(
-                                          'mr-2 h-4 w-4',
-                                          !field.value
-                                            ? 'opacity-100'
-                                            : 'opacity-0'
+                                          'flex-1 justify-between',
+                                          !field.value &&
+                                            'text-muted-foreground'
                                         )}
-                                      />
-                                      No coupon
-                                    </CommandItem>
-                                    {coupons?.map((coupon) => (
-                                      <CommandItem
-                                        value={coupon.code}
-                                        key={coupon.id}
-                                        onSelect={() => {
-                                          form.setValue(
-                                            'coupon_code',
-                                            coupon.code
-                                          );
-                                        }}
                                       >
-                                        <Check
-                                          className={cn(
-                                            'mr-2 h-4 w-4',
-                                            coupon.code === field.value
-                                              ? 'opacity-100'
-                                              : 'opacity-0'
-                                          )}
-                                        />
-                                        {coupon.code}
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
+                                        {field.value
+                                          ? coupons?.find(
+                                              (coupon) =>
+                                                coupon.code === field.value
+                                            )?.code
+                                          : 'Select coupon'}
+                                        <ChevronsUpDown className="ml-2 w-4 h-4 opacity-50 shrink-0" />
+                                      </Button>
+                                    </FormControl>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="p-0 w-full">
+                                    <Command>
+                                      <CommandInput
+                                        className="!border-none !ring-0 !ring-offset-0 h-5"
+                                        placeholder="Search coupon..."
+                                      />
+                                      <CommandEmpty>
+                                        No coupon found.
+                                      </CommandEmpty>
+                                      <CommandGroup>
+                                        <CommandItem
+                                          value=""
+                                          onSelect={() => {
+                                            form.setValue('coupon_code', '');
+                                          }}
+                                        >
+                                          <Check
+                                            className={cn(
+                                              'mr-2 h-4 w-4',
+                                              !field.value
+                                                ? 'opacity-100'
+                                                : 'opacity-0'
+                                            )}
+                                          />
+                                          No coupon
+                                        </CommandItem>
+                                        {coupons?.map((coupon) => (
+                                          <CommandItem
+                                            value={coupon.code}
+                                            key={coupon.id}
+                                            onSelect={() => {
+                                              form.setValue(
+                                                'coupon_code',
+                                                coupon.code
+                                              );
+                                            }}
+                                          >
+                                            <Check
+                                              className={cn(
+                                                'mr-2 h-4 w-4',
+                                                coupon.code === field.value
+                                                  ? 'opacity-100'
+                                                  : 'opacity-0'
+                                              )}
+                                            />
+                                            {coupon.code}
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </Command>
+                                  </PopoverContent>
+                                </Popover>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => {
+                                    window.open(
+                                      '/wp-admin/edit.php?post_type=shop_coupon',
+                                      '_blank'
+                                    );
+                                  }}
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </FormControl>
                           </FormItem>
                         )}
                       />

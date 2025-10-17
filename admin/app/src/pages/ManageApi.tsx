@@ -6,8 +6,9 @@ import { useApi } from '@/hooks/useApi';
 import { useSettings } from '@/hooks/useSettings';
 import { HelpmatePricingURL, HelpmateSignupURL } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
+import ActivateApi from '@/pages/ActivateApi';
 import { Eye, EyeOff } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 // Simple SVG circular progress
 function CircularProgress({
@@ -151,113 +152,115 @@ export default function ManageApi({
 
   return (
     <div className="min-h-[30vh] flex flex-col justify-between">
-      <Card className="py-0 mx-auto w-full">
-        <CardContent className="p-8">
-          <div
-            className={cn(
-              'flex flex-col gap-6 justify-between pr-8 h-full ',
-              apiKeyData?.product_slug === 'helpmate-free'
-                ? 'border-r border-gray-200 max-md:border-none'
-                : 'border-none'
-            )}
-          >
-            <div>
-              <div className="mb-4">
-                <h3 className="mb-2 text-lg font-medium">Api Key</h3>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Input
-                      type="text"
-                      value={getDisplayValue()}
-                      onChange={(e) => setApiKey(e.target.value)}
-                      className="!border-input !rounded-md focus-visible:!border-ring focus-visible:!ring-ring/50 focus-visible:!ring-[3px] pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      className="absolute right-3 top-1/2 text-gray-500 transition-colors -translate-y-1/2 hover:text-gray-700"
-                    >
-                      {showApiKey ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
-                    </button>
-                  </div>
-                  <Button
-                    onClick={handleApiKeyChange}
-                    disabled={isActivateApiKeyPending}
-                    className="bg-green-500 hover:bg-green-600"
-                  >
-                    {isActivateApiKeyPending
-                      ? 'Activating...'
-                      : apiKeyData?.api_key
-                      ? 'Change Api Key'
-                      : 'Activate Api Key'}
-                  </Button>
-                </div>
-                <div className="mt-2 text-sm text-muted-foreground">
-                  Api key type: {apiKeyData?.product_slug.toUpperCase()}
-                </div>
-              </div>
-              {isPro && (
+      {!apiKeyData?.api_key ? (
+        <ActivateApi />
+      ) : (
+        <>
+          <Card className="py-0 mx-auto w-full">
+            <CardContent className="p-8">
+              <div className={cn('flex flex-col gap-6 justify-between h-full')}>
                 <div>
-                  <h3 className="mb-2 text-lg font-medium">Credit Usage</h3>
-                  <div className="flex gap-4 items-center">
-                    {isFeatureUsagePending ||
-                    isApiKeyPending ||
-                    isActivateApiKeyPending ? (
-                      <p>Loading credits...</p>
-                    ) : mainCredit ? (
-                      mainCredit.map((credit) => (
-                        <div
-                          className="flex flex-col items-center"
-                          key={credit.feature_slug}
+                  <div className="mb-4">
+                    <h3 className="mb-2 text-lg font-medium !mt-0">Api Key</h3>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Input
+                          type="text"
+                          value={getDisplayValue()}
+                          onChange={(e) => setApiKey(e.target.value)}
+                          className="!border-input !rounded-md focus-visible:!border-ring focus-visible:!ring-ring/50 focus-visible:!ring-[3px] pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowApiKey(!showApiKey)}
+                          className="absolute right-3 top-1/2 text-gray-500 transition-colors -translate-y-1/2 hover:text-gray-700"
                         >
-                          <div className="p-2 bg-gray-100 rounded-xl">
-                            <CircularProgress
-                              value={credit.usages}
-                              max={
-                                Number(credit.credits) === -1
-                                  ? 1
-                                  : credit.credits
-                              }
-                              isUnlimited={Number(credit.credits) === -1}
-                            />
+                          {showApiKey ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                      <Button
+                        onClick={handleApiKeyChange}
+                        disabled={isActivateApiKeyPending}
+                        className="bg-green-500 hover:bg-green-600"
+                      >
+                        {isActivateApiKeyPending
+                          ? 'Activating...'
+                          : apiKeyData?.api_key
+                          ? 'Change Api Key'
+                          : 'Activate Api Key'}
+                      </Button>
+                    </div>
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      Api key type: {apiKeyData?.product_slug.toUpperCase()}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="mb-2 text-lg font-medium">Credit Usage</h3>
+                    <div className="flex gap-4 items-center">
+                      {isFeatureUsagePending ||
+                      isApiKeyPending ||
+                      isActivateApiKeyPending ? (
+                        <p>Loading credits...</p>
+                      ) : mainCredit ? (
+                        mainCredit.map((credit) => (
+                          <div
+                            className="flex flex-col items-center"
+                            key={credit.feature_slug}
+                          >
+                            <div className="p-2 bg-gray-100 rounded-xl">
+                              <CircularProgress
+                                value={credit.usages}
+                                max={
+                                  Number(credit.credits) === -1
+                                    ? 1
+                                    : credit.credits
+                                }
+                                isUnlimited={Number(credit.credits) === -1}
+                              />
+                            </div>
+                            <span className="mt-1 text-xs capitalize text-muted-foreground">
+                              {credit.feature_slug.replace(/_/g, ' ')}
+                            </span>
                           </div>
-                          <span className="mt-1 text-xs capitalize text-muted-foreground">
-                            {credit.feature_slug.replace(/_/g, ' ')}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <p>No credits available</p>
-                    )}
+                        ))
+                      ) : (
+                        <p>No credits available</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              )}
-            </div>
-            {isPro && (
-              <div className="flex justify-between items-center">
-                {apiKeyData?.last_sync && (
-                  <div className="text-sm text-muted-foreground">
-                    Last synced:{' '}
-                    {new Date(apiKeyData.last_sync * 1000).toLocaleString()}
+                {isPro && (
+                  <div className="flex justify-between items-center">
+                    {apiKeyData?.last_sync && (
+                      <div className="text-sm text-muted-foreground">
+                        Last synced:{' '}
+                        {new Date(apiKeyData.last_sync * 1000).toLocaleString()}
+                      </div>
+                    )}
+                    <Button size="sm" onClick={() => syncCredits()}>
+                      Sync Credits
+                    </Button>
                   </div>
                 )}
-                <Button size="sm" onClick={() => syncCredits()}>
-                  Sync Credits
-                </Button>
               </div>
-            )}
+            </CardContent>
+          </Card>
+
+          <div className="mt-3">
+            <Button
+              variant="outline"
+              className=""
+              onClick={() => setPage('home')}
+            >
+              ← Go Back
+            </Button>
           </div>
-        </CardContent>
-      </Card>
-      <div className="mt-3">
-        <Button variant="outline" className="" onClick={() => setPage('home')}>
-          ← Go Back
-        </Button>
-      </div>
+        </>
+      )}
 
       <ApiKeyChangeConfirmationDialog
         open={showConfirmationDialog}

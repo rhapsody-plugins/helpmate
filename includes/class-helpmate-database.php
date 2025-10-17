@@ -58,7 +58,7 @@ class Helpmate_Database
             id bigint(20) NOT NULL AUTO_INCREMENT,
             document_type varchar(50) NOT NULL,
             title text,
-            content text,
+            content longtext,
             vector text,
             metadata text,
             last_updated bigint(20),
@@ -245,7 +245,6 @@ class Helpmate_Database
                 'tone' => 'friendly',
                 'language' => 'default',
                 'similarity_threshold' => 0.5,
-                'consent' => false,
             ],
             'behavior' => [
                 'welcome_message_sound' => true,

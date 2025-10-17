@@ -123,7 +123,7 @@ class Helpmate_Chat_Response_Generator
                 'similarity_threshold' => $similarity_threshold,
                 'modules' => $this->modules_in_use()
             ]),
-            'timeout' => 30,
+            'timeout' => 60,
         ]);
 
         $body = wp_remote_retrieve_body($response);

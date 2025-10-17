@@ -55,6 +55,10 @@ class Helpmate_Admin
 		// Add menu highlighting hook
 		add_action('admin_head', array($this, 'add_menu_highlighting_css'));
 
+		// Add AJAX hooks for checklist functionality
+		add_action('wp_ajax_helpmate_update_checklist', array($this, 'ajax_update_checklist'));
+		add_action('wp_ajax_helpmate_skip_checklist', array($this, 'ajax_skip_checklist'));
+
 	}
 
 	/**
@@ -196,10 +200,20 @@ class Helpmate_Admin
 
 		add_submenu_page(
 			'helpmate',
+			'Dashboard',
+			'Dashboard',
+			'manage_options',
+			'helpmate',
+			array($this, 'display_plugin_setup_page')
+		);
+
+		add_submenu_page(
+			'helpmate',
 			'Train Chatbot',
 			'Train Chatbot',
 			'manage_options',
-			'helpmate'
+			'helpmate&tab=data-source',
+			array($this, 'display_plugin_setup_page')
 		);
 
 		// Add submenus
@@ -293,6 +307,12 @@ class Helpmate_Admin
 			if ($tab === 'apps') {
 				add_filter('admin_body_class', function($classes) {
 					return $classes . ' helpmate-apps-tab';
+				});
+			}
+
+			if ($tab === 'data-source') {
+				add_filter('admin_body_class', function($classes) {
+					return $classes . ' helpmate-data-source-tab';
 				});
 			}
 		}

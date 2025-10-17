@@ -117,7 +117,7 @@ export function AppSidebar() {
     },
     {
       label: 'Analytics',
-      page: 'dashboard',
+      page: 'analytics',
     },
     {
       label: 'Activity',

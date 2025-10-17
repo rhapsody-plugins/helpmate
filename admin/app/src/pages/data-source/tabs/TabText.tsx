@@ -26,7 +26,6 @@ import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { useConsent } from '@/contexts/ConsentContext';
 
 const formSchema = z.object({
   id: z.string().optional(),
@@ -43,7 +42,7 @@ export default function TabText() {
     content: string;
   } | null>(null);
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
-  const { requestConsent } = useConsent();
+  const [removingTextId, setRemovingTextId] = useState<number | null>(null);
   const {
     getSourcesMutation,
     addSourceMutation,
@@ -88,7 +87,9 @@ export default function TabText() {
   const handleSubmit = useCallback(
     (data: FormData) => {
       if (data.id) {
-        const prevData = fetchData?.find((source) => Number(source.id) === Number(data.id));
+        const prevData = fetchData?.find(
+          (source) => Number(source.id) === Number(data.id)
+        );
 
         const updateData = {
           id: Number(data.id),
@@ -111,12 +112,7 @@ export default function TabText() {
             fetchMutate('text');
           },
           onError: (error) => {
-            // If consent is required, request it through the context
-            if (error.message === 'CONSENT_REQUIRED') {
-              requestConsent(() => handleSubmit(data));
-            } else {
-              console.error('Update failed:', error);
-            }
+            console.error('Update failed:', error);
           },
         });
       } else {
@@ -138,30 +134,33 @@ export default function TabText() {
             fetchMutate('text');
           },
           onError: (error) => {
-            // If consent is required, request it through the context
-            if (error.message === 'CONSENT_REQUIRED') {
-              requestConsent(() => handleSubmit(data));
-            } else {
-              console.error('Add failed:', error);
-            }
+            console.error('Add failed:', error);
           },
         });
       }
     },
-    [addMutate, fetchData, updateMutate, fetchMutate, form, requestConsent]
+    [addMutate, fetchData, updateMutate, fetchMutate, form]
   );
 
   const handleRemove = useCallback(
     (id: number) => {
-      removeMutate({
-        ids: [id],
-        type: 'text',
-      }, {
-        onSuccess: () => {
-          // Refetch table data after successful removal
-          fetchMutate('text');
+      setRemovingTextId(id);
+      removeMutate(
+        {
+          ids: [id],
+          type: 'text',
         },
-      });
+        {
+          onSuccess: () => {
+            setRemovingTextId(null);
+            // Refetch table data after successful removal
+            fetchMutate('text');
+          },
+          onError: () => {
+            setRemovingTextId(null);
+          },
+        }
+      );
     },
     [removeMutate, fetchMutate]
   );
@@ -212,42 +211,45 @@ export default function TabText() {
       {
         id: 'actions',
         header: 'Actions',
-        cell: ({ row }) => (
-          <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSelectedText({
-                  title: row.original.title,
-                  content: row.original.content,
-                });
-                setIsContentSheetOpen(true);
-              }}
-            >
-              View
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleEdit(row.original.id)}
-            >
-              Edit
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              loading={removeIsPending}
-              disabled={removeIsPending}
-              onClick={() => handleRemove(row.original.id)}
-            >
-              {removeIsPending ? 'Deleting...' : 'Delete'}
-            </Button>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const isRemoving = removingTextId === row.original.id;
+          return (
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedText({
+                    title: row.original.title,
+                    content: row.original.content,
+                  });
+                  setIsContentSheetOpen(true);
+                }}
+              >
+                View
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleEdit(row.original.id)}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                loading={removeIsPending && isRemoving}
+                disabled={removeIsPending && isRemoving}
+                onClick={() => handleRemove(row.original.id)}
+              >
+                {isRemoving ? 'Deleting...' : 'Delete'}
+              </Button>
+            </div>
+          );
+        },
       },
     ],
-    [handleRemove, handleEdit, removeIsPending]
+    [handleRemove, handleEdit, removeIsPending, removingTextId]
   );
 
   /*

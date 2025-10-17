@@ -331,7 +331,7 @@ class Helpmate_Api
                 'timestamp' => $timestamp,
                 'nonce' => $nonce,
             ),
-            'timeout' => 15,
+            'timeout' => 60,
             'sslverify' => true
         ));
 

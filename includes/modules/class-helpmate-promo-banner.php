@@ -56,7 +56,9 @@ class Helpmate_Promo_Banner
     private function init_cron_job(): void
     {
         // Add custom cron schedule for banner expiration checks
-        add_filter('cron_schedules', array($this, 'add_cron_schedule'));
+        add_action('init', function () {
+            add_filter('cron_schedules', array($this, 'add_cron_schedule'));
+        });
 
         // Schedule the cron job if not already scheduled
         if (!wp_next_scheduled('helpmate_check_banner_expiration')) {

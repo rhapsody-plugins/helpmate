@@ -109,10 +109,6 @@ export default function TabCarts() {
           <CardContent>
             {isFetchingAbandonedCarts ? (
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <Skeleton className="w-32 h-6" />
-                  <Skeleton className="w-24 h-8" />
-                </div>
                 <div className="space-y-3">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <div key={i} className="flex gap-4 items-center">

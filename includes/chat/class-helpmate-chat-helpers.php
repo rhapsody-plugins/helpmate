@@ -77,7 +77,7 @@ class Helpmate_Chat_Helpers
 
         // Fetch the URL content with modified headers and options
         $response = wp_remote_get($url, [
-            'timeout' => 30,
+            'timeout' => 60,
             'headers' => [
                 'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
@@ -269,7 +269,7 @@ class Helpmate_Chat_Helpers
 
         // Fetch the URL content with modified headers and options
         $response = wp_remote_get($url, [
-            'timeout' => 30,
+            'timeout' => 60,
             'headers' => [
                 'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
                 'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
@@ -696,7 +696,7 @@ class Helpmate_Chat_Helpers
                     "embedding_type" => $type,
                     "feature_slug" => $feature_slug,
                 ]),
-                'timeout' => 30,
+                'timeout' => 300,
             ]);
 
             $body = wp_remote_retrieve_body($response);

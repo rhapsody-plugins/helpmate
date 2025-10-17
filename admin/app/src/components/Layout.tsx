@@ -4,7 +4,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { useMain } from '@/contexts/MainContext';
 import { lazy, Suspense } from 'react';
 
-const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const Analytics = lazy(() => import('@/pages/Analytics'));
 const Activity = lazy(() => import('@/pages/activity/Activity'));
 const DataSource = lazy(() => import('@/pages/data-source/DataSource'));
 const Customization = lazy(() => import('@/pages/customization/Customization'));
@@ -33,8 +33,8 @@ export default function Layout() {
 
   const renderPage = () => {
     switch (page) {
-      case 'dashboard':
-        return <Dashboard />;
+      case 'analytics':
+        return <Analytics />;
       case 'activity':
         return <Activity />;
       case 'data-source':

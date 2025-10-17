@@ -27,7 +27,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { useConsent } from '@/contexts/ConsentContext';
 
 const formSchema = z.object({
   title: z.string(),
@@ -42,7 +41,7 @@ export default function TabUrl() {
   const [isContentSheetOpen, setIsContentSheetOpen] = useState(false);
   const [selectedContent, setSelectedContent] = useState<string>('');
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
-  const { requestConsent } = useConsent();
+  const [removingUrlId, setRemovingUrlId] = useState<number | null>(null);
   const { getSourcesMutation, addSourceMutation, removeSourceMutation } =
     useDataSource();
 
@@ -98,13 +97,6 @@ export default function TabUrl() {
           metadata: {
             url: data.url,
           },
-        }, {
-          onError: (error) => {
-            // If consent is required, request it through the context
-            if (error.message === 'CONSENT_REQUIRED') {
-              requestConsent(() => handleSubmit(data));
-            }
-          },
         });
       } catch (error) {
         console.error('Error fetching URL:', error);
@@ -121,12 +113,25 @@ export default function TabUrl() {
 
   const handleRemove = useCallback(
     (id: number) => {
-      removeMutate({
-        ids: [id],
-        type: 'url',
-      });
+      setRemovingUrlId(id);
+      removeMutate(
+        {
+          ids: [id],
+          type: 'url',
+        },
+        {
+          onSuccess: () => {
+            setRemovingUrlId(null);
+            // Refetch table data after successful removal
+            fetchMutate('url');
+          },
+          onError: () => {
+            setRemovingUrlId(null);
+          },
+        }
+      );
     },
-    [removeMutate]
+    [removeMutate, fetchMutate]
   );
 
   const columns = useMemo<ColumnDef<DataSource>[]>(
@@ -179,32 +184,35 @@ export default function TabUrl() {
       {
         id: 'actions',
         header: 'Actions',
-        cell: ({ row }) => (
-          <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSelectedContent(row.original.content);
-                setIsContentSheetOpen(true);
-              }}
-            >
-              View
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              disabled={removeIsPending}
-              loading={removeIsPending}
-              onClick={() => handleRemove(row.original.id)}
-            >
-              {removeIsPending ? 'Deleting...' : 'Delete'}
-            </Button>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const isRemoving = removingUrlId === row.original.id;
+          return (
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedContent(row.original.content);
+                  setIsContentSheetOpen(true);
+                }}
+              >
+                View
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                loading={removeIsPending && isRemoving}
+                disabled={removeIsPending && isRemoving}
+                onClick={() => handleRemove(row.original.id)}
+              >
+                {isRemoving ? 'Deleting...' : 'Delete'}
+              </Button>
+            </div>
+          );
+        },
       },
     ],
-    [handleRemove, removeIsPending]
+    [handleRemove, removeIsPending, removingUrlId]
   );
 
   /*

@@ -1,12 +1,9 @@
 import Loading from '@/components/Loading';
-import { OptInDialog } from '@/components/OptInDialog';
 import PageHeader from '@/components/PageHeader';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { useConsent } from '@/contexts/ConsentContext';
 import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
-import { useSettings } from '@/hooks/useSettings';
 import { useWooCommerce } from '@/hooks/useWooCommerce';
 import { MenuItem } from '@/types';
 import { RefreshCw } from 'lucide-react';
@@ -19,7 +16,6 @@ const TabPost = lazy(() => import('@/pages/data-source/tabs/TabPost'));
 const TabProducts = lazy(() => import('@/pages/data-source/tabs/TabProducts'));
 const TabQnA = lazy(() => import('@/pages/data-source/tabs/TabQnA'));
 const TabFile = lazy(() => import('@/pages/data-source/tabs/TabFile'));
-const TabGeneral = lazy(() => import('@/pages/data-source/tabs/TabGeneral'));
 
 // Simple component for right actions - no hooks to avoid violations
 function RightActions({
@@ -91,19 +87,12 @@ function RightActions({
 
 export function DataSourceContent() {
   // All hooks must be called at the top level in the same order every time
-  const { getProQuery } = useSettings();
-  const { data: isPro } = getProQuery;
   const { apiKeyQuery, syncCreditsMutation } = useApi();
   const { getSourcesMutation } = useDataSource();
-  const { isWooCommerceInstalled } = useWooCommerce();
-  const [tab, setTab] = useState('Start Here');
+  const { isWooCommerceInstalled, isLoading: isWooCommerceLoading } =
+    useWooCommerce();
+  const [tab, setTab] = useState('WP Posts');
   const [hasGeneralContent, setHasGeneralContent] = useState(false);
-  const {
-    isConsentDialogOpen,
-    setIsConsentDialogOpen,
-    pendingTrainingAction,
-    setPendingTrainingAction,
-  } = useConsent();
 
   // Extract data from queries after all hooks are called
   const { data: apiKeyData, isPending: isApiKeyPending } = apiKeyQuery;
@@ -111,12 +100,7 @@ export function DataSourceContent() {
 
   // Move useMemo after all other hooks
   const MENU_ITEMS = useMemo<MenuItem[]>(() => {
-    const baseItems: MenuItem[] = [
-      {
-        title: 'Start Here',
-        status: true,
-      },
-    ];
+    const baseItems: MenuItem[] = [];
 
     if (isWooCommerceInstalled) {
       baseItems.push({
@@ -150,6 +134,13 @@ export function DataSourceContent() {
 
     return baseItems;
   }, [hasGeneralContent, isWooCommerceInstalled]);
+
+  // Set initial tab based on WooCommerce status
+  useEffect(() => {
+    if (!isWooCommerceLoading && isWooCommerceInstalled) {
+      setTab('Products');
+    }
+  }, [isWooCommerceLoading, isWooCommerceInstalled]);
 
   // Check if general data source has content
   useEffect(() => {
@@ -204,24 +195,17 @@ export function DataSourceContent() {
           menuItems={MENU_ITEMS}
           title="Train Chatbot"
           rightActions={
-            isPro ? (
-              <RightActions
-                isApiKeyPending={isApiKeyPending}
-                tab={tab}
-                apiKeyData={apiKeyData}
-                syncCredits={syncCredits}
-                isSyncing={isSyncing}
-              />
-            ) : (
-              <></>
-            )
+            <RightActions
+              isApiKeyPending={isApiKeyPending}
+              tab={tab}
+              apiKeyData={apiKeyData}
+              syncCredits={syncCredits}
+              isSyncing={isSyncing}
+            />
           }
         />
         <TabsContent value={tab} className="p-6">
           <Suspense fallback={<Loading />}>
-            {tab === 'Start Here' && (
-              <TabGeneral setHasGeneralContent={setHasGeneralContent} />
-            )}
             {tab === 'Products' && <TabProducts />}
             {tab === 'WP Posts' && <TabPost />}
             {tab === 'Text' && <TabText />}
@@ -231,17 +215,6 @@ export function DataSourceContent() {
           </Suspense>
         </TabsContent>
       </Tabs>
-
-      <OptInDialog
-        open={isConsentDialogOpen}
-        onOpenChange={setIsConsentDialogOpen}
-        onConsent={() => {
-          if (pendingTrainingAction) {
-            pendingTrainingAction();
-            setPendingTrainingAction(null);
-          }
-        }}
-      />
     </>
   );
 }

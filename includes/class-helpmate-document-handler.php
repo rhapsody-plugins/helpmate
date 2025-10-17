@@ -50,12 +50,14 @@ class Helpmate_Document_Handler
         $this->chat = $chat;
 
         // Add custom 5-minute cron schedule
-        add_filter('cron_schedules', function ($schedules) {
-            $schedules['every_five_minutes'] = array(
-                'interval' => 300,
-                'display' => __('Every 5 Minutes', 'helpmate-ai-chatbot')
-            );
-            return $schedules;
+        add_action('init', function () {
+            add_filter('cron_schedules', function ($schedules) {
+                $schedules['every_five_minutes'] = array(
+                    'interval' => 300,
+                    'display' => __('Every 5 Minutes', 'helpmate-ai-chatbot')
+                );
+                return $schedules;
+            });
         });
     }
 

@@ -71,46 +71,6 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
         ));
 
-        register_rest_route('helpmate/v1', '/get-consent', array(
-            'methods' => 'GET',
-            'callback' => function () {
-                try {
-                    return new WP_REST_Response([
-                        'error' => false,
-                        'consent' => $this->helpmate->get_settings()->get_setting('ai')['consent']
-                    ], 200);
-                } catch (Exception $e) {
-                    return new WP_REST_Response([
-                        'error' => true,
-                        'message' => $e->getMessage()
-                    ], 500);
-                }
-            },
-            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
-        ));
-
-        register_rest_route('helpmate/v1', '/update-consent', array(
-            'methods' => 'POST',
-            'callback' => function ($request) {
-                $consent = rest_sanitize_boolean($request->get_param('consent'));
-                try {
-                    $ai_settings = $this->helpmate->get_settings()->get_setting('ai');
-                    $ai_settings['consent'] = $consent;
-                    $this->helpmate->get_settings()->set_setting('ai', $ai_settings);
-                    return new WP_REST_Response([
-                        'error' => false,
-                        'message' => 'Consent updated successfully'
-                    ], 200);
-                } catch (Exception $e) {
-                    return new WP_REST_Response([
-                        'error' => true,
-                        'message' => $e->getMessage()
-                    ], 500);
-                }
-            },
-            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
-        ));
-
         register_rest_route('helpmate/v1', '/check-woocommerce', array(
             'methods' => 'GET',
             'callback' => function () {
@@ -323,6 +283,12 @@ class Helpmate_Backend_Routes
         register_rest_route('helpmate/v1', '/update-documents', array(
             'methods' => 'POST',
             'callback' => fn($request) => $this->helpmate->get_document_handler()->update_document($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
+        ));
+
+        register_rest_route('helpmate/v1', '/extract-file-text', array(
+            'methods' => 'POST',
+            'callback' => fn($request) => $this->extract_file_text($request),
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
         ));
 
@@ -1359,6 +1325,113 @@ class Helpmate_Backend_Routes
             return new WP_REST_Response([
                 'error' => false,
                 'message' => 'Job deleted successfully'
+            ], 200);
+
+        } catch (Exception $e) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Extract text from uploaded file via license server API.
+     *
+     * @since 1.0.0
+     * @param WP_REST_Request $request The request object.
+     * @return WP_REST_Response|WP_Error
+     */
+    public function extract_file_text($request)
+    {
+        // Check if file was uploaded
+        $files = $request->get_file_params();
+
+        if (empty($files['file'])) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => __('No file uploaded', 'helpmate-ai-chatbot')
+            ], 400);
+        }
+
+        $file = $files['file'];
+
+        // Validate file size (5MB max)
+        $is_pro = $this->helpmate->is_helpmate_pro_active();
+        $product_slug = $this->helpmate->get_product_slug();
+        $max_size = $is_pro && $product_slug !== 'helpmate-free' ? 500 * 1024 : 300 * 1024;
+        $max_size_label = $is_pro && $product_slug !== 'helpmate-free' ? '500KB' : '300KB';
+        if ($file['size'] > $max_size) {
+            return new WP_REST_Response([
+                'error' => true,
+                /* translators: %s: maximum file size (e.g., 300KB or 500KB) */
+                'message' => sprintf(__('File size exceeds %s limit', 'helpmate-ai-chatbot'), $max_size_label)
+            ], 400);
+        }
+
+        // Validate file type
+        $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowed_extensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
+
+        if (!in_array($file_extension, $allowed_extensions)) {
+            return new WP_REST_Response([
+                'error' => true,
+                'message' => __('Invalid file type. Only PDF, DOC, DOCX, XLS, and XLSX files are supported.', 'helpmate-ai-chatbot')
+            ], 400);
+        }
+
+        try {
+            // Get the license server URL from API settings
+            $api_server = $this->helpmate->get_api()->get_api_server();
+            $endpoint = $api_server . '/wp-json/rp/v1/extract-file-text';
+
+            // Prepare file for upload to license server
+            $boundary = wp_generate_password(24, false);
+            $file_contents = file_get_contents($file['tmp_name']);
+
+            // Build multipart form data
+            $body = "--{$boundary}\r\n";
+            $body .= 'Content-Disposition: form-data; name="file"; filename="' . $file['name'] . '"' . "\r\n";
+            $body .= 'Content-Type: ' . $file['type'] . "\r\n\r\n";
+            $body .= $file_contents . "\r\n";
+            $body .= "--{$boundary}--\r\n";
+
+            // Make request to license server
+            $response = wp_remote_post($endpoint, array(
+                'body' => $body,
+                'headers' => array(
+                    'Content-Type' => 'multipart/form-data; boundary=' . $boundary,
+                ),
+                'timeout' => 300,
+                'sslverify' => false // Set to true in production with valid SSL
+            ));
+
+            // Check for WordPress errors
+            if (is_wp_error($response)) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => $response->get_error_message()
+                ], 500);
+            }
+
+            // Get response body
+            $response_body = wp_remote_retrieve_body($response);
+            $response_code = wp_remote_retrieve_response_code($response);
+            $data = json_decode($response_body, true);
+
+            // Check if license server returned an error
+            if ($response_code !== 200 || (isset($data['code']) && $data['code'] !== 'rest_no_route')) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => $data['message'] ?? __('Failed to extract text from file', 'helpmate-ai-chatbot')
+                ], $response_code);
+            }
+
+            // Return successful response
+            return new WP_REST_Response([
+                'error' => false,
+                'text' => $data['text'] ?? '',
+                'file_name' => $file['name']
             ], 200);
 
         } catch (Exception $e) {

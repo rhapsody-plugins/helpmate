@@ -10,3 +10,5 @@ export const HelpmateSupportURL = 'https://rhapsodyplugins.com/contact';
 export const HelpmateDocsURL = 'https://rhapsodyplugins.com/docs';
 export const HelpmatePrivacyPolicyURL =
   'https://rhapsodyplugins.com/privacy-policy/';
+export const HelpmateTermsOfServiceURL =
+  'https://rhapsodyplugins.com/terms-of-use/';

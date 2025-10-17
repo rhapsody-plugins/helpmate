@@ -1,10 +1,10 @@
-=== Helpmate – AI Chatbot That Sells & Supports While You Sleep for WooCommerce ===
+=== Helpmate – Sales & Support AI Copilot for WooCommerce ===
 Contributors: rhapsodyplugins
-Tags: ai chatbot, customer support, ecommerce chatbot, woocommerce support, wordpress chatbot
+Tags: ai chatbot, customer support, helpdesk, ai assistant, wordpress chatbot
 Requires at least: 5.0
 Requires PHP: 7.4
 Tested up to: 6.8
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,30 +12,47 @@ Helpmate is an AI-powered WooCommerce chatbot that boosts sales, automates suppo
 
 == Description ==
 
-**[Helpmate - AI Chatbot That Sells & Supports While You Sleep for WooCommerce.](https://rhapsodyplugins.com/helpmate/)**
+**[Helpmate - AI Chatbot That Sells & Supports While You Sleep for WooCommerce.](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user)**
 
-Tired of answering the same questions over and over? Helpmate steps in with instant replies, personalized product suggestions, and automated order tracking — all inside a sleek, on-site chat widget.
+= 💬 Tired of Answering the Same Questions? =
 
-Oh, and it doesn’t stop there. From smart coupon drops to live sales pop-ups, Helpmate turns support into a sales engine.
+Let's be honest, repeating answers to the same customer questions gets old. That's where **Helpmate** comes in. It gives your customers instant replies, finds products for them, and tracks orders automatically—all from a simple chat widget on your site.
 
-You get the perfect blend: automation where it matters, human touch when it counts.
+But it's more than just a problem-solver. Helpmate also helps you sell more with smart coupon offers and live sales notifications.
+You get the best of both worlds: automation for the repetitive stuff and a human touch when it really matters.
+
+== What Research Say About Ai Chatbot? =
+
+- [73% of consumers will switch to competitors after multiple bad experiences](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#support-problem) - Zendesk Research, 2025
+- [Effective order tracking systems reduce customer service inquiries by up to 40% while 91% of consumers actively track their packages](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#order-tracking) - LinkedIn Research, 2024
+- [Visual search increases conversion rates by 27% and 62% of millennials prefer visual search over traditional methods](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#product-search-by-image) - Digital Delane & VWO Studies
+- [Ticketing systems improve resolution efficiency by 50% and achieve 95% satisfaction rates](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#ticket-system) - Motadata, 2025
+- [Abandoned cart emails achieve 41.8% open rates and 10.7% conversion rates](https://rhapsodyplugins.com/helpmate-landing/#abandoned-cart) - Cropink, 2025
+- [AI automation reduces customer support tasks by 68-80% on average](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#work-load) - Sobot, 2025
+- [Automated returns reduce processing costs by 40% and improve customer satisfaction](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#refund-return) - TryChad, 2025
+- [Product recommendations account for up to 31% of e-commerce revenues and increase conversion rates by 25%](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#product-recommendation) - Barilliance & ResultFirst Studies
+- [Targeted coupons have conversion rates between 5-15%, with digital coupons showing 10x higher redemption than paper coupons](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#coupon-delivery) - Voucherify Research
+- [Research shows AI-powered recommendations increase revenue by up to 300%](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#ai-recommendation) - Monetate Study
+- [Sales-based social proof notifications boost website conversions by 98%](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#social-proof) - WiserNotify, 2025
+
+https://www.youtube.com/watch?v=5i4c7bjnxB8
 
 ---
 
 == Key Features ==
 
-= Free =
+= Free Features =
 
-- **AI Chatbot with Knowledgebase** – Handles FAQs 24/7 with trained responses. *To use the Chatbot, you need to create a free API key.*
+- **AI Chatbot with Knowledgebase** – Handles FAQs 24/7 with trained responses.
 - **View Trained Data** - Allows store admins to review the exact data used to train the AI chatbot.
 - **See Chat History** - Provides a comprehensive log of all past customer conversations for review and analysis.
 - **Product Suggestions in Chat Options** – Recommends products based on what customers ask.
 - **Lead Collection** – Grab emails, phone numbers, and names during support chats.
 - **Ticket System Integration** – Collect unresolved queries for follow-up.
-- **Promo Bar[1 Template]** – Highlight urgent offers or seasonal deals without pop-up fatigue.
-- **Live Sales Notifications[1 Template]** – Build trust with real-time "someone just bought this" popups.
+- **Promo Bar [1 Template]** – Highlight urgent offers or seasonal deals without pop-up fatigue.
+- **Live Sales Notifications [1 Template]** – Build trust with real-time "someone just bought this" popups.
 
-= Pro =
+= Pro Features =
 
 - **All From Fee + Below Options**.
 - **Smart Coupon Delivery** – Drops Coupon codes at the right time (request, exit-intent).
@@ -48,78 +65,72 @@ You get the perfect blend: automation where it matters, human touch when it coun
 
 ---
 
-== [Helpmate All Features](https://rhapsodyplugins.com/helpmate/) ==
+**[Helpmate All Features](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user)**
 
-= AI Chatbot with Knowledgebase (Free) =
-**Helpmate’s** AI chatbot is designed to do what most human agents can’t — respond instantly and accurately, 24/7. Built with a customizable knowledgebase, it can answer frequently asked questions, product-related queries, and policy concerns without breaking a sweat. Whether customers ask about delivery times, return policies, or sizing details, the Chatbot retrieves answers you’ve trained it on.
-And the best part? You stay in full control. You can add, edit, and organize responses under categories to keep things neat.
-No coding, no steep learning curve. It’s like having your best support agent always available, never tired, and never on break. Plus, if the Chatbot doesn’t know the answer, it can automatically hand the query over to a human — no awkward dead-ends for your users. That’s smart automation with a human touch.
-*Note: With free API key you will get 300 monthly chat usages, if you need more upgrade to [Pro version](https://rhapsodyplugins.com/helpmate/#pricing)*
-*[Check All Free and Pro Features](https://rhapsodyplugins.com/helpmate/#free-vs-pro)*
+= Helpmate's Features 👇=
 
+Here’s a straightforward look at what Helpmate can do for your WooCommerce or WordPress site.
 
-= View Trained Data (Free) =
-**Helpmate** doesn’t just respond — it learns. With the View Trained Data feature, store admins can review the exact data used to train the AI chatbot. That means full transparency over what your Chatbot knows, how it answers, and where those answers come from. Whether you're pulling in FAQs, support documentation, or dynamic WooCommerce data, **Helpmate** keeps it organized and reviewable.
-Want to update a specific response? Easy. You’re in control of the knowledgebase, so you can fine-tune messaging based on customer behavior, seasonal campaigns, or product changes — without retraining from scratch.
-This feature gives you peace of mind and quality assurance. You can test replies, analyze gaps, and confidently roll out improvements. **Helpmate’s** AI isn’t a black box — it’s a customizable assistant you can audit anytime.
+= Free Features =
 
-= See Chat History (Free) =
-No more guessing what customers asked or how the Chatbot responded. With See Chat History, store owners and agents get a full log of past customer conversations — stored safely and organized by session.
-This means you can track user questions, identify common pain points, and refine both bot behavior and store experience based on real data.
-From support audits to lead qualification, chat history is a goldmine for optimization. You’ll uncover product demand trends, coupon performance insights, and even upsell opportunities — all from a single dashboard.
-It’s more than logs. It’s business intelligence, disguised as customer support.
+= 🤖 AI Chatbot with a Knowledgebase =
+Our **AI chatbot** is built to handle the questions your customers ask most. It works 24/7, providing instant and accurate answers. You can train it with your FAQs, product details, and store policies. If a customer asks about shipping, returns, or sizing, the chatbot pulls the answer you've provided. You have full control to add, edit, and organize the information. No coding needed. And if the bot gets stuck? It can pass the conversation to a real person, so your customers are never left hanging.
 
-= Product Suggestions in Chat (Free) =
-Imagine a support chat that doesn’t just answer questions — it sells for you. **Helpmate’s** product suggestion engine works in real time to recommend relevant WooCommerce products based on the user’s query. Someone types “I need a waterproof bag”? Boom — your best-selling waterproof backpacks appear instantly, complete with image, name, and price.
-The AI scans keywords from the conversation and maps them against your product catalog. It’s like giving your visitors a personalized shopping assistant, without hiring extra staff. You can even fine-tune the algorithm by feeding products data to the Chatbot. It’s a subtle but powerful way to increase average order value while delivering a smoother customer experience.
+*(You get 300 free chats per month. If you need more, you can [Upgrade](https://rhapsodyplugins.com/helpmate/#pricing).)*
+*To use the Chatbot, you need to create a free API key.*
 
-= Live Sales Notifications 1 Template (Free) =
-Social proof sells — and **Helpmate** makes it real-time. The plugin can show live sales notifications like “Jessica in Dallas just bought this product”. These alerts create urgency and build buyer confidence without being intrusive. You can fully customize the look, timing, and frequency of notifications to match your brand.
-Want it to show only verified purchases? Done. These subtle cues tap into FOMO (fear of missing out) and help push the hesitant buyer closer to checkout. And unlike many plugins that feel spammy, **Helpmate’s** alerts are lightweight and UX-friendly.
-*Note: If you want to use all templates, upgrade to [Pro version](https://rhapsodyplugins.com/helpmate/#pricing)*
+= 📂 View Trained Data =
+Helpmate isn't a black box. You can see exactly what information your **WordPress chatbot** is trained on. This means you can check its knowledge, see where the answers come from, and make sure everything is accurate. It’s easy to update responses based on new products or seasonal sales without starting from scratch.
 
-= Ticketing System Integration (Free) =
-Sometimes, a conversation needs to go deeper than chat. **Helpmate** comes with a built-in ticket escalation system that captures customer queries when your team is offline or when the chatbot reaches its limit. The chatbot politely collects details like issue type, order ID, and contact info — then logs them into your ticket system (or sends to email).
-No lost messages. No frustrated users. This ensures that when you or your support agents jump in later, you’ve already got context.
+= 📜 See Chat History =
+Ever wonder what your customers are asking? The chat history feature gives you a full log of every conversation. This is great for understanding common issues and improving your **helpdesk** support. You can spot trends, see what people are looking for, and find new ways to make your store better. It’s simple business intelligence, right from your customer chats.
 
-= Promo Bar 1 Template (Free) =
-Want to highlight a flash sale, limited-time offer, or shipping countdown? Use **Helpmate’s** built-in Promo Bar. It’s a sleek notification banner that appears at the top or bottom of your site, fully customizable with your own message, colors, icons, and CTA buttons. You can schedule it or trigger it only on certain pages.
-Combine it with **Helpmate’s** chatbot and you get a complete campaign flow — like offering a free gift via Promo Bar and delivering the code via chat. It’s simple to set up and surprisingly effective at driving clicks and conversions.
-*Note: If you want to use all templates, upgrade to [Pro version](https://rhapsodyplugins.com/helpmate/#pricing)*
+= 🛍️ Product Suggestions in Chat =
+Our **chatbot** doesn't just answer questions—it helps you sell. When a customer mentions what they're looking for, like a "warm jacket," the bot can show them relevant products from your store, complete with pictures and prices. It’s like having a personal shopper available for every visitor, helping you increase order values naturally.
 
-= Lead Collection (Free) =
-**Helpmate** turns conversations into conversions by collecting emails, names, and phone numbers — all inside the chat. You don’t need third-party popups or list-building tools. The chatbot can ask for contact details before answering certain questions, or offer exclusive deals in exchange for a quick opt-in. You control the logic.
-Leads are saved in your WordPress dashboard. It’s lead generation without friction — just the way modern users prefer.
+= 🔔 Live Sales Notifications =
+Show customers that your store is busy with live sales pop-ups like, "Someone just bought this." These small alerts build trust and create a sense of urgency. You can customize how they look and when they appear. It’s a simple way to use social proof to encourage hesitant buyers.
+*(One template is free. [Upgrade](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#pricing) to get more options.)*
 
-= Order Tracking by ID, Email, or Phone (Pro) =
-The days of "Where is my order?" emails are over. **Helpmate** offers a seamless self-service experience by letting customers track their WooCommerce orders using just an email, phone number, or order ID. No logins. No portal hopping. Just ask the chatbot, and it pulls live order data instantly. This drastically reduces support tickets and response times.
-Plus, it's privacy-conscious — only showing data when valid credentials match the order. It’s fast, secure, and incredibly user-friendly. More clarity for your customers. Less work for your team.
+= 🎟️ Ticketing System Integration =
+Sometimes a chat needs to become a formal support ticket. If your team is offline or a question is complex, the **chatbot* can offer ticket creation option to the customer. If the customer create a ticket, you can see that in helpdesk system also you will get an email for ticket. No more lost messages or frustrated customers.
 
-= Abandoned Cart Recovery (Pro) =
-Every abandoned cart is lost revenue — but **Helpmate** helps get it back. The plugin tracks users who leave without checking out and sends personalized follow-up emails with cart contents, product images, and optional discount codes.
-Unlike generic cart recovery tools, **Helpmate** ties it all together with real-time conversations and smart order tracking. Result? More carts recovered, more revenue retained.
+= 📢 Promo Bar =
+Got a sale or special offer? Use the promo bar to display a clean notification banner on your site. You can customize the message, colors, and add a button. It’s a simple and effective way to drive attention to your most important promotions.
 
-= Search Product by Image (Pro) =
-Text-based search can only go so far. **Helpmate** gives your shoppers the power to search by uploading an image. A customer sees a product they like on social media? They snap a screenshot, upload it in the chat, and **Helpmate** instantly returns visually similar items from your store.
-Powered by AI image recognition, this feature helps eliminate guesswork and bridges the gap between inspiration and purchase. It’s especially valuable for fashion, home décor, or lifestyle stores where visual appeal drives buying decisions. Not only does it wow your users, but it also reduces bounce rates by helping them find exactly what they want—faster.
+*(One template is free. [Upgrade](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#pricing) to get more options.)*
 
-= Proactive Sales Offers (Pro) =
-**Helpmate** isn’t just reactive — it knows how to sell proactively. It pops up your discounted product in chat window. These sales nudges feel helpful rather than pushy, because they’re context-aware. You can show only discounted products in chat window.
-The goal? Catch buyers at the moment of indecision and give them a compelling reason to act. It’s one of the fastest ways to improve on-site conversion rates — and you won’t need to touch a single line of code.
+= 📧 Lead Collection =
+**Helpmate** can help you grow your email list by collecting contact information right in the chat. The chatbot can ask for an email in exchange for a discount or before answering a specific question. The leads are saved directly to your WordPress dashboard.
 
-= Smart Coupon Delivery (Pro) =
-Coupons convert — no question about it. But timing and context are everything. **Helpmate** takes coupon automation to a new level with smart triggers that send codes exactly when users are most likely to convert. A customer looks hesitant? The Chatbot can offer a 10% off coupon.
-Someone tries to exit the site? Cue an exit-intent popup with a time-limited discount. You can also allow users to request a coupon in the chat directly. Every coupon is personalized, delivered within context, and easily redeemed. **Helpmate** even tracks usage so you can see which promotions work best — and which need tweaking. Smart, simple, and sales-focused.
+= Pro Features =
 
-= Refund and Return via Chat (Pro) =
-Handling returns and refunds can be a hassle — both for customers and your team. **Helpmate** streamlines the process by allowing users to initiate refund or return requests directly in the chat.
-It’s a game changer for stores with high volume or seasonal spikes. Best of all, it helps turn a potentially negative experience into a smooth, professional one. Customers appreciate transparency and speed — and you keep operations efficient.
+= 🚚 Order Tracking by ID, Email, or Phone =
+Reduce the endless "Where is my order?" questions. Customers can track their WooCommerce orders themselves using their order ID, email, or phone number. The **chatbot** provides live updates instantly and securely. It saves your team time and gives customers the clarity they want.
 
-= Human Handover (Pro) =
-Chatbots are great, but sometimes people need a real person. **Helpmate** allows seamless human handover when users type things like “need help from a person.” The Chatbot instantly shows contact options — phone, WhatsApp, Messenger, or a direct link to your support ticket form.
-You decide which channels to show. This feature builds trust, reduces friction, and ensures the user never feels trapped in an endless AI loop. It’s perfect for high-stakes queries or premium customer support tiers.
+= 🛒 Abandoned Cart Recovery =
+**Helpmate** helps you recover lost sales by sending follow-up emails to customers who left items in their cart. These emails can include product images and even a discount code to encourage them to complete their purchase.
+
+= 📸 Search Product by Image =
+This feature lets shoppers find products by uploading a picture. If they saw something they liked online, they can upload the image in the chat, and our AI will find similar items in your store. It's a great tool for fashion and home decor shops.
+
+= 💡 Proactive Sales Offers =
+**Helpmate** can do more than just respond; it can start the conversion. The chatbot can proactively pop up with discounted products or special offers se by store owners. It’s a gentle nudge that can help close a sale.
+
+= ✂️ Smart Coupon Delivery =
+Timing is everything with coupons. **Helpmate** delivers discount codes at just the right moment—like when a user seems hesitant or is about to leave the site. You can also let customers ask the chatbot for a coupon directly.
+
+= ↩️ Refund and Return via Chat =
+Make returns and refunds easier for everyone. Customers can start the process right from the chat. The **chatbot** guides them through the necessary steps, collecting the information your team needs. It turns a potentially frustrating experience into a smooth one.
+
+= 🙋 Human Handover =
+When a customer needs to speak with a person, **Helpmate** makes it easy. The chatbot can provide contact options like phone, WhatsApp, or a link to your support form. This ensures your customers always feel supported and never stuck.
 
 ---
+
+
+**[Check All Free and Pro Features](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#free-vs-pro)**
+
 
 == Frequently Asked Questions ==
 
@@ -271,18 +282,40 @@ For full details, please review our policies below:
 
 ---
 
-== Screenshots ==
+== Changelog ==
 
-1. Live AI Chatbot Widget on Product Page
-2. Smart Coupon Delivery in Chat
-3. Admin Panel – Chatbot Settings
-4. Order Tracking Conversation View
+= 1.1.0 - 2025-10-16 =
+
+- Added: Dashboard page
+- Added: Simplified consent on api key creation page
+- Added: PDF, excel and docs files support in data sources
+- Added: Abandoned cart scheduling follow up emails
+- Added: Display of credits usage in manage api key page
+- Removed: Start here tab from data sources
+- Fixed: Style conflicts from chatbot widget css with the website styles.
+
+= 1.0.0 - 2025-10-05 =
+
+- New: Initial release
 
 ---
 
+== Screenshots ==
 
+1. Helpmate Chatbot
+2. Product Suggestion in Chatbot
+3. Sales Notification
+4. Sales Notification Settings
+5. Order Tracking
+6. Abandoned Cart
+7. Abandoned Cart Settings
+8. Proactive Sales
+9. Collect Leads
+10. Promobar
+11. Smart Coupon Delivery
+12. Ticket System
+13. Refund/Return System
+14. Refund/Return Settings
+15. View Trained Data
 
-
-
-
-
+---

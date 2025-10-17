@@ -821,7 +821,7 @@ class Helpmate_Background_Processor
                 'nonce' => $nonce
             ],
             'blocking' => false, // Don't wait for response
-            'timeout' => 0.01, // Very short timeout
+            'timeout' => 10, // Very short timeout
             'sslverify' => false, // Skip SSL verification for local development
         ]);
 

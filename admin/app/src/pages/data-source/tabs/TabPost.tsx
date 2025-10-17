@@ -1,4 +1,10 @@
 import { ReusableTable } from '@/components/ReusableTable';
+import { BulkProcessingCard } from '@/components/shared/BulkProcessingCard';
+import { ContentDisplaySheet } from '@/components/shared/ContentDisplaySheet';
+import {
+  getDynamicContentExplanation,
+  isDynamicContent,
+} from '@/components/shared/ContentUtils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
@@ -10,18 +16,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { BulkProcessingCard } from '@/components/shared/BulkProcessingCard';
-import { ContentDisplaySheet } from '@/components/shared/ContentDisplaySheet';
-import { isDynamicContent, getDynamicContentExplanation } from '@/components/shared/ContentUtils';
 
 import { useDataSource } from '@/hooks/useDataSource';
 import { DataSource, WordPressPost } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
-import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { useConsent } from '@/contexts/ConsentContext';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
-
 
 export default function TabPost() {
   const [posts, setPosts] = useState<WordPressPost[]>([]);
@@ -38,7 +39,6 @@ export default function TabPost() {
   const [activeBulkJobId, setActiveBulkJobId] = useState<string | null>(null);
   const refreshedJobsRef = useRef<Set<string>>(new Set());
 
-  const { requestConsent } = useConsent();
   const {
     getPostTypesQuery,
     getPostsMutation,
@@ -108,7 +108,6 @@ export default function TabPost() {
   // Track active bulk jobs for posts only
   useEffect(() => {
     if (bulkJobsData) {
-
       // Filter jobs by document_type='post'
       const postJobs = bulkJobsData.filter(
         (job) => job.documents?.document_type === 'post'
@@ -216,7 +215,9 @@ export default function TabPost() {
 
       // Check if there's already an active job for posts
       if (activeBulkJobId) {
-        toast.error('Cannot start new job: there is already an active post job');
+        toast.error(
+          'Cannot start new job: there is already an active post job'
+        );
         return;
       }
 
@@ -246,13 +247,8 @@ export default function TabPost() {
               refetchBulkJobs();
             }
           },
-          onError: (error) => {
+          onError: () => {
             setAddingPostId(null);
-
-            // If consent is required, request it through the context
-            if (error.message === 'CONSENT_REQUIRED') {
-              requestConsent(() => handleAdd(ids));
-            }
           },
         });
         return;
@@ -288,13 +284,8 @@ export default function TabPost() {
             refetchBulkJobs();
           }
         },
-        onError: (error) => {
+        onError: () => {
           setAddingPostId(null);
-
-          // If consent is required, request it through the context
-          if (error.message === 'CONSENT_REQUIRED') {
-            requestConsent(() => handleAdd(ids));
-          }
         },
       });
     },
@@ -371,7 +362,6 @@ export default function TabPost() {
       });
     }
   }, [activeBulkJobId, deleteBulkJobMutate]);
-
 
   const columns = useMemo<ColumnDef<WordPressPost>[]>(
     () => [

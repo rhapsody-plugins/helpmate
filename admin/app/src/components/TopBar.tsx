@@ -13,9 +13,10 @@ import { ArrowUpRight, HandCoins, KeyRound, RefreshCw } from 'lucide-react';
 
 interface TopBarProps {
   onPageChange: (page: string) => void;
+  page: string;
 }
 
-export default function TopBar({ onPageChange }: TopBarProps) {
+export default function TopBar({ onPageChange, page }: TopBarProps) {
   const { apiKeyQuery, syncCreditsMutation } = useApi();
   const { data: apiKeyData } = apiKeyQuery;
   const { mutate: syncCredits, isPending: isSyncing } = syncCreditsMutation;
@@ -53,19 +54,18 @@ export default function TopBar({ onPageChange }: TopBarProps) {
             <img src={logo} alt="Helpmate" className="w-8 h-8" />
             Helpmate
           </h1>
-          <Separator orientation="vertical" className="!h-5" />
-          {/* <Button size="icon" className="w-6 h-6 bg-primary-600">
-            <Bell className="!w-3" />
-          </Button> */}
-          {apiKeyData?.api_key && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="px-2 py-1 h-6 text-gray-100 bg-transparent rounded-sm border-gray-100 hover:bg-primary hover:text-white hover:border-primary"
-              onClick={() => onPageChange('manage-api')}
-            >
-              Manage Api Key <KeyRound className="!w-3" />
-            </Button>
+          {apiKeyData?.api_key && page !== 'dashboard' && (
+            <>
+              <Separator orientation="vertical" className="!h-5" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="px-2 py-1 h-6 text-gray-100 bg-transparent rounded-sm border-gray-100 hover:bg-primary hover:text-white hover:border-primary"
+                onClick={() => onPageChange('manage-api')}
+              >
+                Manage Api Key <KeyRound className="!w-3" />
+              </Button>
+            </>
           )}
         </div>
         <div className="flex gap-3 items-center">
