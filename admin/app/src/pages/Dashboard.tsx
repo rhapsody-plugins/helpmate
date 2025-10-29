@@ -3,6 +3,7 @@ import rotateCCW from '@/assets/apps/rotate-ccw.svg';
 import shoppingCartAbandoned from '@/assets/apps/shopping-cart-abandoned.svg';
 import truckLocation from '@/assets/apps/truck-location.svg';
 import Loading from '@/components/Loading';
+import RichTextEditor from '@/components/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,7 +25,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { Textarea } from '@/components/ui/textarea';
 import { useMain } from '@/contexts/MainContext';
 import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
@@ -238,7 +238,7 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
         },
       });
     }
-  }, [apiKeyData?.api_key, fetchMutate, form, quickTrain]);
+  }, [apiKeyData?.api_key, fetchMutate, quickTrain]);
 
   const handleSubmit = useCallback(
     (data: FormData) => {
@@ -523,10 +523,10 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
                     <FormItem>
                       <FormLabel>Content</FormLabel>
                       <FormControl>
-                        <Textarea
-                          placeholder="Enter text"
-                          {...field}
-                          className="min-h-[300px]"
+                        <RichTextEditor
+                          content={field.value}
+                          onChange={field.onChange}
+                          useMarkdown={true}
                         />
                       </FormControl>
                     </FormItem>
@@ -539,15 +539,6 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
                     onClick={() => setIsEditSheetOpen(false)}
                   >
                     Cancel
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    disabled={isLoading}
-                    loading={isLoading}
-                    type="button"
-                    onClick={quickTrain}
-                  >
-                    {isLoading ? 'Auto Training...' : 'Auto Train'}
                   </Button>
                   <Button
                     disabled={addIsPending || updateIsPending}

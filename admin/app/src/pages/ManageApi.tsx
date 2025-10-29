@@ -6,7 +6,6 @@ import { useApi } from '@/hooks/useApi';
 import { useSettings } from '@/hooks/useSettings';
 import { HelpmatePricingURL, HelpmateSignupURL } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import ActivateApi from '@/pages/ActivateApi';
 import { Eye, EyeOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -153,7 +152,7 @@ export default function ManageApi({
   return (
     <div className="min-h-[30vh] flex flex-col justify-between">
       {!apiKeyData?.api_key ? (
-        <ActivateApi />
+        <div className="p-6">Please activate your API key to continue.</div>
       ) : (
         <>
           <Card className="py-0 mx-auto w-full">

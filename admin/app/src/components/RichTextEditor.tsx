@@ -17,8 +17,9 @@ import { ToolbarProvider } from '@/components/toolbars/toolbar-provider';
 import { UndoToolbar } from '@/components/toolbars/undo';
 import { EditorContent, type Extension, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { Markdown } from 'tiptap-markdown';
 
-const extensions = [
+const getExtensions = (useMarkdown: boolean) => [
   StarterKit.configure({
     orderedList: {
       HTMLAttributes: {
@@ -52,23 +53,30 @@ const extensions = [
       },
     },
   }),
+  ...(useMarkdown ? [Markdown] : []),
 ];
 
 const RichTextEditor = ({
   content,
   onChange,
   texts = [],
+  useMarkdown = false,
 }: {
   content: string;
   onChange: (content: string) => void;
   texts?: string[];
+  useMarkdown?: boolean;
 }) => {
   const editor = useEditor({
-    extensions: extensions as Extension[],
+    extensions: getExtensions(useMarkdown) as Extension[],
     content,
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      if (useMarkdown) {
+        onChange(editor.storage.markdown.getMarkdown());
+      } else {
+        onChange(editor.getHTML());
+      }
     },
   });
 

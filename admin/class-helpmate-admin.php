@@ -207,16 +207,15 @@ class Helpmate_Admin
 			array($this, 'display_plugin_setup_page')
 		);
 
-		add_submenu_page(
+		$GLOBALS['helpmate']->get_api()->get_key() ? add_submenu_page(
 			'helpmate',
 			'Train Chatbot',
 			'Train Chatbot',
 			'manage_options',
 			'helpmate&tab=data-source',
 			array($this, 'display_plugin_setup_page')
-		);
+		) : null;
 
-		// Add submenus
 		add_submenu_page(
 			'helpmate',
 			'App Center',
@@ -305,13 +304,13 @@ class Helpmate_Admin
 			$tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';
 
 			if ($tab === 'apps') {
-				add_filter('admin_body_class', function($classes) {
+				add_filter('admin_body_class', function ($classes) {
 					return $classes . ' helpmate-apps-tab';
 				});
 			}
 
 			if ($tab === 'data-source') {
-				add_filter('admin_body_class', function($classes) {
+				add_filter('admin_body_class', function ($classes) {
 					return $classes . ' helpmate-data-source-tab';
 				});
 			}

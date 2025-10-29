@@ -1,10 +1,10 @@
-=== Helpmate – Sales & Support AI Copilot for WooCommerce ===
+=== Helpmate – Sales & Support AI Chatbot for WooCommerce ===
 Contributors: rhapsodyplugins
-Tags: ai chatbot, customer support, helpdesk, ai assistant, wordpress chatbot
+Tags: ai chatbot, customer support, helpdesk, ai assistant, chatbot
 Requires at least: 5.0
 Requires PHP: 7.4
 Tested up to: 6.8
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Helpmate is an AI-powered WooCommerce chatbot that boosts sales, automates suppo
 
 == Description ==
 
-**[Helpmate - AI Chatbot That Sells & Supports While You Sleep for WooCommerce.](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user)**
+**[Helpmate – Sales & Support AI Chatbot for WooCommerce](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user)**
 
 = 💬 Tired of Answering the Same Questions? =
 
@@ -82,8 +82,8 @@ Our **AI chatbot** is built to handle the questions your customers ask most. It 
 = 📂 View Trained Data =
 Helpmate isn't a black box. You can see exactly what information your **WordPress chatbot** is trained on. This means you can check its knowledge, see where the answers come from, and make sure everything is accurate. It’s easy to update responses based on new products or seasonal sales without starting from scratch.
 
-= 📜 See Chat History =
-Ever wonder what your customers are asking? The chat history feature gives you a full log of every conversation. This is great for understanding common issues and improving your **helpdesk** support. You can spot trends, see what people are looking for, and find new ways to make your store better. It’s simple business intelligence, right from your customer chats.
+= 📜 See Chat History and Edit =
+Ever wonder what your customers are asking? The chat history feature gives you a full log of every conversation. This is great for understanding common issues and improving your **helpdesk** support. You can spot trends, see what people are looking for, and find new ways to make your store better. It’s simple business intelligence, right from your customer chats. If Chatbot gives wrong answer you edit that answer for correcting the Chatbot. After correcting it will be trained and response correct answer to the customer.
 
 = 🛍️ Product Suggestions in Chat =
 Our **chatbot** doesn't just answer questions—it helps you sell. When a customer mentions what they're looking for, like a "warm jacket," the bot can show them relevant products from your store, complete with pictures and prices. It’s like having a personal shopper available for every visitor, helping you increase order values naturally.
@@ -93,7 +93,7 @@ Show customers that your store is busy with live sales pop-ups like, "Someone ju
 *(One template is free. [Upgrade](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#pricing) to get more options.)*
 
 = 🎟️ Ticketing System Integration =
-Sometimes a chat needs to become a formal support ticket. If your team is offline or a question is complex, the **chatbot* can offer ticket creation option to the customer. If the customer create a ticket, you can see that in helpdesk system also you will get an email for ticket. No more lost messages or frustrated customers.
+Sometimes a chat needs to become a formal support ticket. If your team is offline or a question is complex, the **chatbot** can offer ticket creation option to the customer. If the customer create a ticket, you can see that in helpdesk system also you will get an email for ticket. No more lost messages or frustrated customers.
 
 = 📢 Promo Bar =
 Got a sale or special offer? Use the promo bar to display a clean notification banner on your site. You can customize the message, colors, and add a button. It’s a simple and effective way to drive attention to your most important promotions.
@@ -283,6 +283,11 @@ For full details, please review our policies below:
 ---
 
 == Changelog ==
+
+= 1.1.1 - 2025-10-26 =
+
+- Changed: Edit website information textarea is replace with a rich text editor.
+- Fixed: Train data issue.
 
 = 1.1.0 - 2025-10-16 =
 
