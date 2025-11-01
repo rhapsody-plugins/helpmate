@@ -74,7 +74,7 @@ export const DefaultToast = ({ order, t }: { order: Order; t: string }) => (
           {order.product_name}
         </div>
       </Button>
-      <div className="flex flex-row flex-wrap gap-2 justify-between items-center">
+      <div className="flex flex-row gap-2 justify-between items-center">
         <span className="flex gap-1 items-center text-xs text-primary">
           <Bell className="w-3 h-3" /> by{' '}
           <a
@@ -86,7 +86,7 @@ export const DefaultToast = ({ order, t }: { order: Order; t: string }) => (
             Helpmate
           </a>
         </span>
-        <span className="text-xs text-neutral-500">
+        <span className="text-xs text-neutral-500 truncate max-w-[90px]">
           {formatDistanceToNow(parseOrderTime(order.time), { addSuffix: true })}
         </span>
       </div>
@@ -132,15 +132,15 @@ export const CompactToast = ({ order, t }: { order: Order; t: string }) => (
               ? 'downloaded'
               : 'reviewed'}
           </span>
-          {/* <Button
+          <Button
             variant="link"
             className="justify-start p-0 h-auto cursor-pointer hover:no-underline"
             onClick={() => window.open(order.product_url, '_blank')}
           >
-            <div className="font-semibold truncate max-w-[200px]">
+            <div className="font-semibold truncate max-w-[50px]">
               {order.product_name}
             </div>
-          </Button> */}
+          </Button>
         </div>
         <div className="flex flex-row flex-wrap gap-2 items-center pl-2 mb-1">
           <span className="text-xs text-neutral-500">
@@ -190,7 +190,7 @@ export const DetailedToast = ({ order, t }: { order: Order; t: string }) => (
           {order.product_name}
         </div>
       </Button>
-      <div className="flex flex-row flex-wrap gap-2 justify-between items-center">
+      <div className="flex flex-row gap-2 justify-between items-center">
         <span className="flex gap-1 items-center -mb-2 -ml-2 text-xs border !border-b-0 !border-l-0 border-primary/30 rounded-tr-lg text-primary py-1 px-2 bg-primary/10">
           <Bell className="w-3 h-3" /> by{' '}
           <a
@@ -202,7 +202,7 @@ export const DetailedToast = ({ order, t }: { order: Order; t: string }) => (
             Helpmate
           </a>
         </span>
-        <span className="text-xs text-neutral-500">
+        <span className="text-xs text-neutral-500 truncate max-w-[80px]">
           {formatDistanceToNow(parseOrderTime(order.time), { addSuffix: true })}
         </span>
       </div>

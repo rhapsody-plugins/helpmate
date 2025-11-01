@@ -388,27 +388,27 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
                     <div className="flex flex-col gap-3 items-center w-full sm:flex-row sm:w-auto">
                       <Button
                         variant="outline"
-                        onClick={navigateToDataSource}
-                        size="lg"
-                      >
-                        <ChangeSvgColor src={aiChatbot} className="w-4 h-4" />
-                        Train Chatbot
-                      </Button>
-                      <Button
-                        onClick={() => setIsEditSheetOpen(true)}
-                        size="lg"
-                        className="!text-lg font-semibold"
-                      >
-                        <SquarePen className="w-5 h-5" />
-                        Edit Website Information
-                      </Button>
-                      <Button
-                        variant="outline"
                         onClick={navigateToApps}
                         size="lg"
                       >
                         <Brain className="w-5 h-5" strokeWidth={1.5} />
                         App Center
+                      </Button>
+                      <Button
+                        onClick={navigateToDataSource}
+                        size="lg"
+                        className="!text-lg font-semibold"
+                      >
+                        <ChangeSvgColor src={aiChatbot} className="w-5 h-5" fill="white" stroke="currentColor" />
+                        Train Chatbot
+                      </Button>
+                      <Button
+                        onClick={() => setIsEditSheetOpen(true)}
+                        size="lg"
+                        variant="outline"
+                      >
+                        <SquarePen className="w-5 h-5" strokeWidth={1.5} />
+                        Edit Website Information
                       </Button>
                     </div>
                   )}

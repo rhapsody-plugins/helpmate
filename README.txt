@@ -4,7 +4,7 @@ Tags: ai chatbot, customer support, helpdesk, ai assistant, chatbot
 Requires at least: 5.0
 Requires PHP: 7.4
 Tested up to: 6.8
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -282,7 +282,40 @@ For full details, please review our policies below:
 
 ---
 
+== Version Update Logs ==
+
+= 1.1.2 - 2025-10-30 =
+
+- Fixed: Content train for website without title issue fixed.
+- Fixed: Sales notification, human handover and refund return css issues fixed.
+- Update: Dashboard button alignment.
+
+= 1.1.1 - 2025-10-26 =
+
+- Update: Edit website information textarea is replace with a rich text editor.
+- Fixed: Train data issue.
+
+= 1.1.0 - 2025-10-16 =
+
+- Added: Dashboard page
+- Added: Simplified consent on api key creation page
+- Added: PDF, excel and docs files support in data sources
+- Added: Abandoned cart scheduling follow up emails
+- Added: Display of credits usage in manage api key page
+- Removed: Start here tab from data sources
+- Fixed: Style conflicts from chatbot widget css with the website styles.
+
+= 1.0.0 - 2025-10-05 =
+
+- New: Initial release
+
 == Changelog ==
+
+= 1.1.2 - 2025-10-30 =
+
+- Fixed: Content train for website without title issue fixed.
+- Fixed: Sales notification, human handover and refund return css issues fixed.
+- Update: Dashboard button alignment.
 
 = 1.1.1 - 2025-10-26 =
 

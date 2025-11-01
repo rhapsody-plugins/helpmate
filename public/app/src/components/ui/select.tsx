@@ -42,7 +42,7 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon className="size-4 opacity-50" />
+        <ChevronDownIcon className="opacity-50 size-4" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   )
@@ -53,9 +53,11 @@ function SelectContent({
   children,
   position = "popper",
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Content>) {
+}: React.ComponentProps<typeof SelectPrimitive.Content> & {
+  container?: HTMLElement;
+}) {
   return (
-    <SelectPrimitive.Portal>
+    <SelectPrimitive.Portal container={window.helpmateReactRoot}>
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
@@ -127,7 +129,7 @@ function SelectSeparator({
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
-      className={cn("bg-border pointer-events-none -mx-1 my-1 h-px", className)}
+      className={cn("-mx-1 my-1 h-px pointer-events-none bg-border", className)}
       {...props}
     />
   )
@@ -141,7 +143,7 @@ function SelectScrollUpButton({
     <SelectPrimitive.ScrollUpButton
       data-slot="select-scroll-up-button"
       className={cn(
-        "flex cursor-default items-center justify-center py-1",
+        "flex justify-center items-center py-1 cursor-default",
         className
       )}
       {...props}
@@ -159,7 +161,7 @@ function SelectScrollDownButton({
     <SelectPrimitive.ScrollDownButton
       data-slot="select-scroll-down-button"
       className={cn(
-        "flex cursor-default items-center justify-center py-1",
+        "flex justify-center items-center py-1 cursor-default",
         className
       )}
       {...props}

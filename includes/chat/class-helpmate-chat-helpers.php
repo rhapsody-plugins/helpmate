@@ -124,6 +124,9 @@ class Helpmate_Chat_Helpers
         $titleElements = $dom->getElementsByTagName('title');
         if ($titleElements->length > 0) {
             $title = trim($titleElements->item(0)->textContent);
+            if (empty($title)) {
+                $title = $url;
+            }
         }
 
         // Remove unwanted elements
@@ -315,10 +318,13 @@ class Helpmate_Chat_Helpers
         libxml_clear_errors(); // Clear any errors
 
         // Get the title
-        $title = '';
+        $title = "";
         $titleElements = $dom->getElementsByTagName('title');
         if ($titleElements->length > 0) {
             $title = trim($titleElements->item(0)->textContent);
+            if (empty($title)) {
+                $title = $url;
+            }
         }
 
         // Process with OpenAI

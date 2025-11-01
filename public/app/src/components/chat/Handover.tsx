@@ -47,10 +47,10 @@ export function Handover({ handoverData, messageId, onSubmit }: HandoverProps) {
     let url = '';
 
     if (lowerTitle.includes('whatsapp')) {
-      url = `https://wa.me/${value.replace(/[^0-9]/g, '')}`;
+      url = `https://wa.me/${value.replace(/[^0-9+]/g, '')}`;
     } else if (lowerTitle.includes('messenger')) {
       url = `https://m.me/${value}`;
-    } else if (lowerTitle.includes('phone')) {
+    } else if (lowerTitle.includes('call') || lowerTitle.includes('phone')) {
       url = `tel:${value.replace(/[^0-9+]/g, '')}`;
     } else if (lowerTitle.includes('email')) {
       url = `mailto:${value}`;
@@ -86,14 +86,15 @@ export function Handover({ handoverData, messageId, onSubmit }: HandoverProps) {
 
   return (
     <div className="my-2 space-y-2">
-      {handoverData.handover.map((handover, index) => (
-        <>
+      <>
+        {handoverData.handover.length > 0 && (
           <p className="mb-1 text-xs text-slate-500">Select a option:</p>
+        )}
+        {handoverData.handover.map((handover, index) => (
           <Button
             key={index}
-            variant="outline"
             size="sm"
-            className="justify-between px-3 py-2 w-full h-auto text-sm font-normal text-left"
+            className="justify-between px-3 py-2 w-full h-auto text-sm font-normal text-left text-black bg-white hover:!bg-slate-100"
             onClick={() => handleHandoverClick(handover.title, handover.value)}
           >
             <span className="mr-2 truncate">
@@ -102,8 +103,8 @@ export function Handover({ handoverData, messageId, onSubmit }: HandoverProps) {
             </span>
             <ChevronRight size={16} className="flex-shrink-0 text-slate-400" />
           </Button>
-        </>
-      ))}
+        ))}
+      </>
       {showTicketCreationOption && (
         <>
           <p className="mb-1 text-xs text-slate-500">Create a new ticket:</p>
