@@ -108,6 +108,17 @@ class Helpmate_Admin
 			}
 		}
 
+		// Enqueue deactivation feedback styles on plugins page
+		if ($screen && $screen->id === 'plugins') {
+			wp_enqueue_style(
+				$this->plugin_name . '-deactivation-feedback',
+				plugin_dir_url(__FILE__) . 'css/helpmate-deactivation-feedback.css',
+				array(),
+				$this->version,
+				'all'
+			);
+		}
+
 	}
 
 	/**
@@ -162,6 +173,17 @@ class Helpmate_Admin
 					add_filter('wp_script_attributes', array($this, 'add_type_attribute'), 10, 1);
 				}
 			}
+		}
+
+		// Enqueue deactivation feedback script on plugins page
+		if ($screen && $screen->id === 'plugins') {
+			wp_enqueue_script(
+				$this->plugin_name . '-deactivation-feedback',
+				plugin_dir_url(__FILE__) . 'js/helpmate-deactivation-feedback.js',
+				array('jquery'),
+				$this->version,
+				true
+			);
 		}
 
 	}

@@ -473,4 +473,68 @@ class Helpmate_Api
             'code' => 'invalid_response'
         );
     }
+
+    /**
+     * Send deactivate feedback to api server.
+     *
+     * @param string $reason Optional reason for deactivating.
+     * @return array Always returns success to allow deactivation to proceed.
+     */
+    public function send_deactivate_feedback($reason = '')
+    {
+        $body = array();
+
+        // Include api_key if available
+        if ($this->api_key) {
+            $body['api_key'] = $this->api_key;
+        }
+
+        // Include reason if provided
+        if (!empty($reason)) {
+            $body['reason'] = sanitize_textarea_field($reason);
+        }
+
+        // Send request to api server
+        wp_remote_post($this->api_server . '/wp-json/rp/v1/deactivate-feedback', array(
+            'body' => $body,
+            'timeout' => 30,
+            'sslverify' => true
+        ));
+
+        // Always return success, even if the request fails
+        // This ensures deactivation can proceed regardless of server response
+        return array(
+            'success' => true,
+            'message' => __('Feedback sent', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Send activation feedback to api server.
+     *
+     * @return array Response from api server or success response on failure.
+     */
+    public function send_activate_feedback()
+    {
+        $body = array();
+
+        // Include api_key if available
+        if ($this->api_key) {
+            $body['api_key'] = $this->api_key;
+        }
+
+        // Send request to api server
+        wp_remote_post($this->api_server . '/wp-json/rp/v1/activate-feedback', array(
+            'body' => $body,
+            'timeout' => 30,
+            'sslverify' => true
+        ));
+
+        // Always return success, even if the request fails
+        // This ensures activation can proceed regardless of server response
+        return array(
+            'success' => true,
+            'message' => __('Activation feedback sent', 'helpmate-ai-chatbot')
+        );
+    }
 }

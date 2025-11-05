@@ -131,6 +131,19 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('manage_options')
         ));
 
+        register_rest_route('helpmate/v1', '/deactivate-feedback', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                $reason = $request->get_param('reason') ?? '';
+                $result = $this->helpmate->get_api()->send_deactivate_feedback($reason);
+                return new WP_REST_Response([
+                    'success' => $result['success'],
+                    'message' => $result['message']
+                ], 200);
+            },
+            'permission_callback' => '__return_true'
+        ));
+
         /* --------------------------------------- */
         /*               Promo Banner              */
         /* --------------------------------------- */

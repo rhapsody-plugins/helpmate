@@ -1,6 +1,6 @@
 import { useSettings } from '@/hooks/useSettings';
 import * as React from 'react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useContext } from 'react';
 
 export type PageType =
   | 'apps'
@@ -33,7 +33,7 @@ interface MainContextProps {
 const MainContext = React.createContext<MainContextProps | null>(null);
 
 export function useMain() {
-  const context = React.useContext(MainContext);
+  const context = useContext(MainContext);
   if (!context) {
     throw new Error('useMain must be used within a MainProvider');
   }

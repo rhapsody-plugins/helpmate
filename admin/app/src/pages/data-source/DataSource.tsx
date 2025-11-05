@@ -11,7 +11,7 @@ export default function DataSource() {
     return <Loading />;
   }
 
-  if (!api?.api_key) {
+  if (api && !api.api_key) {
     return (
       <div className="p-6">
         Please activate your API key to continue.{' '}

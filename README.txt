@@ -4,7 +4,7 @@ Tags: ai chatbot, customer support, helpdesk, ai assistant, chatbot
 Requires at least: 5.0
 Requires PHP: 7.4
 Tested up to: 6.8
-Stable tag: 1.1.2
+Stable tag: 1.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,15 @@ For full details, please review our policies below:
 
 == Version Update Logs ==
 
+= 1.1.4 - 2025-11-04 =
+
+- Fixed: Hotfix for react build issue.
+
+= 1.1.3 - 2025-11-03 =
+
+- Added: Feedback form on plugin deactivation.
+- Fixed: Admin page loading issues on some pages.
+
 = 1.1.2 - 2025-10-30 =
 
 - Fixed: Content train for website without title issue fixed.
@@ -310,6 +319,15 @@ For full details, please review our policies below:
 - New: Initial release
 
 == Changelog ==
+
+= 1.1.4 - 2025-11-03 =
+
+- Fixed: Hotfix for react build issue.
+
+= 1.1.3 - 2025-11-03 =
+
+- Added: Feedback form on plugin deactivation.
+- Fixed: Admin page loading issues on some pages.
 
 = 1.1.2 - 2025-10-30 =
 
