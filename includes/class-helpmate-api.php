@@ -466,6 +466,14 @@ class Helpmate_Api
             );
         }
 
+        if (!isset($data['customer_id'])) {
+            return array(
+                'success' => false,
+                'error' => __('Api key is not activated. Please contact support.', 'helpmate-ai-chatbot'),
+                'code' => 'customer_id_not_found'
+            );
+        }
+
         // If we get here, something unexpected happened
         return array(
             'success' => false,

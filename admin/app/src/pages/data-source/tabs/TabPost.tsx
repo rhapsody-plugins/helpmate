@@ -358,6 +358,7 @@ export default function TabPost() {
       deleteBulkJobMutate(activeBulkJobId, {
         onSuccess: () => {
           setActiveBulkJobId(null);
+          window.location.reload();
         },
       });
     }

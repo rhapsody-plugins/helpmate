@@ -111,9 +111,9 @@ class Helpmate_Background_Processor
     public function process_pending_jobs()
     {
         // Only run this occasionally to avoid performance issues
-        if (wp_rand(1, 100) > 5) { // 5% chance
-            return;
-        }
+        // if (wp_rand(1, 100) > 5) { // 5% chance
+        //     return;
+        // }
 
         $job_tracker = $this->job_tracker;
         $pending_jobs = $job_tracker->get_jobs_by_status('scheduled', 5);
@@ -123,6 +123,18 @@ class Helpmate_Background_Processor
             $created_time = strtotime($job['created_at']);
             if (time() - $created_time > 30) {
                 $this->process_bulk_documents($job['job_id']);
+            }
+        }
+
+        // ALSO check stuck processing jobs
+        $processing_jobs = $job_tracker->get_jobs_by_status('processing', 5);
+        foreach ($processing_jobs as $job) {
+            // If processing but no documents processed and older than 30 seconds
+            if ($job['processed_documents'] == 0) {
+                $created_time = strtotime($job['created_at']);
+                if (time() - $created_time > 30) {
+                    $this->process_bulk_documents($job['job_id']);
+                }
             }
         }
     }

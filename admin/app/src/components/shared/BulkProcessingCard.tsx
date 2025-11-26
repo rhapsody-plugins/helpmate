@@ -63,12 +63,19 @@ export function BulkProcessingCard({
           </div>
           <div className="flex gap-4 items-center">
             <div className="text-xs text-muted-foreground">
-              Started: {format(new Date(activeBulkJob.created_at), 'PPpp')}
+              Started:{' '}
+              {format(
+                new Date(activeBulkJob.created_at + 'Z'),
+                'PPpp'
+              )}
               {activeBulkJob.completed_at && (
                 <span>
                   {' '}
                   • Completed:{' '}
-                  {format(new Date(activeBulkJob.completed_at), 'PPpp')}
+                  {format(
+                    new Date(activeBulkJob.completed_at + 'Z'),
+                    'PPpp'
+                  )}
                 </span>
               )}
             </div>

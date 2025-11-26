@@ -208,7 +208,7 @@ export function AppSidebar() {
           <SidebarMenu>
             <SidebarMenuSubItem className="!mb-0">
               <SidebarMenuButton
-                className="cursor-pointer"
+                className="cursor-pointer bg-white [background:linear-gradient(white,white)_padding-box,conic-gradient(from_var(--border-angle),var(--color-primary)_0deg,var(--color-gray-50)_120deg,var(--color-gray-50)_240deg,var(--color-primary)_360deg)_border-box] data-[active=true]:[background:linear-gradient(#ecfdf4,#ecfdf4)_padding-box,conic-gradient(from_var(--border-angle),var(--color-primary-200)_0deg,var(--color-gray-50)_120deg,var(--color-gray-50)_240deg,var(--color-primary-200)_360deg)_border-box] border animate-border border-transparent"
                 onClick={() => setPage('apps')}
                 isActive={page === 'apps'}
               >

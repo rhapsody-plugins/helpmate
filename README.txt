@@ -1,10 +1,10 @@
 === Helpmate – Sales & Support AI Chatbot for WooCommerce ===
 Contributors: rhapsodyplugins
-Tags: ai chatbot, customer support, helpdesk, ai assistant, chatbot
+Tags: ai chatbot, customer support, helpdesk, woocommerce, wordpress chatbot
 Requires at least: 5.0
 Requires PHP: 7.4
 Tested up to: 6.8
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,7 +35,7 @@ You get the best of both worlds: automation for the repetitive stuff and a human
 - [Research shows AI-powered recommendations increase revenue by up to 300%](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#ai-recommendation) - Monetate Study
 - [Sales-based social proof notifications boost website conversions by 98%](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#social-proof) - WiserNotify, 2025
 
-https://www.youtube.com/watch?v=5i4c7bjnxB8
+https://www.youtube.com/watch?v=qMXFyZg6SUw
 
 ---
 
@@ -284,7 +284,12 @@ For full details, please review our policies below:
 
 == Version Update Logs ==
 
-= 1.1.4 - 2025-11-04 =
+= 1.1.5 - 2025-11-23 =
+
+- Fixed: Bulk train datetime and progress issues fixed.
+- Update: App center sidebar menu highlighted.
+
+= 1.1.4 - 2025-11-05 =
 
 - Fixed: Hotfix for react build issue.
 
@@ -320,7 +325,12 @@ For full details, please review our policies below:
 
 == Changelog ==
 
-= 1.1.4 - 2025-11-03 =
+= 1.1.5 - 2025-11-23 =
+
+- Fixed: Bulk train datetime and progress issues fixed.
+- Update: App center sidebar menu highlighted.
+
+= 1.1.4 - 2025-11-05 =
 
 - Fixed: Hotfix for react build issue.
 
