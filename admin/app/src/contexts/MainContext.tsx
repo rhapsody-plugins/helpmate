@@ -20,7 +20,8 @@ export type PageType =
   | 'ticket-system'
   | 'refund-return'
   | 'app-center'
-  | 'train-chatbot';
+  | 'train-chatbot'
+  | 'test-chatbot';
 
 interface MainContextProps {
   page: PageType;

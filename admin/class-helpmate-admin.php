@@ -240,6 +240,15 @@ class Helpmate_Admin
 
 		add_submenu_page(
 			'helpmate',
+			'Test Chatbot',
+			'Test Chatbot',
+			'manage_options',
+			'helpmate&tab=test-chatbot',
+			array($this, 'display_plugin_setup_page')
+		);
+
+		add_submenu_page(
+			'helpmate',
 			'App Center',
 			'App Center',
 			'manage_options',
@@ -297,6 +306,7 @@ class Helpmate_Admin
 	 */
 	public function redirect_to_support()
 	{
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Safe hardcoded redirect to plugin support page
 		wp_redirect('https://rhapsodyplugins.com/contact');
 		exit;
 	}
@@ -308,6 +318,7 @@ class Helpmate_Admin
 	 */
 	public function redirect_to_pricing()
 	{
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Safe hardcoded redirect to plugin pricing page
 		wp_redirect('https://rhapsodyplugins.com/helpmate/#pricing');
 		exit;
 	}

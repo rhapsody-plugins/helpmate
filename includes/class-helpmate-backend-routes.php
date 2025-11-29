@@ -74,6 +74,7 @@ class Helpmate_Backend_Routes
         register_rest_route('helpmate/v1', '/check-woocommerce', array(
             'methods' => 'GET',
             'callback' => function () {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WordPress core filter
                 $is_installed = in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')));
                 try {
                     return new WP_REST_Response([

@@ -87,6 +87,30 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
     resolver: zodResolver(formSchema),
   });
 
+  const navigateToDataSource = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', 'data-source');
+    window.history.pushState({}, '', url.toString());
+    setPage('data-source');
+    setAppPage('home');
+  }, [setPage, setAppPage]);
+
+  const navigateToApps = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', 'apps');
+    window.history.pushState({}, '', url.toString());
+    setPage('apps');
+    setAppPage('home');
+  }, [setPage, setAppPage]);
+
+  const navigateToTestChatbot = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', 'test-chatbot');
+    window.history.pushState({}, '', url.toString());
+    setPage('test-chatbot');
+    setAppPage('home');
+  }, [setPage, setAppPage]);
+
   const quickTrainInternal = useCallback(async () => {
     setIsLoading(true);
     setProgress(0);
@@ -164,7 +188,7 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
               setIsLoading(false);
               setProgress(0);
               setIsComplete(true);
-              navigateToDataSource();
+              navigateToTestChatbot();
             }, 500);
           },
           onError: (error) => {
@@ -197,7 +221,7 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
               setIsLoading(false);
               setProgress(0);
               setIsComplete(true);
-              navigateToDataSource();
+              navigateToTestChatbot();
             }, 500);
           },
           onError: (error) => {
@@ -211,12 +235,28 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
         }
       );
     }
-  }, [addMutate, fetchData, updateMutate, form]);
+  }, [addMutate, fetchData, updateMutate, form, navigateToTestChatbot]);
 
   const quickTrain = useCallback(() => {
     setAutoTrainError(null); // Clear any previous errors
     quickTrainInternal();
   }, [quickTrainInternal]);
+
+  // Warn user before leaving page during quick train
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isLoading) {
+        e.preventDefault();
+        e.returnValue = '';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isLoading]);
 
   // Check if content already exists, if not auto-train (only once)
   useEffect(() => {
@@ -273,22 +313,6 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
     [fetchData, updateMutate, form]
   );
 
-  const navigateToDataSource = useCallback(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', 'data-source');
-    window.history.pushState({}, '', url.toString());
-    setPage('data-source');
-    setAppPage('home');
-  }, [setPage, setAppPage]);
-
-  const navigateToApps = useCallback(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('tab', 'apps');
-    window.history.pushState({}, '', url.toString());
-    setPage('apps');
-    setAppPage('home');
-  }, [setPage, setAppPage]);
-
   if (isApiKeyLoading) {
     return (
       <div className="min-h-[30vh] flex flex-col justify-between">
@@ -330,15 +354,15 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
                           ></path>
                         </svg>
                         <span className="text-lg font-semibold">
-                          Gathering Website Information...
+                          Initializing Chatbot...
                         </span>
                       </div>
                       <div className="mt-4 w-full">
                         <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
                           <span>
                             {progress < 50
-                              ? 'Analyzing website information...'
-                              : 'Saving training data...'}
+                              ? 'Preparing chatbot...'
+                              : 'Finishing up...'}
                           </span>
                           <span>{Math.round(progress)}%</span>
                         </div>
@@ -399,7 +423,12 @@ export default function Dashboard({ setAppPage }: DashboardProps) {
                         size="lg"
                         className="!text-lg font-semibold"
                       >
-                        <ChangeSvgColor src={aiChatbot} className="w-5 h-5" fill="white" stroke="currentColor" />
+                        <ChangeSvgColor
+                          src={aiChatbot}
+                          className="w-5 h-5"
+                          fill="white"
+                          stroke="currentColor"
+                        />
                         Train Chatbot
                       </Button>
                       <Button

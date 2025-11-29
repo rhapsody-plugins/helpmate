@@ -161,6 +161,10 @@ export default function TabAi() {
                   <Skeleton className="w-full h-10" />
                 </div>
                 <div className="space-y-2">
+                  <Skeleton className="w-32 h-5" />
+                  <Skeleton className="w-full h-10" />
+                </div>
+                <div className="space-y-2">
                   <Skeleton className="w-16 h-5" />
                   <div className="grid grid-cols-2 gap-4">
                     <Skeleton className="h-20" />

@@ -16,12 +16,12 @@
  * Plugin Name:       Helpmate – Sales & Support AI Chatbot for WooCommerce
  * Plugin URI:        https://rhapsodyplugins.com/helpmate
  * Description:       Helpmate is an AI-powered WooCommerce chatbot that boosts sales, automates support, and engages customers 24/7 with smart, human-like chat.
- * Version:           1.1.5
+ * Version:           1.1.6
  * Author:            Rhapsody Plugins
  * Author URI:        https://rhapsodyplugins.com/
  * Requires at least: 5.0
  * Tested up to:      6.8.2
- * Stable tag:        1.1.5
+ * Stable tag:        1.1.6
  * Requires PHP:      7.4
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('HELPMATE_VERSION', '1.1.5');
+define('HELPMATE_VERSION', '1.1.6');
 
 /**
  * Plugin constants
@@ -78,6 +78,7 @@ define('HELPMATE_MODULE_DEFAULT_SETTINGS', [
  * The code that runs during plugin activation.
  * This action is documented in includes/class-helpmate-activator.php
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Function is prefixed with plugin name
 function activate_helpmate()
 {
 	require_once plugin_dir_path(__FILE__) . 'includes/class-helpmate-activator.php';
@@ -88,6 +89,7 @@ function activate_helpmate()
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-helpmate-deactivator.php
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Function is prefixed with plugin name
 function deactivate_helpmate()
 {
 	require_once plugin_dir_path(__FILE__) . 'includes/class-helpmate-deactivator.php';
@@ -123,6 +125,7 @@ add_action('init', 'helpmate_set_script_translations');
  *
  * @since    1.0.0
  */
+// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound -- Function is prefixed with plugin name
 function run_helpmate()
 {
 	$plugin = new Helpmate();

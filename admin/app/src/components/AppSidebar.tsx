@@ -116,8 +116,8 @@ export function AppSidebar() {
       page: 'data-source',
     },
     {
-      label: 'Analytics',
-      page: 'analytics',
+      label: 'Test Chatbot',
+      page: 'test-chatbot',
     },
     {
       label: 'Activity',
@@ -134,6 +134,10 @@ export function AppSidebar() {
     {
       label: 'Settings',
       page: 'settings',
+    },
+    {
+      label: 'Analytics',
+      page: 'analytics',
     },
   ];
 

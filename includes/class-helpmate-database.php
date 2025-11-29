@@ -244,7 +244,7 @@ class Helpmate_Database
                 'temperature' => 0,
                 'tone' => 'friendly',
                 'language' => 'default',
-                'similarity_threshold' => 0.5,
+                'similarity_threshold' => 0.3,
             ],
             'behavior' => [
                 'welcome_message_sound' => true,

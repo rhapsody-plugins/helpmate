@@ -4,7 +4,7 @@ Tags: ai chatbot, customer support, helpdesk, woocommerce, wordpress chatbot
 Requires at least: 5.0
 Requires PHP: 7.4
 Tested up to: 6.8
-Stable tag: 1.1.5
+Stable tag: 1.1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -284,6 +284,12 @@ For full details, please review our policies below:
 
 == Version Update Logs ==
 
+= 1.1.6 - 2025-11-29 =
+
+- Added: Test chatbot feature with instructions.
+- Added: Instructions added for training chatbot.
+- Update: Improved chat conversion system message.
+
 = 1.1.5 - 2025-11-23 =
 
 - Fixed: Bulk train datetime and progress issues fixed.
@@ -324,6 +330,12 @@ For full details, please review our policies below:
 - New: Initial release
 
 == Changelog ==
+
+= 1.1.6 - 2025-11-29 =
+
+- Added: Test chatbot feature with instructions.
+- Added: Instructions added for training chatbot.
+- Update: Improved chat conversion system message.
 
 = 1.1.5 - 2025-11-23 =
 

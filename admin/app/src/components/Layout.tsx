@@ -6,7 +6,7 @@ import { lazy, Suspense } from 'react';
 
 const Analytics = lazy(() => import('@/pages/Analytics'));
 const Activity = lazy(() => import('@/pages/activity/Activity'));
-const DataSource = lazy(() => import('@/pages/data-source/DataSource'));
+import DataSource from '@/pages/data-source/DataSource';
 const Customization = lazy(() => import('@/pages/customization/Customization'));
 const Settings = lazy(() => import('@/pages/settings/Settings'));
 const Modules = lazy(() => import('@/pages/modules/Modules'));
@@ -27,6 +27,7 @@ const ImageSearch = lazy(() => import('@/pages/module-settings/ImageSearch'));
 const PromoBanner = lazy(() => import('@/pages/module-settings/PromoBanner'));
 const RefundReturn = lazy(() => import('@/pages/module-settings/refund-return/RefundReturn'));
 const Behavior = lazy(() => import('@/pages/behavior/Behavior'));
+const TestChatbot = lazy(() => import('@/pages/test-chatbot/TestChatbot'));
 
 export default function Layout() {
   const { page } = useMain();
@@ -39,6 +40,8 @@ export default function Layout() {
         return <Activity />;
       case 'data-source':
         return <DataSource />;
+      case 'test-chatbot':
+        return <TestChatbot />;
       case 'customization':
         return <Customization />;
       case 'behavior':

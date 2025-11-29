@@ -111,6 +111,7 @@ class Helpmate_Chat
         $message = $params['message'];
         $image_url = $params['image_url'];
         $product_id = $params['product_id'];
+        $debug = isset($params['debug']) ? $params['debug'] : false;
 
         if (empty($message)) {
             return new WP_REST_Response([
@@ -121,16 +122,27 @@ class Helpmate_Chat
 
         try {
             // Let the AI decide if it needs RAG context through the Two-Step Tool Call system
-            $result = $this->response_generator->generate_response($message, [], $session_id, $image_url, $product_id, $this->helpers);
+            $result = $this->response_generator->generate_response($message, [], $session_id, $image_url, $product_id, $this->helpers, $debug);
+
+            // Prepare metadata
+            $metadata = ['rag_context' => $result['rag_context']];
+            if (!empty($debug)) {
+                $metadata['debug'] = true;
+            }
+            if (isset($result['training_instructions'])) {
+                $metadata['training_instructions'] = $result['training_instructions'];
+            }
 
             // Store the messages using helpers
-            $message_ids = $this->helpers->store_messages($result['session_id'], $message, json_encode($result['response']), (object) ['usage' => (object) ['totalTokens' => 0]], ['rag_context' => $result['rag_context']]);
+            $message_ids = $this->helpers->store_messages($result['session_id'], $message, json_encode($result['response']), (object) ['usage' => (object) ['totalTokens' => 0]], $metadata);
 
             return new WP_REST_Response([
                 'error' => false,
                 'reply' => $result['response'],
                 'message_ids' => $message_ids,
-                'session_id' => $result['session_id']
+                'session_id' => $result['session_id'],
+                'rag_context' => isset($result['rag_context']) ? $result['rag_context'] : '',
+                'training_instructions' => isset($result['training_instructions']) ? $result['training_instructions'] : ''
             ]);
         } catch (Exception $e) {
             return new WP_REST_Response([
@@ -313,10 +325,12 @@ class Helpmate_Chat
      * @param array $messages The messages.
      * @param string $session_id The session ID.
      * @param string $custom_system_message The custom system message.
+     * @param string $image_url The image URL.
+     * @param bool $debug Whether to enable debug mode.
      * @return array The chat response.
      */
-    public function get_chat_response($prompt, $messages, $session_id, $custom_system_message = '')
+    public function get_chat_response($prompt, $messages, $session_id, $custom_system_message = '', $image_url = '', $debug = false)
     {
-        return $this->response_generator->get_chat_response($prompt, $messages, $session_id, $custom_system_message);
+        return $this->response_generator->get_chat_response($prompt, $messages, $session_id, $custom_system_message, $image_url, $debug);
     }
 }

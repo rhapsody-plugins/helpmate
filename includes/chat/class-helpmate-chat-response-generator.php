@@ -71,11 +71,11 @@ class Helpmate_Chat_Response_Generator
      * @param array $messages The messages.
      * @param string $session_id The session ID.
      * @param string $custom_system_message The custom system message.
-     * @param array $rag_context The RAG context.
      * @param string $image_url The image URL.
+     * @param bool $debug Whether to enable debug mode.
      * @return array The chat response.
      */
-    public function get_chat_response($prompt, $messages, $session_id, $custom_system_message = '', $image_url = '')
+    public function get_chat_response($prompt, $messages, $session_id, $custom_system_message = '', $image_url = '', $debug = false)
     {
 
         $website_title = get_bloginfo('name');
@@ -121,7 +121,8 @@ class Helpmate_Chat_Response_Generator
                 "feature_slug" => 'ai_response',
                 'temperature' => $temperature,
                 'similarity_threshold' => $similarity_threshold,
-                'modules' => $this->modules_in_use()
+                'modules' => $this->modules_in_use(),
+                'debug' => $debug
             ]),
             'timeout' => 60,
         ]);
@@ -146,9 +147,10 @@ class Helpmate_Chat_Response_Generator
      * @param string $image_url Optional image URL for image search.
      * @param string $product_id Optional product ID.
      * @param Helpmate_Chat_Helpers $helpers The helpers instance.
+     * @param bool $debug Whether to enable debug mode.
      * @return array The response with session_id.
      */
-    public function generate_response(string $prompt, array $context = [], string $session_id = '', string $image_url = '', $product_id = '', $helpers = null): array
+    public function generate_response(string $prompt, array $context = [], string $session_id = '', string $image_url = '', $product_id = '', $helpers = null, $debug = false): array
     {
         // Initialize session if needed
         if (empty($session_id)) {
@@ -165,7 +167,7 @@ class Helpmate_Chat_Response_Generator
             }
         }
 
-        $data = $this->get_chat_response($prompt, $messages, $session_id, '', $image_url);
+        $data = $this->get_chat_response($prompt, $messages, $session_id, '', $image_url, $debug);
 
         $data = $this->execute_tool_call($data);
 
@@ -176,7 +178,8 @@ class Helpmate_Chat_Response_Generator
                     'text' => 'Sorry, I\'m having trouble processing your request. Please try again later.'
                 ],
                 'session_id' => $session_id,
-                'rag_context' => ''
+                'rag_context' => '',
+                'training_instructions' => ''
             ];
         }
 
@@ -187,7 +190,8 @@ class Helpmate_Chat_Response_Generator
                     'text' => $data['message']
                 ],
                 'session_id' => $session_id,
-                'rag_context' => isset($data['rag_context']) ? $data['rag_context'] : ''
+                'rag_context' => isset($data['rag_context']) ? $data['rag_context'] : '',
+                'training_instructions' => isset($data['training_instructions']) ? $data['training_instructions'] : ''
             ];
         }
 
@@ -207,7 +211,8 @@ class Helpmate_Chat_Response_Generator
             return [
                 'response' => $reply,
                 'session_id' => $session_id,
-                'rag_context' => isset($data['rag_context']) ? $data['rag_context'] : ''
+                'rag_context' => isset($data['rag_context']) ? $data['rag_context'] : '',
+                'training_instructions' => isset($data['training_instructions']) ? $data['training_instructions'] : ''
             ];
         } else {
             return [
@@ -216,7 +221,8 @@ class Helpmate_Chat_Response_Generator
                     'text' => $data['message']
                 ],
                 'session_id' => $session_id,
-                'rag_context' => isset($data['rag_context']) ? $data['rag_context'] : ''
+                'rag_context' => isset($data['rag_context']) ? $data['rag_context'] : '',
+                'training_instructions' => isset($data['training_instructions']) ? $data['training_instructions'] : ''
             ];
         }
     }

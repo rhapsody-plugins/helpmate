@@ -19,7 +19,9 @@ export default function TabChat() {
   const { data: sessions, isPending: sessionsLoading } = getSessions;
   const { data: chatHistory, isPending: chatHistoryLoading } = getChatHistory;
 
-  const isLoading = Boolean(sessionsLoading || (selectedSession && chatHistoryLoading));
+  const isLoading = Boolean(
+    sessionsLoading || (selectedSession && chatHistoryLoading)
+  );
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -114,7 +116,7 @@ export default function TabChat() {
     }
   }, [selectedSession, sessions]);
 
-      // Convert chat history to ChatMessage format and sort properly
+  // Convert chat history to ChatMessage format and sort properly
   const messages: ChatMessage[] =
     chatHistory?.history
       ?.map((msg) => ({
@@ -147,7 +149,7 @@ export default function TabChat() {
       >
         <div className={cn('flex flex-col items-start')}>
           <span className="font-medium text-sm truncate max-w-[180px]">
-            {session.start_time}
+            {new Date((session.start_time as unknown as number) * 1000).toLocaleString()}
           </span>
           <div className="flex gap-2 items-center">
             <span className="text-xs">{session.message_count} messages</span>

@@ -574,7 +574,7 @@ class Helpmate_Chat_Helpers
                 if (!empty($chat_history)) {
                     foreach ($chat_history as $message) {
                         $assistant_message = isset(json_decode($message['message'], true)['text']) ? json_decode($message['message'], true) : null;
-                        $context = isset(json_decode($message['metadata'], true)['rag_context']) ? json_decode($message['metadata'], true)['rag_context'] : '';
+                        $context = isset($message['metadata']['rag_context']) ? $message['metadata']['rag_context'] : '';
                         $messages[] = [
                             'role' => $message['role'],
                             'content' => $assistant_message ? $assistant_message['text'] . "\n\n[Tool Used: " . $assistant_message['type'] . "]" : (isset($context) ? '[RAG Context: ' . $context . '] User Asked: ' : '') . $message['message'],

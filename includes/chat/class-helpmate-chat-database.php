@@ -46,7 +46,7 @@ class Helpmate_Chat_Database
             ARRAY_A
         );
 
-        foreach ($messages as $message) {
+        foreach ($messages as &$message) {
             $message['metadata'] = json_decode($message['metadata'], true);
         }
 
@@ -69,12 +69,18 @@ class Helpmate_Chat_Database
             // Calculate offset
             $offset = ($page - 1) * $per_page;
 
-            // Get total count
+            // Get total count (excluding debug sessions)
             $total_count = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                "SELECT COUNT(DISTINCT session_id) FROM {$wpdb->prefix}helpmate_chat_history"
+                "SELECT COUNT(DISTINCT session_id)
+                FROM {$wpdb->prefix}helpmate_chat_history
+                WHERE session_id NOT IN (
+                    SELECT DISTINCT session_id
+                    FROM {$wpdb->prefix}helpmate_chat_history
+                    WHERE JSON_EXTRACT(metadata, '$.debug') = true
+                )"
             );
 
-            // Get paginated sessions
+            // Get paginated sessions (excluding debug sessions)
             $sessions = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $wpdb->prepare(
                     "SELECT
@@ -84,6 +90,11 @@ class Helpmate_Chat_Database
                         MIN(timestamp) as start_time,
                         MAX(timestamp) as last_activity
                     FROM {$wpdb->prefix}helpmate_chat_history
+                    WHERE session_id NOT IN (
+                        SELECT DISTINCT session_id
+                        FROM {$wpdb->prefix}helpmate_chat_history
+                        WHERE JSON_EXTRACT(metadata, '$.debug') = true
+                    )
                     GROUP BY session_id
                     ORDER BY last_activity DESC
                     LIMIT %d OFFSET %d",
@@ -94,8 +105,8 @@ class Helpmate_Chat_Database
             );
 
             foreach ($sessions as &$session) {
-                $session['start_time'] = gmdate('Y-m-d H:i:s', $session['start_time']);
-                $session['last_activity'] = gmdate('Y-m-d H:i:s', $session['last_activity']);
+                $session['start_time'] = (int) $session['start_time'];
+                $session['last_activity'] = (int) $session['last_activity'];
                 $session['message_count'] = (int) $session['message_count'];
                 $session['total_tokens'] = (int) $session['total_tokens'];
             }
