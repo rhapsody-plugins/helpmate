@@ -1,0 +1,28 @@
+/**
+ * Post Meta Box Styles
+ *
+ * Styles for the Helpmate meta box on post/page edit screens.
+ *
+ * @link       https://rhapsodyplugins.com/helpmate
+ * @since      1.0.0
+ *
+ * @package    Helpmate
+ * @subpackage Helpmate/admin/css
+ */
+
+.helpmate-post-meta-box {
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding-top: 5px;
+}
+
+.helpmate-post-meta-box p {
+	margin: 0;
+}
+
+.helpmate-post-meta-box button {
+	width: 100%;
+	margin-bottom: 10px;
+}

@@ -1,3 +1,4 @@
+import PageGuard from '@/components/PageGuard';
 import PageHeader from '@/components/PageHeader';
 import { ProBadge } from '@/components/ProBadge';
 import { Button } from '@/components/ui/button';
@@ -12,10 +13,12 @@ import {
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { useMain } from '@/contexts/MainContext';
 import { useSettings } from '@/hooks/useSettings';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -27,12 +30,34 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function WooCommerce() {
-  const { getSettingsMutation, updateSettingsMutation, getProQuery } =
-    useSettings();
+  const { modules } = useMain();
+  const {
+    getSettingsMutation,
+    updateSettingsMutation,
+    getProQuery,
+    getModulesQuery,
+  } = useSettings();
 
   const { mutate: getSettings, isPending: isFetching } = getSettingsMutation;
   const { mutate: updateSettings, isPending: isUpdating } =
     updateSettingsMutation;
+  const { mutateAsync: updateModuleSettings } = updateSettingsMutation;
+  const isModuleEnabled = Boolean(modules['order-tracker']);
+
+  const handleModuleToggle = useCallback(async () => {
+    const newSettings = { ...modules, 'order-tracker': !isModuleEnabled };
+    await updateModuleSettings(
+      {
+        key: 'modules',
+        data: newSettings,
+      },
+      {
+        onSuccess: () => {
+          getModulesQuery.refetch();
+        },
+      }
+    );
+  }, [modules, isModuleEnabled, updateModuleSettings, getModulesQuery]);
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -66,9 +91,27 @@ export default function WooCommerce() {
   └─────────────────────────────────────────────────────────────────────────────┘
  */
   return (
-    <div className="gap-0">
-      <PageHeader title="Order Tracker" />
-      <div className="relative p-6">
+    <PageGuard page="order-tracker">
+      <div className="gap-0">
+        <PageHeader
+        title="Order Tracker"
+        rightActions={
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Enable Module</span>
+            <Switch
+              checked={isModuleEnabled}
+              onCheckedChange={handleModuleToggle}
+              disabled={isUpdating}
+            />
+          </div>
+        }
+      />
+      <div
+        className={cn(
+          'relative p-6',
+          !isModuleEnabled && 'opacity-50 pointer-events-none cursor-not-allowed'
+        )}
+      >
         {!getProQuery.data && (
           <ProBadge
             topMessage="Give them answers before they ask. Real-time order tracking reduces refunds and raises trust."
@@ -78,7 +121,7 @@ export default function WooCommerce() {
         )}
         <Card
           className={cn(
-            !getProQuery.data &&
+            (!getProQuery.data || !isModuleEnabled) &&
               'opacity-50 cursor-not-allowed pointer-events-none'
           )}
         >
@@ -138,7 +181,7 @@ export default function WooCommerce() {
                                       'order_tracker_phone_required'
                                     )
                                   ? 'phone'
-                                  : 'email'
+                                  : 'none'
                               }
                               className="flex flex-col space-y-1"
                             >
@@ -159,6 +202,16 @@ export default function WooCommerce() {
                                 <label htmlFor="phone-required">
                                   Phone Required
                                 </label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem
+                                  value="none"
+                                  id="none-required"
+                                />
+                                <label htmlFor="none-required">
+                                  Order ID Only
+                                </label>
+                                <InfoTooltip message="Only collect order ID. No email or phone verification. Anyone with the order ID can view status." />
                               </div>
                             </RadioGroup>
                           </FormControl>
@@ -181,5 +234,6 @@ export default function WooCommerce() {
         </Card>
       </div>
     </div>
+    </PageGuard>
   );
 }

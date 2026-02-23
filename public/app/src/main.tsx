@@ -50,6 +50,7 @@ declare global {
     HelpmatePro: HelpmateProWindowType;
     helpmateShadowRoot: ShadowRoot;
     helpmateReactRoot: HTMLElement;
+    helpmatePortalRoot?: HTMLElement;
     helpmateReactRootInstance?: Root;
   }
 }

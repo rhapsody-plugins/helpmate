@@ -102,7 +102,7 @@ export default function useAbandonedCart() {
   });
   const deleteEmailTemplate = useMutation({
     mutationFn: async (id: number) => {
-      const response = await api.delete(`/email-templates/${id}`);
+      const response = await api.post(`/email-templates/${id}/delete`);
       return response.data;
     },
     onSuccess: () => {

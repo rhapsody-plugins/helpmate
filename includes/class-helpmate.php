@@ -206,6 +206,79 @@ class Helpmate
 	private $job_tracker;
 
 	/**
+	 * The social chat instance.
+	 *
+	 * @since    1.2.0
+	 * @access   private
+	 * @var      Helpmate_Social_Chat    $social_chat    The social chat instance.
+	 */
+	private $social_chat;
+
+	/**
+	 * The CRM instance.
+	 *
+	 * @since    1.3.0
+	 * @access   private
+	 * @var      Helpmate_CRM    $crm    The CRM instance.
+	 */
+	private $crm;
+
+	/**
+	 * The Team instance.
+	 *
+	 * @since    1.3.0
+	 * @access   private
+	 * @var      Helpmate_Team    $team    The Team instance.
+	 */
+	private $team;
+
+	/**
+	 * The Notifications instance.
+	 *
+	 * @since    1.3.0
+	 * @access   private
+	 * @var      Helpmate_Notifications    $notifications    The Notifications instance.
+	 */
+	private $notifications;
+
+	/**
+	 * The Tasks instance.
+	 *
+	 * @since    1.1.7
+	 * @access   private
+	 * @var      Helpmate_Tasks    $tasks    The Tasks instance.
+	 */
+	private $tasks;
+
+	/**
+	 * The CRM Analytics instance.
+	 *
+	 * @since    1.3.0
+	 * @access   private
+	 * @var      Helpmate_Crm_Analytics    $crm_analytics    The CRM Analytics instance.
+	 */
+	private $crm_analytics;
+
+	/**
+	 * The CRM Order Metabox instance.
+	 *
+	 * @since    1.3.0
+	 * @access   private
+	 * @var      Helpmate_Crm_Order_Metabox    $crm_order_metabox    The CRM Order Metabox instance.
+	 */
+	private $crm_order_metabox;
+
+	/**
+	 * The post/page meta box instance for knowledge base.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      Helpmate_Post_Meta_Box|null    $post_meta_box    The post meta box instance (null when not in admin).
+	 */
+	private $post_meta_box;
+
+
+	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -229,7 +302,7 @@ class Helpmate
 		$this->database = new Helpmate_Database();
 		$this->settings = new Helpmate_Settings;
 		$this->api = new Helpmate_Api($this->settings, $this->plugin_name);
-		$this->dashboard = new Helpmate_Dashboard;
+		$this->dashboard = new Helpmate_Dashboard($this);
 		$this->analytics = new Helpmate_Analytics();
 
 		$this->chat = new Helpmate_Chat($this);
@@ -241,6 +314,18 @@ class Helpmate
 
 		$this->document_handler = new Helpmate_Document_Handler($this->api, $this->chat);
 		$this->woocommerce = new Helpmate_WooCommerce($this->settings);
+		$this->social_chat = new Helpmate_Social_Chat($this);
+		$this->crm = new Helpmate_CRM($this);
+		$this->crm_order_metabox = new Helpmate_Crm_Order_Metabox($this->crm);
+		$this->team = new Helpmate_Team($this);
+		$this->notifications = new Helpmate_Notifications($this);
+		$this->tasks = new Helpmate_Tasks($this);
+		$this->crm_analytics = new Helpmate_Crm_Analytics($this);
+
+		// Initialize post/page meta box for knowledge base
+		if (is_admin()) {
+			$this->post_meta_box = new Helpmate_Post_Meta_Box($this, $this->settings, $this->document_handler);
+		}
 
 		// Initialize background processing
 		$this->job_tracker = new Helpmate_Job_Tracker();
@@ -308,6 +393,17 @@ class Helpmate
 			'includes/modules/class-helpmate-sales-notification.php',
 			'includes/modules/class-helpmate-ticket.php',
 			'includes/modules/class-helpmate-woocommerce.php',
+			'includes/modules/class-helpmate-social-chat.php',
+			'includes/modules/class-helpmate-crm.php',
+			'includes/modules/class-helpmate-crm-order-metabox.php',
+			'includes/modules/class-helpmate-team.php',
+			'includes/class-helpmate-notifications.php',
+			'includes/class-helpmate-realtime.php',
+			'includes/modules/class-helpmate-tasks.php',
+			'includes/modules/class-helpmate-crm-analytics.php',
+			'includes/modules/class-helpmate-post-meta-box.php',
+			'includes/class-helpmate-permissions.php',
+			'includes/social/class-helpmate-social-message-processor.php',
 			'includes/class-helpmate-background-processor.php',
 			'includes/class-helpmate-job-tracker.php',
 		);
@@ -356,6 +452,8 @@ class Helpmate
 	 */
 	private function define_admin_hooks()
 	{
+		// Check for plugin updates and create default templates if needed
+		add_action('admin_init', [$this, 'check_plugin_update']);
 		$plugin_admin = new Helpmate_Admin($this->get_plugin_name(), $this->get_version());
 
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_media');
@@ -373,12 +471,14 @@ class Helpmate
 	 */
 	private function define_public_hooks()
 	{
-		$plugin_public = new Helpmate_Public($this->get_plugin_name(), $this->get_version(), $this->promo_banner);
+		$plugin_public = new Helpmate_Public($this->get_plugin_name(), $this->get_version(), $this->promo_banner, $this->sales_notification);
 
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 		$this->loader->add_action('rest_api_init', $this->frontend_routes, 'register_routes');
-		$this->loader->add_action('rest_api_init', $this->backend_routes, 'register_routes');
+		// Register backend routes with priority 20 to ensure custom fields route runs after pro plugin
+		// This allows our route to take precedence when pro route blocks access
+		$this->loader->add_action('rest_api_init', $this->backend_routes, 'register_routes', 20);
 	}
 
 	/**
@@ -448,6 +548,143 @@ class Helpmate
 	}
 
 	/**
+	 * Create default email templates if they don't exist.
+	 *
+	 * @since    1.3.0
+	 */
+	public function create_default_email_templates()
+	{
+		// Create default email templates if they don't exist
+		if ($this->crm) {
+			// Migrate existing default templates first
+			$this->crm->migrate_existing_default_templates();
+
+			$this->crm->create_default_smart_schedule_templates();
+
+			// Create abandoned cart follow-up templates and set them in settings
+			$followup_templates = $this->crm->create_default_abandoned_cart_followup_templates();
+
+			// Create refund return template and set it in settings
+			$refund_template_id = $this->crm->create_default_refund_return_template();
+
+			// Create abandoned cart initial template and set it in settings
+			$abandoned_cart_template_id = $this->crm->create_default_abandoned_cart_template();
+
+			// Set abandoned cart settings with initial template
+			if ($abandoned_cart_template_id) {
+				$abandoned_cart_settings = $this->settings->get_setting('abandoned_cart');
+				if ($abandoned_cart_settings) {
+					// Only set if not already set
+					if (!isset($abandoned_cart_settings['selected_email_template']) || !$abandoned_cart_settings['selected_email_template']) {
+						$abandoned_cart_settings['selected_email_template'] = $abandoned_cart_template_id;
+						$this->settings->set_setting('abandoned_cart', $abandoned_cart_settings);
+					}
+				} else {
+					// Create new settings with the template
+					$this->settings->set_setting('abandoned_cart', [
+						'selected_email_template' => $abandoned_cart_template_id,
+						'abandoned_cart_after' => '60',
+						'delete_abandoned_cart_after' => '10080',
+						'cart_recovery_button_text' => 'Recover Cart',
+						'coupon_code' => '',
+						'follow_up_emails' => [],
+					]);
+				}
+			}
+
+			// Set abandoned cart follow-up emails in settings
+			if (!empty($followup_templates)) {
+				$abandoned_cart_settings = $this->settings->get_setting('abandoned_cart');
+				if (!$abandoned_cart_settings) {
+					$abandoned_cart_settings = [];
+				}
+
+				$follow_up_emails = isset($abandoned_cart_settings['follow_up_emails']) ? $abandoned_cart_settings['follow_up_emails'] : [];
+
+				// Check if default follow-up emails already exist
+				$existing_ids = array_column($follow_up_emails, 'id');
+				$next_id = !empty($existing_ids) ? max($existing_ids) + 1 : 1;
+
+				// Create default follow-up email entries if they don't exist
+				$default_emails = [
+					[
+						'id' => $next_id++,
+						'delay' => 3,
+						'delayUnit' => 'hours',
+						'template_id' => $followup_templates['first'] ?? null,
+						'enabled' => false, // Disabled by default
+					],
+					[
+						'id' => $next_id++,
+						'delay' => 1,
+						'delayUnit' => 'days',
+						'template_id' => $followup_templates['second'] ?? null,
+						'enabled' => false, // Disabled by default
+					],
+					[
+						'id' => $next_id++,
+						'delay' => 3,
+						'delayUnit' => 'days',
+						'template_id' => $followup_templates['third'] ?? null,
+						'enabled' => false, // Disabled by default
+					],
+				];
+
+				// Only add emails that don't already exist (check by template_id)
+				$existing_template_ids = array_column($follow_up_emails, 'template_id');
+				foreach ($default_emails as $default_email) {
+					if ($default_email['template_id'] && !in_array($default_email['template_id'], $existing_template_ids)) {
+						$follow_up_emails[] = $default_email;
+					}
+				}
+
+				// Update settings with new follow-up emails
+				$abandoned_cart_settings['follow_up_emails'] = $follow_up_emails;
+				$this->settings->set_setting('abandoned_cart', $abandoned_cart_settings);
+			}
+
+			// Set refund return settings with template
+			if ($refund_template_id) {
+				$refund_settings = $this->settings->get_setting('refund_return');
+				if ($refund_settings) {
+					// Only set if not already set
+					if (!isset($refund_settings['selected_email_template']) || !$refund_settings['selected_email_template']) {
+						$refund_settings['selected_email_template'] = $refund_template_id;
+						$this->settings->set_setting('refund_return', $refund_settings);
+					}
+				} else {
+					// Create new settings with the template
+					$this->settings->set_setting('refund_return', [
+						'selected_email_template' => $refund_template_id,
+						'policy_url' => '',
+						'reasons' => [],
+					]);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Check for plugin updates and create default templates if needed.
+	 *
+	 * @since    1.3.0
+	 */
+	public function check_plugin_update()
+	{
+		$stored_version = get_option('helpmate_version');
+		$current_version = HELPMATE_VERSION;
+
+		// If version has changed or templates haven't been created, create them
+		if ($stored_version !== $current_version || !$stored_version) {
+			// Create default email templates
+			$this->create_default_email_templates();
+
+			// Update stored version
+			update_option('helpmate_version', $current_version);
+		}
+	}
+
+	/**
 	 * The reference to the class that orchestrates the hooks with the plugin.
 	 *
 	 * @since     1.0.0
@@ -478,28 +715,6 @@ class Helpmate
 	public function is_woocommerce_active()
 	{
 		return is_plugin_active('woocommerce/woocommerce.php');
-	}
-
-	/**
-	 * Get the promo banner instance.
-	 *
-	 * @since 1.0.0
-	 * @return Helpmate_Promo_Banner The promo banner instance.
-	 */
-	public function get_promo_banner()
-	{
-		return $this->promo_banner;
-	}
-
-	/**
-	 * Get the sales notification instance.
-	 *
-	 * @since    1.0.0
-	 * @return    Helpmate_Sales_Notification    The sales notification instance.
-	 */
-	public function get_sales_notification()
-	{
-		return $this->sales_notification;
 	}
 
 	/**
@@ -644,4 +859,94 @@ class Helpmate
 	{
 		return $this->api->get_product_slug();
 	}
+
+	/**
+	 * Get the social chat instance.
+	 *
+	 * @since 1.2.0
+	 * @return Helpmate_Social_Chat The social chat instance.
+	 */
+	public function get_social_chat()
+	{
+		return $this->social_chat;
+	}
+
+	/**
+	 * Get the CRM instance.
+	 *
+	 * @since 1.3.0
+	 * @return Helpmate_CRM The CRM instance.
+	 */
+	public function get_crm()
+	{
+		return $this->crm;
+	}
+
+	/**
+	 * Get the Team instance.
+	 *
+	 * @since 1.3.0
+	 * @return Helpmate_Team The Team instance.
+	 */
+	public function get_team()
+	{
+		return $this->team;
+	}
+
+	/**
+	 * Get the Notifications instance.
+	 *
+	 * @since 1.3.0
+	 * @return Helpmate_Notifications The Notifications instance.
+	 */
+	public function get_notifications()
+	{
+		return $this->notifications;
+	}
+
+	/**
+	 * Get the Tasks instance.
+	 *
+	 * @since 1.1.7
+	 * @return Helpmate_Tasks The Tasks instance.
+	 */
+	public function get_tasks()
+	{
+		return $this->tasks;
+	}
+
+	/**
+	 * Get the CRM Analytics instance.
+	 *
+	 * @since    1.3.0
+	 * @return   Helpmate_Crm_Analytics The CRM Analytics instance.
+	 */
+	public function get_crm_analytics()
+	{
+		return $this->crm_analytics;
+	}
+
+	/**
+	 * Get the promo banner instance.
+	 *
+	 * @since    1.0.0
+	 * @return   Helpmate_Promo_Banner The promo banner instance.
+	 */
+	public function get_promo_banner()
+	{
+		return $this->promo_banner;
+	}
+
+	/**
+	 * Get the sales notification instance.
+	 *
+	 * @since    1.0.0
+	 * @return   Helpmate_Sales_Notification The sales notification instance.
+	 */
+	public function get_sales_notification()
+	{
+		return $this->sales_notification;
+	}
+
+
 }

@@ -16,7 +16,7 @@
 // If this file is called directly, abort.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV;
+$is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Checking if WP_HELPMATE_DEV is defined and is true
 
 ?>
 
@@ -24,6 +24,7 @@ $is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV;
     <hr class="!border-none wp-header-end">
     <div id="helpmate-root">
         <!-- The Vite app will be mounted here -->
+        <!-- Portal container will be created dynamically by main.tsx as a sibling to prevent React from clearing it -->
     </div>
 </div>
 

@@ -21,12 +21,15 @@ const OrderedListToolbar = React.forwardRef<HTMLButtonElement, React.ComponentPr
 					<Button
 						variant="ghost"
 						size="icon"
+						type="button"
 						className={cn(
 							"h-8 w-8",
 							editor?.isActive("orderedList") && "bg-accent",
 							className,
 						)}
 						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
 							editor?.chain().focus().toggleOrderedList().run();
 							onClick?.(e);
 						}}

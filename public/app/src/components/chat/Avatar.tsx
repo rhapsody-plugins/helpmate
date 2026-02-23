@@ -4,10 +4,23 @@ import { ChangeSvgColor } from 'svg-color-tools';
 
 interface AvatarProps {
   role: 'user' | 'assistant';
+  avatarUrl?: string | null;
   className?: string;
 }
 
-export function Avatar({ role, className = '' }: AvatarProps) {
+export function Avatar({ role, avatarUrl, className = '' }: AvatarProps) {
+  // If avatarUrl provided, show image
+  if (avatarUrl) {
+    return (
+      <img 
+        src={avatarUrl} 
+        alt="" 
+        className={`w-8 h-8 rounded-full object-cover ${className}`}
+      />
+    );
+  }
+  
+  // Otherwise show role-based icon
   return (
     <div
       className={`w-8 h-8 rounded-full flex items-center justify-center ${

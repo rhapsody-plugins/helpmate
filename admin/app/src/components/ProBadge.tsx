@@ -9,6 +9,60 @@ import { cn } from '@/lib/utils';
 import { Crown } from 'lucide-react';
 import { HelpmatePricingURL } from '@/lib/constants';
 
+/**
+ * Compact inline Pro badge for reply input area - stays within bounds, no overflow.
+ */
+interface ProBadgeInputProps {
+  message?: string;
+  className?: string;
+}
+
+export function ProBadgeInput({
+  message = 'Upgrade to Pro to reply manually.',
+  className,
+}: ProBadgeInputProps) {
+  return (
+    <div
+      className={cn(
+        'flex flex-wrap gap-2 items-center justify-center py-2 px-3 rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800',
+        className
+      )}
+    >
+      <span className="inline-flex px-2 py-0.5 text-xs font-medium text-white bg-orange-500 rounded shrink-0">
+        Pro Only
+      </span>
+      <span className="text-sm text-muted-foreground shrink min-w-0">
+        {message}
+      </span>
+      <Button
+        size="sm"
+        variant="default"
+        className="shrink-0"
+        onClick={() => window.open(HelpmatePricingURL, '_blank')}
+      >
+        Go Pro <Crown className="w-3.5 h-3.5 ml-1" />
+      </Button>
+    </div>
+  );
+}
+
+interface ProBadgeInlineProps {
+  className?: string;
+}
+
+export function ProBadgeInline({ className }: ProBadgeInlineProps) {
+  return (
+    <span
+      className={cn(
+        'inline-flex px-2 py-0.5 text-xs font-medium text-white bg-orange-500 rounded',
+        className
+      )}
+    >
+      Pro Only
+    </span>
+  );
+}
+
 interface ProBadgeProps {
   tooltipMessage?: string | null;
   topMessage?: string;

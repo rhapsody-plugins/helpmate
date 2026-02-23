@@ -49,22 +49,41 @@ class Helpmate_Public
 	private $promo_banner;
 
 	/**
+	 * The sales notification instance.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      Helpmate_Sales_Notification|null    $sales_notification    The sales notification instance.
+	 */
+	private $sales_notification;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
 	 * @param      string    $plugin_name       The name of the plugin.
 	 * @param      string    $version    The version of this plugin.
-	 * @param      Helpmate_Promo_Banner    $promo_banner    The promo banner instance.
+	 * @param      Helpmate_Promo_Banner|null    $promo_banner    The promo banner instance.
+	 * @param      Helpmate_Sales_Notification|null    $sales_notification    The sales notification instance.
 	 */
-	public function __construct($plugin_name, $version, $promo_banner)
+	public function __construct($plugin_name, $version, $promo_banner = null, $sales_notification = null)
 	{
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 		$this->promo_banner = $promo_banner;
+		$this->sales_notification = $sales_notification;
 
 		// Add action to display Helpmate on all frontend pages
 		add_action('wp_footer', array($this, 'display_helpmate'));
+
+		// Register shortcode for Smart Schedules
+		add_shortcode('helpmate_scheduling', array($this, 'render_scheduling_shortcode'));
+
+		// Register unsubscribe page routes
+		add_action('init', array($this, 'register_unsubscribe_rewrite_rules'));
+		add_filter('query_vars', array($this, 'register_unsubscribe_query_vars'));
+		add_action('template_redirect', array($this, 'handle_unsubscribe_page'));
 
 	}
 
@@ -134,13 +153,19 @@ class Helpmate_Public
 
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/helpmate-public.js', array('jquery'), $this->version, false);
 
+		if ($this->promo_banner) {
+			$this->promo_banner->enqueue_assets();
+		}
+
+		if ($this->sales_notification) {
+			$this->sales_notification->enqueue_assets();
+		}
+
 		// Localize the script with WordPress nonce
 		wp_localize_script($this->plugin_name, 'helpmateApiSettings', array(
 			'nonce' => wp_create_nonce('wp_rest'),
 			'site_url' => get_site_url()
 		));
-
-		$this->promo_banner->enqueue_assets();
 
 		$is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV;
 
@@ -216,6 +241,155 @@ class Helpmate_Public
 		if (!is_admin()) {
 			require_once plugin_dir_path(__FILE__) . 'partials/helpmate-public-display.php';
 		}
+	}
+
+	/**
+	 * Render the Smart Schedules shortcode.
+	 *
+	 * @since    1.3.0
+	 * @param    array    $atts    Shortcode attributes.
+	 * @return   string   HTML output.
+	 */
+	public function render_scheduling_shortcode($atts = array())
+	{
+		// Check if feature is enabled
+		$settings = $GLOBALS['helpmate']->get_settings()->get_setting('smart_schedules', array());
+
+		if (empty($settings) || empty($settings['enabled'])) {
+			return '';
+		}
+
+		// Enqueue scripts and styles
+		wp_enqueue_style(
+			$this->plugin_name . '-scheduling',
+			plugin_dir_url(__FILE__) . 'css/helpmate-scheduling.css',
+			array(),
+			$this->version,
+			'all'
+		);
+
+		wp_enqueue_script(
+			$this->plugin_name . '-scheduling',
+			plugin_dir_url(__FILE__) . 'js/helpmate-scheduling.js',
+			array('jquery'),
+			$this->version,
+			true
+		);
+
+		// Localize script with REST API URL
+		wp_localize_script($this->plugin_name . '-scheduling', 'helpmateScheduling', array(
+			'apiUrl' => rest_url('helpmate/v1/'),
+			'nonce' => wp_create_nonce('wp_rest')
+		));
+
+		// Render form template
+		ob_start();
+		include plugin_dir_path(__FILE__) . 'partials/helpmate-scheduling-form.php';
+		return ob_get_clean();
+	}
+
+	/**
+	 * Register rewrite rules for unsubscribe page.
+	 *
+	 * @since    1.3.0
+	 */
+	public function register_unsubscribe_rewrite_rules()
+	{
+		add_rewrite_rule(
+			'^helpmate-unsubscribe/?$',
+			'index.php?helpmate_unsubscribe=1',
+			'top'
+		);
+	}
+
+	/**
+	 * Register query vars for unsubscribe page.
+	 *
+	 * @since    1.3.0
+	 * @param    array    $vars    Existing query vars.
+	 * @return   array    Modified query vars.
+	 */
+	public function register_unsubscribe_query_vars($vars)
+	{
+		$vars[] = 'helpmate_unsubscribe';
+		return $vars;
+	}
+
+	/**
+	 * Handle unsubscribe page request.
+	 *
+	 * @since    1.3.0
+	 */
+	public function handle_unsubscribe_page()
+	{
+		if (!get_query_var('helpmate_unsubscribe')) {
+			return;
+		}
+
+		// Get parameters from URL
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public unsubscribe link, no nonce needed
+		$email_id = isset($_GET['email_id']) ? (int) $_GET['email_id'] : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public unsubscribe link, no nonce needed
+		$contact_id = isset($_GET['contact_id']) ? (int) $_GET['contact_id'] : 0;
+
+		$error = null;
+		$success = false;
+		$already_unsubscribed = false;
+
+		if ($email_id && $contact_id) {
+			// Check if already unsubscribed
+			$crm = $GLOBALS['helpmate']->get_crm();
+			$contact = $crm->get_contact($contact_id);
+
+			if ($contact && strtolower($contact['status']) === 'unsubscribed') {
+				$already_unsubscribed = true;
+				$success = true;
+			} elseif ($contact) {
+				// Process unsubscribe
+				$result = $crm->track_unsubscribe($email_id, $contact_id);
+				$success = $result;
+				if (!$result) {
+					$error = __('Failed to unsubscribe. Please try again later.', 'helpmate-ai-chatbot');
+				}
+			} else {
+				$error = __('Contact not found.', 'helpmate-ai-chatbot');
+			}
+		} else {
+			$error = __('Invalid unsubscribe link.', 'helpmate-ai-chatbot');
+		}
+
+		// Enqueue unsubscribe page styles
+		wp_enqueue_style(
+			$this->plugin_name . '-unsubscribe',
+			plugin_dir_url(__FILE__) . 'css/helpmate-unsubscribe.css',
+			array(),
+			$this->version,
+			'all'
+		);
+
+		// Enqueue unsubscribe page script only when resubscribe is available
+		if ($success && !$error) {
+			wp_enqueue_script(
+				$this->plugin_name . '-unsubscribe',
+				plugin_dir_url(__FILE__) . 'js/helpmate-unsubscribe.js',
+				array(),
+				$this->version,
+				true
+			);
+
+			wp_localize_script($this->plugin_name . '-unsubscribe', 'helpmateUnsubscribe', array(
+				'restUrl' => rest_url('helpmate/v1/crm/resubscribe'),
+				'contactId' => $contact_id,
+				'i18n' => array(
+					'processing' => __('Processing...', 'helpmate-ai-chatbot'),
+					'error' => __('Failed to resubscribe. Please try again.', 'helpmate-ai-chatbot'),
+				),
+			));
+		}
+
+		// Render the unsubscribe page
+		include plugin_dir_path(__FILE__) . 'partials/helpmate-unsubscribe-page.php';
+		exit;
 	}
 
 }

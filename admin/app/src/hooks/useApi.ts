@@ -37,7 +37,7 @@ export function useApi() {
       });
       if (!response.data.success) {
         toast.error(response.data.message);
-        return null;
+        throw new Error(response.data.message || 'Failed to get free API key');
       }
       apiKeyQuery.refetch();
       toast.success(response.data.message);
@@ -77,10 +77,43 @@ export function useApi() {
     },
   });
 
+  const saveOpenAiKeyMutation = useMutation({
+    mutationFn: async (openaiKey: string) => {
+      const response = await api.post('/save-openai-key', {
+        openai_key: openaiKey,
+      });
+      if (response.data.success) {
+        toast.success(response.data.message);
+        return response.data;
+      } else {
+        toast.error(response.data.message || 'Failed to save OpenAI API key');
+        throw new Error(response.data.message || 'Failed to save OpenAI API key');
+      }
+    },
+    onError: (error: unknown) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || 'Failed to save OpenAI API key');
+      } else {
+        toast.error('An error occurred while saving the OpenAI API key');
+      }
+    },
+  });
+
+  const openAiKeyQuery = useQuery<{ openai_key: string | null }, Error>({
+    queryKey: ['openai-key'],
+    queryFn: async () => {
+      const response = await api.get('/get-openai-key');
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
   return {
     apiKeyQuery,
     getFreeApiKeyMutation,
     activateApiKeyMutation,
     syncCreditsMutation,
+    saveOpenAiKeyMutation,
+    openAiKeyQuery,
   };
 }

@@ -1,3 +1,4 @@
+import PageGuard from '@/components/PageGuard';
 import PageHeader from '@/components/PageHeader';
 import { ReusableTable } from '@/components/ReusableTable';
 import RichTextEditor from '@/components/RichTextEditor';
@@ -30,6 +31,7 @@ import {
 
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
+import { useMain } from '@/contexts/MainContext';
 import { usePromoBanner } from '@/hooks/usePromoBanner';
 import { useSettings } from '@/hooks/useSettings';
 import { cn } from '@/lib/utils';
@@ -59,7 +61,7 @@ import {
   Calendar,
   ShoppingBag,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -234,7 +236,20 @@ interface WordPressPageResponse {
 }
 
 export default function PromoBanner() {
-  const { getProQuery } = useSettings();
+  const { modules } = useMain();
+  const {
+    getModulesQuery,
+    updateSettingsMutation,
+    getProQuery,
+  } = useSettings();
+  const isModuleEnabled = Boolean(modules['promo-banner']);
+  const handleModuleToggle = useCallback(async () => {
+    const newSettings = { ...modules, 'promo-banner': !isModuleEnabled };
+    await updateSettingsMutation.mutateAsync(
+      { key: 'modules', data: newSettings },
+      { onSuccess: () => getModulesQuery.refetch() }
+    );
+  }, [modules, isModuleEnabled, updateSettingsMutation, getModulesQuery]);
   const {
     getPromoBanners,
     refetchPromoBanners,
@@ -541,9 +556,27 @@ export default function PromoBanner() {
   };
 
   return (
-    <div className="gap-0">
-      <PageHeader title="Promo Bar" />
-      <div className="relative p-6">
+    <PageGuard page="automation-sales-promo-banner">
+      <div className="gap-0">
+        <PageHeader
+        title="Promo Bar"
+        rightActions={
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Enable Module</span>
+            <Switch
+              checked={isModuleEnabled}
+              onCheckedChange={handleModuleToggle}
+              disabled={updateSettingsMutation.isPending}
+            />
+          </div>
+        }
+      />
+      <div
+        className={cn(
+          'relative p-6',
+          !isModuleEnabled && 'opacity-50 pointer-events-none cursor-not-allowed'
+        )}
+      >
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
@@ -1533,5 +1566,6 @@ export default function PromoBanner() {
         </SheetContent>
       </Sheet>
     </div>
+    </PageGuard>
   );
 }

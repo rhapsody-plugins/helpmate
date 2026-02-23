@@ -30,18 +30,20 @@ export const useAi = () => {
         localStorage.setItem('chat_session', res.data.session_id);
 
         // Handle the response - it might already be parsed or might be a string
-        let reply;
-        try {
-          reply =
-            typeof res.data.reply === 'string'
-              ? JSON.parse(res.data.reply)
-              : res.data.reply;
-        } catch (error) {
-          console.error('Failed to parse reply:', error);
-          reply = {
-            type: 'text',
-            text: 'Sorry, I encountered an error processing your request. Please try again or contact support if the issue persists.',
-          };
+        let reply = null;
+        if (res.data.reply !== null && res.data.reply !== undefined) {
+          try {
+            reply =
+              typeof res.data.reply === 'string'
+                ? JSON.parse(res.data.reply)
+                : res.data.reply;
+          } catch (error) {
+            console.error('Failed to parse reply:', error);
+            reply = {
+              type: 'text',
+              text: 'Sorry, I encountered an error processing your request. Please try again or contact support if the issue persists.',
+            };
+          }
         }
 
         const result = {
@@ -73,5 +75,36 @@ export const useAi = () => {
     },
   });
 
-  return { getResponseMutation, updateChatMetadataMutation };
+  const endChatMutation = useMutation<
+    { error: boolean; message: string },
+    Error,
+    { session_id: string }
+  >({
+    mutationFn: async ({ session_id }) => {
+      const res = await api.post('/chat/end', { session_id });
+      return res.data;
+    },
+  });
+
+  const submitReviewMutation = useMutation<
+    { error: boolean; message: string },
+    Error,
+    { session_id: string; rating: number; message?: string }
+  >({
+    mutationFn: async ({ session_id, rating, message }) => {
+      const res = await api.post('/chat/review', {
+        session_id,
+        rating,
+        message: message || '',
+      });
+      return res.data;
+    },
+  });
+
+  return {
+    getResponseMutation,
+    updateChatMetadataMutation,
+    endChatMutation,
+    submitReviewMutation,
+  };
 };

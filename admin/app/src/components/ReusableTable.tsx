@@ -25,6 +25,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 interface ReusableTableProps<TData> {
   columns: ColumnDef<TData>[];
@@ -47,6 +48,8 @@ interface ReusableTableProps<TData> {
   // Search props
   globalFilter?: string;
   onGlobalFilterChange?: (value: string) => void;
+  /** Optional row class name (e.g. for highlighting unread) */
+  getRowClassName?: (row: TData) => string;
 }
 
 export function ReusableTable<TData>({
@@ -70,6 +73,7 @@ export function ReusableTable<TData>({
   // Search props
   globalFilter: externalGlobalFilter,
   onGlobalFilterChange,
+  getRowClassName,
 }: ReusableTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
@@ -203,10 +207,11 @@ export function ReusableTable<TData>({
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 const isRightAligned = rightAlignedColumns.includes(header.id);
+                const metaClassName = (header.column.columnDef.meta as { className?: string })?.className;
                 return (
                   <TableHead
                     key={header.id}
-                    className={isRightAligned ? 'text-right' : ''}
+                    className={metaClassName || (isRightAligned ? 'text-right' : '')}
                   >
                     {header.isPlaceholder
                       ? null
@@ -246,16 +251,20 @@ export function ReusableTable<TData>({
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 onClick={() => onRowClick?.(row.original)}
-                className={onRowClick ? 'cursor-pointer' : ''}
+                className={cn(
+                  onRowClick && 'cursor-pointer',
+                  getRowClassName?.(row.original)
+                )}
               >
                 {row.getVisibleCells().map((cell) => {
                   const isRightAligned = rightAlignedColumns.includes(
                     cell.column.id
                   );
+                  const metaClassName = (cell.column.columnDef.meta as { className?: string })?.className;
                   return (
                     <TableCell
                       key={cell.id}
-                      className={isRightAligned ? 'text-right' : ''}
+                      className={metaClassName || (isRightAligned ? 'text-right' : '')}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

@@ -77,11 +77,11 @@ export function TestChatInput({
   }
 
   return (
-    <div className="p-4">
+    <div className="flex flex-col border-t border-white bg-[var(--primary-2)]/10">
       {/* Image preview */}
       {image && (
-        <div className="relative mb-3">
-          <div className="flex gap-2 items-center p-2 bg-gray-50 rounded-md border border-gray-200">
+        <div className="relative px-4 pt-2">
+          <div className="flex gap-2 items-center p-2 bg-white/50 rounded-md border border-white/50">
             <img
               src={URL.createObjectURL(image)}
               alt="Preview"
@@ -106,7 +106,10 @@ export function TestChatInput({
         </div>
       )}
 
-      <form onSubmit={onSubmit} className="flex gap-2 items-end">
+      <form
+        onSubmit={onSubmit}
+        className="flex items-center gap-2 px-4 py-3"
+      >
         <div className="flex-1">
           <Input
             type="text"
@@ -114,7 +117,7 @@ export function TestChatInput({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isLoading}
-            className="w-full"
+            className="w-full !rounded-md !border-input !bg-white"
           />
         </div>
 
@@ -136,14 +139,16 @@ export function TestChatInput({
             onClick={handleImageButtonClick}
             disabled={isLoading}
             title="Upload image"
+            className="!rounded-md border-input bg-white hover:bg-white/70"
           >
             <ImageIcon className="w-4 h-4" />
           </Button>
         )}
         <Button
           type="submit"
+          size="icon"
           disabled={isLoading || !input.trim() || (isLocalhost && !!image)}
-          className="flex gap-2 items-center"
+          className="[background:var(--primary-2)] text-white hover:opacity-90"
         >
           <Send className="w-4 h-4" />
         </Button>
@@ -151,11 +156,13 @@ export function TestChatInput({
 
       {/* Localhost image search warning */}
       {isLocalhost && image && (
-        <div className="p-2 mt-2 bg-yellow-50 rounded-md border border-yellow-200">
-          <p className="text-xs text-yellow-800 !m-0 !p-0">
-            ⚠️ Image search is not available on localhost. Please deploy to a
-            live server to use image search features.
-          </p>
+        <div className="px-4 pb-2">
+          <div className="p-2 bg-yellow-50 rounded-md border border-yellow-200">
+            <p className="text-xs text-yellow-800 !m-0 !p-0">
+              ⚠️ Image search is not available on localhost. Please deploy to a
+              live server to use image search features.
+            </p>
+          </div>
         </div>
       )}
     </div>

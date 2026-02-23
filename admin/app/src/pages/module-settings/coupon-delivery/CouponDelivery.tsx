@@ -1,3 +1,4 @@
+import PageGuard from '@/components/PageGuard';
 import PageHeader from '@/components/PageHeader';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { MenuItem } from '@/types';
@@ -29,17 +30,19 @@ export default function CouponDelivery() {
   );
 
   return (
-    <Tabs className="gap-0" value={tab} onValueChange={setTab}>
-      <PageHeader
-        menuItems={MENU_ITEMS}
-        title="Coupon Delivery"
-      />
-      <TabsContent value={tab} className="p-6">
-        <Suspense fallback={<div>Loading...</div>}>
-          {tab === 'Coupons' && <TabCoupons />}
-          {tab === 'Settings' && <TabSettings />}
-        </Suspense>
-      </TabsContent>
-    </Tabs>
+    <PageGuard page="coupon-delivery">
+      <Tabs className="gap-0" value={tab} onValueChange={setTab}>
+        <PageHeader
+          menuItems={MENU_ITEMS}
+          title="Coupon Delivery"
+        />
+        <TabsContent value={tab} className="p-6">
+          <Suspense fallback={<div>Loading...</div>}>
+            {tab === 'Coupons' && <TabCoupons />}
+            {tab === 'Settings' && <TabSettings />}
+          </Suspense>
+        </TabsContent>
+      </Tabs>
+    </PageGuard>
   );
 }

@@ -1,24 +1,85 @@
 'use client';
 
+import { AppointmentForm } from '@/components/AppointmentForm';
 import { ChatHeader } from '@/components/chat/ChatHeader';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { ChatMessages } from '@/components/chat/ChatMessages';
 import { ChatToggleButton } from '@/components/chat/ChatToggleButton';
+import { ReviewForm } from '@/components/chat/ReviewForm';
 import LeadCollection from '@/components/LeadCollection';
 import { WelcomeMessagePopup } from '@/components/WelcomeMessagePopup';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useTheme } from '@/context/ThemeContext';
 import { useAi } from '@/hooks/useAi';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
 import type { ChatMessage } from '@/types';
+import { isWithinBusinessHours } from '@/utils/businessHours';
 import {
   clearStoredMessages,
   getStoredMessages,
   storeMessages,
 } from '@/utils/message-storage';
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+// Helper function for sorting messages by ID
+const sortMessages = (messages: ChatMessage[]) => {
+  return messages.sort((a, b) => {
+    const aId = a.id.startsWith('temp_') ? Number.MAX_SAFE_INTEGER : parseInt(a.id, 10);
+    const bId = b.id.startsWith('temp_') ? Number.MAX_SAFE_INTEGER : parseInt(b.id, 10);
+    return aId - bId;
+  });
+};
+
+function buildAssistantMessage(
+  msg: {
+    id: number;
+    message: string;
+    role: string;
+    timestamp: number | string;
+    metadata?: Record<string, unknown>;
+  },
+  existing: ChatMessage | undefined
+): ChatMessage {
+  let content = msg.message;
+  let parsedContent: { text?: string; type?: string; data?: unknown; links?: unknown } | null = null;
+  try {
+    parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
+    content = parsedContent?.text || content;
+  } catch { /* no-op */ }
+
+  const hasToolData = existing?.role === 'assistant' && existing?.type && existing?.type !== 'text';
+  const mergedType =
+    parsedContent?.type && parsedContent.type !== 'text'
+      ? parsedContent.type
+      : (hasToolData ? existing!.type : parsedContent?.type) || 'text';
+  const mergedData =
+    parsedContent?.data != null ? parsedContent.data : hasToolData ? existing!.data : undefined;
+  const mergedLinks = parsedContent?.links ?? (hasToolData ? existing?.links : undefined);
+
+  return {
+    id: String(msg.id),
+    role: 'assistant',
+    content,
+    type: mergedType as ChatMessage['type'],
+    data: mergedData as ChatMessage['data'],
+    links: mergedLinks as ChatMessage['links'],
+    createdAt: new Date(
+      typeof msg.timestamp === 'string' ? parseInt(msg.timestamp, 10) * 1000 : msg.timestamp * 1000
+    ),
+    avatarUrl: msg.metadata?.user_avatar as string | undefined,
+  };
+}
 
 export default function ChatBot() {
   const { icon_shape } = useTheme();
@@ -28,6 +89,7 @@ export default function ChatBot() {
   const [productId, setProductId] = useState('');
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [hasStartedConversation, setHasStartedConversation] = useState(false);
+  const [sessionId, setSessionId] = useState(() => localStorage.getItem('chat_session') || '');
   const [collectLead, setCollectLead] = useState(
     localStorage.getItem('lead_collected') === 'true'
   );
@@ -36,8 +98,15 @@ export default function ChatBot() {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false);
   const [isProactiveSalesVisible, setIsProactiveSalesVisible] = useState(false);
   const [isExitIntentVisible, setIsExitIntentVisible] = useState(false);
+  const [isHumanHandoff, setIsHumanHandoff] = useState(false);
+  const [isAdminTyping, setIsAdminTyping] = useState(false);
+  const [adminTypingAvatar, setAdminTypingAvatar] = useState<string | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showAppointmentDialog, setShowAppointmentDialog] = useState(false);
+  const [showEndChatConfirm, setShowEndChatConfirm] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { getResponseMutation } = useAi();
+  const { getResponseMutation, endChatMutation, submitReviewMutation } = useAi();
   const { mutateAsync: getResponse, isPending: isResponseLoading } =
     getResponseMutation;
   const { getSettingsQuery } = useSettings();
@@ -46,6 +115,23 @@ export default function ChatBot() {
   const apiActive = settings?.api;
   const chatbotActive = settings?.modules?.chatbot;
   const coupon = settings?.settings?.exit_intent_coupon;
+
+  const businessHoursEnabled = settings?.settings?.business_hours_enabled ?? false;
+  const businessHours = settings?.settings?.business_hours;
+  const businessHoursTimezone = settings?.settings?.business_hours_timezone ?? '';
+  const isLiveAgentsAvailable = useMemo(
+    () =>
+      (settings?.is_pro ?? false) &&
+      (!businessHoursEnabled ||
+        (!!businessHours &&
+          isWithinBusinessHours(businessHours, businessHoursTimezone || undefined))),
+    [
+      settings?.is_pro,
+      businessHoursEnabled,
+      businessHours,
+      businessHoursTimezone,
+    ]
+  );
 
   // Memoize expensive computations
   const collectLeadSettings = useMemo(
@@ -110,6 +196,206 @@ export default function ChatBot() {
     }
     setLastMessageCount(storedMessages.length);
   }, [settings?.settings?.welcome_message]);
+
+  // SSE stream for live updates (messages, handoff, ai_disabled, admin_typing, review_requested)
+  useEffect(() => {
+    if (!isChatOpen || !sessionId) return;
+
+    const nonce = window.helpmateApiSettings?.nonce || '';
+    if (!nonce) return;
+
+    const base =
+      `${window.helpmateApiSettings?.site_url || window.location.origin}/?rest_route=/helpmate/v1`;
+
+    // One-time sync of current history and state when opening stream
+    const syncOnce = async () => {
+      try {
+        const res = await api.post('/chat/history', { session_id: sessionId });
+        if (res.data?.error) return;
+
+        setIsHumanHandoff(
+          res.data.is_human_handoff === true || res.data.ai_disabled === true
+        );
+        setIsAdminTyping(res.data.is_admin_typing === true);
+        setAdminTypingAvatar(res.data.typing_user_avatar || null);
+
+        const history = res.data.history || [];
+
+        // Build map of messages (merge new with existing)
+        setMessages(prevMessages => {
+          const messageMap = new Map<string, ChatMessage>();
+
+          // Keep existing messages
+          prevMessages.forEach(msg => messageMap.set(msg.id, msg));
+
+          // Merge in history messages
+          history.forEach((msg: {
+            id: number;
+            message: string;
+            role: string;
+            timestamp: number | string;
+            metadata?: {
+              system_event?: string;
+              user_id?: number;
+              first_name?: string;
+              user_avatar?: string;
+              [key: string]: unknown;
+            };
+          }) => {
+            const metadata = msg.metadata || {};
+
+            if (msg.role === 'system') {
+              messageMap.set(msg.id.toString(), {
+                id: msg.id.toString(),
+                role: 'system',
+                content: msg.message,
+                type: 'system',
+                systemEvent: metadata.system_event,
+                systemData: {
+                  user_id: metadata.user_id,
+                  first_name: metadata.first_name,
+                },
+                avatarUrl: metadata.user_avatar,
+                createdAt: new Date(
+                  typeof msg.timestamp === 'string'
+                    ? parseInt(msg.timestamp, 10) * 1000
+                    : msg.timestamp * 1000
+                ),
+              });
+            } else if (msg.role === 'assistant') {
+              const existing = messageMap.get(msg.id.toString());
+              messageMap.set(
+                msg.id.toString(),
+                buildAssistantMessage({ ...msg, metadata }, existing)
+              );
+            } else {
+              messageMap.set(msg.id.toString(), {
+                id: msg.id.toString(),
+                role: 'user',
+                content: msg.message,
+                imageUrl: (metadata.image_url ?? metadata.imageUrl) as string | undefined,
+                createdAt: new Date(
+                  typeof msg.timestamp === 'string'
+                    ? parseInt(msg.timestamp, 10) * 1000
+                    : msg.timestamp * 1000
+                ),
+                avatarUrl: metadata.user_avatar,
+              });
+            }
+          });
+
+          return sortMessages(Array.from(messageMap.values()));
+        });
+      } catch {/**/}
+    };
+
+    syncOnce();
+
+    // Short polling: avoids holding a PHP worker (no long-lived SSE), so other requests (history, send, etc.) can complete
+    const pollUrl = `${base}/chat/poll&session_id=${encodeURIComponent(sessionId)}&_wpnonce=${encodeURIComponent(nonce)}`;
+    const applyEvent = (type: string, data: Record<string, unknown>) => {
+      if (type === 'message') {
+        const msg = data as {
+          id: number;
+          message: string;
+          role: string;
+          timestamp: number;
+          metadata?: {
+            system_event?: string;
+            user_id?: number;
+            first_name?: string;
+            user_avatar?: string;
+            [key: string]: unknown;
+          };
+        };
+
+        const metadata = msg.metadata || {};
+
+        setMessages((prev) => {
+          const messageMap = new Map(prev.map(m => [m.id, m]));
+          let chatMsg: ChatMessage;
+
+          if (msg.role === 'system') {
+            chatMsg = {
+              id: String(msg.id),
+              role: 'system',
+              content: msg.message,
+              type: 'system',
+              systemEvent: metadata.system_event,
+              systemData: {
+                user_id: metadata.user_id,
+                first_name: metadata.first_name,
+              },
+              avatarUrl: metadata.user_avatar,
+              createdAt: new Date(msg.timestamp * 1000),
+            };
+          } else if (msg.role === 'assistant') {
+            const existing = messageMap.get(String(msg.id));
+            chatMsg = buildAssistantMessage(
+              { ...msg, metadata, timestamp: msg.timestamp },
+              existing
+            );
+          } else {
+            chatMsg = {
+              id: String(msg.id),
+              role: 'user',
+              content: msg.message,
+              imageUrl: (metadata.image_url ?? metadata.imageUrl) as string | undefined,
+              createdAt: new Date(msg.timestamp * 1000),
+              avatarUrl: metadata.user_avatar,
+            };
+          }
+
+          messageMap.set(chatMsg.id, chatMsg);
+          return sortMessages(Array.from(messageMap.values()));
+        });
+
+        return msg.id;
+      }
+      if (type === 'handoff') setIsHumanHandoff((data as { is_human_handoff?: boolean }).is_human_handoff === true);
+      if (type === 'ai_disabled') setIsHumanHandoff((prev) => prev || (data as { ai_disabled?: boolean }).ai_disabled === true);
+      if (type === 'admin_typing') {
+        const typingData = data as { is_admin_typing?: boolean; user_avatar?: string | null };
+        setIsAdminTyping(typingData.is_admin_typing === true);
+        setAdminTypingAvatar(typingData.user_avatar || null);
+      }
+      if (type === 'review_requested') setShowReviewForm(true);
+      return 0;
+    };
+
+    const stateRef = { lastId: 0, lastHandoff: null as boolean | null, lastAiDisabled: null as boolean | null, lastAdminTyping: null as boolean | null, lastReview: null as boolean | null };
+    const tick = async () => {
+      try {
+        const params = new URLSearchParams({
+          last_id: String(stateRef.lastId),
+          ...(stateRef.lastHandoff !== null && { last_handoff: String(stateRef.lastHandoff) }),
+          ...(stateRef.lastAiDisabled !== null && { last_ai_disabled: String(stateRef.lastAiDisabled) }),
+          ...(stateRef.lastAdminTyping !== null && { last_admin_typing: String(stateRef.lastAdminTyping) }),
+          ...(stateRef.lastReview !== null && { last_review: String(stateRef.lastReview) }),
+        });
+        const res = await fetch(`${pollUrl}&${params.toString()}`);
+        const json = (await res.json()) as { events?: Array<{ type: string; data: Record<string, unknown> }> };
+        const events = json?.events || [];
+        for (const ev of events) {
+          if (ev.type === 'heartbeat') continue;
+          const id = applyEvent(ev.type, ev.data || {});
+          if (id && ev.type === 'message') stateRef.lastId = Math.max(stateRef.lastId, id);
+          if (ev.type === 'handoff') stateRef.lastHandoff = (ev.data as { is_human_handoff?: boolean }).is_human_handoff ?? null;
+          if (ev.type === 'ai_disabled') stateRef.lastAiDisabled = (ev.data as { ai_disabled?: boolean }).ai_disabled ?? null;
+          if (ev.type === 'admin_typing') stateRef.lastAdminTyping = (ev.data as { is_admin_typing?: boolean }).is_admin_typing ?? null;
+          if (ev.type === 'review_requested') stateRef.lastReview = true;
+        }
+      } catch {
+        /**/
+      }
+    };
+
+    // Poll for live updates (admin messages, handoff, typing, review_requested)
+    // Always poll when session exists so review_requested reaches user when admin ends chat
+    tick();
+    const interval = setInterval(tick, 1500);
+    return () => clearInterval(interval);
+  }, [isChatOpen, sessionId]);
 
   // Show welcome popup on first load
   useEffect(() => {
@@ -197,10 +483,10 @@ export default function ChatBot() {
   useEffect(() => {
     // Check if there are any user messages (not just welcome messages)
     const hasUserMessages = messages.some((message) => message.role === 'user');
-    if (hasUserMessages) {
+    if (hasUserMessages && !hasStartedConversation) {
       setHasStartedConversation(true);
     }
-  }, [messages]);
+  }, [messages, hasStartedConversation]);
 
   // Play notification sound on every AI response
   useEffect(() => {
@@ -232,19 +518,79 @@ export default function ChatBot() {
   // Reset chat conversation
   const resetChat = useCallback(() => {
     setMessages([]);
+    setSessionId('');
     setProductId('');
     setImage(null);
     setHasStartedConversation(false);
+    setShowReviewForm(false);
     clearStoredMessages();
     localStorage.removeItem('chat_session');
   }, []);
+
+  // Perform delete chat (end chat API → review form) - called from confirmation dialog
+  const handleConfirmDelete = useCallback(async () => {
+    const sid = localStorage.getItem('chat_session');
+    if (sid) {
+      try {
+        await endChatMutation.mutateAsync({ session_id: sid });
+      } catch {
+        // Still show review form even if API call fails
+      }
+    }
+    setMessages([]);
+    clearStoredMessages();
+    setShowReviewForm(true);
+    setShowEndChatConfirm(false);
+  }, [endChatMutation]);
+
+  // Handle review skip (dismiss without submitting)
+  const handleReviewSkip = useCallback(() => {
+    resetChat();
+  }, [resetChat]);
+
+  // Handle review submit
+  const handleReviewSubmit = useCallback(
+    async (rating: number, message: string) => {
+      const sessionId = localStorage.getItem('chat_session') || '';
+      try {
+        await submitReviewMutation.mutateAsync({
+          session_id: sessionId,
+          rating,
+          message,
+        });
+        // Reset chat after review submission
+        resetChat();
+      } catch (error) {
+        console.error('Failed to submit review:', error);
+        // Still reset chat even if review submission fails
+        resetChat();
+      }
+    },
+    [submitReviewMutation, resetChat]
+  );
 
   // Handle input change - optimized to prevent performance issues
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInput(e.target.value);
+
+      // Send typing indicator with debouncing (only send after user stops typing for 500ms)
+      const sessionId = localStorage.getItem('chat_session');
+      if (sessionId && hasStartedConversation) {
+        // Clear existing timeout
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+
+        // Send typing status after 500ms of inactivity (debounce)
+        typingTimeoutRef.current = setTimeout(() => {
+          api.post('/chat/typing', { session_id: sessionId }).catch(() => {
+            // Silently fail
+          });
+        }, 500);
+      }
     },
-    []
+    [hasStartedConversation]
   );
 
   const handleOpenChat = useCallback((id: number) => {
@@ -307,6 +653,12 @@ export default function ChatBot() {
         product_id: productId,
       });
 
+      // NEW: Update session state so poll effect can start
+      const newSessionId = localStorage.getItem('chat_session') || '';
+      if (newSessionId && newSessionId !== sessionId) {
+        setSessionId(newSessionId);
+      }
+
       if (!response) {
         console.error('No response from AI');
         return;
@@ -315,31 +667,43 @@ export default function ChatBot() {
       // Update the user message with the actual ID from the response
       setMessages((prevMessages) => {
         const { reply, message_ids } = response;
-        const updatedMessages = prevMessages.map((msg) => {
-          if (msg.id === userMessage.id) {
-            return {
-              ...msg,
-              id: message_ids.user.toString(),
-            };
-          }
-          return msg;
-        });
+        const handoff_active = response.handoff_active ?? false;
+        const ai_disabled = response.ai_disabled ?? false;
 
-        // Add the AI message with its actual ID
-        const aiMessage: ChatMessage = {
-          id: message_ids.assistant.toString(),
-          role: 'assistant',
-          content: reply.text,
-          links: reply.links,
-          createdAt: new Date(),
-          type: reply.type,
-          data: reply.data,
-        };
+        // Update handoff status
+        setIsHumanHandoff(handoff_active || ai_disabled);
 
-        return [...updatedMessages, aiMessage];
+        const messageMap = new Map(prevMessages.map(m => [m.id, m]));
+
+        // Replace temp user message with real ID
+        const tempUserMsg = messageMap.get(userMessage.id);
+        if (tempUserMsg) {
+          messageMap.delete(userMessage.id);
+          messageMap.set(message_ids.user.toString(), {
+            ...tempUserMsg,
+            id: message_ids.user.toString(),
+          });
+        }
+
+        // Add assistant message if not in handoff and reply exists
+        if (!handoff_active && !ai_disabled && reply && reply.text && reply.text.trim() !== '') {
+          messageMap.set(message_ids.assistant.toString(), {
+            id: message_ids.assistant.toString(),
+            role: 'assistant',
+            content: reply.text,
+            links: reply.links,
+            createdAt: new Date(),
+            type: reply.type,
+            data: reply.data,
+          });
+        }
+
+        const newMessages = sortMessages(Array.from(messageMap.values()));
+        storeMessages(newMessages); // Persist immediately — don't rely on useEffect
+        return newMessages;
       });
     },
-    [getResponse]
+    [getResponse, sessionId]
   );
 
   // Custom submit handler for demo responses
@@ -367,6 +731,17 @@ export default function ChatBot() {
         } else {
           console.error('Failed to upload image');
         }
+      }
+
+      // Clear typing indicator when sending message
+      const sessionId = localStorage.getItem('chat_session');
+      if (sessionId) {
+        // Clear typing timeout
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+          typingTimeoutRef.current = null;
+        }
+        // Typing indicator will expire on server side, but we can stop sending it
       }
 
       // Send the message
@@ -430,34 +805,68 @@ export default function ChatBot() {
                 <ChatHeader
                   isChatOpen={isChatOpen}
                   toggleChat={toggleChat}
-                  resetChat={resetChat}
+                  onDeleteChat={
+                    hasStartedConversation
+                      ? () => setShowEndChatConfirm(true)
+                      : undefined
+                  }
                 />
               </div>
 
-              {/* Scrollable messages area */}
-              <div className="overflow-y-auto flex-1 bg-neutral-100">
-                <ChatMessages
-                  messages={messages}
-                  isTyping={isResponseLoading}
-                />
-              </div>
+              {/* Review Form or Chat Messages/Input */}
+              {showReviewForm ? (
+                <div className="overflow-y-auto flex-1 bg-neutral-100">
+                  <ReviewForm
+                    onSubmit={handleReviewSubmit}
+                    onSkip={handleReviewSkip}
+                    isLoading={submitReviewMutation.isPending}
+                  />
+                </div>
+              ) : (
+                <>
+                  {/* Scrollable messages area */}
+                  <div className="overflow-y-auto flex-1 bg-neutral-100">
+                    <ChatMessages
+                      messages={messages}
+                      isTyping={isResponseLoading && !isHumanHandoff}
+                      isAdminTyping={isAdminTyping && isHumanHandoff}
+                      adminTypingAvatar={adminTypingAvatar}
+                    />
+                  </div>
 
-              {/* Fixed height footer */}
-              <div className="flex-shrink-0">
-                <ChatInput
-                  input={input}
-                  image={image}
-                  productId={productId}
-                  handleInputChange={handleInputChange}
-                  handleImageChange={handleImageChange}
-                  handleProductIdChange={handleProductIdChange}
-                  handleSubmit={handleSubmit}
-                  isLoading={isResponseLoading}
-                  isChatOpen={isChatOpen}
-                  hasStartedConversation={hasStartedConversation}
-                  handleQuickOptionClick={handleQuickOptionClick}
-                />
-              </div>
+                  {/* Smart Scheduling Button - Fixed at bottom */}
+                  {settings?.smart_scheduling?.enabled && (
+                    <div className="flex-shrink-0 px-4 pb-2 bg-neutral-100">
+                      <Button
+                        type="button"
+                        onClick={() => setShowAppointmentDialog(true)}
+                        className="w-full text-white bg-primary hover:bg-primary/90"
+                      >
+                        {settings.smart_scheduling?.buttonText || 'Get Appointments'}
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Fixed height footer */}
+                  <div className="flex-shrink-0">
+                    <ChatInput
+                      input={input}
+                      image={image}
+                      productId={productId}
+                      handleInputChange={handleInputChange}
+                      handleImageChange={handleImageChange}
+                      handleProductIdChange={handleProductIdChange}
+                      handleSubmit={handleSubmit}
+                      isLoading={isResponseLoading}
+                      isChatOpen={isChatOpen}
+                      hasStartedConversation={hasStartedConversation}
+                      handleQuickOptionClick={handleQuickOptionClick}
+                      liveAgentsAvailable={isLiveAgentsAvailable}
+                      liveAgents={settings?.live_agents ?? []}
+                    />
+                  </div>
+                </>
+              )}
             </>
           )}
         </div>
@@ -477,6 +886,39 @@ export default function ChatBot() {
         window.HelpmatePro?.components?.ExitIntentCoupon && (
           <window.HelpmatePro.components.ExitIntentCoupon />
         )}
+
+      {/* End chat confirmation dialog */}
+      <Dialog open={showEndChatConfirm} onOpenChange={setShowEndChatConfirm}>
+        <DialogContent className="sm:max-w-md" showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>End this chat?</DialogTitle>
+            <DialogDescription>
+              You'll be asked to rate your experience.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowEndChatConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={() => handleConfirmDelete()}>
+              End chat
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Appointment dialog */}
+      <Dialog open={showAppointmentDialog} onOpenChange={setShowAppointmentDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Schedule an Appointment</DialogTitle>
+          </DialogHeader>
+          <AppointmentForm />
+        </DialogContent>
+      </Dialog>
 
       {/* Welcome Message Popup */}
       {showWelcomePopup && (

@@ -6,6 +6,8 @@ import { RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '@/lib/axios';
 import { useSettings } from '@/hooks/useSettings';
+import HelpmateIcon from '@/assets/helpmate-logo-icon.svg';
+import { ChangeSvgColor } from 'svg-color-tools';
 
 export interface TestMessage {
   id: string;
@@ -84,6 +86,12 @@ export function TestChatWidget() {
         }
         if (data.font_size && typeof data.font_size === 'string') {
           document.documentElement.style.setProperty('--font-size', data.font_size);
+        }
+        if (data.icon_size && typeof data.icon_size === 'string') {
+          document.documentElement.style.setProperty('--icon-size', data.icon_size);
+        }
+        if (data.position && typeof data.position === 'string') {
+          document.documentElement.style.setProperty('--position', data.position);
         }
       },
     });
@@ -204,26 +212,41 @@ export function TestChatWidget() {
   }, []);
 
   return (
-    <div className="w-full max-w-lg h-[700px] bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex justify-between items-center px-6 py-4 bg-gradient-to-r border-b border-gray-200 from-primary/5 to-primary/10">
-        <div>
-          <h3 className="font-semibold text-gray-900 !m-0 !p-0">Test Chat</h3>
-          <p className="text-xs text-gray-600 !m-0 !mt-1">Debug mode enabled</p>
+    <>
+      {/* Header - match ChatBotPreview */}
+      <div className="[background:var(--primary-2)] text-white p-4 flex items-center justify-between">
+        <div className="flex items-center">
+          <div className="[background:var(--secondary-2)] text-secondary-2-foreground p-2 rounded-full mr-3">
+            {botIcon ? (
+              <img
+                src={botIcon}
+                alt="Bot Icon"
+                className="w-6 h-6 rounded-full"
+              />
+            ) : (
+              <ChangeSvgColor fill="white" src={HelpmateIcon} />
+            )}
+          </div>
+          <div>
+            <h1 className="!text-lg !font-semibold !text-white !m-0 !p-0">
+              Test Chat
+            </h1>
+            <p className="!text-sm !text-white/80 !m-0 !mt-0.5">Debug</p>
+          </div>
         </div>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={handleNewChat}
-          className="flex gap-2 items-center"
+          className="p-0 w-8 h-8 text-white rounded-full hover:bg-white/20 flex items-center justify-center"
+          title="New chat"
         >
-          <RotateCcw className="w-4 h-4" />
-          New Chat
+          <RotateCcw size={16} />
         </Button>
       </div>
 
       {/* Messages */}
-      <div className="overflow-y-auto flex-1 bg-gray-50">
+      <div className="overflow-y-auto flex-1 bg-neutral-100 min-h-[220px]">
         <TestChatMessages
           messages={messages}
           isLoading={isLoading}
@@ -234,17 +257,15 @@ export function TestChatWidget() {
       </div>
 
       {/* Input */}
-      <div className="bg-white border-t border-gray-200">
-        <TestChatInput
-          input={input}
-          setInput={setInput}
-          image={image}
-          setImage={setImage}
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-        />
-      </div>
-    </div>
+      <TestChatInput
+        input={input}
+        setInput={setInput}
+        image={image}
+        setImage={setImage}
+        onSubmit={handleSubmit}
+        isLoading={isLoading}
+      />
+    </>
   );
 }
 

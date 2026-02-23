@@ -1,15 +1,47 @@
 import { FloatingBar } from '@/components/FloatingBar';
 import Loading from '@/components/Loading';
 import PageHeader from '@/components/PageHeader';
+import RichTextEditor from '@/components/RichTextEditor';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '@/components/ui/form';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
+import { useSettings } from '@/hooks/useSettings';
 import { useWooCommerce } from '@/hooks/useWooCommerce';
 import { MenuItem } from '@/types';
-import { RefreshCw } from 'lucide-react';
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { RefreshCw, SquarePen } from 'lucide-react';
+import {
+  useCallback,
+  Suspense,
+  lazy,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import { z } from 'zod';
 
 // Lazy load tab components
 const TabText = lazy(() => import('@/pages/data-source/tabs/TabText'));
@@ -102,9 +134,7 @@ How do you know if the training worked? **Test it.**
 
 2. **Run the Test** - Ask the chatbot each question and review the response for accuracy and tone.
 
-3. **Adjust the Minimum Match Score** - If the chatbot gives irrelevant answers, increase this score in your settings. If it says "I don't know" too often, lower it slightly. Start around 75-80%.
-
-4. **Fill the Gaps** - If the chatbot fails a question, go back and add the correct information using a Q&A pair or by updating a page. Retest.
+3. **Fill the Gaps** - If the chatbot fails a question, add the correct information using a Q&A pair or by updating a page. Retest.
 
 ---
 
@@ -137,10 +167,16 @@ You will immediately see fewer support tickets and give your customers the confi
 *For more detailed guides, visit the [Helpmate Documentation](https://rhapsodyplugins.com/docs/train-the-right-data-to-make-helpmate-ai-chatbot-useful/)*
 `;
 
+const formSchema = z.object({
+  title: z.string(),
+  content: z.string().min(1, 'Content is required'),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
 // Simple component for right actions - no hooks to avoid violations
 function RightActions({
   isApiKeyPending,
-  tab,
   apiKeyData,
   syncCredits,
   isSyncing,
@@ -164,14 +200,10 @@ function RightActions({
     return <Skeleton className="w-10 h-10" />;
   }
 
-  const isProductTab = tab === 'Products';
-  const creditsToShow = isProductTab
-    ? apiKeyData?.local_credits?.filter(
-        (credit) => credit.feature_slug === 'product'
-      ) || []
-    : apiKeyData?.local_credits?.filter(
-        (credit) => credit.feature_slug && credit.feature_slug.includes('data')
-      ) || [];
+  const creditsToShow =
+    apiKeyData?.local_credits?.filter(
+      (credit) => credit.feature_slug && credit.feature_slug.includes('data')
+    ) || [];
 
   return (
     <div className="flex gap-2 justify-center items-center text-sm">
@@ -182,7 +214,7 @@ function RightActions({
         return (
           <div key={i} className="min-w-[80px]">
             <span className="flex gap-1 items-center text-xs leading-none">
-              {isProductTab ? 'Trained Products' : 'Trained Sources'}:{' '}
+              Trained Sources:{' '}
               {isUnlimited ? `${spent}/∞` : `${spent}/${total}`}
               <button
                 className="p-0.5 text-gray-400 hover:text-primary-600 disabled:opacity-50"
@@ -207,20 +239,42 @@ function RightActions({
 
 export function DataSourceContent() {
   // All hooks must be called at the top level in the same order every time
-  const { apiKeyQuery, syncCreditsMutation } = useApi();
-  const { getSourcesMutation } = useDataSource();
-  const { isWooCommerceInstalled, isLoading: isWooCommerceLoading } =
-    useWooCommerce();
+  const { apiKeyQuery, syncCreditsMutation, openAiKeyQuery } = useApi();
+  const { getSourcesMutation, addSourceMutation, updateSourceMutation } =
+    useDataSource();
+  const { getProQuery } = useSettings();
+  const { isWooCommerceInstalled } = useWooCommerce();
   const [tab, setTab] = useState('WP Posts');
   const [hasGeneralContent, setHasGeneralContent] = useState(false);
+  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
 
   // Extract data from queries after all hooks are called
   const { data: apiKeyData, isPending: isApiKeyPending } = apiKeyQuery;
   const { mutate: syncCredits, isPending: isSyncing } = syncCreditsMutation;
+  const isPro = getProQuery.data ?? false;
+  const canEditOrDelete = !!openAiKeyQuery.data?.openai_key && isPro;
+
+  const { data: fetchData, mutate: fetchMutate } = getSourcesMutation;
+  const { isPending: addIsPending } = addSourceMutation;
+  const { isPending: updateIsPending, mutate: updateMutate } =
+    updateSourceMutation;
+
+  const form = useForm<FormData>({
+    defaultValues: {
+      title: 'General context of the website',
+      content: '',
+    },
+    resolver: zodResolver(formSchema),
+  });
 
   // Move useMemo after all other hooks
   const MENU_ITEMS = useMemo<MenuItem[]>(() => {
     const baseItems: MenuItem[] = [];
+
+    baseItems.push({
+      title: 'WP Posts',
+      status: hasGeneralContent,
+    });
 
     if (isWooCommerceInstalled) {
       baseItems.push({
@@ -230,10 +284,6 @@ export function DataSourceContent() {
     }
 
     baseItems.push(
-      {
-        title: 'WP Posts',
-        status: hasGeneralContent,
-      },
       {
         title: 'Text',
         status: hasGeneralContent,
@@ -254,13 +304,6 @@ export function DataSourceContent() {
 
     return baseItems;
   }, [hasGeneralContent, isWooCommerceInstalled]);
-
-  // Set initial tab based on WooCommerce status
-  useEffect(() => {
-    if (!isWooCommerceLoading && isWooCommerceInstalled) {
-      setTab('Products');
-    }
-  }, [isWooCommerceLoading, isWooCommerceInstalled]);
 
   // Check if general data source has content
   useEffect(() => {
@@ -308,6 +351,78 @@ export function DataSourceContent() {
     }
   };
 
+  // Handle opening edit sheet and fetching data
+  const handleOpenEditSheet = useCallback(() => {
+    setIsEditSheetOpen(true);
+    fetchMutate('general', {
+      onSuccess: (data) => {
+        if (data.length > 0 && data[0].content) {
+          form.reset({
+            title: data[0].title,
+            content: data[0].content,
+          });
+        } else {
+          form.reset({
+            title: 'General context of the website',
+            content: '',
+          });
+        }
+      },
+      onError: () => {
+        form.reset({
+          title: 'General context of the website',
+          content: '',
+        });
+      },
+    });
+  }, [fetchMutate, form]);
+
+  // Handle form submission
+  const handleSubmit = useCallback(
+    (data: FormData) => {
+      if (fetchData?.[0]?.id) {
+        updateMutate(
+          {
+            id: fetchData[0].id,
+            document_type: 'general',
+            title: data.title,
+            content: data.content,
+            vector: fetchData[0].vector,
+            metadata: {},
+            last_updated: Math.floor(Date.now() / 1000),
+          },
+          {
+            onSuccess: () => {
+              form.reset({
+                title: data.title,
+                content: data.content,
+              });
+              setIsEditSheetOpen(false);
+              // Refresh general content check
+              fetchMutate('general', {
+                onSuccess: (updatedData) => {
+                  const hasContent = Boolean(
+                    updatedData &&
+                      updatedData.length > 0 &&
+                      updatedData[0].content &&
+                      updatedData[0].content.trim().length > 0
+                  );
+                  setHasGeneralContent(hasContent);
+                },
+              });
+            },
+            onError: (error) => {
+              toast.error(
+                error.message || 'Failed to save content. Try again.'
+              );
+            },
+          }
+        );
+      }
+    },
+    [fetchData, updateMutate, form, fetchMutate]
+  );
+
   return (
     <>
       <Tabs className="gap-0" value={tab} onValueChange={handleTabChange}>
@@ -315,13 +430,44 @@ export function DataSourceContent() {
           menuItems={MENU_ITEMS}
           title="Knowledge Base"
           rightActions={
-            <RightActions
-              isApiKeyPending={isApiKeyPending}
-              tab={tab}
-              apiKeyData={apiKeyData}
-              syncCredits={syncCredits}
-              isSyncing={isSyncing}
-            />
+            <div className="flex gap-2 items-center">
+              <RightActions
+                isApiKeyPending={isApiKeyPending}
+                tab={tab}
+                apiKeyData={apiKeyData}
+                syncCredits={syncCredits}
+                isSyncing={isSyncing}
+              />
+              {canEditOrDelete ? (
+                <Button
+                  onClick={handleOpenEditSheet}
+                  variant="outline"
+                  size="sm"
+                >
+                  <SquarePen className="mr-2 w-4 h-4" strokeWidth={1.5} />
+                  Edit Website Overview
+                </Button>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block">
+                      <Button
+                        onClick={handleOpenEditSheet}
+                        variant="outline"
+                        size="sm"
+                        disabled
+                      >
+                        <SquarePen className="mr-2 w-4 h-4" strokeWidth={1.5} />
+                        Edit Website Overview
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Add your OpenAI API key in Manage API to edit or delete
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           }
         />
         <TabsContent value={tab} className="p-6">
@@ -345,6 +491,58 @@ export function DataSourceContent() {
           </div>
         }
       />
+
+      {/* Edit Website Overview Sheet */}
+      <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
+        <SheetContent className="sm:!max-w-2xl flex flex-col h-full gap-0">
+          <SheetHeader className="mt-6">
+            <SheetTitle className="text-lg font-bold !my-0">
+              Edit Website Overview
+            </SheetTitle>
+          </SheetHeader>
+          <div className="overflow-y-auto flex-1 p-4">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(handleSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Content</FormLabel>
+                      <FormControl>
+                        <RichTextEditor
+                          content={field.value}
+                          onChange={field.onChange}
+                          useMarkdown={true}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => setIsEditSheetOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    disabled={addIsPending || updateIsPending}
+                    loading={addIsPending || updateIsPending}
+                    type="submit"
+                  >
+                    {addIsPending || updateIsPending ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

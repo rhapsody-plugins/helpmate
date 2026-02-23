@@ -21,12 +21,15 @@ const CodeBlockToolbar = React.forwardRef<HTMLButtonElement, React.ComponentProp
 					<Button
 						variant="ghost"
 						size="icon"
+						type="button"
 						className={cn(
 							"h-8 w-8",
 							editor?.isActive("codeBlock") && "bg-accent",
 							className,
 						)}
 						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
 							editor?.chain().focus().toggleCodeBlock().run();
 							onClick?.(e);
 						}}

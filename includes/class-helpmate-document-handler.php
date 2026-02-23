@@ -171,6 +171,24 @@ class Helpmate_Document_Handler
     }
 
     /**
+     * Check if there are any documents with document_type other than 'general'.
+     *
+     * @since 1.0.0
+     * @return bool True if non-general documents exist, false otherwise.
+     */
+    public function has_non_general_documents()
+    {
+        global $wpdb;
+        $count = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}helpmate_documents WHERE document_type != %s",
+                'general'
+            )
+        );
+        return (int) $count > 0;
+    }
+
+    /**
      * Store a document in the database.
      *
      * @since 1.0.0
@@ -199,8 +217,8 @@ class Helpmate_Document_Handler
             $metadata = $document['metadata'] ?? [];
 
             try {
-                // Set feature_slug to 'product' only for product document type, otherwise use default
-                $feature_slug = ($documentType === 'product') ? 'product' : 'data_source';
+                // Always use data_source feature_slug for all document types
+                $feature_slug = 'data_source';
                 $vector = $this->chat->handle_embedding(['title' => $title, 'content' => $content], 'create', $feature_slug);
             } catch (Exception $e) {
                 $results[] = false;
@@ -296,8 +314,8 @@ class Helpmate_Document_Handler
             $metadata = $document['metadata'] ?? [];
 
             try {
-                // Set feature_slug to 'product' only for product document type, otherwise use default
-                $feature_slug = ($documentType === 'product') ? 'product' : 'data_source';
+                // Always use data_source feature_slug for all document types
+                $feature_slug = 'data_source';
                 $vector = $this->chat->handle_embedding(['title' => $title, 'content' => $content], 'create', $feature_slug);
             } catch (Exception $e) {
                 $failed++;
@@ -392,8 +410,8 @@ class Helpmate_Document_Handler
         ));
 
         try {
-            // Set feature_slug to 'product' only for product document type, otherwise use default
-            $feature_slug = ($document_type === 'product') ? 'product' : 'data_source';
+            // Always use data_source feature_slug for all document types
+            $feature_slug = 'data_source';
             $vector = $this->chat->handle_embedding(['id' => $vector_id, 'title' => $title, 'content' => $content], 'update', $feature_slug);
 
             // error_log('Vector: ' . print_r($vector, true));
@@ -452,7 +470,8 @@ class Helpmate_Document_Handler
         $results = [];
 
         foreach ($documents as $document) {
-            $feature_slug = ($document['document_type'] === 'product') ? 'product' : 'data_source';
+            // Always use data_source feature_slug for all document types
+            $feature_slug = 'data_source';
             $response = $this->chat->handle_embedding(['id' => $document['vector']], 'delete', $feature_slug);
             if (isset($response['status']) && $response['status'] !== 'success') {
                 return new WP_REST_Response([

@@ -21,8 +21,11 @@ const HardBreakToolbar = React.forwardRef<HTMLButtonElement, React.ComponentProp
 					<Button
 						variant="ghost"
 						size="icon"
+						type="button"
 						className={cn("h-8 w-8", className)}
 						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
 							editor?.chain().focus().setHardBreak().run();
 							onClick?.(e);
 						}}

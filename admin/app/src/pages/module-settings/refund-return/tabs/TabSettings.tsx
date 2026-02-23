@@ -1,5 +1,4 @@
 import { ProBadge } from '@/components/ProBadge';
-import RichTextEditor from '@/components/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DraggableItem, DraggableList } from '@/components/ui/draggable-list';
@@ -26,7 +25,10 @@ import {
   SheetTitle
 } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useMain } from '@/contexts/MainContext';
+import { useCrm } from '@/hooks/useCrm';
 import { useSettings } from '@/hooks/useSettings';
+import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Plus, Trash } from 'lucide-react';
@@ -36,22 +38,8 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 const formSchema = z.object({
-  selected_email_template: z.number().min(1, {
-    message: 'Email template is required',
-  }),
+  selected_email_template: z.number().nullable().optional(),
   policy_url: z.string().optional(),
-});
-
-const emailTemplateFormSchema = z.object({
-  template_name: z.string().min(1, {
-    message: 'Template name is required',
-  }),
-  email_subject: z.string().min(1, {
-    message: 'Email subject is required',
-  }),
-  email_body: z.string().min(1, {
-    message: 'Email body is required',
-  }),
 });
 
 const reasonFormSchema = z.object({
@@ -61,20 +49,7 @@ const reasonFormSchema = z.object({
 });
 
 type FormData = z.infer<typeof formSchema>;
-type EmailTemplateFormData = z.infer<typeof emailTemplateFormSchema>;
 type ReasonFormData = z.infer<typeof reasonFormSchema>;
-
-interface EmailTemplateFormProps {
-  isEditing: boolean;
-  initialData?: {
-    template_name: string;
-    email_subject: string;
-    email_body: string;
-  };
-  onSave: (data: EmailTemplateFormData) => void;
-  onDelete?: () => void;
-  onClose: () => void;
-}
 
 interface ReasonFormProps {
   isEditing: boolean;
@@ -128,113 +103,16 @@ function ReasonForm({
   );
 }
 
-function EmailTemplateForm({
-  isEditing,
-  initialData,
-  onSave,
-  onDelete,
-  onClose,
-}: EmailTemplateFormProps) {
-  const form = useForm<EmailTemplateFormData>({
-    resolver: zodResolver(emailTemplateFormSchema),
-    defaultValues: initialData || {
-      template_name: '',
-      email_subject: '',
-      email_body: '',
-    },
-  });
-
-  const handleSubmit = (data: EmailTemplateFormData) => {
-    onSave(data);
-  };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="template_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Template Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter template name" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email_subject"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Subject</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter email subject" {...field} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email_body"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Body</FormLabel>
-              <FormControl>
-                <RichTextEditor
-                  content={field.value}
-                  onChange={field.onChange}
-                  texts={[
-                    '{customer_name}',
-                    '{order_number}',
-                    '{return_refund_type}',
-                    '{return_refund_status}',
-                    '{return_refund_reason}',
-                    '{return_refund_amount}',
-                    '{return_refund_items}',
-                    '{shop_name}',
-                    '{status}',
-                    '{order_id}',
-                  ]}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <div className="flex gap-2">
-          <Button type="submit">Save</Button>
-          {isEditing && onDelete && (
-            <Button variant="destructive" onClick={onDelete}>
-              Delete Template
-            </Button>
-          )}
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-        </div>
-      </form>
-    </Form>
-  );
-}
 
 export default function TabSettings() {
   const { getProQuery } = useSettings();
-  const [isEmailTemplateSheetOpen, setIsEmailTemplateSheetOpen] =
-    useState(false);
   const [isReasonSheetOpen, setIsReasonSheetOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [isEditingReason, setIsEditingReason] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<{
-    id: number;
-    template_name: string;
-    email_subject: string;
-    email_body: string;
-  } | null>(null);
   const [selectedReason, setSelectedReason] = useState<{
     id: string;
     reason: string;
   } | null>(null);
+  const [isRecreatingTemplate, setIsRecreatingTemplate] = useState(false);
 
   const { getSettingsMutation, updateSettingsMutation } = useSettings();
   const {
@@ -244,10 +122,13 @@ export default function TabSettings() {
   } = getSettingsMutation;
   const { mutate: updateSettings, isPending: isUpdating } =
     updateSettingsMutation;
+  const { useEmailTemplates } = useCrm();
+  const { data: emailTemplates, isLoading: isLoadingTemplates } = useEmailTemplates();
+  const { setPage } = useMain();
 
   const form = useForm<FormData>({
     defaultValues: {
-      selected_email_template: 1,
+      selected_email_template: null,
       policy_url: '',
     },
     resolver: zodResolver(formSchema),
@@ -256,137 +137,18 @@ export default function TabSettings() {
   useEffect(() => {
     getSettings('refund_return', {
       onSuccess: (data) => {
-        form.reset(data);
+        if (data) {
+          form.reset({
+            selected_email_template: typeof data.selected_email_template === 'number' ? data.selected_email_template : null,
+            policy_url: typeof data.policy_url === 'string' ? data.policy_url : '',
+          });
+        }
       },
     });
   }, [getSettings, form]);
 
-  const emailTemplates =
-    (settings?.email_templates as {
-      id: number;
-      refund_return_template_name: string;
-      refund_return_email_body: string;
-      refund_return_email_subject: string;
-    }[]) || [];
-
   const reasons = (settings?.reasons as string[]) || [];
 
-  const handleSaveTemplate = (data: EmailTemplateFormData) => {
-    if (isEditing && selectedTemplate) {
-      updateSettings(
-        {
-          key: 'refund_return',
-          data: {
-            ...settings,
-            email_templates: emailTemplates.map((template) =>
-              template.id === selectedTemplate.id
-                ? {
-                    ...template,
-                    refund_return_template_name: data.template_name,
-                    refund_return_email_subject: data.email_subject,
-                    refund_return_email_body: data.email_body,
-                  }
-                : template
-            ),
-          },
-        },
-        {
-          onSuccess: () => {
-            getSettings('refund_return', {
-              onSuccess: (data) => {
-                form.reset(data);
-              },
-            });
-            toast.success('Email template updated successfully');
-          },
-        }
-      );
-    } else {
-      const newTemplate = {
-        id: Math.max(...emailTemplates.map((t) => t.id), 0) + 1,
-        refund_return_template_name: data.template_name,
-        refund_return_email_subject: data.email_subject,
-        refund_return_email_body: data.email_body,
-      };
-
-      updateSettings(
-        {
-          key: 'refund_return',
-          data: {
-            ...settings,
-            email_templates: [...emailTemplates, newTemplate],
-          },
-        },
-        {
-          onSuccess: () => {
-            getSettings('refund_return', {
-              onSuccess: (data) => {
-                form.reset(data);
-              },
-            });
-            toast.success('Email template created successfully');
-          },
-        }
-      );
-    }
-    handleCloseEmailTemplate();
-  };
-
-  const handleDelete = () => {
-    if (
-      selectedTemplate &&
-      confirm('Are you sure you want to delete this template?')
-    ) {
-      updateSettings(
-        {
-          key: 'refund_return',
-          data: {
-            ...settings,
-            email_templates: emailTemplates.filter(
-              (template) => template.id !== selectedTemplate.id
-            ),
-            selected_email_template:
-              settings?.selected_email_template === selectedTemplate.id
-                ? 1
-                : settings?.selected_email_template,
-          },
-        },
-        {
-          onSuccess: () => {
-            getSettings('refund_return', {
-              onSuccess: (data) => {
-                form.reset(data);
-              },
-            });
-            toast.success('Email template deleted successfully');
-          },
-        }
-      );
-      handleCloseEmailTemplate();
-    }
-  };
-
-  const handleEdit = () => {
-    const template = emailTemplates.find(
-      (template) => template.id === form.getValues('selected_email_template')
-    );
-    if (template) {
-      setSelectedTemplate({
-        id: template.id,
-        template_name: template.refund_return_template_name,
-        email_subject: template.refund_return_email_subject || '',
-        email_body: template.refund_return_email_body || '',
-      });
-      setIsEditing(true);
-      setIsEmailTemplateSheetOpen(true);
-    }
-  };
-
-  const handleCloseEmailTemplate = () => {
-    setIsEmailTemplateSheetOpen(false);
-    setIsEditing(false);
-    setSelectedTemplate(null);
-  };
 
   const handleCloseReason = () => {
     setIsReasonSheetOpen(false);
@@ -521,13 +283,40 @@ export default function TabSettings() {
     );
   };
 
+  const handleRecreateTemplate = async () => {
+    setIsRecreatingTemplate(true);
+    try {
+      const response = await api.post('/crm/refund-return/create-default-template') as { template_id?: number; error?: boolean; message?: string };
+      console.log('Template creation response:', response);
+      if (response.template_id) {
+        toast.success('Default template created and set successfully');
+        // Reload the browser tab to show the changes
+        // Use a small delay to ensure the toast is visible before reload
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else if (response.error) {
+        toast.error(response.message || 'Failed to create default template');
+        setIsRecreatingTemplate(false);
+      } else {
+        console.error('Unexpected response format:', response);
+        toast.error('Failed to create default template');
+        setIsRecreatingTemplate(false);
+      }
+    } catch (error) {
+      console.error('Failed to recreate template:', error);
+      toast.error('Failed to create default template');
+      setIsRecreatingTemplate(false);
+    }
+  };
+
   const handleSubmit = (data: FormData) => {
     updateSettings(
       {
         key: 'refund_return',
         data: {
           ...settings,
-          selected_email_template: data.selected_email_template,
+          selected_email_template: data.selected_email_template || null,
           policy_url: data.policy_url,
         },
       },
@@ -535,7 +324,12 @@ export default function TabSettings() {
         onSuccess: () => {
           getSettings('refund_return', {
             onSuccess: (data) => {
-              form.reset(data);
+              if (data) {
+                form.reset({
+                  selected_email_template: typeof data.selected_email_template === 'number' ? data.selected_email_template : null,
+                  policy_url: typeof data.policy_url === 'string' ? data.policy_url : '',
+                });
+              }
             },
           });
           toast.success('Settings updated successfully');
@@ -601,10 +395,41 @@ export default function TabSettings() {
         )}
       >
         <CardHeader>
-          <CardTitle className="flex gap-1 items-center text-xl font-bold">
-            Refund & Return Settings{' '}
-            <InfoTooltip message="This tool lets users initiate refund or return requests directly through chat. Makes your store more trustworthy by offering an easy and transparent return experience." />
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="flex gap-1 items-center text-xl font-bold">
+              Refund & Return Settings{' '}
+              <InfoTooltip message="This tool lets users initiate refund or return requests directly through chat. Makes your store more trustworthy by offering an easy and transparent return experience." />
+            </CardTitle>
+            {!isLoadingTemplates && (() => {
+              const missingTemplate = emailTemplates?.find(
+                (t) => t.name === 'Refund/Return Request Update'
+              )
+                ? null
+                : 'Refund/Return Request Update';
+              return missingTemplate ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleRecreateTemplate}
+                  disabled={isRecreatingTemplate}
+                >
+                  {isRecreatingTemplate ? 'Creating...' : 'Recreate Missing Template'}
+                </Button>
+              ) : null;
+            })()}
+          </div>
+          {!isLoadingTemplates && (() => {
+            const missingTemplate = emailTemplates?.find(
+              (t) => t.name === 'Refund/Return Request Update'
+            )
+              ? null
+              : 'Refund/Return Request Update';
+            return missingTemplate ? (
+              <div className="p-2 mt-2 text-sm text-yellow-600 bg-yellow-50 rounded">
+                Missing default template: {missingTemplate}
+              </div>
+            ) : null;
+          })()}
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -650,74 +475,44 @@ export default function TabSettings() {
                       name="selected_email_template"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email Template</FormLabel>
-                          <FormControl>
-                            <div className="flex gap-2">
-                              <Select
-                                value={field.value.toString()}
-                                onValueChange={(value) => {
-                                  field.onChange(+value);
-                                }}
-                              >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue
-                                    placeholder="Select a template"
-                                    className="truncate"
-                                  />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {isFetchingSettings ? (
-                                    <SelectItem value="1">
-                                      Loading...
-                                    </SelectItem>
-                                  ) : (
-                                    emailTemplates?.map((template) => (
-                                      <SelectItem
-                                        key={template.id}
-                                        value={template.id.toString()}
-                                      >
-                                        {
-                                          template.refund_return_template_name
-                                        }
-                                      </SelectItem>
-                                    ))
-                                  )}
-                                </SelectContent>
-                              </Select>
-                              {field.value !== 1 && (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={handleEdit}
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                              )}
-                              {field.value !== 1 && (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={handleDelete}
-                                >
-                                  <Trash className="w-4 h-4" />
-                                </Button>
-                              )}
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={() => {
-                                  setIsEditing(false);
-                                  setSelectedTemplate(null);
-                                  setIsEmailTemplateSheetOpen(true);
-                                }}
-                              >
-                                <Plus className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </FormControl>
+                          <FormLabel className="flex gap-1 items-center">
+                            Email Template
+                            <InfoTooltip message="Select an email template from CRM. Available variables: {customer_name}, {order_number}, {return_refund_type}, {return_refund_status}, {return_refund_reason}, {return_refund_amount}, {return_refund_items}, {shop_name}, {status}, {order_id}" />
+                          </FormLabel>
+                          <div className="flex gap-2">
+                            <Select
+                              value={field.value?.toString() || 'none'}
+                              onValueChange={(value) => {
+                                field.onChange(value === 'none' ? null : parseInt(value, 10));
+                              }}
+                            >
+                              <SelectTrigger className="flex-1">
+                                <SelectValue
+                                  placeholder="Select a template"
+                                  className="truncate"
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">None</SelectItem>
+                                {emailTemplates?.map((template) => (
+                                  <SelectItem
+                                    key={template.id}
+                                    value={template.id.toString()}
+                                  >
+                                    {template.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => setPage('crm-emails')}
+                            >
+                              <Plus className="mr-2 w-4 h-4" />
+                              Create Template
+                            </Button>
+                          </div>
                         </FormItem>
                       )}
                     />
@@ -786,36 +581,6 @@ export default function TabSettings() {
           </Form>
         </CardContent>
       </Card>
-
-      <Sheet
-        open={isEmailTemplateSheetOpen}
-        onOpenChange={handleCloseEmailTemplate}
-      >
-        <SheetContent className="sm:!max-w-4xl">
-          <SheetHeader className="mt-10">
-            <SheetTitle className="!my-0">
-              {isEditing ? 'Edit Email Template' : 'New Email Template'}
-            </SheetTitle>
-          </SheetHeader>
-          <div className="p-4 pt-0">
-            <EmailTemplateForm
-              isEditing={isEditing}
-              initialData={
-                selectedTemplate
-                  ? {
-                      template_name: selectedTemplate.template_name,
-                      email_subject: selectedTemplate.email_subject,
-                      email_body: selectedTemplate.email_body,
-                    }
-                  : undefined
-              }
-              onSave={handleSaveTemplate}
-              onDelete={isEditing ? handleDelete : undefined}
-              onClose={handleCloseEmailTemplate}
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
 
       <Sheet open={isReasonSheetOpen} onOpenChange={handleCloseReason}>
         <SheetContent className="sm:!max-w-4xl">

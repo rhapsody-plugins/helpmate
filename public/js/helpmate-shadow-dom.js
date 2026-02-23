@@ -23,6 +23,12 @@
       reactRoot.id = 'root';
       shadowRoot.appendChild(reactRoot);
 
+      // Portal container for dialogs/overlays so they render inside shadow DOM
+      const portalRoot = document.createElement('div');
+      portalRoot.id = 'helpmate-portal-root';
+      shadowRoot.appendChild(portalRoot);
+      window.helpmatePortalRoot = portalRoot;
+
       if (window.helpmateConfig && window.helpmateConfig.isDev) {
         loadDevStyles(shadowRoot);
       } else {

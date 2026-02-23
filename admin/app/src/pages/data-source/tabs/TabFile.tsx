@@ -17,6 +17,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
@@ -25,6 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -50,10 +57,12 @@ const formSchema = z
 type FormData = z.infer<typeof formSchema>;
 
 export default function TabFile() {
+  const { openAiKeyQuery } = useApi();
+  const { getProQuery } = useSettings();
+  const isPro = getProQuery.data ?? false;
+  const canEditOrDelete = !!openAiKeyQuery.data?.openai_key && isPro;
   const { getSourcesMutation, addSourceMutation, removeSourceMutation } =
     useDataSource();
-  const { getProQuery } = useSettings();
-  const { data: isPro } = getProQuery;
 
   const {
     data: fetchData,
@@ -287,7 +296,9 @@ export default function TabFile() {
         header: 'Last Updated',
         cell: ({ row }) => {
           const timestamp = row.getValue('last_updated') as number;
-          return format(new Date(timestamp * 1000), 'PPpp');
+          return format(parseUTCTimestamp(timestamp), 'PPpp', {
+            locale: defaultLocale,
+          });
         },
       },
       {
@@ -305,20 +316,35 @@ export default function TabFile() {
             >
               View
             </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              loading={removeIsPending}
-              disabled={removeIsPending}
-              onClick={() => handleRemove(row.original.id)}
-            >
-              Delete
-            </Button>
+            {canEditOrDelete ? (
+              <Button
+                variant="destructive"
+                size="sm"
+                loading={removeIsPending}
+                disabled={removeIsPending}
+                onClick={() => handleRemove(row.original.id)}
+              >
+                Delete
+              </Button>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-block">
+                    <Button variant="destructive" size="sm" disabled>
+                      Delete
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Add your OpenAI API key in Manage API to edit or delete
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
         ),
       },
     ],
-    [handleRemove, removeIsPending]
+    [handleRemove, removeIsPending, canEditOrDelete]
   );
 
   /*

@@ -37,6 +37,9 @@ class Helpmate_Sales_Notification
     public function __construct($settings)
     {
         $this->settings = $settings;
+
+        add_action('wp_ajax_helpmate_sales_notification', array($this, 'get_notification'));
+        add_action('wp_ajax_nopriv_helpmate_sales_notification', array($this, 'get_notification'));
     }
 
     /**
@@ -56,51 +59,34 @@ class Helpmate_Sales_Notification
     }
 
     /**
-     * Get a random notification based on enabled settings.
+     * Get a random notification based on enabled settings (returns data for REST/ajax).
      *
      * @since    1.0.0
+     * @return   array|object Notification data or empty object.
      */
-    public function get_notification()
+    public function get_notification_data()
     {
         if ($GLOBALS['helpmate']->is_woocommerce_active() === false) {
-            wp_send_json((object) []);
-            return;
+            return (object) [];
         }
 
-        $sales_notifications = $this->settings->get_setting('sales_notifications');
+        $sales_notifications = is_array($this->settings->get_setting('sales_notifications')) ? $this->settings->get_setting('sales_notifications') : [];
 
-        // If no notifications are enabled, return empty
-        if (
-            !isset($sales_notifications['sales_notification']) &&
-            !isset($sales_notifications['download']) &&
-            !isset($sales_notifications['review'])
-        ) {
-            wp_send_json((object) []);
-            return;
-        }
-
-        // Create array of enabled notification types
-        $enabled_types = [];
-        if (isset($sales_notifications['sales_notification']) && $sales_notifications['sales_notification']) {
-            $enabled_types[] = 'sale';
-        }
-        if (isset($sales_notifications['download']) && $sales_notifications['download']) {
+        // Module is already enabled when this runs; always show order notifications (sale). Download/review are opt-in.
+        $enabled_types = array('sale');
+        if (!empty($sales_notifications['download'])) {
             $enabled_types[] = 'download';
         }
-        if (isset($sales_notifications['review']) && $sales_notifications['review']) {
+        if (!empty($sales_notifications['review'])) {
             $enabled_types[] = 'review';
         }
 
-        // If no types are enabled, return empty
         if (empty($enabled_types)) {
-            wp_send_json((object) []);
-            return;
+            return (object) [];
         }
 
-        // Shuffle enabled types to try them in random order
         shuffle($enabled_types);
 
-        // Try each notification type until we get valid data
         foreach ($enabled_types as $selected_type) {
             switch ($selected_type) {
                 case 'sale':
@@ -116,15 +102,37 @@ class Helpmate_Sales_Notification
                     $data = (object) [];
             }
 
-            // If we got valid data, return it
             if (!empty($data) && (is_array($data) ? count($data) > 0 : true)) {
-                wp_send_json($data);
-                return;
+                return $data;
             }
         }
 
-        // If all types failed, return empty
-        wp_send_json((object) []);
+        return (object) [];
+    }
+
+    /**
+     * Get a random notification (sends JSON for wp_ajax).
+     *
+     * @since    1.0.0
+     */
+    public function get_notification()
+    {
+        wp_send_json($this->get_notification_data());
+    }
+
+    /**
+     * Enqueue frontend assets when module is enabled.
+     *
+     * @since    1.0.0
+     */
+    /**
+     * Sales notification is rendered inside the React public app (helpmate-root shadow DOM),
+     * so we do not enqueue standalone JS/CSS here. The React app fetches /sales-notification
+     * and displays toasts with app styles. This method is a no-op for frontend assets.
+     */
+    public function enqueue_assets(): void
+    {
+        // No-op: sales notifications are shown by the public React app inside shadow DOM.
     }
 
     /**
@@ -147,10 +155,8 @@ class Helpmate_Sales_Notification
             return [];
         }
 
-        // Shuffle orders to get random selection
         shuffle($orders);
 
-        // Try each order until we find one with valid items
         foreach ($orders as $order) {
             $items = $order->get_items();
 
@@ -159,21 +165,26 @@ class Helpmate_Sales_Notification
             }
 
             $first_item = reset($items);
-            $product = $first_item->get_product();
-
-            if (!$product || !$product->is_visible()) {
+            $product_name = $first_item->get_name();
+            if (empty($product_name)) {
                 continue;
             }
 
-            $image_id = $product->get_image_id();
-            $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : '';
+            $product = $first_item->get_product();
+            $product_url = '';
+            $image_url = '';
+            if ($product) {
+                $product_url = $product->get_permalink();
+                $image_id = $product->get_image_id();
+                $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : '';
+            }
 
             return [
                 'type' => 'sale',
                 'customer_name' => $order->get_billing_first_name(),
-                'product_name' => $first_item->get_name(),
+                'product_name' => $product_name,
                 'time' => $order->get_date_created()->format('M d, Y g:i A'),
-                'product_url' => $product->get_permalink(),
+                'product_url' => $product_url,
                 'product_image' => $image_url,
             ];
         }

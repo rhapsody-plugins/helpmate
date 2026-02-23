@@ -33,6 +33,7 @@ export interface MenuItem {
   title: string;
   icon?: React.ReactNode;
   status: boolean;
+  onClick?: () => void;
 }
 
 export interface SidebarMenuItemType {
@@ -41,6 +42,7 @@ export interface SidebarMenuItemType {
   icon?: React.ReactNode;
   status?: boolean;
   pro?: boolean;
+  badge?: React.ReactNode;
 }
 
 export interface DiscountedProduct {
@@ -51,6 +53,22 @@ export interface DiscountedProduct {
   discount_percentage: number;
   stock_status: string;
   image_url: string;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  price: string;
+  image: string;
+  regular_price: string;
+  sale_price: string;
+  discount_percentage: number;
+  stock_status: string;
+  permalink?: string;
+  url?: string;
+  currency_symbol: string;
+  average_rating?: number;
+  review_count?: number;
 }
 
 export interface PostType {
@@ -89,6 +107,10 @@ export interface TicketMessage {
   role: 'user' | 'admin';
   message: string;
   metadata: Record<string, unknown>;
+  status: 'open' | 'closed';
+  user_id?: number | null;
+  contact_id?: number | null;
+  source?: string;
 }
 
 export interface Lead {
@@ -96,6 +118,8 @@ export interface Lead {
   name: string;
   metadata: Record<string, unknown>;
   timestamp: string;
+  contact_id?: number | null;
+  source?: string;
 }
 
 export interface AbandonedCartType {
@@ -124,6 +148,13 @@ export interface WordPressPost {
   metadata?: unknown;
 }
 
+/** Coupon tool data (chat) — code, discount, validUntil */
+export interface CouponData {
+  code: string;
+  discount: string;
+  validUntil: string;
+}
+
 export interface Coupon {
   id: number;
   code: string;
@@ -133,6 +164,8 @@ export interface Coupon {
   date_expires: string;
   minimum_amount: number;
 }
+
+export type PromoBannerStatus = 'active' | 'inactive' | 'expired';
 
 export interface PromoBanner {
   id: number;
@@ -151,8 +184,6 @@ export interface PromoBannerInput {
   start_datetime: number;
   end_datetime: number;
 }
-
-export type PromoBannerStatus = 'active' | 'inactive' | 'expired';
 
 export interface RefundReturnType {
   id: string;

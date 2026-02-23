@@ -21,11 +21,29 @@ export default defineConfig(({ mode }) => {
       assetsDir: 'assets',
       emptyOutDir: true,
       sourcemap: false,
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (
+              id.includes('node_modules/react/') ||
+              id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/@tanstack/react-query')
+            ) {
+              return 'vendor-react';
+            }
+            if (id.includes('/contexts/')) {
+              return 'vendor-react';
+            }
+          },
+        },
+      },
     },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        '@public': path.resolve(__dirname, '../../public/app/src'),
       },
+      dedupe: ['react', 'react-dom', '@tanstack/react-query'],
     },
   };
 });

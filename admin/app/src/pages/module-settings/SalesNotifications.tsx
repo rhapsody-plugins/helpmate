@@ -1,3 +1,4 @@
+import PageGuard from '@/components/PageGuard';
 import PageHeader from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,11 +18,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { useMain } from '@/contexts/MainContext';
 import { useSettings } from '@/hooks/useSettings';
 import { useWooCommerce } from '@/hooks/useWooCommerce';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -52,8 +55,21 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function SalesNotifications() {
-  const { getSettingsMutation, updateSettingsMutation, getProQuery } =
-    useSettings();
+  const { modules } = useMain();
+  const {
+    getSettingsMutation,
+    updateSettingsMutation,
+    getProQuery,
+    getModulesQuery,
+  } = useSettings();
+  const isModuleEnabled = Boolean(modules['sales-notifications']);
+  const handleModuleToggle = useCallback(async () => {
+    const newSettings = { ...modules, 'sales-notifications': !isModuleEnabled };
+    await updateSettingsMutation.mutateAsync(
+      { key: 'modules', data: newSettings },
+      { onSuccess: () => getModulesQuery.refetch() }
+    );
+  }, [modules, isModuleEnabled, updateSettingsMutation, getModulesQuery]);
   const { isWooCommerceInstalled, isLoading: isWooCommerceLoading } =
     useWooCommerce();
   // const icons = useCustomIcons(['woocommerce']);
@@ -101,9 +117,27 @@ export default function SalesNotifications() {
   └─────────────────────────────────────────────────────────────────────────────┘
  */
   return (
-    <div className="gap-0">
-      <PageHeader title="Sales Notifications" />
-      <div className="relative p-6">
+    <PageGuard page="automation-sales-sales-notifications">
+      <div className="gap-0">
+        <PageHeader
+        title="Sales Notifications"
+        rightActions={
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Enable Module</span>
+            <Switch
+              checked={isModuleEnabled}
+              onCheckedChange={handleModuleToggle}
+              disabled={isUpdating}
+            />
+          </div>
+        }
+      />
+      <div
+        className={cn(
+          'relative p-6',
+          !isModuleEnabled && 'opacity-50 pointer-events-none cursor-not-allowed'
+        )}
+      >
         <Card>
           <CardHeader>
             <CardTitle className="flex gap-1 items-center text-xl font-bold">
@@ -344,5 +378,6 @@ export default function SalesNotifications() {
         </Card>
       </div>
     </div>
+    </PageGuard>
   );
 }

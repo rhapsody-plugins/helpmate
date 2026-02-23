@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useTickets } from '@/hooks/useTickets';
-import { ContactFormData } from '@/types';
+import type { ContactFormData } from '../../types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Send } from 'lucide-react';
 import { useState } from 'react';
@@ -30,10 +30,13 @@ export function Ticket({
   data,
   messageId,
   onSubmit,
+  displayOnly = false,
 }: {
   data: ContactFormData;
   messageId: string;
   onSubmit: (messageId: string, submitted: boolean) => void;
+  /** When true, show form read-only (e.g. admin inbox) — no submission */
+  displayOnly?: boolean;
 }) {
   const { createTicket } = useTickets();
   const [isSubmitted, setIsSubmitted] = useState(data.submitted || false);
@@ -71,7 +74,7 @@ export function Ticket({
         <Card className="p-3 mt-2 shadow-none">
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(handleSubmit)}
+              onSubmit={displayOnly ? (e) => e.preventDefault() : form.handleSubmit(handleSubmit)}
               className="space-y-4"
             >
               <FormField
@@ -81,7 +84,7 @@ export function Ticket({
                   <FormItem>
                     <FormLabel>Subject</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter subject" {...field} />
+                      <Input placeholder="Enter subject" {...field} disabled={displayOnly} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -98,6 +101,7 @@ export function Ticket({
                         placeholder="Enter your email"
                         type="email"
                         {...field}
+                        disabled={displayOnly}
                       />
                     </FormControl>
                     <FormMessage />
@@ -115,15 +119,18 @@ export function Ticket({
                         placeholder="Enter your message"
                         rows={4}
                         {...field}
+                        disabled={displayOnly}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit">
-                <Send /> Submit Ticket
-              </Button>
+              {!displayOnly && (
+                <Button type="submit" disabled={createTicket.isPending}>
+                  <Send /> {createTicket.isPending ? 'Submitting...' : 'Submit Ticket'}
+                </Button>
+              )}
             </form>
           </Form>
         </Card>

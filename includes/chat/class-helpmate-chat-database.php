@@ -135,13 +135,18 @@ class Helpmate_Chat_Database
      * @since 1.0.0
      * @param string $session_id The chat session ID.
      * @param string $message The message content.
-     * @param string $role The role (user/assistant).
+     * @param string $role The role (user/assistant/system).
      * @param array $metadata Optional metadata about the message.
+     * @param int|null $timestamp Optional timestamp. If not provided, uses current time.
      * @return bool|int The message ID on success, false on failure.
      */
-    public function store_chat_message($session_id, $message, $role, $metadata = [])
+    public function store_chat_message($session_id, $message, $role, $metadata = [], $timestamp = null)
     {
         global $wpdb;
+
+        if ($timestamp === null) {
+            $timestamp = time();
+        }
 
         $result = $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->prefix . 'helpmate_chat_history',
@@ -149,7 +154,7 @@ class Helpmate_Chat_Database
                 'session_id' => $session_id,
                 'message' => $message,
                 'role' => $role,
-                'timestamp' => time(),
+                'timestamp' => $timestamp,
                 'metadata' => json_encode($metadata)
             ],
             ['%s', '%s', '%s', '%d', '%s']
@@ -245,5 +250,23 @@ class Helpmate_Chat_Database
                 'message' => __('Failed to update chat metadata', 'helpmate-ai-chatbot')
             ], 500);
         }
+    }
+
+    /**
+     * Check if there are any test chat sessions (sessions with debug metadata).
+     *
+     * @since 1.0.0
+     * @return bool True if test chat sessions exist, false otherwise.
+     */
+    public function has_test_chat_sessions()
+    {
+        global $wpdb;
+        $count = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            "SELECT COUNT(DISTINCT session_id)
+            FROM {$wpdb->prefix}helpmate_chat_history
+            WHERE JSON_EXTRACT(metadata, '$.debug') = true
+            AND role = 'user'"
+        );
+        return (int) $count > 0;
     }
 }

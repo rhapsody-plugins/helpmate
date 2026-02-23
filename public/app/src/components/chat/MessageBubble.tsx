@@ -4,12 +4,17 @@ import { Avatar } from '@/components/chat/Avatar';
 import { ContactForm } from '@/components/chat/ContactForm';
 import { Coupon } from '@/components/chat/Coupon';
 import { FormattedContent } from '@/components/chat/FormattedContent';
-import { Handover } from '@/components/chat/Handover';
 import { MessageActions } from '@/components/chat/MessageActions';
 import { ProductCarousel } from '@/components/chat/ProductCarousel';
 import { Ticket } from '@/components/chat/Ticket';
 import { useSettings } from '@/hooks/useSettings';
-import type { ChatMessage, HandoverData } from '@/types';
+import type {
+  ChatMessage,
+  ContactFormData,
+  CouponData,
+  OrderTrackerData,
+  ProductCarouselData,
+} from '@/types';
 import { useState } from 'react';
 
 interface MessageBubbleProps {
@@ -70,7 +75,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       {/* Avatar */}
       {updatedMessage.role === 'assistant' && (
         <div className="flex-shrink-0 mt-1">
-          <Avatar role={updatedMessage.role} />
+          <Avatar role={updatedMessage.role} avatarUrl={updatedMessage.avatarUrl} />
         </div>
       )}
 
@@ -97,20 +102,22 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               {updatedMessage.type === 'product-carousel' &&
                 updatedMessage.data &&
                 'products' in updatedMessage.data && (
-                  <ProductCarousel data={updatedMessage.data.products} />
+                  <ProductCarousel
+                    data={(updatedMessage.data as ProductCarouselData).products}
+                  />
                 )}
 
               {updatedMessage.type === 'coupon' &&
                 updatedMessage.data &&
                 'code' in updatedMessage.data && (
-                  <Coupon data={updatedMessage.data} />
+                  <Coupon data={updatedMessage.data as CouponData} />
                 )}
 
               {updatedMessage.type === 'contact-form' &&
                 updatedMessage.data &&
                 'submitted' in updatedMessage.data && (
                   <ContactForm
-                    data={updatedMessage.data}
+                    data={updatedMessage.data as ContactFormData}
                     messageId={updatedMessage.id}
                     onSubmit={handleContactFormSubmit}
                   />
@@ -120,19 +127,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 updatedMessage.data &&
                 'submitted' in updatedMessage.data && (
                   <Ticket
-                    data={updatedMessage.data}
+                    data={updatedMessage.data as ContactFormData}
                     messageId={updatedMessage.id}
                     onSubmit={handleTicketSubmit}
                   />
                 )}
-
-              {updatedMessage.type === 'handover' && updatedMessage.data && (
-                <Handover
-                  handoverData={updatedMessage.data as HandoverData}
-                  messageId={updatedMessage.id}
-                  onSubmit={handleTicketSubmit}
-                />
-              )}
 
               {updatedMessage.type === 'order-tracker' &&
                 updatedMessage.data &&
@@ -141,7 +140,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 window?.HelpmatePro?.isPro &&
                 window?.HelpmatePro?.components?.OrderTracker && (
                   <window.HelpmatePro.components.OrderTracker
-                    data={updatedMessage.data}
+                    data={updatedMessage.data as OrderTrackerData}
                     messageId={updatedMessage.id}
                     onSubmit={handleOrderTrackSubmit}
                   />
@@ -154,7 +153,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                 window?.HelpmatePro?.isPro &&
                 window?.HelpmatePro?.components?.RefundReturn && (
                   <window.HelpmatePro.components.RefundReturn
-                    data={updatedMessage.data}
+                    data={updatedMessage.data as ContactFormData}
                     messageId={updatedMessage.id}
                     onSubmit={handleRefundReturnSubmit}
                   />

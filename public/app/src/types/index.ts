@@ -161,13 +161,16 @@ export interface AiResponse {
     user: number;
     assistant: number;
   };
+  handoff_active?: boolean;
+  ai_disabled?: boolean;
 }
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   imageUrl?: string;
+  avatarUrl?: string;
   createdAt: Date;
   links?: {
     label: string;
@@ -182,14 +185,29 @@ export interface ChatMessage {
     | 'order-tracker'
     | 'ticket'
     | 'handover'
-    | 'refund-return';
+    | 'refund-return'
+    | 'system';
+  systemEvent?: 'team_member_joined' | string;
+  systemData?: {
+    user_id?: number;
+    first_name?: string;
+    [key: string]: unknown;
+  };
   data?:
     | CouponData
     | ProductCarouselData
     | ContactFormData
     | FAQItem[]
     | OrderTrackerData
-    | HandoverData;
+    | HandoverData
+    | SystemData;
+}
+
+export interface SystemData {
+  system_event?: 'team_member_joined' | string;
+  user_id?: number;
+  first_name?: string;
+  [key: string]: unknown;
 }
 
 export interface HandoverData {
@@ -258,20 +276,30 @@ export interface BotSettings {
     refund_return_reasons: string[];
     order_tracker_email_required: boolean;
     order_tracker_phone_required: boolean;
-    sales_notification_hide_frequency: number;
-    sales_notification_show_frequency: number;
-    sales_notification_template: string;
     proactive_sales_hide_frequency: number;
     proactive_sales_show_frequency: number;
     proactive_sales_template: string;
+    sales_notification_show_frequency?: number;
+    sales_notification_template?: string;
     collect_lead: boolean;
     lead_form_fields: string[];
     exit_intent_coupon: string;
     coupon_collect_lead: boolean;
     welcome_message_sound: boolean;
-    show_ticket_creation_option: boolean;
     hide_on_mobile: boolean;
+    business_hours_enabled?: boolean;
+    business_hours?: Record<
+      string,
+      { enabled: boolean; startTime: string; endTime: string }
+    >;
+    business_hours_timezone?: string;
   };
+  smart_scheduling?: {
+    enabled: boolean;
+    buttonText?: string;
+    pageUrl?: string;
+  };
+  live_agents?: { id: number; name: string; avatar_url: string }[];
 }
 
 export interface RecentSaleNotification {

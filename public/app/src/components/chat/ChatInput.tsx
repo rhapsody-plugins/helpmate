@@ -10,6 +10,34 @@ import { Send, X } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
+interface LiveAgent {
+  id: number;
+  name: string;
+  avatar_url: string;
+}
+
+const INITIAL_COLOR_PALETTE = [
+  'bg-blue-500 text-white',
+  'bg-green-500 text-white',
+  'bg-amber-500 text-white',
+  'bg-violet-500 text-white',
+  'bg-rose-500 text-white',
+  'bg-cyan-500 text-white',
+  'bg-emerald-500 text-white',
+  'bg-orange-500 text-white',
+] as const;
+
+function initialColor(name: string): string {
+  let hash = 0;
+  const s = name || '?';
+  for (let i = 0; i < s.length; i++) {
+    hash = (hash << 5) - hash + s.charCodeAt(i);
+    hash |= 0;
+  }
+  const index = Math.abs(hash) % INITIAL_COLOR_PALETTE.length;
+  return INITIAL_COLOR_PALETTE[index];
+}
+
 interface ChatInputProps {
   input: string;
   image: File | null;
@@ -22,6 +50,8 @@ interface ChatInputProps {
   isChatOpen: boolean;
   hasStartedConversation: boolean;
   handleQuickOptionClick: (message: string) => void;
+  liveAgentsAvailable?: boolean;
+  liveAgents?: LiveAgent[];
 }
 
 export function ChatInput({
@@ -36,6 +66,8 @@ export function ChatInput({
   isChatOpen,
   hasStartedConversation,
   handleQuickOptionClick,
+  liveAgentsAvailable = false,
+  liveAgents = [],
 }: ChatInputProps) {
   const { icon_shape } = useTheme();
   const { getSettingsQuery } = useSettings();
@@ -219,12 +251,11 @@ export function ChatInput({
           </Button>
         </div>
       )}
+
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className={`flex relative flex-col items-center bg-white rounded-lg border border-input ${
-          hasProAccess && imageSearch ? 'cursor-pointer' : ''
-        }`}
+        className={`flex relative flex-col items-center bg-white rounded-lg border border-input`}
         onPaste={handlePaste}
         onDragOver={handleDragOver}
         onDragEnter={handleDragEnter}
@@ -240,7 +271,43 @@ export function ChatInput({
           className="flex-grow bg-white resize-none min-h-[100px] !pb-15 shadow-none !border-none focus-visible:ring-0 focus-visible:ring-offset-0"
           disabled={isLoading}
         />
-        <div className="absolute bottom-3 left-3 z-10">
+        {liveAgentsAvailable && liveAgents.length > 0 && (
+          <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5">
+            <div className="flex items-center">
+                <div
+                  className="size-5 min-w-5 min-h-5 max-w-5 max-h-5 rounded-full border-2 border-white flex-shrink-0 overflow-hidden ring-1 ring-border box-border relative z-[2]"
+                  title={liveAgents[0].name}
+                >
+                  {liveAgents[0].avatar_url ? (
+                    <img
+                      src={liveAgents[0].avatar_url}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span
+                      className={cn(
+                        'w-full h-full flex items-center justify-center text-[10px] font-medium',
+                        initialColor(liveAgents[0].name)
+                      )}
+                    >
+                      {(liveAgents[0].name || '?').charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                {liveAgents.length > 1 && (
+                  <div
+                    className="size-5 min-w-5 min-h-5 max-w-5 max-h-5 rounded-full border-2 border-white bg-white text-primary flex items-center justify-center text-[10px] font-medium flex-shrink-0 -ml-1.5 ring-1 ring-border box-border relative z-[3]"
+                    title={`+${liveAgents.length - 1} more`}
+                  >
+                    +{liveAgents.length - 1}
+                  </div>
+                )}
+              </div>
+            <span className="text-xs text-muted-foreground">Live Agents</span>
+          </div>
+        )}
+        <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5">
           {settings?.is_pro &&
             window?.HelpmatePro?.isPro &&
             window?.HelpmatePro?.components?.ImageSearch &&
@@ -252,15 +319,15 @@ export function ChatInput({
                 fileInputRef={fileInputRef}
               />
             )}
+          <Button
+            type="submit"
+            size="icon"
+            disabled={isSubmitDisabled}
+            className="bg-primary"
+          >
+            <Send size={16} />
+          </Button>
         </div>
-        <Button
-          type="submit"
-          size="icon"
-          disabled={isSubmitDisabled}
-          className="absolute right-3 bottom-3 z-10 ml-auto bg-primary"
-        >
-          <Send size={16} />
-        </Button>
       </form>
 
       {/* Localhost image search warning */}

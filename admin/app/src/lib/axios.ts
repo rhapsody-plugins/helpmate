@@ -1,8 +1,10 @@
 import axios from 'axios';
 
-// Create axios instance with default config
+// Create axios instance with default config (use rest_url when set so route matching is reliable)
 const api = axios.create({
-  baseURL: `${window.helpmateApiSettings?.site_url || window.location.origin}/?rest_route=/helpmate/v1`,
+  baseURL:
+    window.helpmateApiSettings?.rest_url ||
+    `${window.helpmateApiSettings?.site_url || window.location.origin}/?rest_route=/helpmate/v1`,
   headers: {
     'Content-Type': 'application/json',
     'X-WP-Nonce': window.helpmateApiSettings?.nonce || '', // WordPress nonce for authentication

@@ -23,21 +23,24 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-const SIDEBAR_COOKIE_NAME = 'sidebar_state';
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = '16rem';
+const SIDEBAR_STORAGE_KEY = 'helpmate_sidebar_state';
+const SIDEBAR_SUBMENU_STORAGE_KEY = 'helpmate_sidebar_submenu_open';
+const SIDEBAR_WIDTH = '18rem';
 const SIDEBAR_WIDTH_MOBILE = '18rem';
-const SIDEBAR_WIDTH_ICON = '3rem';
+const SIDEBAR_WIDTH_ICON = '3.5rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
 
 type SidebarContextProps = {
   state: 'expanded' | 'collapsed';
   open: boolean;
   setOpen: (open: boolean) => void;
+  submenuOpen: boolean;
+  setSubmenuOpen: (open: boolean) => void;
   openMobile: boolean;
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  closeSubmenuPanel: () => void;
 };
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
@@ -67,10 +70,47 @@ function SidebarProvider({
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
 
+  // Read initial state from localStorage
+  const getInitialOpenState = React.useCallback(() => {
+    if (typeof window === 'undefined') return defaultOpen;
+    try {
+      const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+      if (stored !== null) {
+        return stored === 'true';
+      }
+    } catch (error) {
+      // localStorage might not be available
+      console.warn('Failed to read sidebar state from localStorage:', error);
+    }
+    return defaultOpen;
+  }, [defaultOpen]);
+
+  const getInitialSubmenuOpen = React.useCallback(() => {
+    if (typeof window === 'undefined') return true;
+    try {
+      const stored = localStorage.getItem(SIDEBAR_SUBMENU_STORAGE_KEY);
+      if (stored !== null) return stored === 'true';
+    } catch {
+      // ignore
+    }
+    return true;
+  }, []);
+
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
-  const [_open, _setOpen] = React.useState(defaultOpen);
+  const [_open, _setOpen] = React.useState(getInitialOpenState);
   const open = openProp ?? _open;
+  const [_submenuOpen, _setSubmenuOpen] = React.useState(getInitialSubmenuOpen);
+  const submenuOpen = _submenuOpen;
+  const setSubmenuOpen = React.useCallback((value: boolean) => {
+    _setSubmenuOpen(value);
+    try {
+      localStorage.setItem(SIDEBAR_SUBMENU_STORAGE_KEY, String(value));
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === 'function' ? value(open) : value;
@@ -80,16 +120,24 @@ function SidebarProvider({
         _setOpen(openState);
       }
 
-      // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      // Save state to localStorage
+      try {
+        localStorage.setItem(SIDEBAR_STORAGE_KEY, String(openState));
+      } catch (error) {
+        // localStorage might not be available
+        console.warn('Failed to save sidebar state to localStorage:', error);
+      }
     },
     [setOpenProp, open]
   );
 
-  // Helper to toggle the sidebar.
+  // Helper to toggle the sidebar (mobile: sheet; desktop: legacy full sidebar toggle).
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
   }, [isMobile, setOpen, setOpenMobile]);
+
+  // Close only the submenu panel (second-level menu); used by page header button on desktop.
+  const closeSubmenuPanel = React.useCallback(() => setSubmenuOpen(false), [setSubmenuOpen]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -116,12 +164,26 @@ function SidebarProvider({
       state,
       open,
       setOpen,
+      submenuOpen,
+      setSubmenuOpen,
       isMobile,
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      closeSubmenuPanel,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+    [
+      state,
+      open,
+      setOpen,
+      submenuOpen,
+      setSubmenuOpen,
+      isMobile,
+      openMobile,
+      setOpenMobile,
+      toggleSidebar,
+      closeSubmenuPanel,
+    ]
   );
 
   return (
@@ -137,7 +199,7 @@ function SidebarProvider({
             } as React.CSSProperties
           }
           className={cn(
-            'relative overflow-hidden rounded-lg bg-sidebar border group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-[calc(100svh-180px)] w-full',
+            'relative overflow-hidden rounded-lg bg-sidebar border group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex flex-1 min-h-0 h-full w-full',
             className
           )}
           {...props}
@@ -168,7 +230,7 @@ function Sidebar({
       <div
         data-slot="sidebar"
         className={cn(
-          'bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col',
+          'flex flex-col h-full bg-sidebar text-sidebar-foreground w-(--sidebar-width)',
           className
         )}
         {...props}
@@ -256,7 +318,7 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar();
+  const { isMobile, toggleSidebar, submenuOpen, setSubmenuOpen } = useSidebar();
 
   return (
     <Button
@@ -267,12 +329,18 @@ function SidebarTrigger({
       className={cn('size-7', className)}
       onClick={(event) => {
         onClick?.(event);
-        toggleSidebar();
+        if (isMobile) {
+          toggleSidebar();
+        } else {
+          setSubmenuOpen(!submenuOpen);
+        }
       }}
       {...props}
     >
       <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
+      <span className="sr-only">
+        {isMobile ? 'Toggle Sidebar' : 'Toggle submenu'}
+      </span>
     </Button>
   );
 }
@@ -324,7 +392,7 @@ function SidebarInput({
     <Input
       data-slot="sidebar-input"
       data-sidebar="input"
-      className={cn('bg-background h-8 w-full shadow-none', className)}
+      className={cn('w-full h-8 shadow-none bg-background', className)}
       {...props}
     />
   );
@@ -360,7 +428,7 @@ function SidebarSeparator({
     <Separator
       data-slot="sidebar-separator"
       data-sidebar="separator"
-      className={cn('bg-sidebar-border mx-2 w-auto', className)}
+      className={cn('mx-2 w-auto bg-sidebar-border', className)}
       {...props}
     />
   );
@@ -385,7 +453,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="sidebar-group"
       data-sidebar="group"
-      className={cn('relative flex w-full min-w-0 flex-col p-2', className)}
+      className={cn('flex relative flex-col p-2 w-full min-w-0', className)}
       {...props}
     />
   );
@@ -454,7 +522,7 @@ function SidebarMenu({ className, ...props }: React.ComponentProps<'ul'>) {
     <ul
       data-slot="sidebar-menu"
       data-sidebar="menu"
-      className={cn('flex w-full min-w-0 flex-col gap-1', className)}
+      className={cn('flex flex-col gap-1 w-full min-w-0', className)}
       {...props}
     />
   );
@@ -613,7 +681,7 @@ function SidebarMenuSkeleton({
     <div
       data-slot="sidebar-menu-skeleton"
       data-sidebar="menu-skeleton"
-      className={cn('flex h-8 items-center gap-2 rounded-md px-2', className)}
+      className={cn('flex gap-2 items-center px-2 h-8 rounded-md', className)}
       {...props}
     >
       {showIcon && (
@@ -641,7 +709,7 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<'ul'>) {
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
       className={cn(
-        'border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5',
+        'border-sidebar-border flex min-w-0 flex-col gap-1 border-l px-2.5 py-0.5',
         'group-data-[collapsible=icon]:hidden',
         className
       )}
@@ -658,7 +726,7 @@ function SidebarMenuSubItem({
     <li
       data-slot="sidebar-menu-sub-item"
       data-sidebar="menu-sub-item"
-      className={cn('group/menu-sub-item relative', className)}
+      className={cn('relative group/menu-sub-item', className)}
       {...props}
     />
   );

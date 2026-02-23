@@ -77,7 +77,7 @@ class Helpmate_Api
      *
      * @var string
      */
-    private $api_server = 'http://localhost:10024';
+    private $api_server = WP_HELPMATE_API_SERVER;
 
     /**
      * Constructor
@@ -544,5 +544,54 @@ class Helpmate_Api
             'success' => true,
             'message' => __('Activation feedback sent', 'helpmate-ai-chatbot')
         );
+    }
+
+    /**
+     * Save OpenAI API key (encrypted).
+     *
+     * @since 1.0.0
+     * @param string $openai_key The OpenAI API key to save.
+     * @return array
+     */
+    public function save_openai_key($openai_key)
+    {
+        if (empty($openai_key)) {
+            return array(
+                'success' => false,
+                'message' => __('OpenAI API key is required', 'helpmate-ai-chatbot')
+            );
+        }
+
+        // Validate OpenAI key format (should start with sk-)
+        if (strpos($openai_key, 'sk-') !== 0) {
+            return array(
+                'success' => false,
+                'message' => __('Invalid OpenAI API key format. Key must start with "sk-"', 'helpmate-ai-chatbot')
+            );
+        }
+
+        // Encrypt and save the key
+        $encrypted_key = $this->encrypt_data($openai_key);
+        $this->settings->set_setting('openai_api_key', $encrypted_key);
+
+        return array(
+            'success' => true,
+            'message' => __('OpenAI API key saved successfully', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Get OpenAI API key (decrypted).
+     *
+     * @since 1.0.0
+     * @return string|null
+     */
+    public function get_openai_key()
+    {
+        $encrypted_key = $this->settings->get_setting('openai_api_key');
+        if (empty($encrypted_key)) {
+            return null;
+        }
+        return $this->decrypt_data($encrypted_key);
     }
 }

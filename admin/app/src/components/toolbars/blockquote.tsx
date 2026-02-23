@@ -21,12 +21,15 @@ const BlockquoteToolbar = React.forwardRef<HTMLButtonElement, React.ComponentPro
 					<Button
 						variant="ghost"
 						size="icon"
+						type="button"
 						className={cn(
 							"h-8 w-8",
 							editor?.isActive("blockquote") && "bg-accent",
 							className,
 						)}
 						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
 							editor?.chain().focus().toggleBlockquote().run();
 							onClick?.(e);
 						}}

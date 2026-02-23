@@ -165,7 +165,7 @@ export default function ChatBotPreview({
                 <div className="flex gap-2 items-end">
                   <Avatar role="assistant" bot_icon={bot_icon} />
                   <div
-                    className="bg-[var(--primary-2)]/10 px-3 py-2 rounded-md border border-white max-w-[80%]"
+                    className="bg-[var(--primary-2)]/10 px-3 py-2 rounded-md border border-white max-w-[80%] text-neutral-800"
                     style={{ fontSize: 'var(--font-size)', lineHeight: '1.2' }}
                   >
                     Hello! How can I assist you today?
@@ -179,7 +179,7 @@ export default function ChatBotPreview({
                   <Input
                     type="text"
                     placeholder="Type your message..."
-                    className="!rounded-md !border-input"
+                    className="!rounded-md !border-input !bg-white"
                   />
                 </div>
                 <Button size="icon" className="[background:var(--primary-2)]">

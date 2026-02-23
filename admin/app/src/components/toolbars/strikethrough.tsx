@@ -21,12 +21,15 @@ const StrikeThroughToolbar = React.forwardRef<HTMLButtonElement, React.Component
 					<Button
 						variant="ghost"
 						size="icon"
+						type="button"
 						className={cn(
 							"h-8 w-8",
 							editor?.isActive("strike") && "bg-accent",
 							className,
 						)}
 						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
 							editor?.chain().focus().toggleStrike().run();
 							onClick?.(e);
 						}}

@@ -9,14 +9,18 @@ import LeadCollection from '@/components/LeadCollection';
 
 interface CouponProps {
   data: CouponData;
+  /** When true, skip LeadCollection and always show coupon (e.g. admin inbox display) */
+  skipLeadGate?: boolean;
 }
 
-export function Coupon({ data }: CouponProps) {
+export function Coupon({ data, skipLeadGate = false }: CouponProps) {
   const [copied, setCopied] = useState(false);
-  const [collectLead, setCollectLead] = useState(false);
-  const { getSettingsQuery } = useSettings();
-  const { data: settings } = getSettingsQuery;
-  const couponCollectLead = settings?.settings?.coupon_collect_lead;
+  const [collectLead, setCollectLead] = useState(skipLeadGate);
+  const useSettingsResult = useSettings() as {
+    getSettingsQuery?: { data?: { settings?: { coupon_collect_lead?: boolean } } };
+  };
+  const settings = useSettingsResult.getSettingsQuery?.data;
+  const couponCollectLead = !skipLeadGate && settings?.settings?.coupon_collect_lead;
 
   const copyToClipboard = async () => {
     try {

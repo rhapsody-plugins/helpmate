@@ -13,7 +13,7 @@ export default function MediaPicker({
   defaultImage: React.ReactNode;
 }) {
   const openMediaLibrary = () => {
-    const frame = window.wp.media({
+    const frame = window.wp?.media({
       title: 'Select or Upload Image',
       button: {
         text: 'Use this image',
@@ -21,12 +21,12 @@ export default function MediaPicker({
       multiple: false,
     });
 
-    frame.on('select', () => {
-      const attachment = frame.state().get('selection').first().toJSON();
-      setImageUrl(attachment.url);
+    frame?.on('select', () => {
+      const attachment = frame?.state().get('selection').first().toJSON();
+      setImageUrl(attachment?.url || '');
     });
 
-    frame.open();
+    frame?.open();
   };
 
   return (

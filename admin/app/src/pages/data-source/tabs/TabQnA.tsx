@@ -18,12 +18,20 @@ import {
 } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
+import { useSettings } from '@/hooks/useSettings';
 import { DataSource } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -44,6 +52,10 @@ export default function TabQnA() {
   } | null>(null);
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
   const [removingQnAId, setRemovingQnAId] = useState<number | null>(null);
+  const { openAiKeyQuery } = useApi();
+  const { getProQuery } = useSettings();
+  const isPro = getProQuery.data ?? false;
+  const canEditOrDelete = !!openAiKeyQuery.data?.openai_key && isPro;
   const {
     getSourcesMutation,
     addSourceMutation,
@@ -222,7 +234,9 @@ export default function TabQnA() {
         header: 'Last Updated',
         cell: ({ row }) => {
           const timestamp = row.getValue('last_updated') as number;
-          return format(new Date(timestamp * 1000), 'PPpp');
+          return format(parseUTCTimestamp(timestamp), 'PPpp', {
+            locale: defaultLocale,
+          });
         },
       },
 
@@ -266,28 +280,58 @@ export default function TabQnA() {
               >
                 View
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleEdit(row.original.id)}
-              >
-                Edit
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                loading={removeIsPending && isRemoving}
-                disabled={removeIsPending && isRemoving}
-                onClick={() => handleRemove(row.original.id)}
-              >
-                {isRemoving ? 'Deleting...' : 'Delete'}
-              </Button>
+              {canEditOrDelete ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEdit(row.original.id)}
+                >
+                  Edit
+                </Button>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block">
+                      <Button variant="outline" size="sm" disabled>
+                        Edit
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Add your OpenAI API key in Manage API to edit or delete
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              {canEditOrDelete ? (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  loading={removeIsPending && isRemoving}
+                  disabled={removeIsPending && isRemoving}
+                  onClick={() => handleRemove(row.original.id)}
+                >
+                  {isRemoving ? 'Deleting...' : 'Delete'}
+                </Button>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block">
+                      <Button variant="destructive" size="sm" disabled>
+                        Delete
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Add your OpenAI API key in Manage API to edit or delete
+                  </TooltipContent>
+                </Tooltip>
+              )}
             </div>
           );
         },
       },
     ],
-    [handleRemove, handleEdit, removeIsPending, removingQnAId]
+    [handleRemove, handleEdit, removeIsPending, removingQnAId, canEditOrDelete]
   );
 
   /*
@@ -355,13 +399,32 @@ export default function TabQnA() {
                   )}
                 />
               </div>
-              <Button
-                disabled={addIsPending || updateIsPending}
-                loading={addIsPending || updateIsPending}
-                type="submit"
-              >
-                {addIsPending || updateIsPending ? 'Saving...' : 'Save'}
-              </Button>
+              {form.watch('id') && !canEditOrDelete ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block">
+                      <Button
+                        disabled
+                        loading={addIsPending || updateIsPending}
+                        type="submit"
+                      >
+                        {addIsPending || updateIsPending ? 'Saving...' : 'Save'}
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Add your OpenAI API key in Manage API to edit or delete
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Button
+                  disabled={addIsPending || updateIsPending}
+                  loading={addIsPending || updateIsPending}
+                  type="submit"
+                >
+                  {addIsPending || updateIsPending ? 'Saving...' : 'Save'}
+                </Button>
+              )}
             </form>
           </Form>
         </CardContent>

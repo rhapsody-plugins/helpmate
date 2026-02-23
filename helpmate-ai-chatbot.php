@@ -13,15 +13,15 @@
  * @package           Helpmate
  *
  * @wordpress-plugin
- * Plugin Name:       Helpmate – Sales & Support AI Chatbot for WooCommerce
+ * Plugin Name:       Helpmate – Support Automation, AI Chatbot, Live Chat, Social Automation, Booking & CRM Solution
  * Plugin URI:        https://rhapsodyplugins.com/helpmate
- * Description:       Helpmate is an AI-powered WooCommerce chatbot that boosts sales, automates support, and engages customers 24/7 with smart, human-like chat.
- * Version:           1.1.6
+ * Description:       Reduce 97% of support queries and 70% of workload with AI Chatbot, Live Chat, CRM, Booking and WhatsApp automation.
+ * Version:           2.0.0
  * Author:            Rhapsody Plugins
  * Author URI:        https://rhapsodyplugins.com/
  * Requires at least: 5.0
- * Tested up to:      6.8.2
- * Stable tag:        1.1.6
+ * Tested up to:      6.9.1
+ * Stable tag:        2.0.0
  * Requires PHP:      7.4
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('HELPMATE_VERSION', '1.1.6');
+define('HELPMATE_VERSION', '2.0.0');
 
 /**
  * Plugin constants
@@ -61,17 +61,21 @@ define('HELPMATE_MODULE_ABANDONED_CART', 'abandoned-cart');
 define('HELPMATE_MODULE_ORDER_TRACKER', 'order-tracker');
 define('HELPMATE_MODULE_COUPON_DELIVERY', 'coupon-delivery');
 define('HELPMATE_MODULE_PROMO_BANNER', 'promo-banner');
+define('HELPMATE_MODULE_CRM', 'crm');
+define('HELPMATE_MODULE_SMART_SCHEDULING', 'smart-scheduling');
 define('HELPMATE_MODULE_DEFAULT_SETTINGS', [
 	HELPMATE_MODULE_CHATBOT => true,
+	HELPMATE_MODULE_TICKET_SYSTEM => true,
+	HELPMATE_MODULE_IMAGE_SEARCH => true,
+	HELPMATE_MODULE_PROACTIVE_SALES => true,
+	HELPMATE_MODULE_REFUND_RETURN => true,
 	HELPMATE_MODULE_SALES_NOTIFICATIONS => true,
 	HELPMATE_MODULE_PROMO_BANNER => true,
-	HELPMATE_MODULE_TICKET_SYSTEM => true,
-	HELPMATE_MODULE_IMAGE_SEARCH => false,
-	HELPMATE_MODULE_PROACTIVE_SALES => false,
-	HELPMATE_MODULE_REFUND_RETURN => false,
-	HELPMATE_MODULE_ABANDONED_CART => false,
-	HELPMATE_MODULE_ORDER_TRACKER => false,
-	HELPMATE_MODULE_COUPON_DELIVERY => false,
+	HELPMATE_MODULE_ABANDONED_CART => true,
+	HELPMATE_MODULE_ORDER_TRACKER => true,
+	HELPMATE_MODULE_COUPON_DELIVERY => true,
+	HELPMATE_MODULE_CRM => true,
+	HELPMATE_MODULE_SMART_SCHEDULING => true,
 ]);
 
 /**

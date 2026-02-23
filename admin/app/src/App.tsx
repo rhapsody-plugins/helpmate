@@ -1,17 +1,16 @@
 import Layout from '@/components/Layout';
+import { NotificationTitleSync } from '@/components/NotificationTitleSync';
+import { NotificationsProvider } from '@/components/NotificationsProvider';
 import TopBar from '@/components/TopBar';
 import { Toaster } from '@/components/ui/sonner';
-import { MainProvider } from '@/contexts/MainContext';
-import Dashboard from '@/pages/Dashboard';
-import ManageApi from '@/pages/ManageApi';
+import { MainProvider, useMain } from '@/contexts/MainContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
 
 const queryClient = new QueryClient();
 
 declare global {
   interface Window {
-    wp: {
+    wp?: {
       media: (options: {
         title?: string;
         button?: { text?: string };
@@ -36,24 +35,40 @@ declare global {
     helpmateApiSettings: {
       nonce: string;
       site_url: string;
+      rest_url: string;
     };
   }
 }
 
-function App() {
-  // Get tab from URL search params
-  const urlParams = new URLSearchParams(window.location.search);
-  const tab = urlParams.get('tab') ?? '';
-  const [page, setPage] = useState(tab ? 'home' : 'dashboard');
+function AppContent() {
+  const { page } = useMain();
 
+  // Hide TopBar on setup page
+  const showTopBar = page !== 'setup';
+
+  return (
+    <div className="flex flex-col h-[90vh] min-h-0">
+      {showTopBar ? (
+        <NotificationsProvider>
+          <NotificationTitleSync />
+          <TopBar />
+          <Layout />
+        </NotificationsProvider>
+      ) : (
+        <>
+          <Layout />
+        </>
+      )}
+      <Toaster />
+    </div>
+  );
+}
+
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <MainProvider>
-        <TopBar onPageChange={setPage} page={page} />
-        {page === 'home' && <Layout />}
-        {page === 'dashboard' && <Dashboard setAppPage={setPage} />}
-        {page === 'manage-api' && <ManageApi setPage={setPage} />}
-        <Toaster />
+        <AppContent />
       </MainProvider>
     </QueryClientProvider>
   );

@@ -15,9 +15,14 @@ import { StrikeThroughToolbar } from '@/components/toolbars/strikethrough';
 import { TextInsertToolbar } from '@/components/toolbars/text-insert';
 import { ToolbarProvider } from '@/components/toolbars/toolbar-provider';
 import { UndoToolbar } from '@/components/toolbars/undo';
+import { ImageToolbar } from '@/components/toolbars/image';
+import { CodeViewToolbar } from '@/components/toolbars/code-view';
 import { EditorContent, type Extension, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { Markdown } from 'tiptap-markdown';
+import Image from '@tiptap/extension-image';
+import { useEffect, useState } from 'react';
+import { Textarea } from '@/components/ui/textarea';
 
 const getExtensions = (useMarkdown: boolean) => [
   StarterKit.configure({
@@ -53,72 +58,139 @@ const getExtensions = (useMarkdown: boolean) => [
       },
     },
   }),
+  Image.configure({
+    inline: true,
+    allowBase64: true,
+  }),
   ...(useMarkdown ? [Markdown] : []),
 ];
+
+interface VariableGroup {
+  label: string;
+  variables: string[];
+}
 
 const RichTextEditor = ({
   content,
   onChange,
   texts = [],
+  groupedVariables,
   useMarkdown = false,
 }: {
   content: string;
   onChange: (content: string) => void;
   texts?: string[];
+  groupedVariables?: VariableGroup[];
   useMarkdown?: boolean;
 }) => {
+  const [isCodeView, setIsCodeView] = useState(false);
+  const [codeContent, setCodeContent] = useState(content);
+
   const editor = useEditor({
     extensions: getExtensions(useMarkdown) as Extension[],
     content,
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
       if (useMarkdown) {
-        onChange(editor.storage.markdown.getMarkdown());
+        const newContent = editor.storage.markdown.getMarkdown();
+        onChange(newContent);
+        setCodeContent(newContent);
       } else {
-        onChange(editor.getHTML());
+        const newContent = editor.getHTML();
+        onChange(newContent);
+        setCodeContent(newContent);
       }
     },
   });
+
+  // Update editor content when content prop changes
+  useEffect(() => {
+    if (editor && content !== undefined && !isCodeView) {
+      const currentContent = useMarkdown
+        ? editor.storage.markdown?.getMarkdown()
+        : editor.getHTML();
+
+      // Only update if content actually changed to avoid infinite loops
+      if (currentContent !== content) {
+        editor.commands.setContent(content, false);
+      }
+    }
+  }, [content, editor, useMarkdown, isCodeView]);
+
+  // Sync code content when switching views
+  useEffect(() => {
+    if (isCodeView) {
+      setCodeContent(content);
+    }
+  }, [isCodeView, content]);
+
+  const handleCodeViewToggle = () => {
+    if (isCodeView) {
+      // Switching from code view to visual view
+      if (editor) {
+        editor.commands.setContent(codeContent, false);
+        onChange(codeContent);
+      }
+    }
+    setIsCodeView(!isCodeView);
+  };
+
+  const handleCodeChange = (value: string) => {
+    setCodeContent(value);
+    onChange(value);
+  };
 
   if (!editor) {
     return null;
   }
 
   return (
-    <div className="relative w-full pb-3 overflow-hidden border rounded-md border-input">
-      <div className="sticky top-0 left-0 z-20 flex items-center justify-between w-full px-2 py-2 border-b bg-background border-input">
-        <ToolbarProvider editor={editor}>
-          <div className="flex items-center gap-2">
-            <UndoToolbar />
-            <RedoToolbar />
-            <Separator orientation="vertical" className="h-7" />
-            <BoldToolbar />
-            <ItalicToolbar />
-            <StrikeThroughToolbar />
-            <BulletListToolbar />
-            <OrderedListToolbar />
-            <CodeToolbar />
-            <CodeBlockToolbar />
-            <HorizontalRuleToolbar />
-            <BlockquoteToolbar />
-            <HardBreakToolbar />
-            {texts.length > 0 && (
-              <>
+    <div className="overflow-hidden relative pb-3 w-full rounded-md border border-input">
+        <div className="flex sticky top-0 left-0 z-20 justify-between items-center px-2 py-2 w-full border-b bg-background border-input">
+          <ToolbarProvider editor={editor}>
+            <div className="flex flex-1 gap-2 items-center">
+              <UndoToolbar />
+              <RedoToolbar />
+              <Separator orientation="vertical" className="h-7" />
+              <BoldToolbar />
+              <ItalicToolbar />
+              <StrikeThroughToolbar />
+              <BulletListToolbar />
+              <OrderedListToolbar />
+              <CodeToolbar />
+              <CodeBlockToolbar />
+              <HorizontalRuleToolbar />
+              <BlockquoteToolbar />
+              <HardBreakToolbar />
+              <ImageToolbar />
+              <Separator orientation="vertical" className="h-7" />
+              <CodeViewToolbar isCodeView={isCodeView} onToggle={handleCodeViewToggle} />
+            </div>
+            {(texts.length > 0 || (groupedVariables && groupedVariables.length > 0)) && (
+              <div className="flex gap-2 items-center ml-auto">
                 <Separator orientation="vertical" className="h-7" />
-                <TextInsertToolbar texts={texts} />
-              </>
+                <TextInsertToolbar texts={texts} grouped={groupedVariables} />
+              </div>
             )}
-          </div>
-        </ToolbarProvider>
-      </div>
-      <div
-        onClick={() => {
-          editor?.chain().focus().run();
-        }}
-        className="cursor-text min-h-[10rem] bg-background"
-      >
-        <EditorContent className="outline-none" editor={editor} />
-      </div>
+          </ToolbarProvider>
+        </div>
+      {isCodeView ? (
+        <Textarea
+          value={codeContent}
+          onChange={(e) => handleCodeChange(e.target.value)}
+          className="min-h-[10rem] font-mono text-sm resize-none border-0 rounded-none"
+          placeholder="Enter HTML code..."
+        />
+      ) : (
+        <div
+          onClick={() => {
+            editor?.chain().focus().run();
+          }}
+          className="cursor-text min-h-[10rem] bg-background"
+        >
+          <EditorContent className="outline-none" editor={editor} />
+        </div>
+      )}
     </div>
   );
 };

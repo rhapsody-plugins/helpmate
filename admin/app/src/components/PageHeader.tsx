@@ -1,22 +1,25 @@
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import { MenuItem } from '@/types';
 import { ChevronRight } from 'lucide-react';
 export default function PageHeader({
   menuItems,
   title,
   rightActions,
+  disableTrigger = false,
 }: {
   menuItems?: MenuItem[];
   title?: string;
   rightActions?: React.ReactNode;
+  disableTrigger?: boolean;
 }) {
   return (
-    <header className="flex gap-2 items-center p-2 border-b border-border/50">
-      <SidebarTrigger className="my-1" />
-      <Separator orientation="vertical" className="mr-2 !h-4" />
-      {title && <h1 className="!text-sm !text-muted-foreground !m-0 !p-0">{title}</h1>}
+    <header className="flex sticky top-0 z-10 gap-2 items-center p-2 bg-white border-b border-border/50 min-h-[62px]">
+      {!disableTrigger && <SidebarTrigger className="my-1" />}
+      {!disableTrigger && <Separator orientation="vertical" className="mr-2 !h-4" />}
+      {title && <h1 className={cn("!text-sm !text-muted-foreground !m-0 !p-0", disableTrigger && "!ml-[18px]")}>{title}</h1>}
       {menuItems && (
         <>
           <ChevronRight className="!w-4 !h-4 opacity-50" />

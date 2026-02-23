@@ -58,6 +58,22 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+/** Canonical defaults (synced with backend: class-helpmate-database.php, class-helpmate-settings.php) */
+const APPEARANCE_DEFAULTS: FormData = {
+  bot_name: 'Helpmate',
+  bot_icon: '',
+  primary_color: '#455CFE',
+  primary_gradient: 'linear-gradient(to top left,#748EFF,#455CFE)',
+  secondary_color: '#748EFF',
+  secondary_gradient: '',
+  font_size: '1rem',
+  sound_effect: 'notification-1.mp3',
+  icon: '',
+  icon_size: '60px',
+  position: 'right',
+  icon_shape: 'circle',
+};
+
 export default function TabWidget() {
   const { getSettingsMutation, updateSettingsMutation, getProQuery } =
     useSettings();
@@ -68,20 +84,7 @@ export default function TabWidget() {
     updateSettingsMutation;
 
   const form = useForm<FormData>({
-    defaultValues: {
-      bot_name: 'Helpmate',
-      bot_icon: '',
-      primary_color: '#000000',
-      primary_gradient: '#000000',
-      secondary_color: '#000000',
-      secondary_gradient: '#000000',
-      font_size: '1rem',
-      sound_effect: 'none',
-      icon: '',
-      icon_size: '60px',
-      position: 'right',
-      icon_shape: 'circle',
-    },
+    defaultValues: APPEARANCE_DEFAULTS,
     resolver: zodResolver(formSchema),
   });
 
@@ -152,6 +155,11 @@ export default function TabWidget() {
     });
   }, [form, getSettings, handleStyleUpdate]);
 
+  const handleResetToDefaults = useCallback(() => {
+    form.reset(APPEARANCE_DEFAULTS);
+    handleStyleUpdate(APPEARANCE_DEFAULTS);
+  }, [form, handleStyleUpdate]);
+
   useEffect(() => {
     handleStyleUpdate(values);
   }, [values, handleStyleUpdate]);
@@ -171,7 +179,7 @@ export default function TabWidget() {
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="flex gap-1 items-center text-xl font-bold">
-            Chatbot{' '}
+            Appearance{' '}
             <InfoTooltip message="Settings for the Helpmate chatbot widget." />
           </CardTitle>
         </CardHeader>
@@ -508,13 +516,20 @@ export default function TabWidget() {
                     <Separator />
                   </div>
 
-                  <div className="col-span-2">
+                  <div className="col-span-2 flex gap-2">
                     <Button
                       type="submit"
                       disabled={isUpdating}
                       loading={isUpdating}
                     >
                       {isUpdating ? 'Saving...' : 'Save'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleResetToDefaults}
+                    >
+                      Reset
                     </Button>
                   </div>
                 </div>

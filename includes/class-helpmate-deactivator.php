@@ -59,6 +59,9 @@ class Helpmate_Deactivator {
 				array('%s', '%s', '%d')
 			);
 		}
+
+		// Flush rewrite rules to remove custom routes
+		flush_rewrite_rules();
 	}
 
 }

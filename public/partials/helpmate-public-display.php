@@ -16,7 +16,7 @@
 if (!defined('ABSPATH'))
     exit;
 
-$is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV;
+$is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV; // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Checking if WP_HELPMATE_DEV is defined and is true
 
 ?>
 

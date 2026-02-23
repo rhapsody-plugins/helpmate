@@ -1,41 +1,27 @@
-=== Helpmate – Sales & Support AI Chatbot for WooCommerce ===
+=== Helpmate – Support Automation, AI Chatbot, Live Chat, Social Automation, Booking & CRM Solution ===
 Contributors: rhapsodyplugins
-Tags: ai chatbot, customer support, helpdesk, woocommerce, wordpress chatbot
+Tags: automation, ai chatbot, live chat, crm, appointments
 Requires at least: 5.0
 Requires PHP: 7.4
-Tested up to: 6.8
-Stable tag: 1.1.6
+Tested up to: 6.9.1
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Helpmate is an AI-powered WooCommerce chatbot that boosts sales, automates support, and engages customers 24/7 with smart, human-like chat.
+Reduce 97% of support queries and 70% of workload with AI Chatbot, Live Chat, CRM, Booking and WhatsApp automation.
 
 == Description ==
+= Reduce up to 97% of repetitive support questions and 70% of multichannel workload using one powerful WordPress plugin that unifies AI Chatbot, Live Chat, CRM, Appointments, Booking, and automation for Facebook, Instagram, and WhatsApp, along with lead capture and sales automation. =
 
-**[Helpmate – Sales & Support AI Chatbot for WooCommerce](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user)**
+**[Helpmate – Live, Social & AI Chat with Built-in CRM](https://helpmate.chat/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user)**
 
-= 💬 Tired of Answering the Same Questions? =
+Helpmate is a support automation plugin for WordPress that combines AI chatbot, live chat, CRM, appointments, booking, Facebook, Instagram, WhatsApp messaging, and automation tools in one system.
 
-Let's be honest, repeating answers to the same customer questions gets old. That's where **Helpmate** comes in. It gives your customers instant replies, finds products for them, and tracks orders automatically—all from a simple chat widget on your site.
+This AI chatbot for WordPress helps automate customer support, manage leads, handle live chat conversations, run booking and appointments, and centralize CRM data inside your WordPress dashboard.
 
-But it's more than just a problem-solver. Helpmate also helps you sell more with smart coupon offers and live sales notifications.
-You get the best of both worlds: automation for the repetitive stuff and a human touch when it really matters.
+If you need automation, AI chatbot, live chat, CRM, appointments and booking in one plugin, Helpmate replaces multiple tools.
 
-== What Research Say About Ai Chatbot? =
-
-- [73% of consumers will switch to competitors after multiple bad experiences](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#support-problem) - Zendesk Research, 2025
-- [Effective order tracking systems reduce customer service inquiries by up to 40% while 91% of consumers actively track their packages](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#order-tracking) - LinkedIn Research, 2024
-- [Visual search increases conversion rates by 27% and 62% of millennials prefer visual search over traditional methods](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#product-search-by-image) - Digital Delane & VWO Studies
-- [Ticketing systems improve resolution efficiency by 50% and achieve 95% satisfaction rates](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#ticket-system) - Motadata, 2025
-- [Abandoned cart emails achieve 41.8% open rates and 10.7% conversion rates](https://rhapsodyplugins.com/helpmate-landing/#abandoned-cart) - Cropink, 2025
-- [AI automation reduces customer support tasks by 68-80% on average](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#work-load) - Sobot, 2025
-- [Automated returns reduce processing costs by 40% and improve customer satisfaction](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#refund-return) - TryChad, 2025
-- [Product recommendations account for up to 31% of e-commerce revenues and increase conversion rates by 25%](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#product-recommendation) - Barilliance & ResultFirst Studies
-- [Targeted coupons have conversion rates between 5-15%, with digital coupons showing 10x higher redemption than paper coupons](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#coupon-delivery) - Voucherify Research
-- [Research shows AI-powered recommendations increase revenue by up to 300%](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#ai-recommendation) - Monetate Study
-- [Sales-based social proof notifications boost website conversions by 98%](https://rhapsodyplugins.com/helpmate-landing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#social-proof) - WiserNotify, 2025
-
-https://www.youtube.com/watch?v=qMXFyZg6SUw
+https://www.youtube.com/watch?v=koFRmV9h5CQ
 
 ---
 
@@ -43,99 +29,217 @@ https://www.youtube.com/watch?v=qMXFyZg6SUw
 
 = Free Features =
 
-- **AI Chatbot with Knowledgebase** – Handles FAQs 24/7 with trained responses.
-- **View Trained Data** - Allows store admins to review the exact data used to train the AI chatbot.
-- **See Chat History** - Provides a comprehensive log of all past customer conversations for review and analysis.
-- **Product Suggestions in Chat Options** – Recommends products based on what customers ask.
-- **Lead Collection** – Grab emails, phone numbers, and names during support chats.
-- **Ticket System Integration** – Collect unresolved queries for follow-up.
-- **Promo Bar [1 Template]** – Highlight urgent offers or seasonal deals without pop-up fatigue.
-- **Live Sales Notifications [1 Template]** – Build trust with real-time "someone just bought this" popups.
+- **Helpmate AI**
+--Knowledge Base(30 Data Sources)
+
+- **Automations**
+--Test Chatbot
+--Customization(Partial)
+--Promo Bar(1 Template)
+--Sales Notifications(1 Template)
+
+- **Inbox**
+--All Conversations(Partial)
+--Chatbot(200 Chat Credits)
+--Tickets
+
+- **CRM**
+--Contacts(50)
+--Notes
+--Order Management
+--Leads (Chat Widget Leads)
+
+- **Admin Hub**
+--Teams & Roles
+--Manage API Key
+--Analytics
 
 = Pro Features =
+All Free Features + Below
 
-- **All From Fee + Below Options**.
-- **Smart Coupon Delivery** – Drops Coupon codes at the right time (request, exit-intent).
-- **Order Tracking by ID, Email, or Phone** – No logins required, just quick updates.
-- **Search Product by Image** – Upload a photo and let the Chatbot find matching items.
-- **Proactive Sales Offers** – Boost conversions with chat-triggered discounts.
-- **Refund and Return via Chat** – Easy return or refund requests, right inside the Chat.
-- **Abandoned Cart Recovery** – Email automation that pulls users back to checkout.
-- **Human Handover Options** – Let users chat with you directly on WhatsApp, Messenger, or phone when they ask.
+- **Helpmate AI**
+--Knowledge Base(1k to 30k)
+
+- **Automations**
+--Auto DM & Comments
+--Order Status Tracking
+--Product Search by Image
+--Refund & Return in Chat Window
+--Email Campaigns
+--Lead Capture
+--Coupon Delivery
+--Proactive Sales
+--Email Sequences
+--Abandoned Cart Recovery
+
+- **Inbox**
+--All Conversations
+--Chatbot, Unlimited Chat Credits With Own API Key
+--Live Chat
+--Social Messages
+--Comments on Social Media
+
+- **Channels**
+--Facebook Messages
+--Facebook Comments
+--Instagram Messages
+--Instagram Comments
+--WhatsApp
+--Live Chat
+--Contacts(Unlimited)
+--Appointments & Bookings
+--Segments
+--Custom Fields
+--Tasks
+--Email Templates
 
 ---
 
-**[Helpmate All Features](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user)**
+**[Helpmate All Features](https://helpmate.chat/features/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user)**
 
 = Helpmate's Features 👇=
 
-Here’s a straightforward look at what Helpmate can do for your WooCommerce or WordPress site.
+Here’s a straightforward look at what Helpmate can do for your WordPress business.
 
-= Free Features =
+= ⚙ Support Automation System =
+Helpmate is a support automation plugin for WordPress designed to automate repetitive customer support tasks and reduce manual workload. The support automation system helps businesses manage conversations, automate responses, and improve efficiency inside the WordPress dashboard.
 
-= 🤖 AI Chatbot with a Knowledgebase =
-Our **AI chatbot** is built to handle the questions your customers ask most. It works 24/7, providing instant and accurate answers. You can train it with your FAQs, product details, and store policies. If a customer asks about shipping, returns, or sizing, the chatbot pulls the answer you've provided. You have full control to add, edit, and organize the information. No coding needed. And if the bot gets stuck? It can pass the conversation to a real person, so your customers are never left hanging.
+Helpmate is built for automation:
 
-*(You get 300 free chats per month. If you need more, you can [Upgrade](https://rhapsodyplugins.com/helpmate/#pricing).)*
-*To use the Chatbot, you need to create a free API key.*
+* Support automation workflows
+* Auto DM and auto comment replies
+* Email campaigns
+* Email sequences
+* Lead capture automation
+* Coupon delivery automation
+* Proactive sales automation
+* Abandoned cart recovery automation
+* Sales notification popups
+* Promo bar announcements
 
-= 📂 View Trained Data =
-Helpmate isn't a black box. You can see exactly what information your **WordPress chatbot** is trained on. This means you can check its knowledge, see where the answers come from, and make sure everything is accurate. It’s easy to update responses based on new products or seasonal sales without starting from scratch.
-
-= 📜 See Chat History and Edit =
-Ever wonder what your customers are asking? The chat history feature gives you a full log of every conversation. This is great for understanding common issues and improving your **helpdesk** support. You can spot trends, see what people are looking for, and find new ways to make your store better. It’s simple business intelligence, right from your customer chats. If Chatbot gives wrong answer you edit that answer for correcting the Chatbot. After correcting it will be trained and response correct answer to the customer.
-
-= 🛍️ Product Suggestions in Chat =
-Our **chatbot** doesn't just answer questions—it helps you sell. When a customer mentions what they're looking for, like a "warm jacket," the bot can show them relevant products from your store, complete with pictures and prices. It’s like having a personal shopper available for every visitor, helping you increase order values naturally.
-
-= 🔔 Live Sales Notifications =
-Show customers that your store is busy with live sales pop-ups like, "Someone just bought this." These small alerts build trust and create a sense of urgency. You can customize how they look and when they appear. It’s a simple way to use social proof to encourage hesitant buyers.
-*(One template is free. [Upgrade](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#pricing) to get more options.)*
-
-= 🎟️ Ticketing System Integration =
-Sometimes a chat needs to become a formal support ticket. If your team is offline or a question is complex, the **chatbot** can offer ticket creation option to the customer. If the customer create a ticket, you can see that in helpdesk system also you will get an email for ticket. No more lost messages or frustrated customers.
-
-= 📢 Promo Bar =
-Got a sale or special offer? Use the promo bar to display a clean notification banner on your site. You can customize the message, colors, and add a button. It’s a simple and effective way to drive attention to your most important promotions.
-
-*(One template is free. [Upgrade](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#pricing) to get more options.)*
-
-= 📧 Lead Collection =
-**Helpmate** can help you grow your email list by collecting contact information right in the chat. The chatbot can ask for an email in exchange for a discount or before answering a specific question. The leads are saved directly to your WordPress dashboard.
-
-= Pro Features =
-
-= 🚚 Order Tracking by ID, Email, or Phone =
-Reduce the endless "Where is my order?" questions. Customers can track their WooCommerce orders themselves using their order ID, email, or phone number. The **chatbot** provides live updates instantly and securely. It saves your team time and gives customers the clarity they want.
-
-= 🛒 Abandoned Cart Recovery =
-**Helpmate** helps you recover lost sales by sending follow-up emails to customers who left items in their cart. These emails can include product images and even a discount code to encourage them to complete their purchase.
-
-= 📸 Search Product by Image =
-This feature lets shoppers find products by uploading a picture. If they saw something they liked online, they can upload the image in the chat, and our AI will find similar items in your store. It's a great tool for fashion and home decor shops.
-
-= 💡 Proactive Sales Offers =
-**Helpmate** can do more than just respond; it can start the conversion. The chatbot can proactively pop up with discounted products or special offers se by store owners. It’s a gentle nudge that can help close a sale.
-
-= ✂️ Smart Coupon Delivery =
-Timing is everything with coupons. **Helpmate** delivers discount codes at just the right moment—like when a user seems hesitant or is about to leave the site. You can also let customers ask the chatbot for a coupon directly.
-
-= ↩️ Refund and Return via Chat =
-Make returns and refunds easier for everyone. Customers can start the process right from the chat. The **chatbot** guides them through the necessary steps, collecting the information your team needs. It turns a potentially frustrating experience into a smooth one.
-
-= 🙋 Human Handover =
-When a customer needs to speak with a person, **Helpmate** makes it easy. The chatbot can provide contact options like phone, WhatsApp, or a link to your support form. This ensures your customers always feel supported and never stuck.
+Automation helps increase engagement, leads and sales without manual effort.
 
 ---
 
+= 🤖 AI Chatbot for WordPress =
+Helpmate includes an AI chatbot for WordPress that automatically responds to customer inquiries and support questions. This WordPress chatbot uses knowledge base training and customizable behavior settings to deliver accurate responses.
 
-**[Check All Free and Pro Features](https://rhapsodyplugins.com/helpmate/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#free-vs-pro)**
+Helpmate AI chatbot helps automate customer support and engagement:
+
+* AI chatbot trained with knowledge base
+* Custom chatbot tone and language
+* Test chatbot before going live
+* Behavior and appearance controls
+* Product search by image
+* Order status tracking
+* Refund and return in chat window
+
+This AI chatbot reduces manual support work and improves response speed.
+
+---
+
+= 💬 Live Chat & Omnichannel Inbox =
+Helpmate provides a live chat plugin for WordPress with a centralized omnichannel inbox. The live chat system allows businesses to manage all conversations from one dashboard.
+
+Helpmate includes a complete live chat and messaging system:
+
+* Live chat for WordPress
+* AI chatbot conversations
+* Support tickets
+* Social messages from Facebook, Instagram and WhatsApp
+* Comments management
+* Archived conversations
+* All conversations in one inbox
+
+This live chat plugin centralizes customer support and messaging.
+
+---
+
+= 📱 Channels Supported =
+Helpmate supports multiple communication channels to unify customer support automation.
+
+Connect multiple channels:
+
+* Facebook Messenger
+* Facebook Comments
+* Instagram DM
+* Instagram Comments
+* WhatsApp
+* Live Chat widget
+
+Manage all communication inside WordPress.
+
+---
+
+= 🧠 Built-in CRM for WordPress =
+Helpmate includes a built-in CRM for WordPress that helps manage contacts, leads, and customer data directly inside the WordPress admin panel.
+
+Helpmate includes a full CRM system:
+
+* Contacts management
+* Notes and activity logs
+* Order management
+* Leads from social and chat widget
+* Appointments and bookings
+* Segments
+* Custom fields
+* Tasks
+* Email templates
+
+This CRM helps organize customers, leads, appointments and support data in one place.
+
+---
+
+= 📅 Appointments & Booking System =
+Helpmate includes an appointments and booking system for WordPress that integrates with live chat, CRM, and automation tools.
+
+Helpmate supports appointments and booking management:
+
+* Create appointments
+* Manage bookings
+* Automate reminders
+* Sync with CRM contacts
+
+The appointment booking system works alongside AI chatbot and support automation to streamline scheduling and customer communication.
+
+---
+
+= 🏢 Admin Hub & Team Management =
+Helpmate includes an admin hub for managing support automation, AI chatbot, live chat, CRM, and booking features from one dashboard.
+
+Admin features:
+* Teams and roles
+* Analytics dashboard
+* Manage modules
+
+Control support automation, AI chatbot, CRM and live chat from one admin hub.
+
+---
+
+= 🚀 Why Choose Helpmate? =
+
+* Support automation for WordPress
+* AI chatbot with knowledge base
+* Live chat and Facebook, Instagram, WhatsApp messaging
+* Built-in CRM
+* Email campaigns
+* Email sequences
+* Appointments and booking system
+* Lead capture and sales automation
+* Abandoned cart recovery
+* Omnichannel inbox
+
+One plugin. Complete support automation system.
+
+---
+
+**[Check All Free and Pro Features](https://rhapsodyplugins.com/helpmate-pricing/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user&#free-vs-pro)**
 
 
 == Frequently Asked Questions ==
 
-**Does Helpmate require a third-party account(OpenAI, Claude, Gemini etc)?**
-No. Helpmate works out of the box within your WordPress site. No third-party account needed.
+**How can I use unlimited chat?**
+You need to use own OpenAI API key to do that.
 
 **Do I need to know how to code?**
 Not at all. If you can install a WordPress plugin, you can use Helpmate easily.
@@ -143,7 +247,7 @@ Not at all. If you can install a WordPress plugin, you can use Helpmate easily.
 **Is this a full replacement for human support agents?**
 No, Helpmate is not here to replace your support team. It’s designed to enhance and support them.
 
-**Will this slow down my WooCommerce store?**
+**Will this slow down my Website?**
 Not at all. Helpmate is lightweight and optimized for performance. Its JavaScript files are **deferred**, so they only load on the frontend when needed — ensuring your site stays fast.
 
 **Can I use in any WordPress website?**
@@ -284,6 +388,86 @@ For full details, please review our policies below:
 
 == Version Update Logs ==
 
+= 2.0.0 - 2026-02-22 =
+
+- Added: Completely redesigned admin sidebar with icon bar and submenu panel navigation.
+- Added: Mobile-responsive sidebar with sheet-based navigation.
+- Added: Notification bell in top bar with unread notification counts.
+- Added: Browser tab title sync for unread notification count.
+- Added: 3-step setup wizard (API Key, OpenAI (Pro), Data Training) for first-time users.
+- Added: Getting started checklist on Dashboard with step-by-step onboarding.
+- Added: Free vs Pro comparison table on Dashboard.
+- Added: Contacts management page (50 contacts free, unlimited in Pro).
+- Added: Contact details page with Overview, Emails, Tasks, Notes, Conversations, Orders, and Tickets tabs.
+- Added: Contact details tabs for Abandoned Carts, and Schedules. (Pro)
+- Added: Leads management page with notification badge for new leads.
+- Added: Notes system on contacts.
+- Added: WooCommerce order management linked to contacts.
+- Added: WooCommerce order metabox showing CRM contact info.
+- Added: Appointments and Bookings management. (Pro)
+- Added: Segments with condition builder for contact filtering. (Pro)
+- Added: Custom Fields for contacts and tasks. (Pro)
+- Added: Tasks management with Kanban board and list view. (Pro)
+- Added: Email Templates with template editor and library. (Pro)
+- Added: Email Campaigns with bulk sending. (Pro)
+- Added: Email Sequences for automated follow-up flows. (Pro)
+- Added: Failed emails tracking sheet. (Pro)
+- Added: Smart Scheduling module with schedules and settings. (Pro)
+- Added: CRM Analytics with reports for Contacts, Leads, Emails, Tasks, Tickets, and Team Performance. (Pro)
+- Added: Unified All Conversations inbox replacing the old Activity page.
+- Added: Chatbot conversations tab (200 chat credits free, unlimited with own API key in Pro).
+- Added: Tickets tab in inbox.
+- Added: Archived conversations tab.
+- Added: Live Chat inbox tab with real-time messaging. (Pro)
+- Added: Social Messages inbox tab. (Pro)
+- Added: Comments inbox tab for social media comments. (Pro)
+- Added: Automations organized into Support, Sales, Marketing, and Conversion groups.
+- Added: Lead Capture automation page.
+- Added: Promo Bar moved under Conversion Automation (1 free template).
+- Added: Sales Notifications moved under Conversion Automation (1 free template).
+- Added: Chatbot sub-group under Support Automation with Test Chatbot, Customization, and module settings.
+- Added: Auto DM and Comments automation for social platforms. (Pro)
+- Added: Email Campaigns automation. (Pro)
+- Added: Coupon Delivery automation. (Pro)
+- Added: Proactive Sales automation. (Pro)
+- Added: Email Sequences automation. (Pro)
+- Added: Facebook Messages and Comments integration. (Pro)
+- Added: Instagram Messages and Comments integration. (Pro)
+- Added: WhatsApp integration. (Pro)
+- Added: Live Chat channel settings. (Pro)
+- Added: Social lead campaign components. (Pro)
+- Added: Teams and Roles management with 5 predefined roles (Admin, Manager, Live Chat Agent, Salesperson, Marketer).
+- Added: Role-based permission system across all pages.
+- Added: Modules management page for toggling features on and off.
+- Added: Analytics page moved under Admin Hub.
+- Added: Chat review and feedback form in the public chat widget.
+- Added: Business hours support for the chat widget.
+- Added: Improved test chatbot with launcher preview mode.
+- Added: Behavior settings for chatbot (tone, language).
+- Added: Post and page meta box for training KB directly from the WordPress editor.
+- Added: Appointment booking form in public widget. (Pro)
+- Added: Public scheduling page with form template. (Pro)
+- Added: Email unsubscribe page. (Pro)
+- Added: In-app notifications system.
+- Added: Notification badges on Inbox and CRM sidebar sections.
+- Added: Per-type notification counts (leads, appointments, tasks etc).
+- Added: Realtime updates system.
+- Added: Permissions module with granular access control.
+- Added: Social message processor for multi-platform handling. (Pro)
+- Update: Improved AI reasoning capabilities.
+- Update: Data source tabs (File, Post, Products, QnA, Text, URL) improved.
+- Update: Chat response generator improved.
+- Update: Improved chat message bubbles and formatting.
+- Update: Updated product carousel component.
+- Update: Rich text editor toolbar expanded (code view, image insertion).
+- Update: Improved chat conversion system message.
+- Removed: Old flat sidebar navigation (replaced by icon bar and submenu panel).
+- Removed: Old Activity page (replaced by Inbox).
+- Removed: Old ActivateApi page (replaced by Setup Wizard).
+- Removed: Old Dashboard page (replaced by Control Center Dashboard).
+- Removed: Old Analytics page (replaced by Control Center Analytics).
+- Removed: Old Modules page (replaced by Automations structure).
+
 = 1.1.6 - 2025-11-29 =
 
 - Added: Test chatbot feature with instructions.
@@ -330,6 +514,86 @@ For full details, please review our policies below:
 - New: Initial release
 
 == Changelog ==
+
+= 2.0.0 - 2026-02-22 =
+
+- Added: Completely redesigned admin sidebar with icon bar and submenu panel navigation.
+- Added: Mobile-responsive sidebar with sheet-based navigation.
+- Added: Notification bell in top bar with unread notification counts.
+- Added: Browser tab title sync for unread notification count.
+- Added: 3-step setup wizard (API Key, OpenAI (Pro), Data Training) for first-time users.
+- Added: Getting started checklist on Dashboard with step-by-step onboarding.
+- Added: Free vs Pro comparison table on Dashboard.
+- Added: Contacts management page (50 contacts free, unlimited in Pro).
+- Added: Contact details page with Overview, Emails, Tasks, Notes, Conversations, Orders, and Tickets tabs.
+- Added: Contact details tabs for Abandoned Carts, and Schedules. (Pro)
+- Added: Leads management page with notification badge for new leads.
+- Added: Notes system on contacts.
+- Added: WooCommerce order management linked to contacts.
+- Added: WooCommerce order metabox showing CRM contact info.
+- Added: Appointments and Bookings management. (Pro)
+- Added: Segments with condition builder for contact filtering. (Pro)
+- Added: Custom Fields for contacts and tasks. (Pro)
+- Added: Tasks management with Kanban board and list view. (Pro)
+- Added: Email Templates with template editor and library. (Pro)
+- Added: Email Campaigns with bulk sending. (Pro)
+- Added: Email Sequences for automated follow-up flows. (Pro)
+- Added: Failed emails tracking sheet. (Pro)
+- Added: Smart Scheduling module with schedules and settings. (Pro)
+- Added: CRM Analytics with reports for Contacts, Leads, Emails, Tasks, Tickets, and Team Performance. (Pro)
+- Added: Unified All Conversations inbox replacing the old Activity page.
+- Added: Chatbot conversations tab (200 chat credits free, unlimited with own API key in Pro).
+- Added: Tickets tab in inbox.
+- Added: Archived conversations tab.
+- Added: Live Chat inbox tab with real-time messaging. (Pro)
+- Added: Social Messages inbox tab. (Pro)
+- Added: Comments inbox tab for social media comments. (Pro)
+- Added: Automations organized into Support, Sales, Marketing, and Conversion groups.
+- Added: Lead Capture automation page.
+- Added: Promo Bar moved under Conversion Automation (1 free template).
+- Added: Sales Notifications moved under Conversion Automation (1 free template).
+- Added: Chatbot sub-group under Support Automation with Test Chatbot, Customization, and module settings.
+- Added: Auto DM and Comments automation for social platforms. (Pro)
+- Added: Email Campaigns automation. (Pro)
+- Added: Coupon Delivery automation. (Pro)
+- Added: Proactive Sales automation. (Pro)
+- Added: Email Sequences automation. (Pro)
+- Added: Facebook Messages and Comments integration. (Pro)
+- Added: Instagram Messages and Comments integration. (Pro)
+- Added: WhatsApp integration. (Pro)
+- Added: Live Chat channel settings. (Pro)
+- Added: Social lead campaign components. (Pro)
+- Added: Teams and Roles management with 5 predefined roles (Admin, Manager, Live Chat Agent, Salesperson, Marketer).
+- Added: Role-based permission system across all pages.
+- Added: Modules management page for toggling features on and off.
+- Added: Analytics page moved under Admin Hub.
+- Added: Chat review and feedback form in the public chat widget.
+- Added: Business hours support for the chat widget.
+- Added: Improved test chatbot with launcher preview mode.
+- Added: Behavior settings for chatbot (tone, language).
+- Added: Post and page meta box for training KB directly from the WordPress editor.
+- Added: Appointment booking form in public widget. (Pro)
+- Added: Public scheduling page with form template. (Pro)
+- Added: Email unsubscribe page. (Pro)
+- Added: In-app notifications system.
+- Added: Notification badges on Inbox and CRM sidebar sections.
+- Added: Per-type notification counts (leads, appointments, tasks etc).
+- Added: Realtime updates system.
+- Added: Permissions module with granular access control.
+- Added: Social message processor for multi-platform handling. (Pro)
+- Update: Improved AI reasoning capabilities.
+- Update: Data source tabs (File, Post, Products, QnA, Text, URL) improved.
+- Update: Chat response generator improved.
+- Update: Improved chat message bubbles and formatting.
+- Update: Updated product carousel component.
+- Update: Rich text editor toolbar expanded (code view, image insertion).
+- Update: Improved chat conversion system message.
+- Removed: Old flat sidebar navigation (replaced by icon bar and submenu panel).
+- Removed: Old Activity page (replaced by Inbox).
+- Removed: Old ActivateApi page (replaced by Setup Wizard).
+- Removed: Old Dashboard page (replaced by Control Center Dashboard).
+- Removed: Old Analytics page (replaced by Control Center Analytics).
+- Removed: Old Modules page (replaced by Automations structure).
 
 = 1.1.6 - 2025-11-29 =
 
@@ -382,14 +646,11 @@ For full details, please review our policies below:
 
 1. Helpmate Chatbot
 2. Product Suggestion in Chatbot
-3. Sales Notification
-4. Sales Notification Settings
 5. Order Tracking
 6. Abandoned Cart
 7. Abandoned Cart Settings
 8. Proactive Sales
 9. Collect Leads
-10. Promobar
 11. Smart Coupon Delivery
 12. Ticket System
 13. Refund/Return System

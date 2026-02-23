@@ -126,4 +126,66 @@ class Helpmate_Settings
 
         return $count > 0;
     }
+
+    /**
+     * Check if customization settings have been modified from defaults.
+     *
+     * @since 1.0.0
+     * @return bool True if customization differs from defaults, false otherwise.
+     */
+    public function has_customization_changes()
+    {
+        $current_customization = $this->get_setting('customization', []);
+
+        // Default customization values from database defaults
+        $default_customization = [
+            'bot_name' => 'Helpmate',
+            'bot_icon' => '',
+            'primary_color' => '#455CFE',
+            'primary_gradient' => 'linear-gradient(to top left,#748EFF,#455CFE)',
+            'secondary_color' => '#748EFF',
+            'secondary_gradient' => '',
+            'font_size' => '1rem',
+            'sound_effect' => 'notification-1.mp3',
+            'icon' => '',
+            'icon_size' => '60px',
+            'position' => 'right',
+            'icon_shape' => 'circle',
+        ];
+
+        // Compare current with defaults
+        foreach ($default_customization as $key => $default_value) {
+            $current_value = isset($current_customization[$key]) ? $current_customization[$key] : null;
+            if ($current_value !== $default_value) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if business hours are configured (enabled and at least one day has enabled slot).
+     *
+     * @since 1.0.0
+     * @return bool True if business hours are enabled and at least one day is enabled, false otherwise.
+     */
+    public function has_business_hours_configured()
+    {
+        $behavior = $this->get_setting('behavior', []);
+        $enabled = !empty($behavior['business_hours_enabled']);
+        $hours   = isset($behavior['business_hours']) && is_array($behavior['business_hours']) ? $behavior['business_hours'] : [];
+
+        if (!$enabled || empty($hours)) {
+            return false;
+        }
+
+        foreach ($hours as $day_config) {
+            if (is_array($day_config) && !empty($day_config['enabled'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

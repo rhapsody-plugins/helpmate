@@ -1,40 +1,11 @@
 import api from '@/lib/axios';
 import {
-  Lead,
   PaginationParams,
   PaginationResponse,
-  TicketMessage,
+  TicketMessage
 } from '@/types';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-
-interface Session {
-  session_id: string;
-  message_count: number;
-  total_tokens: number;
-  start_time: string;
-  last_activity: string;
-}
-
-interface SessionsResponse {
-  error: boolean;
-  message?: string;
-  sessions: Session[];
-  pagination: PaginationResponse;
-}
-interface ChatHistory {
-  id: number;
-  message: string;
-  role: string;
-  timestamp: string;
-  metadata: Record<string, unknown>;
-}
-
-interface ChatHistoryResponse {
-  error: boolean;
-  message?: string;
-  history: ChatHistory[];
-}
 
 interface Ticket {
   id: number;
@@ -42,6 +13,8 @@ interface Ticket {
   datetime: string;
   subject: string;
   status: string;
+  contact_id?: number | null;
+  source?: string;
 }
 
 interface TicketsResponse {
@@ -65,70 +38,18 @@ interface TicketMessagesResponse {
       email: string;
     };
     priority: string;
+    contact_id?: number | null;
+    source?: string;
   };
   messages: TicketMessage[];
 }
 
-interface LeadsResponse {
-  error: boolean;
-  message?: string;
-  leads: Lead[];
-  pagination: PaginationResponse;
-}
-
 export default function useActivity() {
-  /* --------------------------------------- */
-  /*                   Chat                  */
-  /* --------------------------------------- */
-
-  const getSessions = useMutation<SessionsResponse, Error, PaginationParams>({
-    mutationFn: async (params) => {
-      const response = await api.get('/chat/all-sessions', {
-        params,
-      });
-
-      if (response.data.error) {
-        toast.error(response.data.message ?? 'Something went wrong!');
-      }
-
-      return (
-        response.data ?? {
-          error: false,
-          sessions: [],
-          pagination: {
-            total: 0,
-            per_page: 10,
-            current_page: 1,
-            total_pages: 0,
-          },
-        }
-      );
-    },
-  });
-
-  const getChatHistory = useMutation<
-    ChatHistoryResponse,
-    Error,
-    { session_id: string }
-  >({
-    mutationFn: async ({ session_id }) => {
-      const response = await api.post(`/chat/history`, {
-        session_id,
-      });
-
-      if (response.data.error) {
-        toast.error(response.data.message ?? 'Something went wrong!');
-      }
-
-      return response.data;
-    },
-  });
-
   /* --------------------------------------- */
   /*                 Tickets                 */
   /* --------------------------------------- */
 
-  const getTickets = useMutation<TicketsResponse, Error, PaginationParams>({
+  const getTickets = useMutation<TicketsResponse, Error, PaginationParams & { contact_id?: number }>({
     mutationFn: async (params) => {
       const response = await api.get('/ticket/all', { params });
 
@@ -143,6 +64,31 @@ export default function useActivity() {
           pagination: {
             total: 0,
             per_page: 10,
+            current_page: 1,
+            total_pages: 0,
+          },
+        }
+      );
+    },
+  });
+
+  const getContactTickets = useMutation<TicketsResponse, Error, { contact_id: number; page?: number; per_page?: number }>({
+    mutationFn: async ({ contact_id, page = 1, per_page = 20 }) => {
+      const response = await api.get('/ticket/all', {
+        params: { contact_id, page, per_page },
+      });
+
+      if (response.data.error) {
+        toast.error(response.data.message ?? 'Something went wrong!');
+      }
+
+      return (
+        response.data ?? {
+          error: false,
+          tickets: [],
+          pagination: {
+            total: 0,
+            per_page: 20,
             current_page: 1,
             total_pages: 0,
           },
@@ -212,12 +158,184 @@ export default function useActivity() {
   /*                  Leads                  */
   /* --------------------------------------- */
 
-  const getLeads = useMutation<LeadsResponse, Error, PaginationParams>({
-    mutationFn: async (params) => {
-      const response = await api.get('/leads', { params });
+  const useGetLeads = (page: number = 1, per_page: number = 10) => {
+    return useQuery({
+      queryKey: ['leads', page, per_page],
+      queryFn: async () => {
+        const response = await api.get('/leads', {
+          params: { page, per_page },
+        });
+        if (response.data.error) {
+          toast.error(response.data.message ?? 'Something went wrong!');
+        }
+        return response.data;
+      },
+      refetchOnWindowFocus: false,
+    });
+  };
+
+  /* --------------------------------------- */
+  /*           Contact Assignment            */
+  /* --------------------------------------- */
+
+  const assignContactToLead = useMutation<
+    { error: boolean; message?: string },
+    Error,
+    { lead_id: number; contact_id: number }
+  >({
+    mutationFn: async ({ lead_id, contact_id }) => {
+      const response = await api.post(`/leads/${lead_id}/assign-contact`, {
+        contact_id,
+      });
 
       if (response.data.error) {
-        toast.error(response.data.message ?? 'Something went wrong!');
+        toast.error(response.data.message ?? 'Failed to assign contact');
+      } else {
+        toast.success('Contact assigned successfully');
+      }
+
+      return response.data;
+    },
+  });
+
+  const createContactFromLead = useMutation<
+    { error: boolean; message?: string; contact_id?: number },
+    Error,
+    { lead_id: number; contact_data?: Record<string, unknown> }
+  >({
+    mutationFn: async ({ lead_id, contact_data }) => {
+      const response = await api.post(`/leads/${lead_id}/create-contact`, contact_data ?? {});
+
+      if (response.data.error) {
+        toast.error(response.data.message ?? 'Failed to create contact');
+      } else {
+        toast.success('Contact created successfully');
+      }
+
+      return response.data;
+    },
+  });
+
+  const assignContactToTicket = useMutation<
+    { error: boolean; message?: string },
+    Error,
+    { ticket_id: string; contact_id: number }
+  >({
+    mutationFn: async ({ ticket_id, contact_id }) => {
+      const response = await api.post(`/tickets/${ticket_id}/assign-contact`, {
+        contact_id,
+      });
+
+      if (response.data.error) {
+        toast.error(response.data.message ?? 'Failed to assign contact');
+      } else {
+        toast.success('Contact assigned successfully');
+      }
+
+      return response.data;
+    },
+  });
+
+  /* --------------------------------------- */
+  /*              Task Creation              */
+  /* --------------------------------------- */
+
+  const createTaskFromLead = useMutation<
+    { error: boolean; task_id?: number; message?: string },
+    Error,
+    { lead_id: number; task_data?: Record<string, unknown> }
+  >({
+    mutationFn: async ({ lead_id, task_data }) => {
+      const response = await api.post(`/leads/${lead_id}/create-task`, task_data);
+
+      if (response.data.error) {
+        toast.error(response.data.message ?? 'Failed to create task');
+      } else {
+        toast.success('Task created successfully');
+      }
+
+      return response.data;
+    },
+  });
+
+  const createTaskFromTicket = useMutation<
+    { error: boolean; task_id?: number; message?: string },
+    Error,
+    { ticket_id: string; task_data?: Record<string, unknown> }
+  >({
+    mutationFn: async ({ ticket_id, task_data }) => {
+      const response = await api.post(`/tickets/${ticket_id}/create-task`, task_data);
+
+      if (response.data.error) {
+        toast.error(response.data.message ?? 'Failed to create task');
+      } else {
+        toast.success('Task created successfully');
+      }
+
+      return response.data;
+    },
+  });
+
+  const bulkCreateTasksFromLeads = useMutation<
+    { error: boolean; results?: Array<{ lead_id: number; task_id: number | false; success: boolean }> },
+    Error,
+    { lead_ids: number[]; task_data?: Record<string, unknown> }
+  >({
+    mutationFn: async ({ lead_ids, task_data }) => {
+      const response = await api.post('/leads/bulk-create-task', {
+        lead_ids,
+        ...task_data,
+      });
+
+      if (response.data.error) {
+        toast.error('Failed to create some tasks');
+      } else {
+        const successCount = response.data.results?.filter((r: { success: boolean }) => r.success).length ?? 0;
+        toast.success(`Created ${successCount} task(s) successfully`);
+      }
+
+      return response.data;
+    },
+  });
+
+  const bulkCreateTasksFromTickets = useMutation<
+    { error: boolean; results?: Array<{ ticket_id: string; task_id: number | false; success: boolean }> },
+    Error,
+    { ticket_ids: string[]; task_data?: Record<string, unknown> }
+  >({
+    mutationFn: async ({ ticket_ids, task_data }) => {
+      const response = await api.post('/tickets/bulk-create-task', {
+        ticket_ids,
+        ...task_data,
+      });
+
+      if (response.data.error) {
+        toast.error('Failed to create some tasks');
+      } else {
+        const successCount = response.data.results?.filter((r: { success: boolean }) => r.success).length ?? 0;
+        toast.success(`Created ${successCount} task(s) successfully`);
+      }
+
+      return response.data;
+    },
+  });
+
+  /* --------------------------------------- */
+  /*         Manual Ticket Creation          */
+  /* --------------------------------------- */
+
+  const createTicket = useMutation<
+    { error: boolean; ticket_id?: number; message?: string },
+    Error,
+    { subject: string; message: string; email: string; name?: string; priority?: string; contact_id?: number; skip_auto_create_contact?: boolean }
+  >({
+    mutationFn: async (data) => {
+      const response = await api.post('/tickets/create', data);
+
+      if (response.data.error) {
+        toast.error(response.data.message ?? 'Failed to create ticket');
+      } else {
+        toast.success('Ticket created successfully');
       }
 
       return response.data;
@@ -225,12 +343,19 @@ export default function useActivity() {
   });
 
   return {
-    getSessions,
-    getChatHistory,
     getTickets,
+    getContactTickets,
     getTicketMessages,
     replyToTicket,
     updateTicketStatus,
-    getLeads,
+    useGetLeads,
+    assignContactToLead,
+    createContactFromLead,
+    assignContactToTicket,
+    createTaskFromLead,
+    createTaskFromTicket,
+    bulkCreateTasksFromLeads,
+    bulkCreateTasksFromTickets,
+    createTicket,
   };
 }

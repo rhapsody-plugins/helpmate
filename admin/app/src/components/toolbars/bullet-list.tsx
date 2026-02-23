@@ -22,12 +22,15 @@ const BulletListToolbar = React.forwardRef<HTMLButtonElement, React.ComponentPro
 					<Button
 						variant="ghost"
 						size="icon"
+						type="button"
 						className={cn(
 							"h-8 w-8",
 							editor?.isActive("bulletList") && "bg-accent",
 							className,
 						)}
 						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
 							editor?.chain().focus().toggleBulletList().run();
 							onClick?.(e);
 						}}

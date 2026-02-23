@@ -379,7 +379,7 @@ class Helpmate_Background_Processor
             wp_schedule_single_event(
                 time() + 300, // 5 minutes from now
                 'helpmate_cleanup_completed_job',
-                ['job_id' => $job_id]
+                [$job_id]
             );
         }
     }
@@ -561,8 +561,8 @@ class Helpmate_Background_Processor
             $metadata = $document['metadata'] ?? [];
 
             // Generate embedding
-            // Set feature_slug to 'product' only for product document type, otherwise use default
-            $feature_slug = ($document_type === 'product') ? 'product' : 'data_source';
+            // Always use data_source feature_slug for all document types
+            $feature_slug = 'data_source';
             $vector = $this->chat->handle_embedding(['title' => $title, 'content' => $content], 'create', $feature_slug);
 
             if (empty($vector) || !isset($vector['data']) || !isset($vector['data']['id'])) {
@@ -842,7 +842,7 @@ class Helpmate_Background_Processor
             $this->process_bulk_documents($job_id);
         } else {
             // Add a fallback timer - if job doesn't start processing within 10 seconds, process directly
-            wp_schedule_single_event(time() + 10, 'helpmate_fallback_process', ['job_id' => $job_id]);
+            wp_schedule_single_event(time() + 10, 'helpmate_fallback_process', [$job_id]);
         }
     }
 

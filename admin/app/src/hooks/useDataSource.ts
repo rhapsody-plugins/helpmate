@@ -55,23 +55,24 @@ export const useDataSource = () => {
     mutationFn: async (data) => {
       const response = await api.post('/save-documents', data);
 
-      // Check if this is a bulk operation
-      if (Array.isArray(data) && data.length > 1 && response.data.job_id) {
-        // This is a bulk operation that was scheduled for background processing
+      // Check if response contains a job_id (bulk operation scheduled for background processing)
+      if (response.data?.job_id) {
+        // Return the response data with job_id for tracking
         return response.data;
       }
 
-      // Single document or immediate processing
+      // Single document or immediate processing (no job_id)
       const documentType = Array.isArray(data)
         ? data[0].document_type
         : data.document_type;
       getSourcesMutation.mutate(documentType);
     },
     onSuccess: (data, variables) => {
-      // Check if this was a bulk operation
-      if (Array.isArray(variables) && variables.length > 1 && data?.job_id) {
+      // Check if this was a bulk operation (has job_id)
+      if (data?.job_id) {
+        const count = Array.isArray(variables) ? variables.length : 1;
         toast.success(
-          `Bulk processing started for ${variables.length} documents. You'll be notified when complete.`
+          `Bulk processing started for ${count} document${count > 1 ? 's' : ''}. You'll be notified when complete.`
         );
         return;
       }

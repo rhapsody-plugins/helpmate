@@ -40,6 +40,7 @@ interface ActivityLayoutProps {
     onPageChange: (page: number) => void;
   };
   isLoading?: boolean;
+  headerActions?: ReactNode;
 }
 
 export function ActivityLayout({
@@ -51,6 +52,7 @@ export function ActivityLayout({
   mainContent,
   pagination,
   isLoading = false,
+  headerActions,
 }: ActivityLayoutProps) {
   const renderPaginationItems = () => {
     if (!pagination) return null;
@@ -179,30 +181,37 @@ export function ActivityLayout({
             {title} <InfoTooltip message={description} />
           </CardTitle>
         </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onRefresh}
-                disabled={isRefreshing || isLoading}
-              >
-                <RefreshCw
-                  className={cn('h-4 w-4', (isRefreshing || isLoading) && 'animate-spin')}
-                />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              Refresh the activity list
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex gap-2 items-center">
+          {headerActions}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onRefresh}
+                  disabled={isRefreshing || isLoading}
+                >
+                  <RefreshCw
+                    className={cn('h-4 w-4', (isRefreshing || isLoading) && 'animate-spin')}
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                Refresh the activity list
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
-        <SidebarProvider className="rounded-xl border-r-0 border-b-0 border-l-0 !min-h-0">
+        <SidebarProvider
+          className="rounded-xl border-r-0 border-b-0 border-l-0 !min-h-0"
+          open={true}
+          onOpenChange={() => {}} // Prevent closing
+        >
           <div className="flex gap-4 h-[600px] w-full bg-white">
-            <Sidebar className="min-w-[260px] max-w-xs border-r flex flex-col">
+            <Sidebar className="min-w-[260px] max-w-xs border-r flex flex-col" collapsible="none">
               <SidebarMenu className="overflow-y-auto flex-1 gap-0">
                 {isLoading ? renderSidebarSkeleton() : sidebarContent}
               </SidebarMenu>

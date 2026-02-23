@@ -485,11 +485,34 @@ class Helpmate_Chat_Helpers
 
         // Remove onclick, onload, and other event handler attributes
         $eventAttributes = [
-            'onclick', 'onload', 'onchange', 'onsubmit', 'onmouseover', 'onmouseout',
-            'onfocus', 'onblur', 'onkeydown', 'onkeyup', 'onkeypress', 'onmousedown',
-            'onmouseup', 'onmousemove', 'onmouseenter', 'onmouseleave', 'oncontextmenu',
-            'ondblclick', 'onresize', 'onscroll', 'onerror', 'onabort', 'onbeforeunload',
-            'onunload', 'onhashchange', 'onpopstate', 'onpageshow', 'onpagehide'
+            'onclick',
+            'onload',
+            'onchange',
+            'onsubmit',
+            'onmouseover',
+            'onmouseout',
+            'onfocus',
+            'onblur',
+            'onkeydown',
+            'onkeyup',
+            'onkeypress',
+            'onmousedown',
+            'onmouseup',
+            'onmousemove',
+            'onmouseenter',
+            'onmouseleave',
+            'oncontextmenu',
+            'ondblclick',
+            'onresize',
+            'onscroll',
+            'onerror',
+            'onabort',
+            'onbeforeunload',
+            'onunload',
+            'onhashchange',
+            'onpopstate',
+            'onpageshow',
+            'onpagehide'
         ];
 
         foreach ($eventAttributes as $attr) {
@@ -569,19 +592,58 @@ class Helpmate_Chat_Helpers
         // Add chat history if session_id is provided and exists
         if (!empty($session_id)) {
             try {
-                $chat_history = $this->database->get_chat_history_data($session_id, 6);
+                $chat_history = $this->database->get_chat_history_data($session_id, 10);
 
                 if (!empty($chat_history)) {
                     foreach ($chat_history as $message) {
                         $assistant_message = isset(json_decode($message['message'], true)['text']) ? json_decode($message['message'], true) : null;
                         $context = isset($message['metadata']['rag_context']) ? $message['metadata']['rag_context'] : '';
+                        $content = $assistant_message
+                            ? $assistant_message['text'] . (isset($assistant_message['type']) && $assistant_message['type'] !== 'text'
+                                ? "\n\n[Tool Used: " . $assistant_message['type'] . "]"
+                                : '')
+                            : $message['message'];
+
+                        // For user messages with stored image_url, append image to content as single string
+                        if ($message['role'] === 'user' && !empty($message['metadata']['image_url'])) {
+                            $img_url = $message['metadata']['image_url'];
+                            $suffix = strlen($img_url) <= 500
+                                ? '[Attached image: ' . $img_url . ']'
+                                : '[User attached an image]';
+                            $content = $message['message'] . "\n\n" . $suffix;
+                        }
+
                         $messages[] = [
                             'role' => $message['role'],
-                            'content' => $assistant_message ? $assistant_message['text'] . "\n\n[Tool Used: " . $assistant_message['type'] . "]" : (isset($context) ? '[RAG Context: ' . $context . '] User Asked: ' : '') . $message['message'],
+                            'content' => $content,
                             'timestamp' => $message['timestamp'],
-                            'id' => $message['id']
+                            'id' => $message['id'],
+                            'rag_context' => $context
                         ];
                     }
+                }
+
+                // Deduplicate RAG context - keep only the most recent occurrence
+                // Map RAG context to its most recent message index
+                $rag_context_map = [];
+
+                for ($i = 0; $i < count($messages); $i++) {
+                    $current_rag = $messages[$i]['rag_context'] ?? '';
+
+                    // Skip empty contexts
+                    if (empty($current_rag) || trim($current_rag) === '') {
+                        continue;
+                    }
+
+                    // If we've seen this RAG context before at an earlier index
+                    if (isset($rag_context_map[$current_rag])) {
+                        $old_index = $rag_context_map[$current_rag];
+                        // Remove from the OLDER message (keep the newer one)
+                        $messages[$old_index]['rag_context'] = '';
+                    }
+
+                    // Update map to point to current (most recent) index
+                    $rag_context_map[$current_rag] = $i;
                 }
             } catch (Exception $e) {
                 $session_id = '';
@@ -686,22 +748,34 @@ class Helpmate_Chat_Helpers
             $dataToSign = json_encode($prompt) . '|' . $timestamp . '|' . $nonce;
             $signature = hash_hmac('sha256', $dataToSign, $validation_key);
 
+            // Get user's OpenAI API key if available
+            $user_openai_key = $this->helpmate->get_api()->get_openai_key();
+
+            // Prepare request body (wordpress_url for multi-domain Qdrant collections)
+            $body_data = [
+                "prompt" => json_encode($prompt),
+                "timestamp" => $timestamp,
+                "nonce" => $nonce,
+                "api_key" => $api_key,
+                "validation_key" => $validation_key,
+                "signature" => $signature,
+                "embedding_type" => $type,
+                "feature_slug" => $feature_slug,
+                "wordpress_url" => get_bloginfo('url'),
+            ];
+
+            // Only add user OpenAI key if it exists
+            if (!empty($user_openai_key)) {
+                $body_data['user_openai_api_key'] = $user_openai_key;
+            }
+
             // Call the AI API
             $response = wp_remote_post($this->helpmate->get_api()->get_api_server() . '/wp-json/rp/v1/proxy', [
                 'method' => 'POST',
                 'headers' => [
                     'Content-Type' => 'application/json',
                 ],
-                'body' => json_encode([
-                    "prompt" => json_encode($prompt),
-                    "timestamp" => $timestamp,
-                    "nonce" => $nonce,
-                    "api_key" => $api_key,
-                    "validation_key" => $validation_key,
-                    "signature" => $signature,
-                    "embedding_type" => $type,
-                    "feature_slug" => $feature_slug,
-                ]),
+                'body' => json_encode($body_data),
                 'timeout' => 300,
             ]);
 

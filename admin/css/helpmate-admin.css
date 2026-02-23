@@ -40,15 +40,30 @@
   }
 }
 
-/* Menu highlighting for Apps tab */
-.helpmate-apps-tab #adminmenu .wp-submenu a,
-.helpmate-data-source-tab #adminmenu .wp-submenu a {
+/* Menu highlighting - dim all submenu links when on a tab */
+.helpmate-dashboard-tab #adminmenu .wp-submenu a,
+.helpmate-helpmate-ai-tab #adminmenu .wp-submenu a,
+.helpmate-automation-tab #adminmenu .wp-submenu a,
+.helpmate-inbox-tab #adminmenu .wp-submenu a,
+.helpmate-channels-tab #adminmenu .wp-submenu a,
+.helpmate-crm-tab #adminmenu .wp-submenu a,
+.helpmate-admin-hub-tab #adminmenu .wp-submenu a {
   color: rgba(240, 246, 252, 0.7) !important;
   font-weight: 400 !important;
 }
 
-.helpmate-apps-tab #adminmenu .wp-submenu a[href*='helpmate&tab=apps'],
-.helpmate-data-source-tab #adminmenu .wp-submenu a[href*='helpmate&tab=data-source'] {
+/* Highlight active submenu link */
+.helpmate-dashboard-tab #adminmenu .wp-submenu a[href*='page=helpmate']:not([href*='tab=']),
+.helpmate-helpmate-ai-tab #adminmenu .wp-submenu a[href*='helpmate&tab=data-source'],
+.helpmate-automation-tab #adminmenu .wp-submenu a[href*='helpmate&tab=automation'],
+.helpmate-inbox-tab #adminmenu .wp-submenu a[href*='helpmate&tab=social-chat&subtab=inbox'],
+.helpmate-channels-tab #adminmenu .wp-submenu a[href*='helpmate&tab=social-chat&subtab=facebook'],
+.helpmate-channels-tab #adminmenu .wp-submenu a[href*='helpmate&tab=social-chat&subtab=instagram'],
+.helpmate-channels-tab #adminmenu .wp-submenu a[href*='helpmate&tab=social-chat&subtab=whatsapp'],
+.helpmate-channels-tab #adminmenu .wp-submenu a[href*='helpmate&tab=social-chat&subtab=tiktok'],
+.helpmate-channels-tab #adminmenu .wp-submenu a[href*='helpmate&tab=live-chat'],
+.helpmate-crm-tab #adminmenu .wp-submenu a[href*='helpmate&tab=crm'],
+.helpmate-admin-hub-tab #adminmenu .wp-submenu a[href*='helpmate&tab=control-center'] {
   color: #ffffff !important;
   font-weight: 600 !important;
 }

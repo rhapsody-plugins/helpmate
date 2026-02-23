@@ -5,6 +5,7 @@ jQuery(function($) {
         const $button = $(this);
         const productId = $button.data('product-id');
         const action = $button.data('action');
+        const nonce = $button.data('nonce');
 
         const originalText = $button.text();
 
@@ -14,7 +15,7 @@ jQuery(function($) {
             data: {
                 action: action === 'add' ? 'helpmate_add_to_datasource' : 'helpmate_remove_from_datasource',
                 product_id: productId,
-                nonce: helpmateDatasource.nonce
+                nonce: nonce
             },
             beforeSend: function() {
                 $button.html('<span class="helpmate-spinner is-active" style="float:none;display:inline-block;vertical-align:middle;margin:0 4px 0 0;"></span>' + originalText);
@@ -27,7 +28,7 @@ jQuery(function($) {
             success: function(response) {
                 if (response.success) {
                     const newAction = action === 'add' ? 'remove' : 'add';
-                    const newText = action === 'add' ? 'Remove from Datasource' : 'Add to Datasource';
+                    const newText = action === 'add' ? 'Remove from Knowledge Base' : 'Add to Knowledge Base';
                     $button
                         .data('action', newAction)
                         .text(newText)

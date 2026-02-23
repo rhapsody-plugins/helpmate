@@ -33,15 +33,6 @@ class Helpmate_Chat_Response_Generator
     private $helpmate;
 
     /**
-     * The temperature of the chat.
-     *
-     * @since    1.0.0
-     * @access   private
-     * @var      float    $temperature    The temperature.
-     */
-    private $temperature = 0;
-
-    /**
      * Initialize the class and set its properties.
      *
      * @since    1.0.0
@@ -49,7 +40,6 @@ class Helpmate_Chat_Response_Generator
     public function __construct(Helpmate $helpmate)
     {
         $this->helpmate = $helpmate;
-        $this->temperature = $this->helpmate->get_settings()->get_setting('ai')['temperature'];
     }
 
     /**
@@ -83,8 +73,6 @@ class Helpmate_Chat_Response_Generator
         $api_key = $this->helpmate->get_api()->get_key();
         $validation_key = $this->helpmate->get_api()->get_validation_key();
         $tone = $this->helpmate->get_settings()->get_setting('ai')['tone'];
-        $temperature = $this->helpmate->get_settings()->get_setting('ai')['temperature'];
-        $similarity_threshold = $this->helpmate->get_settings()->get_setting('ai')['similarity_threshold'];
         $chatbot_name = $this->helpmate->get_settings()->get_setting('customization')['bot_name'];
         $language = $this->helpmate->get_settings()->get_setting('ai')['language'];
 
@@ -100,30 +88,47 @@ class Helpmate_Chat_Response_Generator
         $dataToSign = $prompt . '|' . $timestamp . '|' . $nonce;
         $signature = hash_hmac('sha256', $dataToSign, $validation_key);
 
+        // Get user's OpenAI API key if available
+        $user_openai_key = $this->helpmate->get_api()->get_openai_key();
+
+        // Prepare request body
+        $body_data = [
+            "prompt" => $prompt,
+            "wordpress_url" => $website_url,
+            "system_message" => $custom_system_message,
+            "message_history" => json_encode($messages),
+            "image_url" => $image_url,
+            "session_id" => $session_id,
+            "timestamp" => $timestamp,
+            "nonce" => $nonce,
+            "api_key" => $api_key,
+            "validation_key" => $validation_key,
+            "signature" => $signature,
+            "feature_slug" => 'ai_response',
+            'modules' => $this->modules_in_use(),
+            'debug' => $debug
+        ];
+
+        // Include handover for social only when Pro license + Pro plugin
+        $is_social = is_string($session_id) && strpos($session_id, 'social_') === 0;
+        $can_use_handover = $this->helpmate->get_product_slug() !== 'helpmate-free'
+            && $this->helpmate->is_helpmate_pro_active();
+        if ($is_social && $can_use_handover) {
+            $body_data['include_handover_for_social'] = true;
+        }
+
+        // Only add user OpenAI key if it exists
+        if (!empty($user_openai_key)) {
+            $body_data['user_openai_api_key'] = $user_openai_key;
+        }
+
         // Call the AI API
         $response = wp_remote_post($this->helpmate->get_api()->get_api_server() . '/wp-json/rp/v1/proxy', [
             'method' => 'POST',
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
-            'body' => json_encode([
-                "prompt" => $prompt,
-                "wordpress_url" => $website_url,
-                "system_message" => $custom_system_message,
-                "message_history" => json_encode($messages),
-                "image_url" => $image_url,
-                "session_id" => $session_id,
-                "timestamp" => $timestamp,
-                "nonce" => $nonce,
-                "api_key" => $api_key,
-                "validation_key" => $validation_key,
-                "signature" => $signature,
-                "feature_slug" => 'ai_response',
-                'temperature' => $temperature,
-                'similarity_threshold' => $similarity_threshold,
-                'modules' => $this->modules_in_use(),
-                'debug' => $debug
-            ]),
+            'body' => json_encode($body_data),
             'timeout' => 60,
         ]);
 
@@ -169,7 +174,7 @@ class Helpmate_Chat_Response_Generator
 
         $data = $this->get_chat_response($prompt, $messages, $session_id, '', $image_url, $debug);
 
-        $data = $this->execute_tool_call($data);
+        $data = $this->execute_tool_call($data, $session_id);
 
         if (empty($data)) {
             return [
@@ -280,7 +285,7 @@ class Helpmate_Chat_Response_Generator
     {
         $modules = $this->helpmate->get_settings()->get_setting('modules') ?? [];
         $modules_in_use = [];
-        if (!$this->helpmate->is_helpmate_pro_active()) {
+        if ($this->helpmate->get_product_slug() !== 'helpmate-free' && !$this->helpmate->is_helpmate_pro_active()) {
             $modules_in_use[] = 'show_handover_to_human';
         }
         if (isset($modules['image-search']) && !$modules['image-search'] && !$this->helpmate->is_woocommerce_active()) {
@@ -308,10 +313,11 @@ class Helpmate_Chat_Response_Generator
     /**
      * Execute the tool call.
      *
-     * @param array $data The data.
+     * @param array  $data        The data.
+     * @param string $session_id  The chat session ID.
      * @return array The data.
      */
-    private function execute_tool_call($data)
+    private function execute_tool_call($data, $session_id = '')
     {
         if (isset($data['status']) && $data['status'] == 'success') {
             if (isset($data['tool_results']) && !empty($data['tool_results'])) {
@@ -321,7 +327,7 @@ class Helpmate_Chat_Response_Generator
                         $data['tool_results'][0]['result'] = $this->helpmate->get_ticket()->show_ticket_options();
                         break;
                     case 'show_handover_to_human':
-                        $data['tool_results'][0]['result'] = $this->helpmate->get_general_tools()->show_handover_to_human();
+                        $data['tool_results'][0]['result'] = $this->helpmate->get_general_tools()->show_handover_to_human($session_id);
                         break;
                     case 'show_products':
                         if ($this->helpmate->is_woocommerce_active()) {

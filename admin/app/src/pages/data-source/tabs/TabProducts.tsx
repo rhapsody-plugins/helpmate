@@ -9,12 +9,20 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Input } from '@/components/ui/input';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
+import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
+import { useSettings } from '@/hooks/useSettings';
 import { DataSource, WordPressPost } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { toast } from 'sonner';
 
 export default function TabProducts() {
@@ -32,6 +40,11 @@ export default function TabProducts() {
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
   const [activeBulkJobId, setActiveBulkJobId] = useState<string | null>(null);
   const refreshedJobsRef = useRef<Set<string>>(new Set());
+
+  const { openAiKeyQuery } = useApi();
+  const { getProQuery } = useSettings();
+  const isPro = getProQuery.data ?? false;
+  const canEditOrDelete = !!openAiKeyQuery.data?.openai_key && isPro;
 
   const {
     getPostsMutation,
@@ -456,7 +469,9 @@ export default function TabProducts() {
         header: 'Last Updated',
         cell: ({ row }) => {
           const timestamp = row.getValue('last_updated') as number;
-          return format(new Date(timestamp * 1000), 'PPpp');
+          return format(parseUTCTimestamp(timestamp), 'PPpp', {
+            locale: defaultLocale,
+          });
         },
       },
       {
@@ -475,21 +490,42 @@ export default function TabProducts() {
               >
                 See Trained Data
               </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                loading={removeIsPending && isRemoving}
-                disabled={removeIsPending && isRemoving}
-                onClick={() => handleRemove(parsedMetadata.post_id)}
-              >
-                {isRemoving ? 'Deleting...' : 'Delete'}
-              </Button>
+              {canEditOrDelete ? (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  loading={removeIsPending && isRemoving}
+                  disabled={removeIsPending && isRemoving}
+                  onClick={() => handleRemove(parsedMetadata.post_id)}
+                >
+                  {isRemoving ? 'Deleting...' : 'Delete'}
+                </Button>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block">
+                      <Button variant="destructive" size="sm" disabled>
+                        Delete
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Add your OpenAI API key in Manage API to edit or delete
+                  </TooltipContent>
+                </Tooltip>
+              )}
             </div>
           );
         },
       },
     ],
-    [handleRemove, removeIsPending, removingProductId, handleContentDisplay]
+    [
+      handleRemove,
+      removeIsPending,
+      removingProductId,
+      handleContentDisplay,
+      canEditOrDelete,
+    ]
   );
 
   return (
@@ -578,23 +614,38 @@ export default function TabProducts() {
             onGlobalFilterChange={setSearchFilterSaved}
             rightAlignedColumns={['actions']}
             selectionActions={
-              <Button
-                size="sm"
-                variant="destructive"
-                loading={removeIsPending}
-                disabled={removeIsPending}
-                onClick={() => {
-                  handleRemove(
-                    selectedRowsSaved?.map(
-                      (row) =>
-                        JSON.parse(row.metadata as unknown as string).post_id
-                    ) || []
-                  );
-                  setSelectedRowsSaved([]);
-                }}
-              >
-                {removeIsPending ? 'Deleting...' : 'Delete Selected'}
-              </Button>
+              canEditOrDelete ? (
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  loading={removeIsPending}
+                  disabled={removeIsPending}
+                  onClick={() => {
+                    handleRemove(
+                      selectedRowsSaved?.map(
+                        (row) =>
+                          JSON.parse(row.metadata as unknown as string).post_id
+                      ) || []
+                    );
+                    setSelectedRowsSaved([]);
+                  }}
+                >
+                  {removeIsPending ? 'Deleting...' : 'Delete Selected'}
+                </Button>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-block">
+                      <Button size="sm" variant="destructive" disabled>
+                        Delete Selected
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Add your OpenAI API key in Manage API to edit or delete
+                  </TooltipContent>
+                </Tooltip>
+              )
             }
           />
         </CardContent>

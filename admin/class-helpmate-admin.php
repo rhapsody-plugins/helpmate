@@ -55,9 +55,15 @@ class Helpmate_Admin
 		// Add menu highlighting hook
 		add_action('admin_head', array($this, 'add_menu_highlighting_css'));
 
+		// Add unread notification count to parent Helpmate menu (after add_plugin_admin_menu)
+		add_action('admin_menu', array($this, 'add_notification_count_to_menu'), 999);
+
 		// Add AJAX hooks for checklist functionality
 		add_action('wp_ajax_helpmate_update_checklist', array($this, 'ajax_update_checklist'));
 		add_action('wp_ajax_helpmate_skip_checklist', array($this, 'ajax_skip_checklist'));
+
+		// Add redirect hook for main menu page
+		add_action('admin_init', array($this, 'handle_menu_redirects'));
 
 	}
 
@@ -143,10 +149,11 @@ class Helpmate_Admin
 
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/helpmate-admin.js', array('jquery'), $this->version, false);
 
-		// Localize the script with WordPress nonce
+		// Localize the script with WordPress nonce and REST base (canonical URL for API calls)
 		wp_localize_script($this->plugin_name, 'helpmateApiSettings', array(
 			'nonce' => wp_create_nonce('wp_rest'),
-			'site_url' => get_site_url()
+			'site_url' => get_site_url(),
+			'rest_url' => rest_url('helpmate/v1'),
 		));
 
 
@@ -163,13 +170,19 @@ class Helpmate_Admin
 
 				if (!empty($js_files)) {
 					$latest_js = basename(end($js_files));
+					$vite_handle = $this->plugin_name . '-admin-vite';
 					wp_enqueue_script(
-						$this->plugin_name . '-admin-vite',
+						$vite_handle,
 						$vite_app_url . 'dist/assets/' . $latest_js,
 						array(),
 						$this->version,
 						false
 					);
+					wp_localize_script($vite_handle, 'helpmateApiSettings', array(
+						'nonce' => wp_create_nonce('wp_rest'),
+						'site_url' => get_site_url(),
+						'rest_url' => rest_url('helpmate/v1'),
+					));
 					add_filter('wp_script_attributes', array($this, 'add_type_attribute'), 10, 1);
 				}
 			}
@@ -204,6 +217,34 @@ class Helpmate_Admin
 	}
 
 	/**
+	 * Add unread notification count badge to the parent Helpmate menu item.
+	 *
+	 * @since    1.3.0
+	 */
+	public function add_notification_count_to_menu()
+	{
+		if (!isset($GLOBALS['menu']) || !isset($GLOBALS['helpmate'])) {
+			return;
+		}
+		$helpmate = $GLOBALS['helpmate'];
+		if (!method_exists($helpmate, 'get_notifications')) {
+			return;
+		}
+		$notifications = $helpmate->get_notifications();
+		$counts = $notifications->get_unread_counts();
+		$count = isset($counts['total']) ? (int) $counts['total'] : 0;
+
+		foreach ($GLOBALS['menu'] as $key => $item) {
+			if (isset($item[2]) && $item[2] === 'helpmate') {
+				$GLOBALS['menu'][ $key ][0] = $count > 0
+					? 'Helpmate <span class="awaiting-mod">' . $count . '</span>'
+					: 'Helpmate';
+				break;
+			}
+		}
+	}
+
+	/**
 	 * Add the plugin admin menu.
 	 *
 	 * @since    1.0.0
@@ -213,54 +254,121 @@ class Helpmate_Admin
 		add_menu_page(
 			'Helpmate',
 			'Helpmate',
-			'manage_options',
+			'edit_posts',
 			'helpmate',
 			array($this, 'display_plugin_setup_page'),
 			plugin_dir_url(__FILE__) . 'image/helpmate-wp-menu-icon.svg',
 			58
 		);
 
-		add_submenu_page(
-			'helpmate',
-			'Dashboard',
-			'Dashboard',
-			'manage_options',
-			'helpmate',
-			array($this, 'display_plugin_setup_page')
-		);
+		// Remove the duplicate "Helpmate" submenu that WordPress creates automatically
+		remove_submenu_page('helpmate', 'helpmate');
 
-		$GLOBALS['helpmate']->get_api()->get_key() ? add_submenu_page(
-			'helpmate',
-			'Train Chatbot',
-			'Train Chatbot',
-			'manage_options',
-			'helpmate&tab=data-source',
-			array($this, 'display_plugin_setup_page')
-		) : null;
+		// Get current user ID for permission checks
+		$current_user_id = get_current_user_id();
 
-		add_submenu_page(
-			'helpmate',
-			'Test Chatbot',
-			'Test Chatbot',
-			'manage_options',
-			'helpmate&tab=test-chatbot',
-			array($this, 'display_plugin_setup_page')
-		);
+		// Dashboard - first menu item
+		if (Helpmate_Permissions::can_access_feature($current_user_id, 'analytics')) {
+			add_submenu_page(
+				'helpmate',
+				'Dashboard',
+				'Dashboard',
+				'edit_posts',
+				'helpmate',
+				array($this, 'display_plugin_setup_page')
+			);
+		}
 
-		add_submenu_page(
-			'helpmate',
-			'App Center',
-			'App Center',
-			'manage_options',
-			'helpmate&tab=apps',
-			array($this, 'display_plugin_setup_page')
-		);
+		// Helpmate AI - Knowledge Base / Train Chatbot
+		if (Helpmate_Permissions::can_access_feature($current_user_id, 'chat_settings')) {
+			add_submenu_page(
+				'helpmate',
+				'Helpmate AI',
+				'Helpmate AI',
+				'edit_posts',
+				'helpmate&tab=data-source',
+				array($this, 'display_plugin_setup_page')
+			);
+		}
+
+		// Automations - only show if API key exists and user has chat_settings permission
+		if ($GLOBALS['helpmate']->get_api()->get_key() && Helpmate_Permissions::can_access_feature($current_user_id, 'chat_settings')) {
+			add_submenu_page(
+				'helpmate',
+				'Automations',
+				'Automations',
+				'edit_posts',
+				'helpmate&tab=automation&subtab=support-auto-responses',
+				array($this, 'display_plugin_setup_page')
+			);
+		}
+
+		// Inbox - requires live_chat
+		if (Helpmate_Permissions::can_access_feature($current_user_id, 'live_chat')) {
+			add_submenu_page(
+				'helpmate',
+				'Inbox',
+				'Inbox',
+				'edit_posts',
+				'helpmate&tab=social-chat&subtab=inbox',
+				array($this, 'display_plugin_setup_page')
+			);
+		}
+
+		// Channels - show if user has chat_settings (social) or live_chat (live chat)
+		$has_chat_settings = Helpmate_Permissions::can_access_feature($current_user_id, 'chat_settings');
+		$has_live_chat = Helpmate_Permissions::can_access_feature($current_user_id, 'live_chat');
+		if ($has_chat_settings || $has_live_chat) {
+			$channels_url = $has_chat_settings
+				? 'helpmate&tab=social-chat&subtab=facebook'
+				: 'helpmate&tab=live-chat&subtab=settings';
+			add_submenu_page(
+				'helpmate',
+				'Channels',
+				'Channels',
+				'edit_posts',
+				$channels_url,
+				array($this, 'display_plugin_setup_page')
+			);
+		}
+
+		// CRM - show if user has permission
+		if (
+			Helpmate_Permissions::can_access_feature($current_user_id, 'crm_contacts') ||
+			Helpmate_Permissions::can_access_feature($current_user_id, 'contacts_view') ||
+			Helpmate_Permissions::can_access_feature($current_user_id, 'contacts_full')
+		) {
+			add_submenu_page(
+				'helpmate',
+				'CRM',
+				'CRM',
+				'edit_posts',
+				'helpmate&tab=crm&subtab=contacts',
+				array($this, 'display_plugin_setup_page')
+			);
+		}
+
+		// Admin Hub - show if user has team_management, analytics, or manage_options
+		if (
+			Helpmate_Permissions::can_access_feature($current_user_id, 'team_management') ||
+			Helpmate_Permissions::can_access_feature($current_user_id, 'analytics') ||
+			user_can($current_user_id, 'manage_options')
+		) {
+			add_submenu_page(
+				'helpmate',
+				'Admin Hub',
+				'Admin Hub',
+				'edit_posts',
+				'helpmate&tab=control-center&subtab=team',
+				array($this, 'display_plugin_setup_page')
+			);
+		}
 
 		add_submenu_page(
 			'helpmate',
 			'Get Help',
 			'Get Help',
-			'manage_options',
+			'edit_posts',
 			'helpmate-get-help',
 			array($this, 'redirect_to_support')
 		);
@@ -269,7 +377,7 @@ class Helpmate_Admin
 			'helpmate',
 			'Upgrade',
 			'Upgrade',
-			'manage_options',
+			'edit_posts',
 			'helpmate-upgrade',
 			array($this, 'redirect_to_pricing')
 		);
@@ -283,6 +391,34 @@ class Helpmate_Admin
 	public function display_plugin_setup_page()
 	{
 		include_once plugin_dir_path(__FILE__) . 'partials/helpmate-admin-display.php';
+	}
+
+	/**
+	 * Handle menu redirects to ensure proper tab/subtab parameters.
+	 *
+	 * @since    1.0.0
+	 */
+	public function handle_menu_redirects()
+	{
+		// Get current page
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Used for routing only, not security-sensitive
+		$page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Used for routing only, not security-sensitive
+		$tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';
+
+		// Redirect main menu page (no tab) to dashboard
+		if ($page === 'helpmate' && empty($tab)) {
+			$url = add_query_arg(
+				array(
+					'page'    => 'helpmate',
+					'tab'     => 'control-center',
+					'subtab'  => 'dashboard',
+				),
+				admin_url('admin.php')
+			);
+			wp_safe_redirect($url);
+			exit;
+		}
 	}
 
 	/**
@@ -335,16 +471,49 @@ class Helpmate_Admin
 			// Sanitize tab parameter for CSS highlighting
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Used for CSS highlighting only, not security-sensitive
 			$tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Used for CSS highlighting only, not security-sensitive
+			$subtab = isset($_GET['subtab']) ? sanitize_text_field(wp_unslash($_GET['subtab'])) : '';
 
-			if ($tab === 'apps') {
+			if ($tab === 'control-center' && $subtab === 'dashboard') {
 				add_filter('admin_body_class', function ($classes) {
-					return $classes . ' helpmate-apps-tab';
+					return $classes . ' helpmate-dashboard-tab';
 				});
 			}
 
 			if ($tab === 'data-source') {
 				add_filter('admin_body_class', function ($classes) {
-					return $classes . ' helpmate-data-source-tab';
+					return $classes . ' helpmate-helpmate-ai-tab';
+				});
+			}
+
+			if ($tab === 'automation') {
+				add_filter('admin_body_class', function ($classes) {
+					return $classes . ' helpmate-automation-tab';
+				});
+			}
+
+			if ($tab === 'social-chat' && in_array($subtab, array('inbox', 'inbox-archived'), true)) {
+				add_filter('admin_body_class', function ($classes) {
+					return $classes . ' helpmate-inbox-tab';
+				});
+			}
+
+			if (($tab === 'social-chat' && ! in_array($subtab, array('inbox', 'inbox-archived'), true)) ||
+				$tab === 'live-chat') {
+				add_filter('admin_body_class', function ($classes) {
+					return $classes . ' helpmate-channels-tab';
+				});
+			}
+
+			if ($tab === 'crm') {
+				add_filter('admin_body_class', function ($classes) {
+					return $classes . ' helpmate-crm-tab';
+				});
+			}
+
+			if ($tab === 'control-center' && $subtab !== 'dashboard') {
+				add_filter('admin_body_class', function ($classes) {
+					return $classes . ' helpmate-admin-hub-tab';
 				});
 			}
 		}

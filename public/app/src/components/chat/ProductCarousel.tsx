@@ -9,11 +9,11 @@ export function ProductCarousel({ data }: { data: Product[] }) {
   const maxIndex = data.length - 1;
 
   const nextProduct = () => {
-    setCurrentIndex((prev) => (prev < maxIndex ? prev + 1 : 0));
+    setCurrentIndex((prev: number) => (prev < maxIndex ? prev + 1 : 0));
   };
 
   const prevProduct = () => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : maxIndex));
+    setCurrentIndex((prev: number) => (prev > 0 ? prev - 1 : maxIndex));
   };
 
   const visibleProducts = () => {

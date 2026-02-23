@@ -25,6 +25,7 @@ class Helpmate_Activator
 	 *
 	 * Checks if the plugin was previously deactivated, and if so,
 	 * notifies the license server of reactivation.
+	 * Also creates default email templates on activation (idempotent - only creates if missing).
 	 *
 	 * @since    1.0.0
 	 */
@@ -58,6 +59,28 @@ class Helpmate_Activator
 				array('%s')
 			);
 		}
+
+		// Create default email templates on activation
+		// The CRM methods check if templates exist before creating, so this is safe to call every time
+		// Check if global instance exists (plugin might be already loaded)
+		if (isset($GLOBALS['helpmate']) && $GLOBALS['helpmate'] instanceof Helpmate) {
+			$GLOBALS['helpmate']->create_default_email_templates();
+		} else {
+			// Create a new instance to create templates
+			// The class file is already loaded by the main plugin file
+			if (class_exists('Helpmate')) {
+				$helpmate = new Helpmate();
+				$helpmate->create_default_email_templates();
+			}
+		}
+
+		// Register rewrite rules for unsubscribe page and flush
+		add_rewrite_rule(
+			'^helpmate-unsubscribe/?$',
+			'index.php?helpmate_unsubscribe=1',
+			'top'
+		);
+		flush_rewrite_rules();
 	}
 
 }

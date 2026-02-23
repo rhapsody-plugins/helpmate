@@ -23,9 +23,9 @@ const getToastVariation = (template: string): ToastVariation => {
 
 export default function SalesNotification() {
   const { data: settings } = useSettings().getSettingsQuery;
-  const { 'sales-notifications': salesNotifications = false } =
-    settings.modules;
-  const { sales_notification_template = '1' } = settings.settings;
+  const salesNotifications = settings?.modules?.['sales-notifications'] ?? false;
+  const sales_notification_template =
+    (settings?.settings?.sales_notification_template as string) ?? '1';
   const { getRecentSaleNotification } = useSalesNotification();
   const [lastQueryTime, setLastQueryTime] = useState(Date.now());
   const initialDataLoaded = useRef(false);
@@ -39,39 +39,38 @@ export default function SalesNotification() {
 
   useEffect(() => {
     const order = getRecentSaleNotification.data;
-    // Don't proceed if sales notifications are disabled
     if (!salesNotifications) return;
-    // Don't proceed if we don't have order data
     if (
       !order ||
-      (Array.isArray(order) && order.length === 0) ||
       (typeof order === 'object' && Object.keys(order).length === 0)
-    )
+    ) {
       return;
-    // Skip if this is the first data load
+    }
     if (!initialDataLoaded.current) {
       initialDataLoaded.current = true;
       return;
     }
-    // Skip if we've already shown this order
     if (lastOrderId.current === order.time) return;
 
     const variation = getToastVariation(String(sales_notification_template));
     toast.dismiss();
 
     toast.custom((id: string | number) => {
+      const orderWithImage = {
+        ...order,
+        product_image: order.product_image || '',
+      };
       switch (variation) {
         case 'compact':
-          return <CompactToast order={order} t={String(id)} />;
+          return <CompactToast order={orderWithImage} t={String(id)} />;
         case 'detailed':
-          return <DetailedToast order={order} t={String(id)} />;
+          return <DetailedToast order={orderWithImage} t={String(id)} />;
         default:
-          return <DefaultToast order={order} t={String(id)} />;
+          return <DefaultToast order={orderWithImage} t={String(id)} />;
       }
     });
 
-    // Store the current order ID to prevent duplicates
-    // lastOrderId.current = order.time;
+    lastOrderId.current = order.time;
   }, [
     lastQueryTime,
     salesNotifications,

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -14,6 +15,7 @@ import {
   RadioCardGroup,
   RadioCardLabel,
 } from '@/components/ui/radio-card';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -23,7 +25,6 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Slider } from '@/components/ui/slider';
 import { useSettings } from '@/hooks/useSettings';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
@@ -31,10 +32,9 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 const formSchema = z.object({
-  temperature: z.number().min(0).max(1).step(0.1),
+  ai_enabled: z.boolean(),
   tone: z.string().min(1, { message: 'Tone is required' }),
   language: z.string().min(1, { message: 'Language is required' }),
-  similarity_threshold: z.number().min(0.05).max(1).step(0.05),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -96,10 +96,9 @@ export default function TabAi() {
 
   const form = useForm<FormData>({
     defaultValues: {
-      temperature: 0.5,
+      ai_enabled: true,
       tone: 'friendly',
       language: 'default',
-      similarity_threshold: 0.3,
     },
     resolver: zodResolver(formSchema),
   });
@@ -115,13 +114,11 @@ export default function TabAi() {
       onSuccess: (data) => {
         const formData = {
           ...data,
+          ai_enabled: (data as Partial<FormData>).ai_enabled ?? true,
           language:
             (data.language as string) === ''
               ? 'default'
               : (data.language as string),
-          // ensure a safe default if not present in saved settings
-          similarity_threshold:
-            (data as Partial<FormData>).similarity_threshold ?? 0.3,
         };
         form.reset(formData);
       },
@@ -181,50 +178,26 @@ export default function TabAi() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="temperature"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Temperature {field.value}
-                          <InfoTooltip message="Choose a low temperature for consistent, on-brand replies, or raise it for more creative, varied answers" />
-                        </FormLabel>
-                        <FormControl className="h-[36px]">
-                          <Slider
-                            min={0}
-                            max={1}
-                            step={0.1}
-                            value={[field.value]}
-                            onValueChange={([value]) => field.onChange(value)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
                 <FormField
                   control={form.control}
-                  name="similarity_threshold"
+                  name="ai_enabled"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Minimum Match Score {Math.round(field.value * 100)}%
-                        <InfoTooltip message="Sets how closely results must match your query. Higher = fewer but more accurate. Lower = more but less precise." />
-                      </FormLabel>
-                      <FormControl className="h-[36px]">
-                        <Slider
-                          min={0}
-                          max={1}
-                          step={0.05}
-                          value={[field.value]}
-                          onValueChange={([value]) => field.onChange(value)}
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Enable AI Responses
+                          <InfoTooltip message="When disabled, the chatbot will remain visible but AI will not respond to any messages. Messages will still be stored for admin review." />
+                        </FormLabel>
+                        <FormDescription>
+                          Globally enable or disable AI responses for all chat conversations
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />

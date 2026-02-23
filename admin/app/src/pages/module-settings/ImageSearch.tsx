@@ -1,3 +1,4 @@
+import PageGuard from '@/components/PageGuard';
 import PageHeader from '@/components/PageHeader';
 import { ProBadge } from '@/components/ProBadge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,10 +12,11 @@ import {
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
+import { useMain } from '@/contexts/MainContext';
 import { useSettings } from '@/hooks/useSettings';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -25,12 +27,34 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export default function ImageSearch() {
-  const { getSettingsMutation, updateSettingsMutation, getProQuery } =
-    useSettings();
+  const { modules } = useMain();
+  const {
+    getSettingsMutation,
+    updateSettingsMutation,
+    getProQuery,
+    getModulesQuery,
+  } = useSettings();
 
   const { mutate: getSettings, isPending: isFetching } = getSettingsMutation;
   const { mutate: updateSettings, isPending: isUpdating } =
     updateSettingsMutation;
+  const { mutateAsync: updateModuleSettings } = updateSettingsMutation;
+  const isModuleEnabled = Boolean(modules['image-search']);
+
+  const handleModuleToggle = useCallback(async () => {
+    const newSettings = { ...modules, 'image-search': !isModuleEnabled };
+    await updateModuleSettings(
+      {
+        key: 'modules',
+        data: newSettings,
+      },
+      {
+        onSuccess: () => {
+          getModulesQuery.refetch();
+        },
+      }
+    );
+  }, [modules, isModuleEnabled, updateModuleSettings, getModulesQuery]);
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -67,9 +91,27 @@ export default function ImageSearch() {
   └─────────────────────────────────────────────────────────────────────────────┘
  */
   return (
-    <div className="gap-0">
-      <PageHeader title="Image Search" />
-      <div className="relative p-6">
+    <PageGuard page="image-search">
+      <div className="gap-0">
+        <PageHeader
+        title="Product Search by Image"
+        rightActions={
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Enable Module</span>
+            <Switch
+              checked={isModuleEnabled}
+              onCheckedChange={handleModuleToggle}
+              disabled={isUpdating}
+            />
+          </div>
+        }
+      />
+      <div
+        className={cn(
+          'relative p-6',
+          !isModuleEnabled && 'opacity-50 pointer-events-none cursor-not-allowed'
+        )}
+      >
         {!getProQuery.data && (
           <ProBadge
             topMessage="“I saw it, I want it.” Let customers upload a photo and find the exact product instantly."
@@ -79,13 +121,13 @@ export default function ImageSearch() {
         )}
         <Card
           className={cn(
-            !getProQuery.data &&
+            (!getProQuery.data || !isModuleEnabled) &&
               'opacity-50 cursor-not-allowed pointer-events-none'
           )}
         >
           <CardHeader>
             <CardTitle className="flex gap-1 items-center text-xl font-bold">
-              Image Search{' '}
+              Product Search by Image{' '}
               <InfoTooltip message="Customers can upload an image to search for similar or exact products from your store. It’s perfect for mobile-first shoppers who use screenshots or photos to find products." />
             </CardTitle>
           </CardHeader>
@@ -122,5 +164,6 @@ export default function ImageSearch() {
         </Card>
       </div>
     </div>
+    </PageGuard>
   );
 }

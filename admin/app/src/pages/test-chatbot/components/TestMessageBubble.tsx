@@ -135,15 +135,15 @@ export function TestMessageBubble({
         {/* Message Content */}
         <div
           className={cn(
-            'flex-1 p-3 rounded-lg',
+            'flex-1 px-3 py-2 rounded-lg',
             isUser
-              ? 'text-white rounded-tr-none [background:var(--secondary-2)]'
-              : 'bg-white rounded-tl-none border border-gray-200'
+              ? 'text-white [background:var(--secondary-2)]'
+              : 'bg-[var(--primary-2)]/10 border border-white text-neutral-800'
           )}
         >
           {/* Handle different message types */}
           {message.type === 'text' || !message.type ? (
-            <div className="[&_p]:!mt-0">
+            <div className="[&_p]:!my-0 [&_p]:!leading-snug">
               <ReactMarkdown>{message.content}</ReactMarkdown>
             </div>
           ) : message.type === 'product-carousel' && message.data ? (
@@ -167,13 +167,6 @@ export function TestMessageBubble({
                 [Order tracker would be displayed here in live chat]
               </div>
             </div>
-          ) : message.type === 'handover' && message.data ? (
-            <div>
-              <p className="!mt-0 text-sm">{message.content}</p>
-              <div className="text-xs opacity-75">
-                [Handover form would be displayed here in live chat]
-              </div>
-            </div>
           ) : message.type === 'refund-return' && message.data ? (
             <div>
               <p className="!mt-0 text-sm">{message.content}</p>
@@ -190,22 +183,17 @@ export function TestMessageBubble({
             </div>
           ) : (
             <div>
-              <p className="!mt-0 text-sm">{message.content}</p>
+              <p className="!mt-0 text-sm ">{message.content}</p>
               <div className="text-xs opacity-75">
                 [{message.type} would be displayed here in live chat]
               </div>
             </div>
           )}
 
-          {/* Timestamp and Edit Button */}
+          {!isUser && (
           <div
-            className={cn(
-              'flex flex-wrap gap-3 items-center mt-2 text-xs opacity-70',
-              isUser ? 'text-white' : 'text-gray-500'
-            )}
+            className="flex flex-wrap gap-3 items-center mt-2 text-xs opacity-70 text-gray-500"
           >
-            <span>{message.timestamp.toLocaleTimeString()}</span>
-            {!isUser && (
               <>
                 <Sheet open={isEditing} onOpenChange={setIsEditing}>
                   <SheetTrigger asChild>
@@ -320,8 +308,8 @@ export function TestMessageBubble({
                   </DialogContent>
                 </Dialog>
               </>
-            )}
           </div>
+          )}
 
           {/* Show edited version if exists */}
           {!isUser && message?.metadata?.edited === true && (

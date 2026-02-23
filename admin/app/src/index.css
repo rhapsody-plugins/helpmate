@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+/* Scan public app tool components for Tailwind classes (ProductCarousel, etc.) */
+@source "../../../public/app/src/components/chat";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -343,4 +347,21 @@ h3.tiptap-heading + h2.tiptap-heading {
     -webkit-animation: border 4s linear infinite;
             animation: border 4s linear infinite;
   }
+}
+
+#helpmate-root h1,
+#helpmate-root h2,
+#helpmate-root h3,
+#helpmate-root h4,
+#helpmate-root h5,
+#helpmate-root h6,
+#helpmate-root p,
+#helpmate-portal-root h1,
+#helpmate-portal-root h2,
+#helpmate-portal-root h3,
+#helpmate-portal-root h4,
+#helpmate-portal-root h5,
+#helpmate-portal-root h6,
+#helpmate-portal-root p {
+  @apply my-0;
 }

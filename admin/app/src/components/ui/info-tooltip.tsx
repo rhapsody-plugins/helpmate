@@ -18,7 +18,7 @@ export function InfoTooltip({ message }: InfoTooltipProps) {
           <Info className="inline-block ml-1 w-4 h-4 text-slate-400" />
         </TooltipTrigger>
         <TooltipContent className="max-w-xs text-base text-wrap">
-          {message}
+          <div dangerouslySetInnerHTML={{ __html: message }} />
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
