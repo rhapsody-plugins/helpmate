@@ -4,7 +4,7 @@ Tags: automation, ai chatbot, live chat, crm, appointments
 Requires at least: 5.0
 Requires PHP: 7.4
 Tested up to: 6.9.1
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -388,6 +388,11 @@ For full details, please review our policies below:
 
 == Version Update Logs ==
 
+= 2.0.1 - 2025-02-27 =
+
+- Fixed: Auto focus on the chat input while chat widget is closed issue.
+- Fixed: Sales notifications close icon not clickable on some devices.
+
 = 2.0.0 - 2026-02-22 =
 
 - Added: Completely redesigned admin sidebar with icon bar and submenu panel navigation.
@@ -514,6 +519,11 @@ For full details, please review our policies below:
 - New: Initial release
 
 == Changelog ==
+
+= 2.0.1 - 2025-02-27 =
+
+- Fixed: Auto focus on the chat input while chat widget is closed issue.
+- Fixed: Sales notifications close icon not clickable on some devices.
 
 = 2.0.0 - 2026-02-22 =
 

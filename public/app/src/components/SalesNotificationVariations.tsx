@@ -30,16 +30,23 @@ interface Order {
   type: 'sale' | 'download' | 'review';
 }
 
+// Dismiss: by id first; then dismiss all so toast closes even if id doesn't match (e.g. portaled Toaster)
+const dismissToast = (id: string) => {
+  toast.dismiss(id);
+  toast.dismiss();
+};
+
 export const DefaultToast = ({ order, t }: { order: Order; t: string }) => (
-  <Card className="flex flex-row items-center gap-2 w-full max-w-[320px] rounded-full p-0 pr-10 border-primary-300 shadow-lg">
-    <Button
-      variant="link"
-      size="icon"
-      onClick={() => toast.dismiss(t)}
-      className="absolute top-[2px] right-4 text-[#0093E5]"
+  <Card className="relative flex flex-row items-center gap-2 w-full max-w-[320px] rounded-full p-0 pr-10 border-primary-300 shadow-lg">
+    <button
+      type="button"
+      aria-label="Close"
+      onClick={() => dismissToast(t)}
+      onPointerDown={(e) => e.stopPropagation()}
+      className="absolute top-[2px] right-4 z-10 flex size-9 items-center justify-center rounded-full text-[#0093E5] hover:bg-black/5"
     >
-      <X />
-    </Button>
+      <X className="size-4" />
+    </button>
     <img
       src={order.product_image || ''}
       alt={order.product_name}
@@ -95,14 +102,15 @@ export const CompactToast = ({ order, t }: { order: Order; t: string }) => (
       className="w-20 h-20 my-[-1px] rounded-full border border-primary-300 z-10 shadow-lg"
     />
     <Card className="flex flex-row relative -ml-8 items-center gap-2 pb-2 pt-6 !pr-16 w-full max-w-[300px] !pl-10 rounded-full shadow-lg">
-      <Button
-        variant="link"
-        size="icon"
-        onClick={() => toast.dismiss(t)}
-        className="absolute top-[2px] right-4 text-[#455CFE]"
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={() => dismissToast(t)}
+        onPointerDown={(e) => e.stopPropagation()}
+        className="absolute top-[2px] right-4 z-10 flex size-9 items-center justify-center rounded-full text-[#455CFE] hover:bg-black/5"
       >
-        <X />
-      </Button>
+        <X className="size-4" />
+      </button>
       <div className="flex flex-col">
         <span className="flex absolute top-0 left-10 gap-1 items-center px-2 py-1 text-xs border-t-0 border border-[#9CB8FF] rounded-b-lg bg-[#ecf3ff]  w-fit text-[#0093E5]">
           <Bell className="w-3 h-3 fill-current text-[#0093E5]" /> By{' '}
@@ -147,15 +155,16 @@ export const CompactToast = ({ order, t }: { order: Order; t: string }) => (
 );
 
 export const DetailedToast = ({ order, t }: { order: Order; t: string }) => (
-  <Card className="flex flex-row items-center gap-2 w-full max-w-[320px] rounded-full p-0 pr-10 border-primary-300 shadow-lg">
-    <Button
-      variant="link"
-      size="icon"
-      onClick={() => toast.dismiss(t)}
-      className="absolute top-[2px] right-4 text-[#0093E5]"
+  <Card className="relative flex flex-row items-center gap-2 w-full max-w-[320px] rounded-full p-0 pr-10 border-primary-300 shadow-lg">
+    <button
+      type="button"
+      aria-label="Close"
+      onClick={() => dismissToast(t)}
+      onPointerDown={(e) => e.stopPropagation()}
+      className="absolute top-[2px] right-4 z-10 flex size-9 items-center justify-center rounded-full text-[#0093E5] hover:bg-black/5"
     >
-      <X />
-    </Button>
+      <X className="size-4" />
+    </button>
     <img
       src={order.product_image || ''}
       alt={order.product_name}

@@ -8,7 +8,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { cn } from '@/lib/utils';
 import { Send, X } from 'lucide-react';
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 interface LiveAgent {
   id: number;
@@ -184,13 +184,6 @@ export function ChatInput({
     },
     [hasProAccess, imageSearch, handleImageChange]
   );
-
-  // Auto-focus textarea when loading becomes false
-  useEffect(() => {
-    if (!isLoading && textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, [isLoading]);
 
   // Memoize keydown handler
   const handleKeyDown = useCallback(

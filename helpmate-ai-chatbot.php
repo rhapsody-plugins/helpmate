@@ -16,12 +16,12 @@
  * Plugin Name:       Helpmate – Support Automation, AI Chatbot, Live Chat, Social Automation, Booking & CRM Solution
  * Plugin URI:        https://rhapsodyplugins.com/helpmate
  * Description:       Reduce 97% of support queries and 70% of workload with AI Chatbot, Live Chat, CRM, Booking and WhatsApp automation.
- * Version:           2.0.0
+ * Version:           2.0.1
  * Author:            Rhapsody Plugins
  * Author URI:        https://rhapsodyplugins.com/
  * Requires at least: 5.0
  * Tested up to:      6.9.1
- * Stable tag:        2.0.0
+ * Stable tag:        2.0.1
  * Requires PHP:      7.4
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('HELPMATE_VERSION', '2.0.0');
+define('HELPMATE_VERSION', '2.0.1');
 
 /**
  * Plugin constants
