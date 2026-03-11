@@ -6,14 +6,26 @@ import Step3DataTraining from '@/components/setup/Step3DataTraining';
 import { CheckCircle2 } from 'lucide-react';
 import { PageType } from '@/contexts/MainContext';
 
+function getInitialStepFromUrl(): { step: number; step1Complete: boolean; step2Complete: boolean } {
+  const stepParam = new URLSearchParams(window.location.search).get('step');
+  const step = stepParam ? parseInt(stepParam, 10) : 1;
+  const validStep = step >= 1 && step <= 3 ? step : 1;
+  return {
+    step: validStep,
+    step1Complete: validStep >= 2,
+    step2Complete: validStep >= 3,
+  };
+}
+
 export default function SetupWidget({
   setPage,
 }: {
   setPage: (page: PageType) => void;
 }) {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [step1Complete, setStep1Complete] = useState(false);
-  const [step2Complete, setStep2Complete] = useState(false);
+  const initial = getInitialStepFromUrl();
+  const [currentStep, setCurrentStep] = useState(initial.step);
+  const [step1Complete, setStep1Complete] = useState(initial.step1Complete);
+  const [step2Complete, setStep2Complete] = useState(initial.step2Complete);
   const [step3Complete, setStep3Complete] = useState(false);
 
   const handleStep1Complete = () => {

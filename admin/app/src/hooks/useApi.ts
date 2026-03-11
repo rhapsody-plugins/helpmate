@@ -99,7 +99,10 @@ export function useApi() {
     },
   });
 
-  const openAiKeyQuery = useQuery<{ openai_key: string | null }, Error>({
+  const openAiKeyQuery = useQuery<
+    { openai_key: string | null; key_prefix?: string | null },
+    Error
+  >({
     queryKey: ['openai-key'],
     queryFn: async () => {
       const response = await api.get('/get-openai-key');
@@ -108,12 +111,33 @@ export function useApi() {
     staleTime: 1000 * 60 * 5,
   });
 
+  const deleteOpenAiKeyMutation = useMutation({
+    mutationFn: async () => {
+      const response = await api.post('/delete-openai-key');
+      return response.data;
+    },
+    onSuccess: (data) => {
+      openAiKeyQuery.refetch();
+      if (data?.success) {
+        toast.success(data.message || 'OpenAI API key removed');
+      }
+    },
+    onError: (error: unknown) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.message || 'Failed to remove OpenAI API key');
+      } else {
+        toast.error('An error occurred while removing the OpenAI API key');
+      }
+    },
+  });
+
   return {
     apiKeyQuery,
     getFreeApiKeyMutation,
     activateApiKeyMutation,
     syncCreditsMutation,
     saveOpenAiKeyMutation,
+    deleteOpenAiKeyMutation,
     openAiKeyQuery,
   };
 }

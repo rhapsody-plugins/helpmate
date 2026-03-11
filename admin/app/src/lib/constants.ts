@@ -15,3 +15,4 @@ export const HelpmatePrivacyPolicyURL =
 export const HelpmateTermsOfServiceURL =
   'https://rhapsodyplugins.com/terms-of-use/';
 export const OpenAIApiKeysURL = 'https://platform.openai.com/api-keys';
+export const OpenAIBillingURL = 'https://platform.openai.com/account/billing';

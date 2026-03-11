@@ -473,6 +473,12 @@ class Helpmate_Document_Handler
             // Always use data_source feature_slug for all document types
             $feature_slug = 'data_source';
             $response = $this->chat->handle_embedding(['id' => $document['vector']], 'delete', $feature_slug);
+            if (isset($response['error']) && $response['error']) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => $response['message'] ?? __('Failed to remove documents', 'helpmate-ai-chatbot'),
+                ], 500);
+            }
             if (isset($response['status']) && $response['status'] !== 'success') {
                 return new WP_REST_Response([
                     'error' => true,

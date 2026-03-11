@@ -785,6 +785,16 @@ class Helpmate_Chat_Helpers
             // Ai Response Debug
             // error_log(print_r($data, true));
 
+            $status = wp_remote_retrieve_response_code($response);
+            if ($status >= 400) {
+                $message = (is_array($data) ? ($data['detail'] ?? $data['message'] ?? null) : null)
+                    ?: __('Request failed.', 'helpmate-ai-chatbot');
+                return [
+                    'error' => true,
+                    'message' => $message,
+                ];
+            }
+
             if (isset($data['error']) && $data['error']) {
                 return [
                     'error' => true,

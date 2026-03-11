@@ -12,6 +12,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { useApi } from '@/hooks/useApi';
 import { useSettings } from '@/hooks/useSettings';
+import {
+  OpenAIApiKeysURL,
+  OpenAIBillingURL,
+} from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -93,11 +97,42 @@ export default function Step2OpenAI({ onComplete, onSkip }: Step2OpenAIProps) {
               >
                 <div className="flex gap-3 items-start p-4 mb-4 bg-blue-50 rounded-lg border border-blue-200">
                   <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-sm text-blue-800">
+                  <div className="flex-1 space-y-2 text-sm text-blue-800">
+                    <p className="!text-base">
                       <strong>Note:</strong> You'll still get free credits even
                       if you don't add your OpenAI API key. This step is
                       completely optional.
+                    </p>
+                    <p className="!text-base">
+                      <strong>Get your API key:</strong>{' '}
+                      <a
+                        href={OpenAIApiKeysURL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-700 underline hover:no-underline"
+                      >
+                        OpenAI API keys
+                      </a>
+                      {' '}— sign in at platform.openai.com → API keys →
+                      Create new secret key.
+                    </p>
+                    <p className="!text-base">
+                      <strong>Add credit/balance:</strong> You must add credit
+                      in your OpenAI account for the API to work without
+                      issues:{' '}
+                      <a
+                        href={OpenAIBillingURL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-700 underline hover:no-underline"
+                      >
+                        Billing
+                      </a>
+                      .
+                    </p>
+                    <p className="!text-base">
+                      This uses the OpenAI API (pay-as-you-go), not a ChatGPT
+                      Plus subscription.
                     </p>
                   </div>
                 </div>

@@ -14,6 +14,7 @@ import {
   HelpmatePricingURL,
   HelpmateSignupURL,
   OpenAIApiKeysURL,
+  OpenAIBillingURL,
 } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
@@ -114,6 +115,7 @@ export default function ManageApi() {
     syncCreditsMutation,
     activateApiKeyMutation,
     saveOpenAiKeyMutation,
+    deleteOpenAiKeyMutation,
     openAiKeyQuery,
   } = useApi();
   const [apiKey, setApiKey] = useState('');
@@ -130,6 +132,8 @@ export default function ManageApi() {
     activateApiKeyMutation;
   const { mutate: saveOpenAiKey, isPending: isSavingOpenAiKey } =
     saveOpenAiKeyMutation;
+  const { mutate: deleteOpenAiKey, isPending: isDeletingOpenAiKey } =
+    deleteOpenAiKeyMutation;
 
   useEffect(() => {
     setApiKey(apiKeyData?.api_key || '');
@@ -249,8 +253,8 @@ export default function ManageApi() {
                           {isActivateApiKeyPending
                             ? 'Activating...'
                             : apiKeyData?.api_key
-                            ? 'Change Api Key'
-                            : 'Activate Api Key'}
+                              ? 'Change Api Key'
+                              : 'Activate Api Key'}
                         </Button>
                       </div>
                       <div className="mt-2 text-sm text-muted-foreground">
@@ -261,8 +265,8 @@ export default function ManageApi() {
                       <h3 className="mb-2 text-lg font-medium">Credit Usage</h3>
                       <div className="flex gap-4 items-center">
                         {isFeatureUsagePending ||
-                        isApiKeyPending ||
-                        isActivateApiKeyPending ? (
+                          isApiKeyPending ||
+                          isActivateApiKeyPending ? (
                           <p>Loading credits...</p>
                         ) : mainCredit ? (
                           mainCredit
@@ -275,25 +279,25 @@ export default function ManageApi() {
                                 )
                             )
                             .map((credit) => (
-                            <div
-                              className="flex flex-col items-center"
-                              key={credit.feature_slug}
-                            >
-                              <div className="p-2 bg-gray-100 rounded-xl">
-                                <CircularProgress
-                                  value={credit.usages}
-                                  max={
-                                    Number(credit.credits) === -1
-                                      ? 1
-                                      : credit.credits
-                                  }
-                                  isUnlimited={Number(credit.credits) === -1}
-                                />
+                              <div
+                                className="flex flex-col items-center"
+                                key={credit.feature_slug}
+                              >
+                                <div className="p-2 bg-gray-100 rounded-xl">
+                                  <CircularProgress
+                                    value={credit.usages}
+                                    max={
+                                      Number(credit.credits) === -1
+                                        ? 1
+                                        : credit.credits
+                                    }
+                                    isUnlimited={Number(credit.credits) === -1}
+                                  />
+                                </div>
+                                <span className="mt-1 text-xs capitalize text-muted-foreground">
+                                  {credit.feature_slug.replace(/_/g, ' ')}
+                                </span>
                               </div>
-                              <span className="mt-1 text-xs capitalize text-muted-foreground">
-                                {credit.feature_slug.replace(/_/g, ' ')}
-                              </span>
-                            </div>
                             ))
                         ) : (
                           <p>No credits available</p>
@@ -313,7 +317,7 @@ export default function ManageApi() {
                       <div
                         className={cn(
                           !isPro &&
-                            'opacity-15 cursor-not-allowed pointer-events-none'
+                          'opacity-15 cursor-not-allowed pointer-events-none'
                         )}
                       >
                         <h3 className="mb-2 text-lg font-medium !mt-0">
@@ -323,23 +327,62 @@ export default function ManageApi() {
                           Add your own OpenAI API key to use when your credits
                           are exhausted. This is optional.
                         </p>
-                        <p className="mb-3 text-sm text-muted-foreground">
-                          Don&apos;t have a key?{' '}
-                          <a
-                            href={OpenAIApiKeysURL}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary underline hover:no-underline"
-                          >
-                            Get your API key from OpenAI
-                          </a>
-                          : sign in or create an account at platform.openai.com,
-                          then go to API keys to create a new secret key.
-                        </p>
+                        <div className="mb-3 space-y-2 text-sm text-muted-foreground">
+                          <p>
+                            <strong>Get your API key:</strong>{' '}
+                            <a
+                              href={OpenAIApiKeysURL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary underline hover:no-underline"
+                            >
+                              OpenAI API keys
+                            </a>{' '}
+                            — sign in at platform.openai.com → API keys →
+                            Create new secret key.
+                          </p>
+                          <p>
+                            <strong>Add credit/balance:</strong> You must add
+                            credit in your OpenAI account for the API to work
+                            without issues:{' '}
+                            <a
+                              href={OpenAIBillingURL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary underline hover:no-underline"
+                            >
+                              Billing
+                            </a>
+                            .
+                          </p>
+                          <p>
+                            This uses the OpenAI API (pay-as-you-go), not a
+                            ChatGPT Plus subscription.
+                          </p>
+                        </div>
                         {openAiKeyData?.openai_key && (
-                          <div className="p-2 mb-3 text-sm bg-gray-50 rounded-md text-muted-foreground">
-                            Current key:{' '}
-                            {formatOpenAiKey(openAiKeyData.openai_key)}
+                          <div className="flex flex-wrap gap-2 items-center mb-3">
+                            <div className="p-2 text-sm bg-gray-50 rounded-md text-muted-foreground">
+                              Current key
+                              : {formatOpenAiKey(openAiKeyData.openai_key)}
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              disabled={isDeletingOpenAiKey}
+                              onClick={() => {
+                                if (
+                                  confirm(
+                                    'Remove your saved OpenAI API key? You can add it again later.'
+                                  )
+                                ) {
+                                  deleteOpenAiKey();
+                                }
+                              }}
+                            >
+                              {isDeletingOpenAiKey ? 'Removing...' : 'Delete key'}
+                            </Button>
                           </div>
                         )}
                         <div className="flex gap-2">
@@ -375,8 +418,8 @@ export default function ManageApi() {
                             {isSavingOpenAiKey
                               ? 'Saving...'
                               : openAiKeyData?.openai_key
-                              ? 'Update Key'
-                              : 'Save Key'}
+                                ? 'Update Key'
+                                : 'Save Key'}
                           </Button>
                         </div>
                         <div className="mt-2 text-xs text-muted-foreground">
@@ -388,19 +431,17 @@ export default function ManageApi() {
                     </div>
                   </div>
                 </div>
-                {isPro && (
-                  <div className="flex justify-between items-center pt-6 mt-6 border-t">
-                    {apiKeyData?.last_sync && (
-                      <div className="text-sm text-muted-foreground">
-                        Last synced:{' '}
-                        {new Date(apiKeyData.last_sync * 1000).toLocaleString()}
-                      </div>
-                    )}
-                    <Button size="sm" onClick={() => syncCredits()}>
-                      Sync Credits
-                    </Button>
-                  </div>
-                )}
+                <div className="flex justify-between items-center pt-6 mt-6 border-t">
+                  {apiKeyData?.last_sync && (
+                    <div className="text-sm text-muted-foreground">
+                      Last synced:{' '}
+                      {new Date(apiKeyData.last_sync * 1000).toLocaleString()}
+                    </div>
+                  )}
+                  <Button size="sm" onClick={() => syncCredits()}>
+                    Sync Credits
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -414,9 +455,9 @@ export default function ManageApi() {
         onUpgrade={() =>
           apiKeyData?.product_slug === 'helpmate-free'
             ? window.open(
-                `${HelpmateSignupURL}?customer_id=${apiKeyData?.customer_id}&api_key=${apiKeyData?.api_key}`,
-                '_blank'
-              )
+              `${HelpmateSignupURL}?customer_id=${apiKeyData?.customer_id}&api_key=${apiKeyData?.api_key}`,
+              '_blank'
+            )
             : window.open(HelpmatePricingURL, '_blank')
         }
       />

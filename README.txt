@@ -3,8 +3,8 @@ Contributors: rhapsodyplugins
 Tags: automation, ai chatbot, live chat, crm, appointments
 Requires at least: 5.0
 Requires PHP: 7.4
-Tested up to: 6.9.1
-Stable tag: 2.0.1
+Tested up to: 6.9
+Stable tag: 2.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -388,6 +388,15 @@ For full details, please review our policies below:
 
 == Version Update Logs ==
 
+= 2.0.2 - 2025-03-11 =
+
+- Added: Top bar shows "Chat Credits: Unlimited" with infinity icon when own OpenAI API key is set.
+- Added: Users can delete their own OpenAI API key from Manage API page.
+- Added: Manage API page displays first/last 4 characters of saved API key with sk-proj hint for identification.
+- Added: Clear guidance for own OpenAI key: where to get key (API keys link), add credit/balance (billing link), and clarification that it is not ChatGPT Plus subscription.
+- Added: Sync Credits button now visible for all users on Manage API page (previously Pro only).
+- Update: Improved readability of OpenAI key info box text on Setup Step 2.
+
 = 2.0.1 - 2025-02-27 =
 
 - Fixed: Auto focus on the chat input while chat widget is closed issue.
@@ -519,6 +528,15 @@ For full details, please review our policies below:
 - New: Initial release
 
 == Changelog ==
+
+= 2.0.2 - 2025-03-11 =
+
+- Added: Top bar shows "Chat Credits: Unlimited" with infinity icon when own OpenAI API key is set.
+- Added: Users can delete their own OpenAI API key from Manage API page.
+- Added: Manage API page displays first/last 4 characters of saved API key with sk-proj hint for identification.
+- Added: Clear guidance for own OpenAI key: where to get key (API keys link), add credit/balance (billing link), and clarification that it is not ChatGPT Plus subscription.
+- Added: Sync Credits button now visible for all users on Manage API page (previously Pro only).
+- Update: Improved readability of OpenAI key info box text on Setup Step 2.
 
 = 2.0.1 - 2025-02-27 =
 

@@ -192,9 +192,33 @@ class Helpmate_Backend_Routes
             'methods' => 'GET',
             'callback' => function () {
                 $openai_key = $this->helpmate->get_api()->get_openai_key();
+                if (empty($openai_key)) {
+                    return new WP_REST_Response(['openai_key' => null, 'key_prefix' => null], 200);
+                }
+                $len = strlen($openai_key);
+                if ($len < 9) {
+                    $masked = substr($openai_key, 0, 4) . '…';
+                    $key_prefix = (strpos($openai_key, 'sk-proj') === 0) ? 'sk-proj' : null;
+                } elseif (strpos($openai_key, 'sk-proj') === 0) {
+                    $masked = 'sk-proj…' . substr($openai_key, -4);
+                    $key_prefix = 'sk-proj';
+                } else {
+                    $masked = substr($openai_key, 0, 4) . '…' . substr($openai_key, -4);
+                    $key_prefix = null;
+                }
                 return new WP_REST_Response([
-                    'openai_key' => $openai_key ? substr($openai_key, 0, 7) . '...' : null
+                    'openai_key' => $masked,
+                    'key_prefix' => $key_prefix
                 ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/delete-openai-key', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $result = $this->helpmate->get_api()->delete_openai_key();
+                return new WP_REST_Response($result, $result['success'] ? 200 : 400);
             },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));

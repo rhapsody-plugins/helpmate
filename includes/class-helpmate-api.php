@@ -594,4 +594,19 @@ class Helpmate_Api
         }
         return $this->decrypt_data($encrypted_key);
     }
+
+    /**
+     * Delete OpenAI API key.
+     *
+     * @since 1.0.0
+     * @return array
+     */
+    public function delete_openai_key()
+    {
+        $this->settings->delete_setting('openai_api_key');
+        return array(
+            'success' => true,
+            'message' => __('OpenAI API key removed successfully', 'helpmate-ai-chatbot')
+        );
+    }
 }

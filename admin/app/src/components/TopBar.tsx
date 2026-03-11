@@ -21,6 +21,8 @@ import {
   HelpmatePricingURL,
   HelpmateSupportURL,
 } from '@/lib/constants';
+import { cn } from '@/lib/utils';
+import { Icon } from '@iconify/react';
 import {
   ArrowUpRight,
   Bell,
@@ -33,9 +35,7 @@ import {
   User,
   X
 } from 'lucide-react';
-import { Icon } from '@iconify/react';
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
 
 type PlatformType = 'website' | 'messenger' | 'instagram' | 'fb_comment' | 'ig_comment' | 'whatsapp';
 
@@ -93,8 +93,9 @@ function shouldShowPlatformBadge(notificationType: string): boolean {
 
 export default function TopBar() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const { apiKeyQuery, syncCreditsMutation } = useApi();
+  const { apiKeyQuery, syncCreditsMutation, openAiKeyQuery } = useApi();
   const { data: apiKeyData } = apiKeyQuery;
+  const { data: openAiKeyData } = openAiKeyQuery;
   const { mutate: syncCredits, isPending: isSyncing } = syncCreditsMutation;
   const { data: unreadCounts } = useUnreadCounts();
   const { data: notificationsData } = useNotificationsList({
@@ -129,10 +130,9 @@ export default function TopBar() {
       )
       .reduce((acc, credit) => acc + Number(credit.usages), 0) ?? 0;
 
-  const percent = Math.min(
-    100,
-    Math.round((total_spent_credits / total_credits) * 100)
-  );
+  const percent = total_credits > 0
+    ? Math.min(100, Math.round((total_spent_credits / total_credits) * 100))
+    : 0;
 
   return (
     <Card className="p-3 mb-3 bg-primary-800">
@@ -188,9 +188,8 @@ export default function TopBar() {
                       return (
                         <li
                           key={n.id}
-                          className={`group flex gap-2 px-3 py-2.5 hover:bg-muted/50 items-start !mb-0 transition-colors ${
-                            isUnread ? 'bg-blue-50/50 border-l-2 border-l-blue-500' : ''
-                          }`}
+                          className={`group flex gap-2 px-3 py-2.5 hover:bg-muted/50 items-start !mb-0 transition-colors ${isUnread ? 'bg-blue-50/50 border-l-2 border-l-blue-500' : ''
+                            }`}
                         >
                           {isUnread && (
                             <div className="mt-1.5">
@@ -200,9 +199,8 @@ export default function TopBar() {
                           <div className="flex-1 min-w-0">
                             <a
                               href={n.link}
-                              className={`text-sm block truncate ${
-                                isUnread ? 'font-semibold text-gray-900' : 'font-medium'
-                              }`}
+                              className={`text-sm block truncate ${isUnread ? 'font-semibold text-gray-900' : 'font-medium'
+                                }`}
                               onClick={() => {
                                 if (isUnread) markRead(n.id);
                                 setNotificationsOpen(false);
@@ -272,33 +270,48 @@ export default function TopBar() {
           {apiKeyData?.api_key && (
             <div className="flex gap-2 items-center px-2 py-1 bg-white rounded-sm">
               <div className="flex flex-col">
-                <div className="mb-1 min-w-[80px]">
+                <div
+                  className={cn(
+                    'min-w-[80px]',
+                    !openAiKeyData?.openai_key && 'mb-1'
+                  )}
+                >
                   <div className="flex gap-1 items-center text-xs leading-none">
-                    Free Chat Credits: {total_spent_credits}/{total_credits}
-                    <button
-                      className="p-0.5 text-gray-400 hover:text-primary-600 disabled:opacity-50"
-                      title="Sync Credits"
-                      onClick={() => syncCredits()}
-                      disabled={isSyncing}
-                      style={{ lineHeight: 0 }}
-                    >
-                      <RefreshCw
-                        className={
-                          isSyncing ? 'w-3 h-3 animate-spin' : 'w-3 h-3'
-                        }
+                    {openAiKeyData?.openai_key ? (
+                      <>
+                        Chat Credits: <span className="text-green-600">Unlimited</span>
+                      </>
+                    ) : (
+                      <>
+                        Free Chat Credits: {total_spent_credits}/{total_credits}
+                        <button
+                          className="p-0.5 text-gray-400 hover:text-primary-600 disabled:opacity-50"
+                          title="Sync Credits"
+                          onClick={() => syncCredits()}
+                          disabled={isSyncing}
+                          style={{ lineHeight: 0 }}
+                        >
+                          <RefreshCw
+                            className={
+                              isSyncing ? 'w-3 h-3 animate-spin' : 'w-3 h-3'
+                            }
+                          />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  {!openAiKeyData?.openai_key && (
+                    <div className="mt-0.5 w-full h-1 bg-gray-200 rounded">
+                      <div
+                        className="h-1 rounded"
+                        style={{
+                          width: `${percent}%`,
+                          background:
+                            'linear-gradient(90deg, #3b82f6 0%, #9333ea 100%)',
+                        }}
                       />
-                    </button>
-                  </div>
-                  <div className="mt-0.5 w-full h-1 bg-gray-200 rounded">
-                    <div
-                      className="h-1 rounded"
-                      style={{
-                        width: `${percent}%`,
-                        background:
-                          'linear-gradient(90deg, #3b82f6 0%, #9333ea 100%)',
-                      }}
-                    />
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
               {apiKeyData?.product_slug === 'helpmate-free' ? (
