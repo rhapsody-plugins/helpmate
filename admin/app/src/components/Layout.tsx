@@ -37,6 +37,9 @@ const ControlCenterAnalytics = lazy(
 const ControlCenterSettings = lazy(
   () => import('@/pages/control-center/Settings')
 );
+const ControlCenterIntegrations = lazy(
+  () => import('@/pages/control-center/Integrations')
+);
 const ManageApi = lazy(() => import('@/pages/ManageApi'));
 const Setup = lazy(() => import('@/pages/control-center/Setup'));
 const EmailCampaigns = lazy(
@@ -188,6 +191,8 @@ function LayoutContent() {
         return <ControlCenterAnalytics />;
       case 'control-center-settings':
         return <ControlCenterSettings />;
+      case 'control-center-integrations':
+        return <ControlCenterIntegrations />;
       case 'control-center-team':
         return <Team />;
       case 'manage-api':

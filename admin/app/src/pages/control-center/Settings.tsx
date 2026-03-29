@@ -39,7 +39,6 @@ export default function Settings() {
           </h1>
 
           <div className="space-y-4">
-            {/* Chatbot Module */}
             <Card className="p-6">
               <div className="flex justify-between items-center">
                 <div className="flex gap-4 items-center">
