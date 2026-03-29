@@ -2,16 +2,8 @@
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
 
-/* Explicit content paths — Vite dev can miss nested routes without this (responsive utilities “missing”). */
-@source "./**/*.{ts,tsx}";
-@source "../index.html";
-
 /* Scan public app tool components for Tailwind classes (ProductCarousel, etc.) */
 @source "../../../public/app/src/components/chat";
-
-/* Pro OrderTracker / RefundReturn in admin inbox — classes must live here (Pro admin bridge skips its own Tailwind). */
-@source "../../../helpmate-pro/public/app/src/components";
-@source "../../../helpmate-pro/public/app/src/hooks";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -188,35 +180,28 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* Must be literals — var(--shadow-sm) here is same-name as theme key → circular, breaks v4 (empty lg:* etc.). */
-  --shadow-2xs: 0px 8px 16px -4px hsl(0 0% 0% / 0.04);
-  --shadow-xs: 0px 8px 16px -4px hsl(0 0% 0% / 0.04);
-  --shadow-sm:
-    0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 1px 2px -5px hsl(0 0% 0% / 0.08);
-  --shadow:
-    0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 1px 2px -5px hsl(0 0% 0% / 0.08);
-  --shadow-md:
-    0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 2px 4px -5px hsl(0 0% 0% / 0.08);
-  --shadow-lg:
-    0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 4px 6px -5px hsl(0 0% 0% / 0.08);
-  --shadow-xl:
-    0px 8px 16px -4px hsl(0 0% 0% / 0.08), 0px 8px 10px -5px hsl(0 0% 0% / 0.08);
-  --shadow-2xl: 0px 8px 16px -4px hsl(0 0% 0% / 0.2);
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
   --radius: 0.625rem;
-  /* Literal values — self-referential var(--x) here breaks Tailwind v4 theme (empty utilities, broken responsive variants). */
-  --tracking-normal: 0em;
   --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
   --tracking-tight: calc(var(--tracking-normal) - 0.025em);
   --tracking-wide: calc(var(--tracking-normal) + 0.025em);
   --tracking-wider: calc(var(--tracking-normal) + 0.05em);
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
-  --spacing: 0.3rem;
-  --letter-spacing: 0em;
-  --shadow-offset-y: 8px;
-  --shadow-offset-x: 0px;
-  --shadow-spread: -4px;
-  --shadow-blur: 16px;
-  --shadow-opacity: 0.08;
+  --tracking-normal: var(--tracking-normal);
+  --spacing: var(--spacing);
+  --letter-spacing: var(--letter-spacing);
+  --shadow-offset-y: var(--shadow-offset-y);
+  --shadow-offset-x: var(--shadow-offset-x);
+  --shadow-spread: var(--shadow-spread);
+  --shadow-blur: var(--shadow-blur);
+  --shadow-opacity: var(--shadow-opacity);
   --color-shadow-color: var(--shadow-color);
 
   /* Custom Colors */
