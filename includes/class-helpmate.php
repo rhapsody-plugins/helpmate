@@ -277,6 +277,20 @@ class Helpmate
 	 */
 	private $post_meta_box;
 
+	/**
+	 * Shared integration event service.
+	 *
+	 * @var Helpmate_Integration_Events
+	 */
+	private $integration_events;
+
+	/**
+	 * Contact Form 7 integration handler.
+	 *
+	 * @var Helpmate_CF7_Integration
+	 */
+	private $cf7_integration;
+
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -321,6 +335,8 @@ class Helpmate
 		$this->notifications = new Helpmate_Notifications($this);
 		$this->tasks = new Helpmate_Tasks($this);
 		$this->crm_analytics = new Helpmate_Crm_Analytics($this);
+		$this->integration_events = new Helpmate_Integration_Events($this);
+		$this->cf7_integration = new Helpmate_CF7_Integration($this, $this->integration_events);
 
 		// Initialize post/page meta box for knowledge base
 		if (is_admin()) {
@@ -406,6 +422,8 @@ class Helpmate
 			'includes/social/class-helpmate-social-message-processor.php',
 			'includes/class-helpmate-background-processor.php',
 			'includes/class-helpmate-job-tracker.php',
+			'includes/integrations/class-helpmate-integration-events.php',
+			'includes/integrations/class-helpmate-cf7-integration.php',
 		);
 
 		foreach ($required_files as $file) {
@@ -946,6 +964,26 @@ class Helpmate
 	public function get_sales_notification()
 	{
 		return $this->sales_notification;
+	}
+
+	/**
+	 * Get the integration events service instance.
+	 *
+	 * @return Helpmate_Integration_Events
+	 */
+	public function get_integration_events()
+	{
+		return $this->integration_events;
+	}
+
+	/**
+	 * Get the Contact Form 7 integration instance.
+	 *
+	 * @return Helpmate_CF7_Integration
+	 */
+	public function get_cf7_integration()
+	{
+		return $this->cf7_integration;
 	}
 
 
