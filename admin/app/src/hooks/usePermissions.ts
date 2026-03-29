@@ -36,6 +36,7 @@ const PAGE_PERMISSIONS: Record<PageType, string[]> = {
   'control-center-analytics': ['analytics'],
   'control-center-dashboard': ['analytics'],
   'control-center-settings': ['team_management'], // Requires admin role (checked separately in PageGuard)
+  'control-center-integrations': ['team_management'], // Requires admin role (checked separately in PageGuard)
   'manage-api': ['team_management'], // Requires admin role (checked separately in PageGuard)
   'appointments-bookings': ['appointments', 'crm_contacts'],
   'automation-marketing-email-campaigns': ['emails', 'crm_emails'],

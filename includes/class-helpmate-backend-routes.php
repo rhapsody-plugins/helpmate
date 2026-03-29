@@ -763,6 +763,22 @@ class Helpmate_Backend_Routes
             )
         ));
 
+        register_rest_route('helpmate/v1', '/integrations/events', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                return $this->helpmate->get_integration_events()->get_events($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/cf7/forms', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return $this->helpmate->get_cf7_integration()->get_admin_forms_payload();
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
         // Create default abandoned cart follow-up email templates
         register_rest_route('helpmate/v1', '/crm/abandoned-cart/create-default-followup-templates', array(
             'methods' => 'POST',

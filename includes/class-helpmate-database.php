@@ -1075,6 +1075,32 @@ class Helpmate_Database
         ) $charset_collate;";
         dbDelta($sql);
 
+        // Integration events table
+        $integration_events_table = esc_sql($wpdb->prefix . 'helpmate_integration_events');
+        $sql = "CREATE TABLE IF NOT EXISTS {$integration_events_table} (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            integration varchar(100) NOT NULL,
+            source varchar(100) NOT NULL,
+            form_id bigint(20) unsigned NULL,
+            action varchar(100) NOT NULL,
+            status varchar(64) NOT NULL,
+            error_code varchar(120) NULL,
+            error_message text NULL,
+            payload_hash varchar(64) NULL,
+            dedup_key varchar(64) NULL,
+            metadata longtext NULL,
+            created_at bigint(20) NOT NULL,
+            PRIMARY KEY (id),
+            KEY integration (integration),
+            KEY action (action),
+            KEY status (status),
+            KEY form_id (form_id),
+            KEY payload_hash (payload_hash),
+            KEY dedup_key (dedup_key),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+        dbDelta($sql);
+
         $this->initialize_default_module_settings();
         $this->initialize_task_custom_fields();
     }
@@ -1198,6 +1224,12 @@ class Helpmate_Database
                 ],
                 'leads_enabled' => false,
                 'conversation_starters_enabled' => false,
+            ],
+            'cf7_integrations' => [
+                'forms' => [],
+            ],
+            'integrations' => [
+                'event_retention_days' => 90,
             ],
             'helpmate_crm_custom_statuses' => []
         ];
