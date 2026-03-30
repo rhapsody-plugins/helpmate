@@ -293,6 +293,14 @@ class Helpmate
 
 
 	/**
+	 * Forminator custom forms integration handler.
+	 *
+	 * @var Helpmate_Forminator_Integration
+	 */
+	private $forminator_integration;
+
+
+	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -337,6 +345,7 @@ class Helpmate
 		$this->crm_analytics = new Helpmate_Crm_Analytics($this);
 		$this->integration_events = new Helpmate_Integration_Events($this);
 		$this->cf7_integration = new Helpmate_CF7_Integration($this, $this->integration_events);
+		$this->forminator_integration = new Helpmate_Forminator_Integration($this, $this->integration_events);
 
 		// Initialize post/page meta box for knowledge base
 		if (is_admin()) {
@@ -424,6 +433,7 @@ class Helpmate
 			'includes/class-helpmate-job-tracker.php',
 			'includes/integrations/class-helpmate-integration-events.php',
 			'includes/integrations/class-helpmate-cf7-integration.php',
+			'includes/integrations/class-helpmate-forminator-integration.php',
 		);
 
 		foreach ($required_files as $file) {
@@ -986,5 +996,14 @@ class Helpmate
 		return $this->cf7_integration;
 	}
 
+	/**
+	 * Get the Forminator integration instance.
+	 *
+	 * @return Helpmate_Forminator_Integration
+	 */
+	public function get_forminator_integration()
+	{
+		return $this->forminator_integration;
+	}
 
 }

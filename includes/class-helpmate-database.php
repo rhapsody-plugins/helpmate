@@ -1228,6 +1228,9 @@ class Helpmate_Database
             'cf7_integrations' => [
                 'forms' => [],
             ],
+            'forminator_integrations' => [
+                'forms' => [],
+            ],
             'integrations' => [
                 'event_retention_days' => 90,
             ],

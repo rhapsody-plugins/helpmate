@@ -1,5 +1,5 @@
 import { Separator } from '@/components/ui/separator';
-import { SidebarTrigger } from '@/components/ui/sidebar';
+import { SidebarTrigger, useSidebarOptional } from '@/components/ui/sidebar';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { MenuItem } from '@/types';
@@ -15,11 +15,27 @@ export default function PageHeader({
   rightActions?: React.ReactNode;
   disableTrigger?: boolean;
 }) {
+  const sidebar = useSidebarOptional();
+  const showSidebarChrome = !disableTrigger && sidebar != null;
+
   return (
     <header className="flex sticky top-0 z-10 gap-2 items-center p-2 bg-white border-b border-border/50 min-h-[62px]">
-      {!disableTrigger && <SidebarTrigger className="my-1" />}
-      {!disableTrigger && <Separator orientation="vertical" className="mr-2 !h-4" />}
-      {title && <h1 className={cn("!text-sm !text-muted-foreground !m-0 !p-0", disableTrigger && "!ml-[18px]")}>{title}</h1>}
+      {showSidebarChrome && (
+        <>
+          <SidebarTrigger className="my-1" />
+          <Separator orientation="vertical" className="mr-2 !h-4" />
+        </>
+      )}
+      {title && (
+        <h1
+          className={cn(
+            '!text-sm !text-muted-foreground !m-0 !p-0',
+            !showSidebarChrome && '!ml-[18px]'
+          )}
+        >
+          {title}
+        </h1>
+      )}
       {menuItems && (
         <>
           <ChevronRight className="!w-4 !h-4 opacity-50" />
