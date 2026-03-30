@@ -31,14 +31,23 @@ import { Switch } from '@/components/ui/switch';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronRight, Plug, ScrollText } from 'lucide-react';
+import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import {
+  ChevronDown,
+  ChevronRight,
+  ClipboardList,
+  Loader2,
+  Plug,
+  ScrollText,
+} from 'lucide-react';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 
 const UNMAPPED_FIELD = '__helpmate_cf7_none__';
 
 /** REST `integration` column value for Contact Form 7 (matches PHP). */
 export const INTEGRATION_SLUG_CONTACT_FORM_7 = 'contact_form_7';
+/** REST `integration` column value for Forminator custom forms (matches PHP). */
+export const INTEGRATION_SLUG_FORMINATOR = 'forminator_custom_form';
 
 const EVENTS_PAGE_SIZE = 25;
 
@@ -431,14 +440,96 @@ function IntegrationLogsSheet({
   );
 }
 
+function IntegrationFormsSheetStates({
+  query,
+  notInstalledText,
+  createFormUrl,
+  primaryCtaText,
+  emptySupportingText,
+}: {
+  query: UseQueryResult<CF7FormsResponse, Error>;
+  notInstalledText: string;
+  createFormUrl: string;
+  primaryCtaText: string;
+  emptySupportingText: string;
+}) {
+  if (query.isLoading) {
+    return (
+      <div className="flex flex-1 min-h-[min(320px,55vh)] flex-col items-center justify-center gap-3 px-4">
+        <Loader2
+          className="h-9 w-9 animate-spin text-primary"
+          aria-hidden
+        />
+        <p className="text-sm text-muted-foreground">Loading forms…</p>
+      </div>
+    );
+  }
+
+  if (query.isError) {
+    return (
+      <div className="flex flex-1 min-h-[min(240px,45vh)] flex-col items-center justify-center gap-2 px-4 text-center">
+        <p className="text-sm text-destructive max-w-sm">
+          Could not load forms. Try closing and reopening this panel.
+        </p>
+      </div>
+    );
+  }
+
+  const installed = query.data?.installed ?? false;
+  if (!installed) {
+    return (
+      <div className="flex flex-1 min-h-[min(240px,45vh)] flex-col items-center justify-center gap-2 px-4 text-center">
+        <p className="text-sm text-muted-foreground max-w-sm">
+          {notInstalledText}
+        </p>
+      </div>
+    );
+  }
+
+  const forms = query.data?.forms ?? [];
+  if (forms.length === 0) {
+    return (
+      <div className="flex flex-1 min-h-[min(320px,55vh)] flex-col items-center justify-center gap-5 px-6 text-center">
+        <div
+          className="rounded-full bg-muted/70 p-5 ring-1 ring-border/50"
+          aria-hidden
+        >
+          <ClipboardList
+            className="h-10 w-10 text-muted-foreground"
+            strokeWidth={1.5}
+          />
+        </div>
+        <div className="space-y-2 max-w-sm">
+          <p className="!text-base !font-semibold text-foreground">
+            No forms yet
+          </p>
+          <p className="!text-sm !text-muted-foreground !leading-relaxed">
+            {emptySupportingText}
+          </p>
+        </div>
+        <Button asChild>
+          <a className="!text-white" href={createFormUrl}>{primaryCtaText}</a>
+        </Button>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export default function Integrations() {
   const { updateSettingsMutation, getProQuery } = useSettings();
   const isPro = getProQuery.data ?? false;
   const [sheetOpen, setSheetOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(false);
+  const [forminatorSheetOpen, setForminatorSheetOpen] = useState(false);
+  const [forminatorLogsOpen, setForminatorLogsOpen] = useState(false);
   const [cf7Configs, setCf7Configs] = useState<Record<number, FormConfigState>>(
     {}
   );
+  const [forminatorConfigs, setForminatorConfigs] = useState<
+    Record<number, FormConfigState>
+  >({});
 
   const cf7FormsQuery = useQuery<CF7FormsResponse, Error>({
     queryKey: ['cf7-forms'],
@@ -448,6 +539,16 @@ export default function Integrations() {
     },
     refetchOnWindowFocus: false,
     enabled: sheetOpen,
+  });
+
+  const forminatorFormsQuery = useQuery<CF7FormsResponse, Error>({
+    queryKey: ['forminator-forms'],
+    queryFn: async () => {
+      const response = await api.get('/integrations/forminator/forms');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+    enabled: forminatorSheetOpen,
   });
 
   useEffect(() => {
@@ -463,6 +564,19 @@ export default function Integrations() {
     setCf7Configs(initial);
   }, [cf7FormsQuery.data?.forms]);
 
+  useEffect(() => {
+    const forms = forminatorFormsQuery.data?.forms ?? [];
+    const initial: Record<number, FormConfigState> = {};
+    forms.forEach((form) => {
+      initial[form.id] = {
+        enabled: !!form.config.enabled,
+        action: form.config.action ?? '',
+        field_map: form.config.field_map ?? {},
+      };
+    });
+    setForminatorConfigs(initial);
+  }, [forminatorFormsQuery.data?.forms]);
+
   const actionMap = useMemo(() => {
     const map: Record<string, CF7Action> = {};
     (cf7FormsQuery.data?.actions ?? []).forEach((action) => {
@@ -470,6 +584,14 @@ export default function Integrations() {
     });
     return map;
   }, [cf7FormsQuery.data?.actions]);
+
+  const forminatorActionMap = useMemo(() => {
+    const map: Record<string, CF7Action> = {};
+    (forminatorFormsQuery.data?.actions ?? []).forEach((action) => {
+      map[action.id] = action;
+    });
+    return map;
+  }, [forminatorFormsQuery.data?.actions]);
 
   const updateFormConfig = useCallback(
     (formId: number, patch: Partial<FormConfigState>) => {
@@ -510,6 +632,44 @@ export default function Integrations() {
     []
   );
 
+  const updateForminatorConfig = useCallback(
+    (formId: number, patch: Partial<FormConfigState>) => {
+      setForminatorConfigs((prev) => ({
+        ...prev,
+        [formId]: {
+          enabled: prev[formId]?.enabled ?? false,
+          action: prev[formId]?.action ?? '',
+          field_map: prev[formId]?.field_map ?? {},
+          ...patch,
+        },
+      }));
+    },
+    []
+  );
+
+  const updateForminatorFieldMap = useCallback(
+    (formId: number, targetField: string, sourceFieldName: string) => {
+      const value = sourceFieldName === UNMAPPED_FIELD ? '' : sourceFieldName;
+      setForminatorConfigs((prev) => {
+        const nextMap = { ...(prev[formId]?.field_map ?? {}) };
+        if (value === '') {
+          delete nextMap[targetField];
+        } else {
+          nextMap[targetField] = value;
+        }
+        return {
+          ...prev,
+          [formId]: {
+            enabled: prev[formId]?.enabled ?? false,
+            action: prev[formId]?.action ?? '',
+            field_map: nextMap,
+          },
+        };
+      });
+    },
+    []
+  );
+
   const saveCF7Config = useCallback(async () => {
     await updateSettingsMutation.mutateAsync({
       key: 'cf7_integrations',
@@ -520,6 +680,16 @@ export default function Integrations() {
     await cf7FormsQuery.refetch();
   }, [cf7Configs, updateSettingsMutation, cf7FormsQuery]);
 
+  const saveForminatorConfig = useCallback(async () => {
+    await updateSettingsMutation.mutateAsync({
+      key: 'forminator_integrations',
+      data: {
+        forms: forminatorConfigs,
+      },
+    });
+    await forminatorFormsQuery.refetch();
+  }, [forminatorConfigs, updateSettingsMutation, forminatorFormsQuery]);
+
   const cf7Installed = cf7FormsQuery.data?.installed ?? false;
 
   const cf7StatusClass =
@@ -528,6 +698,17 @@ export default function Integrations() {
       : cf7Installed
         ? 'text-emerald-600 dark:text-emerald-500'
         : 'text-muted-foreground';
+
+  const forminatorInstalled = forminatorFormsQuery.data?.installed ?? false;
+  const forminatorStatusClass =
+    forminatorFormsQuery.isFetched && !forminatorInstalled
+      ? 'text-destructive'
+      : forminatorInstalled
+        ? 'text-emerald-600 dark:text-emerald-500'
+        : 'text-muted-foreground';
+
+  const cf7CreateFormUrl = `${window.location.origin}/wp-admin/admin.php?page=wpcf7-new`;
+  const forminatorCreateFormUrl = `${window.location.origin}/wp-admin/admin.php?page=forminator-cform-wizard`;
 
   return (
     <PageGuard page="control-center-integrations" requiredRole="admin">
@@ -583,6 +764,53 @@ export default function Integrations() {
               </div>
             </div>
           </Card>
+
+          <Card className="p-6 mt-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex gap-4 items-center min-w-0">
+                <div className="p-2 rounded-lg bg-primary/10 shrink-0">
+                  <Plug className="w-5 h-5 text-primary" strokeWidth={1.5} />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="!text-lg !font-semibold !my-0 !py-0">
+                    Forminator
+                  </h3>
+                  <p className="!text-sm !text-muted-foreground !my-0 !py-0 mt-1">
+                    Map Forminator custom forms to Helpmate actions and field
+                    mappings.
+                  </p>
+                  <p
+                    className={cn(
+                      '!text-xs !my-0 !py-0 !mt-1',
+                      forminatorStatusClass
+                    )}
+                  >
+                    {forminatorFormsQuery.isFetched && !forminatorInstalled
+                      ? 'Plugin not detected.'
+                      : forminatorInstalled
+                        ? 'Ready to configure.'
+                        : 'Open configure to check status.'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 shrink-0">
+                <Button
+                  type="button"
+                  onClick={() => setForminatorSheetOpen(true)}
+                >
+                  Configure
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setForminatorLogsOpen(true)}
+                >
+                  <ScrollText className="size-4" />
+                  Logs
+                </Button>
+              </div>
+            </div>
+          </Card>
         </div>
 
         <IntegrationLogsSheet
@@ -593,17 +821,29 @@ export default function Integrations() {
           description="Submission routing, validation, and processing events from CF7. No raw form data is stored."
         />
 
+        <IntegrationLogsSheet
+          open={forminatorLogsOpen}
+          onOpenChange={setForminatorLogsOpen}
+          integrationSlug={INTEGRATION_SLUG_FORMINATOR}
+          title="Forminator"
+          description="Submission routing, validation, and processing events from Forminator custom forms. No raw form data is stored."
+        />
+
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetContent className="flex flex-col w-full sm:max-w-lg overflow-hidden">
             <SheetHeader>
               <SheetTitle>Contact Form 7</SheetTitle>
             </SheetHeader>
             <div className="p-4 flex flex-col flex-1 min-h-0 gap-4 overflow-y-auto">
-              {!cf7FormsQuery.data?.installed ? (
-                <p className="text-sm text-muted-foreground">
-                  Contact Form 7 is not installed or active.
-                </p>
-              ) : (
+              <IntegrationFormsSheetStates
+                query={cf7FormsQuery}
+                notInstalledText="Contact Form 7 is not installed or active."
+                createFormUrl={cf7CreateFormUrl}
+                primaryCtaText="Create a form in Contact Form 7"
+                emptySupportingText="Add a form in the plugin, then reopen this sheet to map it to Helpmate."
+              />
+              {cf7FormsQuery.data?.installed &&
+              (cf7FormsQuery.data?.forms ?? []).length > 0 && (
                 <>
                   <div className="flex-1 min-h-0 space-y-4 pr-1">
                     {(cf7FormsQuery.data?.forms ?? []).map((form) => {
@@ -742,11 +982,203 @@ export default function Integrations() {
                 </>
               )}
             </div>
-            <SheetFooter>
-              <Button className="self-end" type="button" onClick={saveCF7Config} disabled={updateSettingsMutation.isPending}>
-                Save mapping
-              </Button>
-            </SheetFooter>
+            {cf7FormsQuery.data?.installed &&
+              (cf7FormsQuery.data?.forms ?? []).length > 0 && (
+                <SheetFooter>
+                  <Button
+                    className="self-end"
+                    type="button"
+                    onClick={saveCF7Config}
+                    disabled={
+                      updateSettingsMutation.isPending ||
+                      cf7FormsQuery.isLoading
+                    }
+                  >
+                    Save mapping
+                  </Button>
+                </SheetFooter>
+              )}
+          </SheetContent>
+        </Sheet>
+
+        <Sheet
+          open={forminatorSheetOpen}
+          onOpenChange={setForminatorSheetOpen}
+        >
+          <SheetContent className="flex flex-col w-full sm:max-w-lg overflow-hidden">
+            <SheetHeader>
+              <SheetTitle>Forminator</SheetTitle>
+            </SheetHeader>
+            <div className="p-4 flex flex-col flex-1 min-h-0 gap-4 overflow-y-auto">
+              <IntegrationFormsSheetStates
+                query={forminatorFormsQuery}
+                notInstalledText="Forminator is not installed or active."
+                createFormUrl={forminatorCreateFormUrl}
+                primaryCtaText="Create a custom form in Forminator"
+                emptySupportingText="Add a custom form in Forminator, then reopen this sheet to map it to Helpmate."
+              />
+              {forminatorFormsQuery.data?.installed &&
+              (forminatorFormsQuery.data?.forms ?? []).length > 0 && (
+                <>
+                  <div className="flex-1 min-h-0 space-y-4 pr-1">
+                    {(forminatorFormsQuery.data?.forms ?? []).map((form) => {
+                      const config = forminatorConfigs[form.id] ?? {
+                        enabled: false,
+                        action: '',
+                        field_map: {},
+                      };
+                      const selectedAction = forminatorActionMap[config.action];
+                      const mappableFields =
+                        selectedAction?.mappable_fields ?? [];
+
+                      return (
+                        <Card key={form.id} className="p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <h4 className="!text-base !font-semibold !my-0">
+                                {form.title}
+                              </h4>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Form ID: {form.id}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Label htmlFor={`forminator-enabled-${form.id}`}>
+                                Enabled
+                              </Label>
+                              <Switch
+                                id={`forminator-enabled-${form.id}`}
+                                checked={config.enabled}
+                                onCheckedChange={(checked) =>
+                                  updateForminatorConfig(form.id, {
+                                    enabled: checked,
+                                  })
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-3 mt-4">
+                            <div>
+                              <Label>Action</Label>
+                              <Select
+                                value={config.action || undefined}
+                                onValueChange={(value) =>
+                                  updateForminatorConfig(form.id, {
+                                    action: value,
+                                    field_map: {},
+                                  })
+                                }
+                              >
+                                <SelectTrigger className="mt-1">
+                                  <SelectValue placeholder="Select action" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {(forminatorFormsQuery.data?.actions ?? []).map(
+                                    (action) => {
+                                      const isProAction = action.tier === 'pro';
+                                      const disabled = isProAction && !isPro;
+                                      return (
+                                        <SelectItem
+                                          key={action.id}
+                                          value={action.id}
+                                          disabled={disabled}
+                                        >
+                                          {action.label}
+                                          {isProAction ? ' (Pro)' : ''}
+                                        </SelectItem>
+                                      );
+                                    }
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          {selectedAction?.verification_contact_required ? (
+                            <p className="mt-3 text-xs text-amber-700 dark:text-amber-500">
+                              Order tracker verification is on: map at least one
+                              of Email or Phone so customers can confirm the
+                              order.
+                            </p>
+                          ) : null}
+
+                          {mappableFields.length > 0 && (
+                            <div className="mt-4 space-y-3">
+                              <p className="!text-md !mb-3 font-medium !text-muted-foreground">
+                                Field Mapping:
+                              </p>
+                              {mappableFields.map((field) => {
+                                const raw = config.field_map[field.key] ?? '';
+                                const selectValue =
+                                  raw === '' ? UNMAPPED_FIELD : raw;
+                                return (
+                                  <div
+                                    key={field.key}
+                                    className="grid grid-cols-1 gap-1"
+                                  >
+                                    <Label>
+                                      {field.label}
+                                      {field.required ? (
+                                        <span className="text-destructive">
+                                          {' '}
+                                          *
+                                        </span>
+                                      ) : null}
+                                    </Label>
+                                    <Select
+                                      value={selectValue}
+                                      onValueChange={(value) =>
+                                        updateForminatorFieldMap(
+                                          form.id,
+                                          field.key,
+                                          value
+                                        )
+                                      }
+                                    >
+                                      <SelectTrigger className="mt-0.5">
+                                        <SelectValue placeholder="None" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value={UNMAPPED_FIELD}>
+                                          None
+                                        </SelectItem>
+                                        {form.fields.map((f) => (
+                                          <SelectItem key={f.name} value={f.name}>
+                                            {f.name}
+                                            {f.type ? ` (${f.type})` : ''}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+            {forminatorFormsQuery.data?.installed &&
+              (forminatorFormsQuery.data?.forms ?? []).length > 0 && (
+                <SheetFooter>
+                  <Button
+                    className="self-end"
+                    type="button"
+                    onClick={saveForminatorConfig}
+                    disabled={
+                      updateSettingsMutation.isPending ||
+                      forminatorFormsQuery.isLoading
+                    }
+                  >
+                    Save mapping
+                  </Button>
+                </SheetFooter>
+              )}
           </SheetContent>
         </Sheet>
       </div>

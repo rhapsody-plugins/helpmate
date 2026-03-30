@@ -280,14 +280,11 @@ class Helpmate_CF7_Integration
 				'id' => 'refund_return',
 				'label' => __('Refund Return', 'helpmate-ai-chatbot'),
 				'tier' => 'pro',
-				'required_fields' => ['order_id', 'type', 'reason', 'amount', 'items'],
+				'required_fields' => ['order_id', 'type', 'reason'],
 				'mappable_fields' => [
 					['key' => 'order_id', 'label' => __('Order ID', 'helpmate-ai-chatbot'), 'required' => true],
 					['key' => 'type', 'label' => __('Type', 'helpmate-ai-chatbot'), 'required' => true],
 					['key' => 'reason', 'label' => __('Reason', 'helpmate-ai-chatbot'), 'required' => true],
-					['key' => 'amount', 'label' => __('Amount', 'helpmate-ai-chatbot'), 'required' => true],
-					['key' => 'items', 'label' => __('Items (JSON array)', 'helpmate-ai-chatbot'), 'required' => true],
-					['key' => 'metadata', 'label' => __('Metadata (JSON object)', 'helpmate-ai-chatbot'), 'required' => false],
 				],
 			],
 		];
@@ -498,29 +495,6 @@ class Helpmate_CF7_Integration
 			$phone = isset($payload['phone']) ? trim((string) $payload['phone']) : '';
 			if ($email === '' && $phone === '') {
 				$missing[] = 'email_or_phone';
-			}
-		}
-
-		if ($action === 'refund_return') {
-			$amount_raw = isset($payload['amount']) ? trim((string) $payload['amount']) : '';
-			if ($amount_raw !== '') {
-				$normalized = str_replace([',', ' '], '', $amount_raw);
-				if (!is_numeric($normalized)) {
-					$missing[] = 'amount';
-				}
-			}
-
-			$items_valid = false;
-			if (isset($payload['items'])) {
-				if (is_array($payload['items'])) {
-					$items_valid = count($payload['items']) > 0;
-				} elseif (is_string($payload['items']) && trim($payload['items']) !== '') {
-					$decoded = json_decode(wp_unslash($payload['items']), true);
-					$items_valid = is_array($decoded) && count($decoded) > 0;
-				}
-			}
-			if (!$items_valid) {
-				$missing[] = 'items';
 			}
 		}
 
