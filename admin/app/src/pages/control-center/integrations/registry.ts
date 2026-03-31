@@ -1,6 +1,7 @@
 import {
   INTEGRATION_SLUG_CONTACT_FORM_7,
   INTEGRATION_SLUG_FORMINATOR,
+  INTEGRATION_SLUG_NINJA_FORMS,
   INTEGRATION_SLUG_WPFORMS,
   type IntegrationRegistryItem,
 } from './types';
@@ -40,6 +41,22 @@ export const INTEGRATION_REGISTRY: IntegrationRegistryItem[] = [
       'Add a custom form in Forminator, then reopen this sheet to map it to Helpmate.',
     logsDescription:
       'Submission routing, validation, and processing events from Forminator custom forms. No raw form data is stored.',
+  },
+  {
+    id: 'ninja_forms',
+    title: 'Ninja Forms',
+    description: 'Map Ninja Forms forms to Helpmate actions and field mappings.',
+    integrationSlug: INTEGRATION_SLUG_NINJA_FORMS,
+    queryKey: 'ninja-forms',
+    formsEndpoint: '/integrations/ninja-forms/forms',
+    settingsKey: 'ninja_forms_integrations',
+    createFormUrl: `${baseAdminUrl}ninja-forms`,
+    notInstalledText: 'Ninja Forms is not installed or active.',
+    primaryCtaText: 'Create a form in Ninja Forms',
+    emptySupportingText:
+      'Add a form in Ninja Forms, then reopen this sheet to map it to Helpmate.',
+    logsDescription:
+      'Submission routing, validation, and processing events from Ninja Forms. No raw form data is stored.',
   },
   {
     id: 'wpforms',

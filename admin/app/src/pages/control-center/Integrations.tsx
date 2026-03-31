@@ -30,6 +30,7 @@ export default function Integrations() {
   >({
     cf7: false,
     forminator: false,
+    ninja_forms: false,
     wpforms: false,
   });
 
@@ -38,6 +39,7 @@ export default function Integrations() {
   >({
     cf7: false,
     forminator: false,
+    ninja_forms: false,
     wpforms: false,
   });
 
@@ -52,8 +54,13 @@ export default function Integrations() {
     updateSettings: updateSettingsMutation.mutateAsync,
   });
   const wpforms = useIntegrationConfig({
-    definition: INTEGRATION_REGISTRY[2],
+    definition: INTEGRATION_REGISTRY[3],
     sheetOpen: sheetOpenById.wpforms,
+    updateSettings: updateSettingsMutation.mutateAsync,
+  });
+  const ninjaForms = useIntegrationConfig({
+    definition: INTEGRATION_REGISTRY[2],
+    sheetOpen: sheetOpenById.ninja_forms,
     updateSettings: updateSettingsMutation.mutateAsync,
   });
 
@@ -61,9 +68,10 @@ export default function Integrations() {
     () => ({
       cf7,
       forminator,
+      ninja_forms: ninjaForms,
       wpforms,
     }),
-    [cf7, forminator, wpforms]
+    [cf7, forminator, ninjaForms, wpforms]
   );
 
   return (
