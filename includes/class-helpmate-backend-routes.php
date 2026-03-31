@@ -770,6 +770,13 @@ class Helpmate_Backend_Routes
             },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
+        register_rest_route('helpmate/v1', '/integrations/wpforms/forms', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return $this->helpmate->get_wpforms_integration()->get_admin_forms_payload();
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
         register_rest_route('helpmate/v1', '/integrations/events', array(
             'methods' => 'GET',
             'callback' => function ($request) {
