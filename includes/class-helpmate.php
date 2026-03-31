@@ -313,6 +313,13 @@ class Helpmate
 	 */
 	private $ninja_forms_integration;
 
+	/**
+	 * Formidable Forms integration handler.
+	 *
+	 * @var Helpmate_Formidable_Forms_Integration
+	 */
+	private $formidable_forms_integration;
+
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -362,6 +369,7 @@ class Helpmate
 		$this->forminator_integration = new Helpmate_Forminator_Integration($this, $this->integration_events);
 		$this->wpforms_integration = new Helpmate_WPForms_Integration($this, $this->integration_events);
 		$this->ninja_forms_integration = new Helpmate_Ninja_Forms_Integration($this, $this->integration_events);
+		$this->formidable_forms_integration = new Helpmate_Formidable_Forms_Integration($this, $this->integration_events);
 
 		// Initialize post/page meta box for knowledge base
 		if (is_admin()) {
@@ -452,6 +460,7 @@ class Helpmate
 			'includes/integrations/class-helpmate-forminator-integration.php',
 			'includes/integrations/class-helpmate-wpforms-integration.php',
 			'includes/integrations/class-helpmate-ninja-forms-integration.php',
+			'includes/integrations/class-helpmate-formidable-forms-integration.php',
 		);
 
 		foreach ($required_files as $file) {
@@ -1042,6 +1051,16 @@ class Helpmate
 	public function get_ninja_forms_integration()
 	{
 		return $this->ninja_forms_integration;
+	}
+
+	/**
+	 * Get the Formidable Forms integration instance.
+	 *
+	 * @return Helpmate_Formidable_Forms_Integration
+	 */
+	public function get_formidable_forms_integration()
+	{
+		return $this->formidable_forms_integration;
 	}
 
 }

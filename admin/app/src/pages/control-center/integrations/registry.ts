@@ -1,6 +1,7 @@
 import {
   INTEGRATION_SLUG_CONTACT_FORM_7,
   INTEGRATION_SLUG_FORMINATOR,
+  INTEGRATION_SLUG_FORMIDABLE_FORMS,
   INTEGRATION_SLUG_NINJA_FORMS,
   INTEGRATION_SLUG_WPFORMS,
   type IntegrationRegistryItem,
@@ -73,5 +74,22 @@ export const INTEGRATION_REGISTRY: IntegrationRegistryItem[] = [
       'Add a form in WPForms, then reopen this sheet to map it to Helpmate.',
     logsDescription:
       'Submission routing, validation, and processing events from WPForms. No raw form data is stored.',
+  },
+  {
+    id: 'formidable_forms',
+    title: 'Formidable Forms',
+    description:
+      'Map Formidable Forms forms to Helpmate actions and field mappings.',
+    integrationSlug: INTEGRATION_SLUG_FORMIDABLE_FORMS,
+    queryKey: 'formidable-forms',
+    formsEndpoint: '/integrations/formidable/forms',
+    settingsKey: 'formidable_forms_integrations',
+    createFormUrl: `${baseAdminUrl}formidable`,
+    notInstalledText: 'Formidable Forms is not installed or active.',
+    primaryCtaText: 'Create a form in Formidable Forms',
+    emptySupportingText:
+      'Add a form in Formidable Forms, then reopen this sheet to map it to Helpmate.',
+    logsDescription:
+      'Submission routing, validation, and processing events from Formidable Forms. No raw form data is stored.',
   },
 ];
