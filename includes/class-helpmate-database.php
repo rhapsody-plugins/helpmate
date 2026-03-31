@@ -1237,6 +1237,9 @@ class Helpmate_Database
             'ninja_forms_integrations' => [
                 'forms' => [],
             ],
+            'formidable_forms_integrations' => [
+                'forms' => [],
+            ],
             'integrations' => [
                 'event_retention_days' => 90,
             ],

@@ -4,6 +4,7 @@ export const INTEGRATION_SLUG_CONTACT_FORM_7 = 'contact_form_7';
 export const INTEGRATION_SLUG_FORMINATOR = 'forminator_custom_form';
 export const INTEGRATION_SLUG_WPFORMS = 'wpforms';
 export const INTEGRATION_SLUG_NINJA_FORMS = 'ninja_forms';
+export const INTEGRATION_SLUG_FORMIDABLE_FORMS = 'formidable_forms';
 
 export type IntegrationMappableField = {
   key: string;
@@ -71,7 +72,7 @@ export type IntegrationEventsResponse = {
 };
 
 export type IntegrationRegistryItem = {
-  id: 'cf7' | 'forminator' | 'wpforms' | 'ninja_forms';
+  id: 'cf7' | 'forminator' | 'wpforms' | 'ninja_forms' | 'formidable_forms';
   title: string;
   description: string;
   integrationSlug: string;
