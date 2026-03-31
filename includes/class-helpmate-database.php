@@ -1231,6 +1231,9 @@ class Helpmate_Database
             'forminator_integrations' => [
                 'forms' => [],
             ],
+            'wpforms_integrations' => [
+                'forms' => [],
+            ],
             'integrations' => [
                 'event_retention_days' => 90,
             ],
