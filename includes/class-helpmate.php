@@ -299,6 +299,13 @@ class Helpmate
 	 */
 	private $forminator_integration;
 
+	/**
+	 * WPForms integration handler.
+	 *
+	 * @var Helpmate_WPForms_Integration
+	 */
+	private $wpforms_integration;
+
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -346,6 +353,7 @@ class Helpmate
 		$this->integration_events = new Helpmate_Integration_Events($this);
 		$this->cf7_integration = new Helpmate_CF7_Integration($this, $this->integration_events);
 		$this->forminator_integration = new Helpmate_Forminator_Integration($this, $this->integration_events);
+		$this->wpforms_integration = new Helpmate_WPForms_Integration($this, $this->integration_events);
 
 		// Initialize post/page meta box for knowledge base
 		if (is_admin()) {
@@ -434,6 +442,7 @@ class Helpmate
 			'includes/integrations/class-helpmate-integration-events.php',
 			'includes/integrations/class-helpmate-cf7-integration.php',
 			'includes/integrations/class-helpmate-forminator-integration.php',
+			'includes/integrations/class-helpmate-wpforms-integration.php',
 		);
 
 		foreach ($required_files as $file) {
@@ -1004,6 +1013,16 @@ class Helpmate
 	public function get_forminator_integration()
 	{
 		return $this->forminator_integration;
+	}
+
+	/**
+	 * Get the WPForms integration instance.
+	 *
+	 * @return Helpmate_WPForms_Integration
+	 */
+	public function get_wpforms_integration()
+	{
+		return $this->wpforms_integration;
 	}
 
 }

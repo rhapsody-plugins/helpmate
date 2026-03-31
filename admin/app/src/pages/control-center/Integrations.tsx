@@ -48,6 +48,8 @@ const UNMAPPED_FIELD = '__helpmate_cf7_none__';
 export const INTEGRATION_SLUG_CONTACT_FORM_7 = 'contact_form_7';
 /** REST `integration` column value for Forminator custom forms (matches PHP). */
 export const INTEGRATION_SLUG_FORMINATOR = 'forminator_custom_form';
+/** REST `integration` column value for WPForms (matches PHP). */
+export const INTEGRATION_SLUG_WPFORMS = 'wpforms';
 
 const EVENTS_PAGE_SIZE = 25;
 
@@ -524,10 +526,15 @@ export default function Integrations() {
   const [logsOpen, setLogsOpen] = useState(false);
   const [forminatorSheetOpen, setForminatorSheetOpen] = useState(false);
   const [forminatorLogsOpen, setForminatorLogsOpen] = useState(false);
+  const [wpformsSheetOpen, setWpformsSheetOpen] = useState(false);
+  const [wpformsLogsOpen, setWpformsLogsOpen] = useState(false);
   const [cf7Configs, setCf7Configs] = useState<Record<number, FormConfigState>>(
     {}
   );
   const [forminatorConfigs, setForminatorConfigs] = useState<
+    Record<number, FormConfigState>
+  >({});
+  const [wpformsConfigs, setWpformsConfigs] = useState<
     Record<number, FormConfigState>
   >({});
 
@@ -549,6 +556,16 @@ export default function Integrations() {
     },
     refetchOnWindowFocus: false,
     enabled: forminatorSheetOpen,
+  });
+
+  const wpformsFormsQuery = useQuery<CF7FormsResponse, Error>({
+    queryKey: ['wpforms-forms'],
+    queryFn: async () => {
+      const response = await api.get('/integrations/wpforms/forms');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+    enabled: wpformsSheetOpen,
   });
 
   useEffect(() => {
@@ -577,6 +594,19 @@ export default function Integrations() {
     setForminatorConfigs(initial);
   }, [forminatorFormsQuery.data?.forms]);
 
+  useEffect(() => {
+    const forms = wpformsFormsQuery.data?.forms ?? [];
+    const initial: Record<number, FormConfigState> = {};
+    forms.forEach((form) => {
+      initial[form.id] = {
+        enabled: !!form.config.enabled,
+        action: form.config.action ?? '',
+        field_map: form.config.field_map ?? {},
+      };
+    });
+    setWpformsConfigs(initial);
+  }, [wpformsFormsQuery.data?.forms]);
+
   const actionMap = useMemo(() => {
     const map: Record<string, CF7Action> = {};
     (cf7FormsQuery.data?.actions ?? []).forEach((action) => {
@@ -592,6 +622,14 @@ export default function Integrations() {
     });
     return map;
   }, [forminatorFormsQuery.data?.actions]);
+
+  const wpformsActionMap = useMemo(() => {
+    const map: Record<string, CF7Action> = {};
+    (wpformsFormsQuery.data?.actions ?? []).forEach((action) => {
+      map[action.id] = action;
+    });
+    return map;
+  }, [wpformsFormsQuery.data?.actions]);
 
   const updateFormConfig = useCallback(
     (formId: number, patch: Partial<FormConfigState>) => {
@@ -670,6 +708,44 @@ export default function Integrations() {
     []
   );
 
+  const updateWpformsConfig = useCallback(
+    (formId: number, patch: Partial<FormConfigState>) => {
+      setWpformsConfigs((prev) => ({
+        ...prev,
+        [formId]: {
+          enabled: prev[formId]?.enabled ?? false,
+          action: prev[formId]?.action ?? '',
+          field_map: prev[formId]?.field_map ?? {},
+          ...patch,
+        },
+      }));
+    },
+    []
+  );
+
+  const updateWpformsFieldMap = useCallback(
+    (formId: number, targetField: string, sourceFieldName: string) => {
+      const value = sourceFieldName === UNMAPPED_FIELD ? '' : sourceFieldName;
+      setWpformsConfigs((prev) => {
+        const nextMap = { ...(prev[formId]?.field_map ?? {}) };
+        if (value === '') {
+          delete nextMap[targetField];
+        } else {
+          nextMap[targetField] = value;
+        }
+        return {
+          ...prev,
+          [formId]: {
+            enabled: prev[formId]?.enabled ?? false,
+            action: prev[formId]?.action ?? '',
+            field_map: nextMap,
+          },
+        };
+      });
+    },
+    []
+  );
+
   const saveCF7Config = useCallback(async () => {
     await updateSettingsMutation.mutateAsync({
       key: 'cf7_integrations',
@@ -690,6 +766,16 @@ export default function Integrations() {
     await forminatorFormsQuery.refetch();
   }, [forminatorConfigs, updateSettingsMutation, forminatorFormsQuery]);
 
+  const saveWpformsConfig = useCallback(async () => {
+    await updateSettingsMutation.mutateAsync({
+      key: 'wpforms_integrations',
+      data: {
+        forms: wpformsConfigs,
+      },
+    });
+    await wpformsFormsQuery.refetch();
+  }, [wpformsConfigs, updateSettingsMutation, wpformsFormsQuery]);
+
   const cf7Installed = cf7FormsQuery.data?.installed ?? false;
 
   const cf7StatusClass =
@@ -707,8 +793,17 @@ export default function Integrations() {
         ? 'text-emerald-600 dark:text-emerald-500'
         : 'text-muted-foreground';
 
+  const wpformsInstalled = wpformsFormsQuery.data?.installed ?? false;
+  const wpformsStatusClass =
+    wpformsFormsQuery.isFetched && !wpformsInstalled
+      ? 'text-destructive'
+      : wpformsInstalled
+        ? 'text-emerald-600 dark:text-emerald-500'
+        : 'text-muted-foreground';
+
   const cf7CreateFormUrl = `${window.location.origin}/wp-admin/admin.php?page=wpcf7-new`;
   const forminatorCreateFormUrl = `${window.location.origin}/wp-admin/admin.php?page=forminator-cform-wizard`;
+  const wpformsCreateFormUrl = `${window.location.origin}/wp-admin/admin.php?page=wpforms-builder`;
 
   return (
     <PageGuard page="control-center-integrations" requiredRole="admin">
@@ -811,6 +906,49 @@ export default function Integrations() {
               </div>
             </div>
           </Card>
+
+          <Card className="p-6 mt-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex gap-4 items-center min-w-0">
+                <div className="p-2 rounded-lg bg-primary/10 shrink-0">
+                  <Plug className="w-5 h-5 text-primary" strokeWidth={1.5} />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="!text-lg !font-semibold !my-0 !py-0">
+                    WPForms
+                  </h3>
+                  <p className="!text-sm !text-muted-foreground !my-0 !py-0 mt-1">
+                    Map WPForms forms to Helpmate actions and field mappings.
+                  </p>
+                  <p
+                    className={cn(
+                      '!text-xs !my-0 !py-0 !mt-1',
+                      wpformsStatusClass
+                    )}
+                  >
+                    {wpformsFormsQuery.isFetched && !wpformsInstalled
+                      ? 'Plugin not detected.'
+                      : wpformsInstalled
+                        ? 'Ready to configure.'
+                        : 'Open configure to check status.'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 shrink-0">
+                <Button type="button" onClick={() => setWpformsSheetOpen(true)}>
+                  Configure
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setWpformsLogsOpen(true)}
+                >
+                  <ScrollText className="size-4" />
+                  Logs
+                </Button>
+              </div>
+            </div>
+          </Card>
         </div>
 
         <IntegrationLogsSheet
@@ -827,6 +965,14 @@ export default function Integrations() {
           integrationSlug={INTEGRATION_SLUG_FORMINATOR}
           title="Forminator"
           description="Submission routing, validation, and processing events from Forminator custom forms. No raw form data is stored."
+        />
+
+        <IntegrationLogsSheet
+          open={wpformsLogsOpen}
+          onOpenChange={setWpformsLogsOpen}
+          integrationSlug={INTEGRATION_SLUG_WPFORMS}
+          title="WPForms"
+          description="Submission routing, validation, and processing events from WPForms. No raw form data is stored."
         />
 
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
@@ -1173,6 +1319,176 @@ export default function Integrations() {
                     disabled={
                       updateSettingsMutation.isPending ||
                       forminatorFormsQuery.isLoading
+                    }
+                  >
+                    Save mapping
+                  </Button>
+                </SheetFooter>
+              )}
+          </SheetContent>
+        </Sheet>
+
+        <Sheet open={wpformsSheetOpen} onOpenChange={setWpformsSheetOpen}>
+          <SheetContent className="flex flex-col w-full sm:max-w-lg overflow-hidden">
+            <SheetHeader>
+              <SheetTitle>WPForms</SheetTitle>
+            </SheetHeader>
+            <div className="p-4 flex flex-col flex-1 min-h-0 gap-4 overflow-y-auto">
+              <IntegrationFormsSheetStates
+                query={wpformsFormsQuery}
+                notInstalledText="WPForms is not installed or active."
+                createFormUrl={wpformsCreateFormUrl}
+                primaryCtaText="Create a form in WPForms"
+                emptySupportingText="Add a form in WPForms, then reopen this sheet to map it to Helpmate."
+              />
+              {wpformsFormsQuery.data?.installed &&
+              (wpformsFormsQuery.data?.forms ?? []).length > 0 && (
+                <div className="flex-1 min-h-0 space-y-4 pr-1">
+                  {(wpformsFormsQuery.data?.forms ?? []).map((form) => {
+                    const config = wpformsConfigs[form.id] ?? {
+                      enabled: false,
+                      action: '',
+                      field_map: {},
+                    };
+                    const selectedAction = wpformsActionMap[config.action];
+                    const mappableFields = selectedAction?.mappable_fields ?? [];
+
+                    return (
+                      <Card key={form.id} className="p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <h4 className="!text-base !font-semibold !my-0">
+                              {form.title}
+                            </h4>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Form ID: {form.id}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Label htmlFor={`wpforms-enabled-${form.id}`}>
+                              Enabled
+                            </Label>
+                            <Switch
+                              id={`wpforms-enabled-${form.id}`}
+                              checked={config.enabled}
+                              onCheckedChange={(checked) =>
+                                updateWpformsConfig(form.id, {
+                                  enabled: checked,
+                                })
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 mt-4">
+                          <div>
+                            <Label>Action</Label>
+                            <Select
+                              value={config.action || undefined}
+                              onValueChange={(value) =>
+                                updateWpformsConfig(form.id, {
+                                  action: value,
+                                  field_map: {},
+                                })
+                              }
+                            >
+                              <SelectTrigger className="mt-1">
+                                <SelectValue placeholder="Select action" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {(wpformsFormsQuery.data?.actions ?? []).map(
+                                  (action) => {
+                                    const isProAction = action.tier === 'pro';
+                                    const disabled = isProAction && !isPro;
+                                    return (
+                                      <SelectItem
+                                        key={action.id}
+                                        value={action.id}
+                                        disabled={disabled}
+                                      >
+                                        {action.label}
+                                        {isProAction ? ' (Pro)' : ''}
+                                      </SelectItem>
+                                    );
+                                  }
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        {selectedAction?.verification_contact_required ? (
+                          <p className="mt-3 text-xs text-amber-700 dark:text-amber-500">
+                            Order tracker verification is on: map at least one of
+                            Email or Phone so customers can confirm the order.
+                          </p>
+                        ) : null}
+
+                        {mappableFields.length > 0 && (
+                          <div className="mt-4 space-y-3">
+                            <p className="!text-md !mb-3 font-medium !text-muted-foreground">
+                              Field Mapping:
+                            </p>
+                            {mappableFields.map((field) => {
+                              const raw = config.field_map[field.key] ?? '';
+                              const selectValue =
+                                raw === '' ? UNMAPPED_FIELD : raw;
+                              return (
+                                <div
+                                  key={field.key}
+                                  className="grid grid-cols-1 gap-1"
+                                >
+                                  <Label>
+                                    {field.label}
+                                    {field.required ? (
+                                      <span className="text-destructive"> *</span>
+                                    ) : null}
+                                  </Label>
+                                  <Select
+                                    value={selectValue}
+                                    onValueChange={(value) =>
+                                      updateWpformsFieldMap(
+                                        form.id,
+                                        field.key,
+                                        value
+                                      )
+                                    }
+                                  >
+                                    <SelectTrigger className="mt-0.5">
+                                      <SelectValue placeholder="None" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value={UNMAPPED_FIELD}>
+                                        None
+                                      </SelectItem>
+                                      {form.fields.map((f) => (
+                                        <SelectItem key={f.name} value={f.name}>
+                                          {f.name}
+                                          {f.type ? ` (${f.type})` : ''}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            {wpformsFormsQuery.data?.installed &&
+              (wpformsFormsQuery.data?.forms ?? []).length > 0 && (
+                <SheetFooter>
+                  <Button
+                    className="self-end"
+                    type="button"
+                    onClick={saveWpformsConfig}
+                    disabled={
+                      updateSettingsMutation.isPending || wpformsFormsQuery.isLoading
                     }
                   >
                     Save mapping
