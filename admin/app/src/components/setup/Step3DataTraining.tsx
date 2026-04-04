@@ -5,6 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useDataSource } from '@/hooks/useDataSource';
 import { useWooCommerce } from '@/hooks/useWooCommerce';
 import { useMain } from '@/contexts/MainContext';
+import api from '@/lib/axios';
+import { useQuery } from '@tanstack/react-query';
 import { FileText, File, Package, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -36,6 +38,21 @@ export default function Step3DataTraining({
 }: Step3DataTrainingProps) {
   const { setPage } = useMain();
   const { isWooCommerceInstalled } = useWooCommerce();
+  const commerceConfigQuery = useQuery<{ selected_provider?: string }, Error>({
+    queryKey: ['settings', 'commerce_integration', 'step3'],
+    queryFn: async () => {
+      const response = await api.get('/settings/commerce_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+  const selectedProvider = commerceConfigQuery.data?.selected_provider;
+  const productPostType =
+    selectedProvider === 'easy_digital_downloads'
+      ? 'download'
+      : selectedProvider === 'surecart'
+        ? 'sc_product'
+        : 'product';
   const { getPostsMutation, addSourceMutation, getBulkJobsQuery } =
     useDataSource();
 
@@ -131,8 +148,13 @@ export default function Step3DataTraining({
         },
       });
     }
-    if (selectedTypes.includes('product') && isWooCommerceInstalled) {
-      getPostsMutate('product', {
+    if (
+      selectedTypes.includes('product') &&
+      (isWooCommerceInstalled ||
+        selectedProvider === 'easy_digital_downloads' ||
+        selectedProvider === 'surecart')
+    ) {
+      getPostsMutate(productPostType, {
         onSuccess: (data) => {
           if (data) {
             setProducts(
@@ -154,7 +176,13 @@ export default function Step3DataTraining({
         },
       });
     }
-  }, [selectedTypes, getPostsMutate, isWooCommerceInstalled]);
+  }, [
+    selectedTypes,
+    getPostsMutate,
+    isWooCommerceInstalled,
+    productPostType,
+    selectedProvider,
+  ]);
 
   // Track training progress
   useEffect(() => {
@@ -805,7 +833,9 @@ export default function Step3DataTraining({
         </Card>
 
         {/* Products Card */}
-        {isWooCommerceInstalled && (
+        {(isWooCommerceInstalled ||
+          selectedProvider === 'easy_digital_downloads' ||
+          selectedProvider === 'surecart') && (
           <Card
             className={`cursor-pointer transition-all ${
               selectedTypes.includes('product')

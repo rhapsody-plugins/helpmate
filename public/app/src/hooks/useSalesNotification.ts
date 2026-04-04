@@ -22,7 +22,11 @@ export const useSalesNotification = () => {
       return data as RecentSaleNotification;
     },
     enabled:
-      Boolean(salesNotifications) && Boolean(settings?.is_woocommerce_active),
+      Boolean(salesNotifications) &&
+      Boolean(
+        settings?.sales_notification_commerce_active ??
+          settings?.is_woocommerce_active
+      ),
     refetchOnWindowFocus: false,
     initialData: null,
     staleTime: 0,

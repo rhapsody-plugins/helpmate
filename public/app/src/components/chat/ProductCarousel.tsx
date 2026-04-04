@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import type { Product } from '@/types';
+
+const PRODUCT_PLACEHOLDER =
+  '/wp-content/plugins/helpmate-ai-chatbot/assets/images/product-placeholder.svg';
 export function ProductCarousel({ data }: { data: Product[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const maxIndex = data.length - 1;
@@ -56,9 +59,15 @@ export function ProductCarousel({ data }: { data: Product[] }) {
             className="flex flex-col flex-shrink-0 items-center p-2 w-24 bg-white rounded-md border"
           >
             <img
-              src={product.image || '/placeholder.svg'}
+              src={product.image || PRODUCT_PLACEHOLDER}
               alt={product.name}
               className="object-cover mb-1 w-full h-16"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (target.src !== window.location.origin + PRODUCT_PLACEHOLDER) {
+                  target.src = PRODUCT_PLACEHOLDER;
+                }
+              }}
             />
             <p className="w-full text-xs font-medium text-center truncate">
               {product.name}

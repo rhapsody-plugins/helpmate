@@ -73,6 +73,7 @@ export type IntegrationEventsResponse = {
 
 export type IntegrationRegistryItem = {
   id: 'cf7' | 'forminator' | 'wpforms' | 'ninja_forms' | 'formidable_forms';
+  group: 'forms' | 'commerce' | 'messaging_crm';
   title: string;
   description: string;
   integrationSlug: string;

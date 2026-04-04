@@ -269,7 +269,21 @@ class Helpmate_Chat_Response_Generator
      */
     private function prepare_product_info($product_id)
     {
-        $product_info = $this->helpmate->get_woocommerce()->get_product_info($product_id);
+        $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+            ? $this->helpmate->get_primary_commerce_provider()
+            : '';
+        if (empty($provider)) {
+            return [];
+        }
+        if ($provider === 'easy_digital_downloads' && method_exists($this->helpmate, 'get_edd')) {
+            $product_info = $this->helpmate->get_edd()->get_product_info($product_id);
+        } elseif ($provider === 'surecart' && method_exists($this->helpmate, 'get_surecart')) {
+            $product_info = $this->helpmate->get_surecart()->get_product_info($product_id);
+        } elseif ($provider === 'woocommerce' && method_exists($this->helpmate, 'get_woocommerce')) {
+            $product_info = $this->helpmate->get_woocommerce()->get_product_info($product_id);
+        } else {
+            $product_info = [];
+        }
         if (!empty($product_info)) {
             return $product_info;
         }
@@ -288,7 +302,11 @@ class Helpmate_Chat_Response_Generator
         if ($this->helpmate->get_product_slug() !== 'helpmate-free' && !$this->helpmate->is_helpmate_pro_active()) {
             $modules_in_use[] = 'show_handover_to_human';
         }
-        if (isset($modules['image-search']) && !$modules['image-search'] && !$this->helpmate->is_woocommerce_active()) {
+        if (
+            !empty($modules[HELPMATE_MODULE_IMAGE_SEARCH])
+            && method_exists($this->helpmate, 'is_image_search_operational')
+            && $this->helpmate->is_image_search_operational()
+        ) {
             $modules_in_use[] = 'show_image_search';
         }
         if (isset($modules['ticket-system']) && !$modules['ticket-system']) {
@@ -303,7 +321,10 @@ class Helpmate_Chat_Response_Generator
         if (isset($modules['coupon-delivery']) && !$modules['coupon-delivery']) {
             $modules_in_use[] = 'show_coupon_delivery';
         }
-        if (!$this->helpmate->is_woocommerce_active()) {
+        $active_providers = method_exists($this->helpmate, 'get_active_commerce_providers')
+            ? $this->helpmate->get_active_commerce_providers()
+            : [];
+        if (empty($active_providers)) {
             $modules_in_use[] = 'show_products';
             $modules_in_use[] = 'show_products_by_keywords';
         }
@@ -330,7 +351,21 @@ class Helpmate_Chat_Response_Generator
                         $data['tool_results'][0]['result'] = $this->helpmate->get_general_tools()->show_handover_to_human($session_id);
                         break;
                     case 'show_products':
-                        if ($this->helpmate->is_woocommerce_active()) {
+                        $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+                            ? $this->helpmate->get_primary_commerce_provider()
+                            : '';
+                        if (empty($provider)) {
+                            $data['tool_results'][0]['result'] = [
+                                'type' => 'text',
+                                'text' => 'Select a commerce provider in Integrations first.'
+                            ];
+                            break;
+                        }
+                        if ($provider === 'easy_digital_downloads' && method_exists($this->helpmate, 'get_edd')) {
+                            $data['tool_results'][0]['result'] = $this->helpmate->get_edd()->show_products($data['tool_results'][0]['parameters']);
+                        } elseif ($provider === 'surecart' && method_exists($this->helpmate, 'get_surecart')) {
+                            $data['tool_results'][0]['result'] = $this->helpmate->get_surecart()->show_products($data['tool_results'][0]['parameters']);
+                        } elseif ($provider === 'woocommerce' && method_exists($this->helpmate, 'get_woocommerce')) {
                             $data['tool_results'][0]['result'] = $this->helpmate->get_woocommerce()->show_products($data['tool_results'][0]['parameters']);
                         } else {
                             $data['tool_results'][0]['result'] = [
@@ -340,7 +375,21 @@ class Helpmate_Chat_Response_Generator
                         }
                         break;
                     case 'show_products_by_keywords':
-                        if ($this->helpmate->is_woocommerce_active()) {
+                        $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+                            ? $this->helpmate->get_primary_commerce_provider()
+                            : '';
+                        if (empty($provider)) {
+                            $data['tool_results'][0]['result'] = [
+                                'type' => 'text',
+                                'text' => 'Select a commerce provider in Integrations first.'
+                            ];
+                            break;
+                        }
+                        if ($provider === 'easy_digital_downloads' && method_exists($this->helpmate, 'get_edd')) {
+                            $data['tool_results'][0]['result'] = $this->helpmate->get_edd()->show_products_by_keywords($data['tool_results'][0]['parameters']);
+                        } elseif ($provider === 'surecart' && method_exists($this->helpmate, 'get_surecart')) {
+                            $data['tool_results'][0]['result'] = $this->helpmate->get_surecart()->show_products_by_keywords($data['tool_results'][0]['parameters']);
+                        } elseif ($provider === 'woocommerce' && method_exists($this->helpmate, 'get_woocommerce')) {
                             $data['tool_results'][0]['result'] = $this->helpmate->get_woocommerce()->show_products_by_keywords($data['tool_results'][0]['parameters']);
                         } else {
                             $data['tool_results'][0]['result'] = [

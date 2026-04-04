@@ -137,6 +137,48 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
 
+        register_rest_route('helpmate/v1', '/check-easy-digital-downloads', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WordPress core filter
+                $active_plugins = apply_filters('active_plugins', get_option('active_plugins'));
+                $is_installed = in_array('easy-digital-downloads/easy-digital-downloads.php', $active_plugins, true);
+                try {
+                    return new WP_REST_Response([
+                        'error' => false,
+                        'installed' => $is_installed
+                    ], 200);
+                } catch (Exception $e) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/check-surecart', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WordPress core filter
+                $active_plugins = apply_filters('active_plugins', get_option('active_plugins'));
+                $is_installed = in_array('surecart/surecart.php', $active_plugins, true);
+                try {
+                    return new WP_REST_Response([
+                        'error' => false,
+                        'installed' => $is_installed
+                    ], 200);
+                } catch (Exception $e) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
         /* --------------------------------------- */
         /*                   API                   */
         /* --------------------------------------- */
@@ -981,20 +1023,20 @@ class Helpmate_Backend_Routes
 
         register_rest_route('helpmate/v1', '/discounted-products', array(
             'methods' => 'GET',
-            'callback' => fn() => $this->helpmate->is_woocommerce_active() ? $this->get_discounted_products() : new WP_REST_Response([
-                'error' => true,
-                'message' => 'WooCommerce is not active.'
-            ], 200),
+            'callback' => fn() => $this->get_discounted_products(),
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
 
         register_rest_route('helpmate/v1', '/products/names', array(
             'methods' => 'GET',
             'callback' => function ($request) {
-                if (!$this->helpmate->is_woocommerce_active()) {
+                $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+                    ? $this->helpmate->get_primary_commerce_provider()
+                    : '';
+                if (empty($provider)) {
                     return new WP_REST_Response([
                         'error' => true,
-                        'message' => 'WooCommerce is not active.'
+                        'message' => 'Select a commerce provider in Integrations first.'
                     ], 400);
                 }
 
@@ -1016,11 +1058,15 @@ class Helpmate_Backend_Routes
                 }
 
                 $names = array();
-                $woocommerce = $this->helpmate->get_woocommerce();
-
                 foreach ($product_ids as $product_id) {
                     if ($product_id > 0) {
-                        $product_info = $woocommerce->get_product_info($product_id);
+                        if ($provider === 'easy_digital_downloads' && method_exists($this->helpmate, 'get_edd')) {
+                            $product_info = $this->helpmate->get_edd()->get_product_info($product_id);
+                        } elseif ($provider === 'surecart' && method_exists($this->helpmate, 'get_surecart')) {
+                            $product_info = $this->helpmate->get_surecart()->get_product_info($product_id);
+                        } else {
+                            $product_info = $this->helpmate->get_woocommerce()->get_product_info($product_id);
+                        }
                         if ($product_info && isset($product_info['name'])) {
                             $names[$product_id] = $product_info['name'];
                         } else {
@@ -3854,6 +3900,51 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
 
+        // Get EDD new order URL
+        register_rest_route('helpmate/v1', '/crm/edd/new-order-url', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                if (!function_exists('edd_get_admin_url')) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => 'Easy Digital Downloads is not installed'
+                    ], 404);
+                }
+
+                $url = edd_get_admin_url([
+                    'page' => 'edd-payment-history',
+                    'view' => 'add-order',
+                ]);
+
+                return new WP_REST_Response([
+                    'error' => false,
+                    'url' => $url
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        // SureCart admin orders list (no dedicated "new order" screen; open orders hub).
+        register_rest_route('helpmate/v1', '/crm/surecart/new-order-url', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                if (!class_exists('\SureCart\Models\Order')) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => 'SureCart is not installed',
+                    ], 404);
+                }
+
+                $url = admin_url('admin.php?page=sc-orders');
+
+                return new WP_REST_Response([
+                    'error' => false,
+                    'url' => $url,
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
         // Get contact statuses
         register_rest_route('helpmate/v1', '/crm/statuses', array(
             'methods' => 'GET',
@@ -5242,10 +5333,39 @@ class Helpmate_Backend_Routes
                 }
             }
 
+            // Add EDD download data if post type is download
+            if ($post->post_type === 'download' && function_exists('edd_get_download_price')) {
+                $price = (float) edd_get_download_price($post->ID);
+                $metadata['download'] = [
+                    'name' => get_the_title($post->ID),
+                    'price' => $price,
+                    'price_html' => function_exists('edd_currency_filter') ? edd_currency_filter(edd_format_amount($price)) : (string) $price,
+                    'is_on_sale' => false,
+                    'categories' => wp_get_post_terms($post->ID, 'download_category', ['fields' => 'names']),
+                    'tags' => wp_get_post_terms($post->ID, 'download_tag', ['fields' => 'names']),
+                ];
+            }
+
+            // SureCart synced product posts
+            if ($post->post_type === 'sc_product' && method_exists($this->helpmate, 'get_surecart')) {
+                $sc_info = $this->helpmate->get_surecart()->get_product_info((int) $post->ID);
+                if (!empty($sc_info)) {
+                    $metadata['surecart_product'] = $sc_info;
+                }
+            }
+
             // For products, use product name and description as title and content
             if ($post->post_type === 'product' && isset($metadata['product'])) {
                 $title = $metadata['product']['name'];
                 $content = $metadata['product']['description'] ?: $post->post_content;
+            } elseif ($post->post_type === 'download' && isset($metadata['download'])) {
+                $title = $metadata['download']['name'];
+                $content = $post->post_content;
+            } elseif ($post->post_type === 'sc_product' && !empty($metadata['surecart_product']['name'])) {
+                $title = $metadata['surecart_product']['name'];
+                $content = !empty($metadata['surecart_product']['description'])
+                    ? $metadata['surecart_product']['description']
+                    : $post->post_content;
             } else {
                 $title = get_the_title($post);
                 $content = $post->post_content;
@@ -5346,6 +5466,25 @@ class Helpmate_Backend_Routes
     public function get_discounted_products()
     {
         try {
+            $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+                ? $this->helpmate->get_primary_commerce_provider()
+                : '';
+            if (empty($provider)) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Select a commerce provider in Integrations first.'
+                ], 400);
+            }
+            if ($provider === 'easy_digital_downloads') {
+                return $this->get_edd_discounted_products();
+            }
+            if ($provider === 'surecart' && method_exists($this->helpmate, 'get_surecart')) {
+                return new WP_REST_Response([
+                    'error' => false,
+                    'products' => $this->helpmate->get_surecart()->get_discounted_products_for_admin()
+                ], 200);
+            }
+
             $args = array(
                 'status' => 'publish',
                 'limit' => -1,
@@ -5388,6 +5527,28 @@ class Helpmate_Backend_Routes
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Get discounted EDD downloads (on-sale download posts, Woo-shaped payload).
+     *
+     * @since 2.0.3
+     */
+    private function get_edd_discounted_products()
+    {
+        if (!function_exists('edd_get_download_price') || !method_exists($this->helpmate, 'get_edd')) {
+            return new WP_REST_Response([
+                'error' => false,
+                'products' => [],
+            ], 200);
+        }
+
+        $products = $this->helpmate->get_edd()->get_discounted_downloads_for_admin();
+
+        return new WP_REST_Response([
+            'error' => false,
+            'products' => $products,
+        ], 200);
     }
 
     /**

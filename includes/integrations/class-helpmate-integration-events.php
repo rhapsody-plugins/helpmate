@@ -187,14 +187,14 @@ class Helpmate_Integration_Events
 
 		$where_sql = implode(' AND ', $where);
 		if (!empty($params)) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event diagnostics require direct reads
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Event diagnostics require direct reads (caching not appropriate); table uses esc_sql(wpdb->prefix); WHERE is fixed fragments + placeholders imploded and bound via wpdb->prepare().
 			$total = (int) $wpdb->get_var($wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix
 				"SELECT COUNT(*) FROM {$table} WHERE {$where_sql}",
 				...$params
 			));
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		} else {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event diagnostics require direct reads
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Event diagnostics require direct reads; WHERE is static 1=1 only; no user input in SQL.
 			$total = (int) $wpdb->get_var(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix
 				"SELECT COUNT(*) FROM {$table} WHERE {$where_sql}"
@@ -202,18 +202,16 @@ class Helpmate_Integration_Events
 		}
 
 		$list_params = array_merge($params, [$per_page, $offset]);
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event diagnostics require direct reads
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Event diagnostics require direct reads (caching not appropriate); table uses esc_sql(wpdb->prefix); dynamic WHERE + LIMIT/OFFSET bound via wpdb->prepare() with matching $list_params.
 		$rows = $wpdb->get_results($wpdb->prepare(
-			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix
 			"SELECT id, integration, source, form_id, action, status, error_code, error_message, payload_hash, dedup_key, metadata, created_at
 			FROM {$table}
 			WHERE {$where_sql}
 			ORDER BY id DESC
-			LIMIT %d OFFSET %d"
-			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			,
+			LIMIT %d OFFSET %d",
 			...$list_params
 		), ARRAY_A);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		return new WP_REST_Response([
 			'error' => false,

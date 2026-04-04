@@ -79,7 +79,31 @@ export interface WooCommerceOrder {
   order_type: 'woocommerce';
 }
 
-export type Order = ManualOrder | WooCommerceOrder;
+export interface EddOrder {
+  id: number;
+  order_number: string;
+  status: string;
+  total: string;
+  date_created: string;
+  edit_url: string;
+  /** Plain-text line-item summary from the server (EDD). */
+  product_summary?: string;
+  order_type: 'easy_digital_downloads';
+}
+
+export interface SureCartOrder {
+  id: string;
+  order_number: string;
+  status: string;
+  total: string;
+  currency?: string;
+  date_created: string;
+  edit_url: string;
+  product_summary?: string;
+  order_type: 'surecart';
+}
+
+export type Order = ManualOrder | WooCommerceOrder | EddOrder | SureCartOrder;
 
 export interface ContactFilters {
   status?: string;

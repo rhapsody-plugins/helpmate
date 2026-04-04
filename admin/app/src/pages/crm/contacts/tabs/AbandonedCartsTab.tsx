@@ -80,28 +80,34 @@ function parseCartItems(cart: AbandonedCartType): CartItem[] {
 
 export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
   const { useContact } = useCrm();
-  const { getAbandonedCarts } = useAbandonedCart();
+  const { data: contact, isLoading: contactLoading } = useContact(
+    contactId,
+    contactId !== null
+  );
+  const contactEmail = contact?.email?.trim() ?? '';
+  const { getAbandonedCarts } = useAbandonedCart({
+    search: contactEmail,
+    perPage: 100,
+    page: 1,
+    listEnabled: contactId !== null && contactEmail !== '',
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [previewCart, setPreviewCart] = useState<AbandonedCartType | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [productNames, setProductNames] = useState<Record<number, string>>({});
 
-  const { data: contact, isLoading: contactLoading } = useContact(
-    contactId,
-    contactId !== null
-  );
-  const { data: abandonedCarts, isFetching: isFetchingCarts } =
-    getAbandonedCarts;
+  const abandonedCarts = getAbandonedCarts.data?.carts ?? [];
+  const { isFetching: isFetchingCarts } = getAbandonedCarts;
 
-  // Filter abandoned carts by contact email
+  // Exact email match (search is substring on server)
   const filteredCarts = useMemo(() => {
-    if (!contact?.email || !abandonedCarts) {
+    if (!contact?.email) {
       return [];
     }
-
+    const em = contact.email.toLowerCase();
     return abandonedCarts.filter(
       (cart: AbandonedCartType) =>
-        cart.customer?.user_email?.toLowerCase() === contact.email.toLowerCase()
+        cart.customer?.user_email?.toLowerCase() === em
     );
   }, [contact?.email, abandonedCarts]);
 

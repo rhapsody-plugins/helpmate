@@ -179,6 +179,24 @@ class Helpmate
 	private $woocommerce;
 
 	/**
+	 * The Easy Digital Downloads instance.
+	 *
+	 * @since    2.0.3
+	 * @access   private
+	 * @var      Helpmate_EDD    $edd    The EDD instance.
+	 */
+	private $edd;
+
+	/**
+	 * The SureCart instance.
+	 *
+	 * @since    2.0.4
+	 * @access   private
+	 * @var      Helpmate_SureCart    $surecart    The SureCart instance.
+	 */
+	private $surecart;
+
+	/**
 	 * The general tools instance.
 	 *
 	 * @since    1.0.0
@@ -357,6 +375,8 @@ class Helpmate
 
 		$this->document_handler = new Helpmate_Document_Handler($this->api, $this->chat);
 		$this->woocommerce = new Helpmate_WooCommerce($this->settings);
+		$this->edd = new Helpmate_EDD($this->settings);
+		$this->surecart = new Helpmate_SureCart($this->settings);
 		$this->social_chat = new Helpmate_Social_Chat($this);
 		$this->crm = new Helpmate_CRM($this);
 		$this->crm_order_metabox = new Helpmate_Crm_Order_Metabox($this->crm);
@@ -442,6 +462,8 @@ class Helpmate
 			'includes/modules/class-helpmate-sales-notification.php',
 			'includes/modules/class-helpmate-ticket.php',
 			'includes/modules/class-helpmate-woocommerce.php',
+			'includes/modules/class-helpmate-edd.php',
+			'includes/modules/class-helpmate-surecart.php',
 			'includes/modules/class-helpmate-social-chat.php',
 			'includes/modules/class-helpmate-crm.php',
 			'includes/modules/class-helpmate-crm-order-metabox.php',
@@ -455,6 +477,11 @@ class Helpmate
 			'includes/social/class-helpmate-social-message-processor.php',
 			'includes/class-helpmate-background-processor.php',
 			'includes/class-helpmate-job-tracker.php',
+			'includes/commerce/interface-commerce-provider-adapter.php',
+			'includes/commerce/class-helpmate-commerce-woocommerce-adapter.php',
+			'includes/commerce/class-helpmate-commerce-edd-adapter.php',
+			'includes/commerce/class-helpmate-commerce-surecart-adapter.php',
+			'includes/commerce/class-helpmate-commerce-adapter-registry.php',
 			'includes/integrations/class-helpmate-integration-events.php',
 			'includes/integrations/class-helpmate-cf7-integration.php',
 			'includes/integrations/class-helpmate-forminator-integration.php',
@@ -734,6 +761,27 @@ class Helpmate
 			// Create default email templates
 			$this->create_default_email_templates();
 
+			$commerce_settings = $this->settings->get_setting('commerce_integration');
+			$detected_providers = $this->get_detected_commerce_providers();
+			$default_selected_provider = '';
+			if (count($detected_providers) === 1) {
+				$default_selected_provider = $detected_providers[0];
+			}
+
+			if (!is_array($commerce_settings) || empty($commerce_settings)) {
+				$this->settings->set_setting('commerce_integration', [
+					'enabled' => true,
+					'selected_provider' => $default_selected_provider,
+				]);
+			} else {
+				$selected_provider = isset($commerce_settings['selected_provider']) ? (string) $commerce_settings['selected_provider'] : '';
+				if (empty($selected_provider) && count($detected_providers) === 1) {
+					$commerce_settings['selected_provider'] = $default_selected_provider;
+					$commerce_settings['enabled'] = true;
+					$this->settings->set_setting('commerce_integration', $commerce_settings);
+				}
+			}
+
 			// Update stored version
 			update_option('helpmate_version', $current_version);
 		}
@@ -770,6 +818,176 @@ class Helpmate
 	public function is_woocommerce_active()
 	{
 		return is_plugin_active('woocommerce/woocommerce.php');
+	}
+
+	/**
+	 * Check if Easy Digital Downloads is active.
+	 *
+	 * @since 2.0.3
+	 * @return bool Whether Easy Digital Downloads is active.
+	 */
+	public function is_edd_active()
+	{
+		return is_plugin_active('easy-digital-downloads/easy-digital-downloads.php');
+	}
+
+	/**
+	 * Check if SureCart is active.
+	 *
+	 * @since 2.0.4
+	 * @return bool Whether SureCart is active.
+	 */
+	public function is_surecart_active()
+	{
+		return is_plugin_active('surecart/surecart.php');
+	}
+
+	/**
+	 * Get commerce integration settings.
+	 *
+	 * @since 2.0.3
+	 * @return array Commerce integration settings.
+	 */
+	public function get_commerce_integration_settings(): array
+	{
+		$settings = $this->settings->get_setting('commerce_integration');
+		if (!is_array($settings)) {
+			$settings = [];
+		}
+
+		return [
+			'enabled' => !array_key_exists('enabled', $settings) || !empty($settings['enabled']),
+			'selected_provider' => isset($settings['selected_provider']) ? (string) $settings['selected_provider'] : '',
+			'provider_selection_required' => count($this->get_detected_commerce_providers()) > 1 && empty($settings['selected_provider']),
+		];
+	}
+
+	/**
+	 * Get detected commerce providers by plugin activation only.
+	 *
+	 * @since 2.0.3
+	 * @return array
+	 */
+	public function get_detected_commerce_providers(): array
+	{
+		$providers = [];
+		if ($this->is_woocommerce_active()) {
+			$providers[] = 'woocommerce';
+		}
+		if ($this->is_edd_active()) {
+			$providers[] = 'easy_digital_downloads';
+		}
+		if ($this->is_surecart_active()) {
+			$providers[] = 'surecart';
+		}
+		return $providers;
+	}
+
+	/**
+	 * Get active commerce providers.
+	 *
+	 * @since 2.0.3
+	 * @return array Active commerce provider keys.
+	 */
+	public function get_active_commerce_providers(): array
+	{
+		$selected = $this->get_primary_commerce_provider();
+		if (!empty($selected)) {
+			return [$selected];
+		}
+		return [];
+	}
+
+	/**
+	 * Get the primary commerce provider key.
+	 *
+	 * @since 2.0.3
+	 * @return string Primary commerce provider.
+	 */
+	public function get_primary_commerce_provider(): string
+	{
+		$settings = $this->get_commerce_integration_settings();
+		$detected = $this->get_detected_commerce_providers();
+		$selected = isset($settings['selected_provider']) ? (string) $settings['selected_provider'] : '';
+		if (!empty($selected) && in_array($selected, $detected, true)) {
+			return $selected;
+		}
+		if (count($detected) === 1) {
+			return $detected[0];
+		}
+		return '';
+	}
+
+	/**
+	 * Whether the primary commerce plugin is installed and active.
+	 *
+	 * @since 2.0.5
+	 * @return bool
+	 */
+	public function is_primary_commerce_plugin_active(): bool
+	{
+		$primary = $this->get_primary_commerce_provider();
+		if ('' === $primary) {
+			return false;
+		}
+		if ('woocommerce' === $primary) {
+			return $this->is_woocommerce_active();
+		}
+		if ('easy_digital_downloads' === $primary) {
+			return $this->is_edd_active();
+		}
+		if ('surecart' === $primary) {
+			return $this->is_surecart_active();
+		}
+		return false;
+	}
+
+	/**
+	 * Image search is allowed (module on, Pro, primary set, primary plugin active).
+	 *
+	 * @since 2.0.5
+	 * @return bool
+	 */
+	public function is_image_search_operational(): bool
+	{
+		if ($this->get_product_slug() === 'helpmate-free' || !$this->is_helpmate_pro_active()) {
+			return false;
+		}
+		$modules = $this->settings->get_setting('modules');
+		if (!is_array($modules) || empty($modules[HELPMATE_MODULE_IMAGE_SEARCH])) {
+			return false;
+		}
+		$primary = $this->get_primary_commerce_provider();
+		if ('' === $primary) {
+			return false;
+		}
+		$detected = $this->get_detected_commerce_providers();
+		if (!in_array($primary, $detected, true)) {
+			return false;
+		}
+		return $this->is_primary_commerce_plugin_active();
+	}
+
+	/**
+	 * Commerce catalog is usable for the current primary (provider set + plugin active).
+	 *
+	 * @since 2.0.5
+	 * @return bool
+	 */
+	public function is_commerce_catalog_operational(): bool
+	{
+		return '' !== $this->get_primary_commerce_provider() && $this->is_primary_commerce_plugin_active();
+	}
+
+	/**
+	 * Whether sales-notification toasts should run for the current commerce setup.
+	 *
+	 * @since 2.0.5
+	 * @return bool
+	 */
+	public function is_sales_notification_commerce_active(): bool
+	{
+		return $this->is_commerce_catalog_operational();
 	}
 
 	/**
@@ -847,6 +1065,44 @@ class Helpmate
 	public function get_woocommerce()
 	{
 		return $this->woocommerce;
+	}
+
+	/**
+	 * Get the EDD instance.
+	 *
+	 * @since 2.0.3
+	 * @return Helpmate_EDD The EDD instance.
+	 */
+	public function get_edd()
+	{
+		return $this->edd;
+	}
+
+	/**
+	 * Get the SureCart instance.
+	 *
+	 * @since 2.0.4
+	 * @return Helpmate_SureCart The SureCart instance.
+	 */
+	public function get_surecart()
+	{
+		return $this->surecart;
+	}
+
+	/**
+	 * Get selected commerce adapter instance.
+	 *
+	 * @since 2.0.3
+	 * @return CommerceProviderAdapter|null
+	 */
+	public function get_commerce_adapter()
+	{
+		$provider = $this->get_primary_commerce_provider();
+		if (empty($provider)) {
+			return null;
+		}
+		$registry = new Helpmate_Commerce_Adapter_Registry($this);
+		return $registry->get_adapter($provider);
 	}
 
 	/**

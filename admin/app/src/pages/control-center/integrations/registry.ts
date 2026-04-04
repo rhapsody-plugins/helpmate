@@ -12,6 +12,7 @@ const baseAdminUrl = `${window.location.origin}/wp-admin/admin.php?page=`;
 export const INTEGRATION_REGISTRY: IntegrationRegistryItem[] = [
   {
     id: 'cf7',
+    group: 'forms',
     title: 'Contact Form 7',
     description: 'Map CF7 forms to Helpmate actions and field mappings.',
     integrationSlug: INTEGRATION_SLUG_CONTACT_FORM_7,
@@ -28,6 +29,7 @@ export const INTEGRATION_REGISTRY: IntegrationRegistryItem[] = [
   },
   {
     id: 'forminator',
+    group: 'forms',
     title: 'Forminator',
     description:
       'Map Forminator custom forms to Helpmate actions and field mappings.',
@@ -45,6 +47,7 @@ export const INTEGRATION_REGISTRY: IntegrationRegistryItem[] = [
   },
   {
     id: 'ninja_forms',
+    group: 'forms',
     title: 'Ninja Forms',
     description: 'Map Ninja Forms forms to Helpmate actions and field mappings.',
     integrationSlug: INTEGRATION_SLUG_NINJA_FORMS,
@@ -61,6 +64,7 @@ export const INTEGRATION_REGISTRY: IntegrationRegistryItem[] = [
   },
   {
     id: 'wpforms',
+    group: 'forms',
     title: 'WPForms',
     description: 'Map WPForms forms to Helpmate actions and field mappings.',
     integrationSlug: INTEGRATION_SLUG_WPFORMS,
@@ -77,6 +81,7 @@ export const INTEGRATION_REGISTRY: IntegrationRegistryItem[] = [
   },
   {
     id: 'formidable_forms',
+    group: 'forms',
     title: 'Formidable Forms',
     description:
       'Map Formidable Forms forms to Helpmate actions and field mappings.',

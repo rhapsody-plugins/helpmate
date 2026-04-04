@@ -460,10 +460,55 @@ class Helpmate_Frontend_Routes
     private function get_product_info($product_ids)
     {
         $products = [];
+        $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+            ? $this->helpmate->get_primary_commerce_provider()
+            : '';
+        if (empty($provider)) {
+            return [];
+        }
 
         foreach ($product_ids as $product_id) {
-            $product = wc_get_product($product_id);
-            if ($product) {
+            if ($provider === 'easy_digital_downloads' && get_post_type($product_id) === 'download') {
+                $download = $this->helpmate->get_edd()->get_product_info((int) $product_id);
+                if (!empty($download)) {
+                    $products[] = [
+                        'id' => $download['id'],
+                        'name' => $download['name'],
+                        'price' => $download['price'],
+                        'image' => $download['image'],
+                        'regular_price' => $download['regular_price'],
+                        'sale_price' => $download['sale_price'],
+                        'discount_percentage' => 0,
+                        'stock_status' => $download['stock_status'] ?? 'in_stock',
+                        'url' => $download['permalink'],
+                        'average_rating' => 0,
+                        'review_count' => 0
+                    ];
+                }
+            } elseif ($provider === 'surecart' && get_post_type($product_id) === 'sc_product' && method_exists($this->helpmate, 'get_surecart')) {
+                $sc_product = $this->helpmate->get_surecart()->get_product_info((int) $product_id);
+                if (!empty($sc_product)) {
+                    $products[] = [
+                        'id' => $sc_product['id'],
+                        'name' => $sc_product['name'],
+                        'price' => $sc_product['price'],
+                        'image' => $sc_product['image'],
+                        'regular_price' => $sc_product['regular_price'],
+                        'sale_price' => $sc_product['sale_price'],
+                        'discount_percentage' => (!empty($sc_product['regular_price_raw']) && !empty($sc_product['sale_price_raw']) && (float) $sc_product['regular_price_raw'] > 0)
+                            ? (int) round((((float) $sc_product['regular_price_raw'] - (float) $sc_product['sale_price_raw']) / (float) $sc_product['regular_price_raw']) * 100)
+                            : 0,
+                        'stock_status' => $sc_product['stock_status'] ?? 'in_stock',
+                        'url' => $sc_product['permalink'],
+                        'average_rating' => (float) ($sc_product['average_rating'] ?? 0),
+                        'review_count' => (int) ($sc_product['rating_count'] ?? 0)
+                    ];
+                }
+            } else {
+                $product = wc_get_product($product_id);
+                if (!$product) {
+                    continue;
+                }
                 $average_rating = $product->get_average_rating();
                 $review_count = $product->get_review_count();
 
@@ -502,6 +547,15 @@ class Helpmate_Frontend_Routes
             }
             $is_pro = $this->helpmate->get_product_slug() !== 'helpmate-free' && $this->helpmate->is_helpmate_pro_active();
             $is_woocommerce_active = $this->helpmate->is_woocommerce_active();
+            $selected_provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+                ? $this->helpmate->get_primary_commerce_provider()
+                : '';
+            $active_commerce_providers = !empty($selected_provider) ? [$selected_provider] : [];
+            $is_commerce_active = !empty($active_commerce_providers);
+            $image_search_operational = method_exists($this->helpmate, 'is_image_search_operational')
+                && $this->helpmate->is_image_search_operational();
+            $sales_notification_commerce_active = method_exists($this->helpmate, 'is_sales_notification_commerce_active')
+                && $this->helpmate->is_sales_notification_commerce_active();
             $settings = [];
             $customization = $this->helpmate->get_settings()->get_setting('customization') ?? [];
             $proactiveSales = $this->helpmate->get_settings()->get_setting('proactive_sales') ?? [];
@@ -540,11 +594,11 @@ class Helpmate_Frontend_Routes
             if (!$is_pro) {
                 $settings['business_hours_enabled'] = false;
             }
-            if ($proactiveSales['products'] && $is_woocommerce_active) {
+            if (!empty($proactiveSales['products']) && $is_commerce_active) {
                 $proactiveSalesProducts = $this->get_product_info($proactiveSales['products']);
             }
-            if ($this->helpmate->get_settings()->get_setting('coupons')['exit_intent_coupon']) {
-                $settings['exit_intent_coupon'] = $this->helpmate->get_settings()->get_setting('coupons')['exit_intent_coupon'];
+            if (!empty($coupons['exit_intent_coupon'])) {
+                $settings['exit_intent_coupon'] = $coupons['exit_intent_coupon'];
             }
 
             $withoutProducts = array_filter(
@@ -609,6 +663,10 @@ class Helpmate_Frontend_Routes
                 'api' => $api,
                 'is_pro' => $is_pro,
                 'is_woocommerce_active' => $is_woocommerce_active,
+                'image_search_operational' => $image_search_operational,
+                'sales_notification_commerce_active' => $sales_notification_commerce_active,
+                'selected_commerce_provider' => $selected_provider,
+                'active_commerce_providers' => $active_commerce_providers,
                 'modules' => $modules,
                 'customization' => $customization,
                 'proactive_sales_products' => $proactiveSalesProducts,

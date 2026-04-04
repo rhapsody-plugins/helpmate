@@ -21,10 +21,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useMain } from '@/contexts/MainContext';
 import { useSettings } from '@/hooks/useSettings';
-import { useWooCommerce } from '@/hooks/useWooCommerce';
+import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
+import { resolveCommerceIntegration } from '@/pages/control-center/integrations/commerce/resolve-commerce';
+import type { CommerceIntegrationConfig } from '@/pages/control-center/integrations/commerce/types';
+import { useQuery } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -70,8 +73,59 @@ export default function SalesNotifications() {
       { onSuccess: () => getModulesQuery.refetch() }
     );
   }, [modules, isModuleEnabled, updateSettingsMutation, getModulesQuery]);
-  const { isWooCommerceInstalled, isLoading: isWooCommerceLoading } =
-    useWooCommerce();
+  const commerceConfigQuery = useQuery<Partial<CommerceIntegrationConfig>, Error>({
+    queryKey: ['settings', 'commerce_integration', 'sales-notifications'],
+    queryFn: async () => {
+      const response = await api.get('/settings/commerce_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+  const eddInstalledQuery = useQuery<{ installed: boolean }, Error>({
+    queryKey: ['integration-edd-installed', 'sales-notifications'],
+    queryFn: async () => {
+      const response = await api.get('/check-easy-digital-downloads');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+  });
+  const wooInstalledQuery = useQuery<{ installed: boolean }, Error>({
+    queryKey: ['integration-woo-installed', 'sales-notifications'],
+    queryFn: async () => {
+      const response = await api.get('/check-woocommerce');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+  });
+  const surecartInstalledQuery = useQuery<{ installed: boolean }, Error>({
+    queryKey: ['integration-surecart-installed', 'sales-notifications'],
+    queryFn: async () => {
+      const response = await api.get('/check-surecart');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+  });
+  const commerceDataReady =
+    commerceConfigQuery.isFetched &&
+    eddInstalledQuery.isFetched &&
+    wooInstalledQuery.isFetched &&
+    surecartInstalledQuery.isFetched;
+  const resolvedCommerce = useMemo((): CommerceIntegrationConfig | null => {
+    if (!commerceDataReady) return null;
+    return resolveCommerceIntegration(
+      commerceConfigQuery.data ?? {},
+      wooInstalledQuery.data?.installed ?? false,
+      eddInstalledQuery.data?.installed ?? false,
+      surecartInstalledQuery.data?.installed ?? false
+    );
+  }, [
+    commerceDataReady,
+    commerceConfigQuery.data,
+    wooInstalledQuery.data?.installed,
+    eddInstalledQuery.data?.installed,
+    surecartInstalledQuery.data?.installed,
+  ]);
+  const commerceSalesReady = Boolean(resolvedCommerce?.selected_provider);
   // const icons = useCustomIcons(['woocommerce']);
 
   const { mutate: getSettings, isPending: isFetching } = getSettingsMutation;
@@ -142,7 +196,7 @@ export default function SalesNotifications() {
           <CardHeader>
             <CardTitle className="flex gap-1 items-center text-xl font-bold">
               Sales Notifications{' '}
-              <InfoTooltip message="Display real-time sales activity like “Someone just purchased this” to create social proof. It helps to build urgency and trust by showing that others are buying the product. This feature requires WooCommerce plugin to be installed and activated." />
+              <InfoTooltip message="Display real-time sales activity like “Someone just purchased this” to create social proof. Requires a primary commerce integration (WooCommerce, Easy Digital Downloads, or SureCart) with that plugin active." />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -151,7 +205,7 @@ export default function SalesNotifications() {
                 onSubmit={form.handleSubmit(handleSubmit)}
                 className="space-y-6"
               >
-                {isFetching || isWooCommerceLoading ? (
+                {isFetching || !commerceDataReady ? (
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
                       {/* <div className="flex flex-row justify-between items-center self-end p-2 h-9 rounded-md border border-input">
@@ -215,7 +269,7 @@ export default function SalesNotifications() {
                               <Select
                                 value={field.value}
                                 onValueChange={field.onChange}
-                                disabled={!isWooCommerceInstalled}
+                                disabled={!commerceSalesReady}
                               >
                                 <SelectTrigger className="w-full">
                                   <SelectValue placeholder="Select a frequency" />
@@ -258,12 +312,12 @@ export default function SalesNotifications() {
                                   field.value === '1'
                                     ? 'border-primary'
                                     : 'border-border/50',
-                                  !isWooCommerceInstalled
+                                  !commerceSalesReady
                                     ? 'opacity-50 cursor-not-allowed'
                                     : ''
                                 )}
                                 onClick={() =>
-                                  isWooCommerceInstalled && field.onChange('1')
+                                  commerceSalesReady && field.onChange('1')
                                 }
                               >
                                 <img
@@ -284,14 +338,14 @@ export default function SalesNotifications() {
                                   field.value === '2'
                                     ? 'border-primary'
                                     : 'border-border/50',
-                                  !getProQuery.data || !isWooCommerceInstalled
+                                  !getProQuery.data || !commerceSalesReady
                                     ? 'opacity-50'
                                     : 'hover:border-primary'
                                 )}
                                 onClick={() => {
                                   if (
                                     getProQuery.data &&
-                                    isWooCommerceInstalled
+                                    commerceSalesReady
                                   ) {
                                     field.onChange('2');
                                   }
@@ -324,14 +378,14 @@ export default function SalesNotifications() {
                                   field.value === '3'
                                     ? 'border-primary'
                                     : 'border-border/50',
-                                  !getProQuery.data || !isWooCommerceInstalled
+                                  !getProQuery.data || !commerceSalesReady
                                     ? 'opacity-50'
                                     : 'hover:border-primary'
                                 )}
                                 onClick={() => {
                                   if (
                                     getProQuery.data &&
-                                    isWooCommerceInstalled
+                                    commerceSalesReady
                                   ) {
                                     field.onChange('3');
                                   }
@@ -365,7 +419,7 @@ export default function SalesNotifications() {
 
                     <Button
                       type="submit"
-                      disabled={isUpdating || !isWooCommerceInstalled}
+                      disabled={isUpdating || !commerceSalesReady}
                       loading={isUpdating}
                     >
                       {isUpdating ? 'Saving...' : 'Save'}

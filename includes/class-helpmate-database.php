@@ -109,6 +109,7 @@ class Helpmate_Database
             user_id bigint(20) NOT NULL,
             cart_data text NOT NULL,
             cart_status varchar(50) NOT NULL COMMENT 'Order Placed, Abandoned, Recovered',
+            commerce_provider varchar(50) NOT NULL DEFAULT 'woocommerce',
             woocommerce_session_id varchar(255) NOT NULL,
             timestamp bigint(20) NOT NULL,
             mails_sent int(11) NOT NULL,
@@ -242,11 +243,11 @@ class Helpmate_Database
         ) $charset_collate;";
         dbDelta($sql);
 
-        // Returns and refunds table
+        // Returns and refunds table (order_id varchar: Woo/EDD numeric ids + SureCart UUIDs)
         $returns_refunds_table = esc_sql($wpdb->prefix . 'helpmate_returns_refunds');
         $sql = "CREATE TABLE IF NOT EXISTS {$returns_refunds_table} (
             id bigint(20) NOT NULL AUTO_INCREMENT,
-            order_id bigint(20) NOT NULL,
+            order_id varchar(191) NOT NULL,
             user_id bigint(20) NOT NULL,
             type varchar(50) NOT NULL COMMENT 'refund, return, or exchange',
             status varchar(50) NOT NULL DEFAULT 'pending' COMMENT 'pending, approved, rejected',
@@ -263,6 +264,22 @@ class Helpmate_Database
             KEY created_at (created_at)
         ) $charset_collate;";
         dbDelta($sql);
+
+        $rr_order_id_type = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time schema alignment
+            $wpdb->prepare(
+                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix
+                "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'order_id'"
+                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                ,
+                DB_NAME,
+                $returns_refunds_table
+            )
+        );
+        if ($rr_order_id_type && strtolower((string) $rr_order_id_type) === 'bigint') {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Migrate order_id for SureCart UUIDs; table name is safe, uses wpdb->prefix
+            $wpdb->query("ALTER TABLE {$returns_refunds_table} MODIFY order_id varchar(191) NOT NULL");
+        }
 
         // Jobs table for background processing
         $sql = "CREATE TABLE IF NOT EXISTS {$jobs_table} (

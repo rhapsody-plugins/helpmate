@@ -154,6 +154,7 @@ class Helpmate_Admin
 			'nonce' => wp_create_nonce('wp_rest'),
 			'site_url' => get_site_url(),
 			'rest_url' => rest_url('helpmate/v1'),
+			'plugin_url' => defined('HELPMATE_URL') ? HELPMATE_URL : '',
 		));
 
 
@@ -182,6 +183,7 @@ class Helpmate_Admin
 						'nonce' => wp_create_nonce('wp_rest'),
 						'site_url' => get_site_url(),
 						'rest_url' => rest_url('helpmate/v1'),
+						'plugin_url' => defined('HELPMATE_URL') ? HELPMATE_URL : '',
 					));
 					add_filter('wp_script_attributes', array($this, 'add_type_attribute'), 10, 1);
 				}

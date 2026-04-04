@@ -26,8 +26,11 @@ import {
 import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
 import { useSettings } from '@/hooks/useSettings';
-import { useWooCommerce } from '@/hooks/useWooCommerce';
+import api from '@/lib/axios';
+import { resolveCommerceIntegration } from '@/pages/control-center/integrations/commerce/resolve-commerce';
+import type { CommerceIntegrationConfig } from '@/pages/control-center/integrations/commerce/types';
 import { MenuItem } from '@/types';
+import { useQuery } from '@tanstack/react-query';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RefreshCw, SquarePen } from 'lucide-react';
 import {
@@ -243,7 +246,59 @@ export function DataSourceContent() {
   const { getSourcesMutation, addSourceMutation, updateSourceMutation } =
     useDataSource();
   const { getProQuery } = useSettings();
-  const { isWooCommerceInstalled } = useWooCommerce();
+  const commerceConfigQuery = useQuery<Partial<CommerceIntegrationConfig>, Error>({
+    queryKey: ['settings', 'commerce_integration', 'data-source'],
+    queryFn: async () => {
+      const response = await api.get('/settings/commerce_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+  const eddInstalledQuery = useQuery<{ installed: boolean }, Error>({
+    queryKey: ['integration-edd-installed', 'data-source'],
+    queryFn: async () => {
+      const response = await api.get('/check-easy-digital-downloads');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+  });
+  const wooInstalledQuery = useQuery<{ installed: boolean }, Error>({
+    queryKey: ['integration-woo-installed', 'data-source'],
+    queryFn: async () => {
+      const response = await api.get('/check-woocommerce');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+  });
+  const surecartInstalledQuery = useQuery<{ installed: boolean }, Error>({
+    queryKey: ['integration-surecart-installed', 'data-source'],
+    queryFn: async () => {
+      const response = await api.get('/check-surecart');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+  });
+  const commerceDataReady =
+    commerceConfigQuery.isFetched &&
+    eddInstalledQuery.isFetched &&
+    wooInstalledQuery.isFetched &&
+    surecartInstalledQuery.isFetched;
+  const resolvedCommerce = useMemo((): CommerceIntegrationConfig | null => {
+    if (!commerceDataReady) return null;
+    return resolveCommerceIntegration(
+      commerceConfigQuery.data ?? {},
+      wooInstalledQuery.data?.installed ?? false,
+      eddInstalledQuery.data?.installed ?? false,
+      surecartInstalledQuery.data?.installed ?? false
+    );
+  }, [
+    commerceDataReady,
+    commerceConfigQuery.data,
+    wooInstalledQuery.data?.installed,
+    eddInstalledQuery.data?.installed,
+    surecartInstalledQuery.data?.installed,
+  ]);
+  const showProductsTab = Boolean(resolvedCommerce?.selected_provider);
   const [tab, setTab] = useState('WP Posts');
   const [hasGeneralContent, setHasGeneralContent] = useState(false);
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
@@ -276,7 +331,7 @@ export function DataSourceContent() {
       status: hasGeneralContent,
     });
 
-    if (isWooCommerceInstalled) {
+    if (commerceDataReady && showProductsTab) {
       baseItems.push({
         title: 'Products',
         status: hasGeneralContent,
@@ -303,7 +358,7 @@ export function DataSourceContent() {
     );
 
     return baseItems;
-  }, [hasGeneralContent, isWooCommerceInstalled]);
+  }, [hasGeneralContent, commerceDataReady, showProductsTab]);
 
   // Check if general data source has content
   useEffect(() => {

@@ -526,10 +526,22 @@ class Helpmate_Background_Processor
             }
         }
 
+        if ($post_type === 'sc_product' && isset($GLOBALS['helpmate']) && method_exists($GLOBALS['helpmate'], 'get_surecart')) {
+            $sc_info = $GLOBALS['helpmate']->get_surecart()->get_product_info($post_id);
+            if (!empty($sc_info)) {
+                $metadata['surecart_product'] = $sc_info;
+            }
+        }
+
         // For products, use product name and description as title and content
         if ($post_type === 'product' && isset($metadata['product'])) {
             $title = $metadata['product']['name'];
             $content = $metadata['product']['description'] ?: $post->post_content;
+        } elseif ($post_type === 'sc_product' && !empty($metadata['surecart_product']['name'])) {
+            $title = $metadata['surecart_product']['name'];
+            $content = !empty($metadata['surecart_product']['description'])
+                ? $metadata['surecart_product']['description']
+                : $post->post_content;
         } else {
             $title = get_the_title($post);
             $content = $post->post_content;

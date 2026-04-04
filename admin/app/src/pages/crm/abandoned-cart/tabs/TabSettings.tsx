@@ -38,6 +38,7 @@ import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown, Plus } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -194,6 +195,17 @@ export default function TabSettings() {
   const { useEmailTemplates } = useCrm();
   const { data: emailTemplates, isLoading: isLoadingTemplates } = useEmailTemplates();
   const { setPage } = useMain();
+
+  const commerceIntegrationQuery = useQuery({
+    queryKey: ['settings', 'commerce_integration'],
+    queryFn: async () => {
+      const response = await api.get('/settings/commerce_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+  const isSureCartPrimary =
+    commerceIntegrationQuery.data?.selected_provider === 'surecart';
 
   const {
     mutate: getSettings,
@@ -388,6 +400,25 @@ export default function TabSettings() {
                   </div>
                 ) : (
                   <>
+                    {isSureCartPrimary && (
+                      <div
+                        role="note"
+                        className="p-4 space-y-2 text-sm rounded-lg border bg-muted/50 border-border"
+                      >
+                        <p className="font-medium">SureCart is your primary store</p>
+                        <p>
+                          The first abandoned-cart recovery email is sent by SureCart.
+                          &quot;Abandoned Cart After&quot; applies to WooCommerce / EDD carts
+                          captured in Helpmate—not to SureCart abandonment timing. Mirrored SureCart
+                          rows use SureCart&apos;s abandoned time for Helpmate follow-up delays.
+                        </p>
+                        <p>
+                          The CRM template selected here is for{' '}
+                          <strong>manual</strong> sends from the Abandoned Carts list; follow-ups use
+                          their own templates in the Follow-up tab.
+                        </p>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-6 max-md:grid-cols-1">
                       <FormField
                         control={form.control}

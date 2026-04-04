@@ -707,10 +707,9 @@ class Helpmate_Forminator_Integration
 		$list = implode(', ', $labels);
 
 		/* translators: %s: Comma-separated list of field labels the visitor should complete. */
-		return sprintf(
-			__('Please complete or correct the following: %s.', 'helpmate-ai-chatbot'),
-			$list
-		);
+		$format = __('Please complete or correct the following: %s.', 'helpmate-ai-chatbot');
+
+		return sprintf($format, $list);
 	}
 
 	private function append_submit_error(array $submit_errors, $message)

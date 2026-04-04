@@ -993,7 +993,7 @@ class Helpmate_CRM
     }
 
     /**
-     * Get orders for a contact (WooCommerce + manual).
+     * Get orders for a contact (WooCommerce + EDD + SureCart + manual).
      *
      * @since    1.3.0
      * @param    int    $contact_id    The contact ID.
@@ -1008,10 +1008,34 @@ class Helpmate_CRM
 
         $orders = [];
 
-        // Get WooCommerce orders
-        $woo_orders = $this->get_woocommerce_orders_by_contact($contact_id);
-        foreach ($woo_orders as $order) {
-            $orders[] = array_merge($order, ['order_type' => 'woocommerce']);
+        $primary = method_exists($this->helpmate, 'get_primary_commerce_provider')
+            ? $this->helpmate->get_primary_commerce_provider()
+            : '';
+
+        // Provider-specific orders: only list the active primary commerce (avoid Woo rows on SureCart-primary sites).
+        $include_woo = ('' === $primary || 'woocommerce' === $primary) && class_exists('WooCommerce');
+        $include_edd = ('' === $primary || 'easy_digital_downloads' === $primary) && function_exists('edd_get_orders');
+        $include_sc = ('' === $primary || 'surecart' === $primary) && class_exists('\SureCart\Models\Order');
+
+        if ($include_woo) {
+            $woo_orders = $this->get_woocommerce_orders_by_contact($contact_id);
+            foreach ($woo_orders as $order) {
+                $orders[] = array_merge($order, ['order_type' => 'woocommerce']);
+            }
+        }
+
+        if ($include_edd) {
+            $edd_orders = $this->get_edd_orders_by_contact($contact_id);
+            foreach ($edd_orders as $order) {
+                $orders[] = array_merge($order, ['order_type' => 'easy_digital_downloads']);
+            }
+        }
+
+        if ($include_sc) {
+            $sc_orders = $this->get_surecart_orders_by_contact($contact_id);
+            foreach ($sc_orders as $order) {
+                $orders[] = array_merge($order, ['order_type' => 'surecart']);
+            }
         }
 
         // Get manual orders
@@ -1104,6 +1128,442 @@ class Helpmate_CRM
         }
 
         return $orders;
+    }
+
+    /**
+     * Build a short plain-text line summary for CRM orders table (EDD).
+     *
+     * @since    2.0.3
+     * @param    int    $order_id    EDD order ID.
+     * @param    object $order       Order object from edd_get_orders.
+     * @return   string Summary or empty string.
+     */
+    private function format_edd_order_product_summary(int $order_id, $order): string
+    {
+        $lines = [];
+
+        $order_items = [];
+        if (is_object($order) && method_exists($order, 'get_items')) {
+            $order_items = $order->get_items();
+        } elseif ($order_id > 0 && function_exists('edd_get_order_items')) {
+            $order_items = edd_get_order_items(
+                [
+                    'order_id' => $order_id,
+                    'number' => 200,
+                    'orderby' => 'cart_index',
+                    'order' => 'ASC',
+                    'no_found_rows' => true,
+                ]
+            );
+        }
+
+        if (is_array($order_items)) {
+            foreach ($order_items as $item) {
+                $type = isset($item->type) ? (string) $item->type : '';
+                if (in_array($type, ['fee', 'discount'], true)) {
+                    continue;
+                }
+                $quantity = isset($item->quantity) ? (int) $item->quantity : 0;
+                $product_id = isset($item->product_id) ? (int) $item->product_id : 0;
+                if ($quantity < 1 && $product_id > 0) {
+                    $quantity = 1;
+                }
+                if ($quantity < 1) {
+                    continue;
+                }
+                $name = isset($item->product_name) ? (string) $item->product_name : '';
+                $lines[] = [
+                    'name' => $name,
+                    'qty' => $quantity,
+                ];
+            }
+        }
+
+        if (empty($lines) && isset($order->cart_details) && is_array($order->cart_details)) {
+            foreach ($order->cart_details as $row) {
+                $name = isset($row['name']) ? (string) $row['name'] : '';
+                $quantity = isset($row['quantity']) ? (int) $row['quantity'] : 1;
+                if ($quantity < 1) {
+                    $quantity = 1;
+                }
+                $lines[] = [
+                    'name' => $name,
+                    'qty' => $quantity,
+                ];
+            }
+        }
+
+        if (empty($lines)) {
+            if ($order_id > 0 && function_exists('edd_count_order_items')) {
+                $item_count = (int) edd_count_order_items(
+                    [
+                        'order_id' => $order_id,
+                        'type__in' => ['download'],
+                    ]
+                );
+                if ($item_count < 1) {
+                    $item_count = (int) edd_count_order_items(
+                        [
+                            'order_id' => $order_id,
+                        ]
+                    );
+                }
+                if ($item_count > 0) {
+                    return sprintf(
+                        /* translators: %d: number of line items in the order */
+                        _n('%d item', '%d items', $item_count, 'helpmate-ai-chatbot'),
+                        $item_count
+                    );
+                }
+            }
+            return '';
+        }
+
+        $max_show = 3;
+        $parts = [];
+        $slice = array_slice($lines, 0, $max_show);
+        foreach ($slice as $line) {
+            $label = $line['name'] !== ''
+                ? wp_strip_all_tags($line['name'])
+                : __('Product', 'helpmate-ai-chatbot');
+            $parts[] = sprintf(
+                /* translators: 1: product name, 2: quantity */
+                __('%1$s × %2$d', 'helpmate-ai-chatbot'),
+                $label,
+                $line['qty']
+            );
+        }
+
+        $remaining = count($lines) - count($slice);
+        if ($remaining > 0) {
+            $parts[] = sprintf(
+                /* translators: %d: number of additional order line items not shown */
+                __('+%d more', 'helpmate-ai-chatbot'),
+                $remaining
+            );
+        }
+
+        $summary = implode(', ', $parts);
+        $total_units = 0;
+        foreach ($lines as $line) {
+            $total_units += (int) $line['qty'];
+        }
+        $line_count = count($lines);
+
+        if ($line_count > 1) {
+            $summary .= ' — ' . sprintf(
+                /* translators: 1: number of distinct line items, 2: sum of quantities */
+                __('%1$d products, %2$d total qty', 'helpmate-ai-chatbot'),
+                $line_count,
+                $total_units
+            );
+        }
+
+        return $summary;
+    }
+
+    /**
+     * Get Easy Digital Downloads orders for a contact.
+     *
+     * @since    2.0.3
+     * @param    int    $contact_id    The contact ID.
+     * @return   array    The EDD orders.
+     */
+    public function get_edd_orders_by_contact(int $contact_id): array
+    {
+        if (!function_exists('edd_get_orders')) {
+            return [];
+        }
+
+        $contact = $this->get_contact($contact_id);
+        if (!$contact) {
+            return [];
+        }
+
+        $orders = [];
+
+        $crm = $this;
+        $collect_orders = function (array $args) use (&$orders, $crm) {
+            $query_args = array_merge([
+                'number' => 200,
+                'orderby' => 'date_created',
+                'order' => 'DESC',
+            ], $args);
+
+            $fetched_orders = edd_get_orders($query_args);
+            if (!is_array($fetched_orders)) {
+                return;
+            }
+
+            foreach ($fetched_orders as $order) {
+                $order_id = (int) ($order->id ?? 0);
+                if ($order_id <= 0) {
+                    continue;
+                }
+
+                $already_added = false;
+                foreach ($orders as $existing) {
+                    if ((int) ($existing['id'] ?? 0) === $order_id) {
+                        $already_added = true;
+                        break;
+                    }
+                }
+                if ($already_added) {
+                    continue;
+                }
+
+                $total = '';
+                if (isset($order->total) && $order->total !== null) {
+                    $total = (string) $order->total;
+                } elseif (isset($order->subtotal) && $order->subtotal !== null) {
+                    $total = (string) $order->subtotal;
+                }
+
+                $status = isset($order->status) ? (string) $order->status : '';
+                $currency = isset($order->currency) ? (string) $order->currency : '';
+                $date_created = isset($order->date_created) ? (string) $order->date_created : '';
+                if (empty($date_created) && isset($order->date_created_gmt)) {
+                    $date_created = (string) $order->date_created_gmt;
+                }
+
+                $orders[] = [
+                    'id' => $order_id,
+                    'order_number' => (string) ($order->number ?? $order_id),
+                    'status' => $status,
+                    'total' => $total,
+                    'currency' => $currency,
+                    'date_created' => $date_created,
+                    'edit_url' => admin_url('edit.php?post_type=download&page=edd-payment-history&view=view-order-details&id=' . $order_id),
+                    'product_summary' => $crm->format_edd_order_product_summary($order_id, $order),
+                ];
+            }
+        };
+
+        // Primary strategy: Match by WP user ID.
+        if (!empty($contact['wp_user_id'])) {
+            $collect_orders(['user_id' => (int) $contact['wp_user_id']]);
+        }
+
+        // Fallback: Match by email.
+        if (!empty($contact['email'])) {
+            $collect_orders(['email' => $contact['email']]);
+        }
+
+        return $orders;
+    }
+
+    /**
+     * Rows from SureCart Order::paginate() (Collection uses __get('data') without __isset).
+     *
+     * @param mixed $page_result Paginate result or list.
+     * @return array<int, mixed>
+     */
+    private function crm_surecart_extract_paginate_list($page_result): array
+    {
+        if (is_wp_error($page_result)) {
+            return array();
+        }
+        if (is_array($page_result)) {
+            return $page_result;
+        }
+        if (!is_object($page_result)) {
+            return array();
+        }
+        $raw = null;
+        if (method_exists($page_result, 'getAttribute')) {
+            $raw = $page_result->getAttribute('data');
+        }
+        if (!is_array($raw)) {
+            $raw = $page_result->data;
+        }
+
+        return is_array($raw) ? $raw : array();
+    }
+
+    /**
+     * Get SureCart orders for a contact (WP user or email → customer id).
+     *
+     * @since 2.0.5
+     * @param int $contact_id Contact ID.
+     * @return array<int, array<string, mixed>>
+     */
+    public function get_surecart_orders_by_contact(int $contact_id): array
+    {
+        if (!class_exists('\SureCart\Models\Order')) {
+            return [];
+        }
+
+        $contact = $this->get_contact($contact_id);
+        if (!$contact) {
+            return [];
+        }
+
+        $customer_ids = array();
+
+        if (!empty($contact['wp_user_id']) && class_exists('\SureCart\Models\User')) {
+            try {
+                $sc_user = \SureCart\Models\User::find((int) $contact['wp_user_id']);
+                if (!is_wp_error($sc_user) && is_object($sc_user)) {
+                    $customer_ids = array_values(
+                        array_filter(
+                            (array) $sc_user->customerIds(),
+                            static function ($id) {
+                                return null !== $id && '' !== $id;
+                            }
+                        )
+                    );
+                    if (empty($customer_ids)) {
+                        $linked = $sc_user->getOrCreateLiveCustomerId();
+                        if (!is_wp_error($linked) && !empty($linked)) {
+                            $customer_ids = array_values(
+                                array_filter(
+                                    (array) $sc_user->customerIds(),
+                                    static function ($id) {
+                                        return null !== $id && '' !== $id;
+                                    }
+                                )
+                            );
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                $customer_ids = array();
+            }
+        }
+
+        if (empty($customer_ids) && !empty($contact['email']) && class_exists('\SureCart\Models\Customer')) {
+            try {
+                $email_lower = strtolower(trim((string) $contact['email']));
+                $c = \SureCart\Models\Customer::where(
+                    array(
+                        'email' => $email_lower,
+                        'live_mode' => true,
+                    )
+                )->first();
+                if ((is_wp_error($c) || !is_object($c) || empty($c->id)) && $email_lower !== '') {
+                    $c = \SureCart\Models\Customer::where(
+                        array(
+                            'email' => $email_lower,
+                            'live_mode' => false,
+                        )
+                    )->first();
+                }
+                if (!is_wp_error($c) && is_object($c) && !empty($c->id)) {
+                    $customer_ids[] = $c->id;
+                }
+            } catch (\Throwable $e) {
+                $customer_ids = array();
+            }
+        }
+
+        $customer_ids = array_values(
+            array_unique(
+                array_filter(
+                    array_map('strval', $customer_ids),
+                    static function ($v) {
+                        return $v !== '';
+                    }
+                )
+            )
+        );
+
+        if (empty($customer_ids)) {
+            return array();
+        }
+
+        $out = array();
+        $seen = array();
+
+        try {
+            $page = 1;
+            $per_page = 100;
+            $max_pages = 25;
+            while ($page <= $max_pages) {
+                $query = \SureCart\Models\Order::where(
+                    array(
+                        'customer_ids' => $customer_ids,
+                    )
+                )->with(array('checkout'));
+
+                $page_result = $query->paginate(
+                    array(
+                        'per_page' => $per_page,
+                        'page' => $page,
+                    )
+                );
+
+                if (is_wp_error($page_result)) {
+                    break;
+                }
+
+                $list = $this->crm_surecart_extract_paginate_list($page_result);
+
+                if (empty($list)) {
+                    break;
+                }
+
+                foreach ($list as $order) {
+                    if (!is_object($order)) {
+                        continue;
+                    }
+                    $oid = isset($order->id) ? (string) $order->id : '';
+                    if ($oid === '' || isset($seen[ $oid ])) {
+                        continue;
+                    }
+                    $seen[ $oid ] = true;
+
+                    $number = isset($order->number) && (string) $order->number !== ''
+                        ? (string) $order->number
+                        : $oid;
+                    $status = isset($order->status) ? (string) $order->status : '';
+                    $date_created = '';
+                    if (!empty($order->created_at_date)) {
+                        $date_created = (string) $order->created_at_date;
+                    } elseif (!empty($order->created_at)) {
+                        $ts = (int) $order->created_at;
+                        if ($ts > 0) {
+                            $date_created = gmdate('Y-m-d H:i:s', $ts);
+                        }
+                    }
+
+                    $checkout = (isset($order->checkout) && is_object($order->checkout)) ? $order->checkout : null;
+                    $currency = $checkout && isset($checkout->currency) ? (string) $checkout->currency : '';
+                    $minor = $checkout && isset($checkout->total_amount) ? (int) $checkout->total_amount : 0;
+                    $zd = $checkout && !empty($checkout->is_zero_decimal);
+                    $total_float = $zd ? (float) $minor : (float) round($minor / 100, 2);
+                    $total = (string) $total_float;
+
+                    $edit_url = add_query_arg(
+                        array(
+                            'page' => 'sc-orders',
+                            'action' => 'edit',
+                            'id' => $oid,
+                        ),
+                        admin_url('admin.php')
+                    );
+
+                    $out[] = array(
+                        'id' => $oid,
+                        'order_number' => $number,
+                        'status' => $status,
+                        'total' => $total,
+                        'currency' => $currency,
+                        'date_created' => $date_created,
+                        'edit_url' => $edit_url,
+                        'product_summary' => '',
+                    );
+                }
+
+                if (count($list) < $per_page) {
+                    break;
+                }
+                ++$page;
+            }
+        } catch (\Throwable $e) {
+            return array();
+        }
+
+        return $out;
     }
 
     /**

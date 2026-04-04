@@ -628,10 +628,9 @@ class Helpmate_WPForms_Integration
 		$list = implode(', ', $labels);
 
 		/* translators: %s: Comma-separated list of field labels the visitor should complete. */
-		return sprintf(
-			__('Please complete or correct the following: %s.', 'helpmate-ai-chatbot'),
-			$list
-		);
+		$format = __('Please complete or correct the following: %s.', 'helpmate-ai-chatbot');
+
+		return sprintf($format, $list);
 	}
 
 	private function is_pro_action($action)

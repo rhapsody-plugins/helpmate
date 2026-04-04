@@ -36,6 +36,7 @@ declare global {
       nonce: string;
       site_url: string;
       rest_url: string;
+      plugin_url?: string;
     };
   }
 }

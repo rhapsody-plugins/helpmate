@@ -447,6 +447,44 @@ export function useCrm() {
     });
   };
 
+  // Get EDD new order URL
+  const useEddNewOrderUrl = () => {
+    return useQuery({
+      queryKey: ['edd-new-order-url'],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          url: string;
+        }>('/crm/edd/new-order-url');
+        if (response.data.error) {
+          throw new Error('Failed to get EDD new order URL');
+        }
+        return response.data.url;
+      },
+      enabled: false,
+      retry: false,
+    });
+  };
+
+  // SureCart: admin orders hub (no separate "new order" flow in WP admin).
+  const useSureCartNewOrderUrl = () => {
+    return useQuery({
+      queryKey: ['surecart-new-order-url'],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          url: string;
+        }>('/crm/surecart/new-order-url');
+        if (response.data.error) {
+          throw new Error('Failed to get SureCart orders URL');
+        }
+        return response.data.url;
+      },
+      enabled: false,
+      retry: false,
+    });
+  };
+
   // Get contact statuses
   const useContactStatuses = () => {
     return useQuery({
@@ -1147,6 +1185,8 @@ export function useCrm() {
     updateManualOrderMutation,
     deleteManualOrderMutation,
     useWooCommerceNewOrderUrl,
+    useEddNewOrderUrl,
+    useSureCartNewOrderUrl,
     // Statuses
     useContactStatuses,
     addStatusMutation,

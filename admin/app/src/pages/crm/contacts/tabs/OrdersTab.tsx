@@ -20,13 +20,23 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useCrm } from '@/hooks/useCrm';
-import { ManualOrder, Order, WooCommerceOrder } from '@/types/crm';
+import api from '@/lib/axios';
+import { resolveCommerceIntegration } from '@/pages/control-center/integrations/commerce/resolve-commerce';
+import type { CommerceIntegrationConfig } from '@/pages/control-center/integrations/commerce/types';
+import {
+  EddOrder,
+  ManualOrder,
+  Order,
+  SureCartOrder,
+  WooCommerceOrder,
+} from '@/types/crm';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDistanceToNow } from 'date-fns';
-import { ExternalLink, ShoppingBag } from 'lucide-react';
+import { ExternalLink, Loader2, Package, ShoppingBag } from 'lucide-react';
 import { defaultLocale } from '../utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { manualOrderFormSchema, type ManualOrderFormData } from '../schemas';
 import { parseUTCDate } from '../utils';
@@ -69,6 +79,8 @@ export function OrdersTab({ contactId }: OrdersTabProps) {
     useContactOrders,
     createManualOrderMutation,
     useWooCommerceNewOrderUrl,
+    useEddNewOrderUrl,
+    useSureCartNewOrderUrl,
   } = useCrm();
   const { data: orders, isLoading } = useContactOrders(
     contactId,
@@ -76,6 +88,72 @@ export function OrdersTab({ contactId }: OrdersTabProps) {
   );
   const { data: wooCommerceNewOrderUrl, refetch: fetchWooCommerceUrl } =
     useWooCommerceNewOrderUrl();
+  const { data: eddNewOrderUrl, refetch: fetchEddNewOrderUrl } = useEddNewOrderUrl();
+  const { data: sureCartOrdersUrl, refetch: fetchSureCartOrdersUrl } =
+    useSureCartNewOrderUrl();
+  const commerceConfigQuery = useQuery<Partial<CommerceIntegrationConfig>, Error>({
+    queryKey: ['settings', 'commerce_integration'],
+    queryFn: async () => {
+      const response = await api.get('/settings/commerce_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+  const eddInstalledQuery = useQuery<{ installed: boolean }, Error>({
+    queryKey: ['integration-edd-installed'],
+    queryFn: async () => {
+      const response = await api.get('/check-easy-digital-downloads');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+  });
+  const wooInstalledQuery = useQuery<{ installed: boolean }, Error>({
+    queryKey: ['integration-woo-installed'],
+    queryFn: async () => {
+      const response = await api.get('/check-woocommerce');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+  });
+  const surecartInstalledQuery = useQuery<{ installed: boolean }, Error>({
+    queryKey: ['integration-surecart-installed'],
+    queryFn: async () => {
+      const response = await api.get('/check-surecart');
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const commerceDataReady =
+    commerceConfigQuery.isFetched &&
+    eddInstalledQuery.isFetched &&
+    wooInstalledQuery.isFetched &&
+    surecartInstalledQuery.isFetched;
+
+  const resolvedCommerce = useMemo((): CommerceIntegrationConfig | null => {
+    if (!commerceDataReady) return null;
+    return resolveCommerceIntegration(
+      commerceConfigQuery.data ?? {},
+      wooInstalledQuery.data?.installed ?? false,
+      eddInstalledQuery.data?.installed ?? false,
+      surecartInstalledQuery.data?.installed ?? false
+    );
+  }, [
+    commerceDataReady,
+    commerceConfigQuery.data,
+    wooInstalledQuery.data?.installed,
+    eddInstalledQuery.data?.installed,
+    surecartInstalledQuery.data?.installed,
+  ]);
+
+  const effectiveProvider = resolvedCommerce?.selected_provider ?? '';
+  const isEddSelected = effectiveProvider === 'easy_digital_downloads';
+  const isSureCartSelected = effectiveProvider === 'surecart';
+  const canCreateProviderOrder =
+    commerceDataReady &&
+    (effectiveProvider === 'woocommerce' ||
+      effectiveProvider === 'easy_digital_downloads' ||
+      effectiveProvider === 'surecart');
   const [showAddOrder, setShowAddOrder] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -116,7 +194,38 @@ export function OrdersTab({ contactId }: OrdersTabProps) {
     );
   };
 
-  const handleAddWooCommerceOrder = async () => {
+  const handleAddProviderOrder = async () => {
+    if (!canCreateProviderOrder) return;
+    if (effectiveProvider === 'surecart') {
+      try {
+        const result = await fetchSureCartOrdersUrl();
+        const url = result.data || sureCartOrdersUrl;
+        if (url) {
+          window.location.href = url;
+          return;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      window.location.href = `${window.location.origin}/wp-admin/admin.php?page=sc-orders`;
+      return;
+    }
+    if (effectiveProvider === 'easy_digital_downloads') {
+      try {
+        const result = await fetchEddNewOrderUrl();
+        const url = result.data || eddNewOrderUrl;
+        if (url) {
+          window.location.href = url;
+          return;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+      const fallbackUrl = `${window.location.origin}/wp-admin/edit.php?post_type=download&page=edd-payment-history&view=add-order`;
+      window.location.href = fallbackUrl;
+      return;
+    }
+
     try {
       const result = await fetchWooCommerceUrl();
       const url = result.data || wooCommerceNewOrderUrl;
@@ -139,11 +248,15 @@ export function OrdersTab({ contactId }: OrdersTabProps) {
       header: 'Order #',
       cell: ({ row }) => {
         const isManual = row.original.order_type === 'manual';
+        const isEdd = row.original.order_type === 'easy_digital_downloads';
+        const isSc = row.original.order_type === 'surecart';
         return (
           <div className="flex gap-2 items-center font-medium">
-            {!isManual && (
+            {!isManual && !isEdd && !isSc && (
               <WooCommerceIcon className="!w-5 !h-5 text-muted-foreground" />
             )}
+            {isEdd && <ShoppingBag className="!w-4 !h-4 text-muted-foreground" />}
+            {isSc && <Package className="!w-4 !h-4 text-muted-foreground" />}
             {isManual ? row.original.order_number : `#${row.original.order_number}`}
           </div>
         );
@@ -152,11 +265,18 @@ export function OrdersTab({ contactId }: OrdersTabProps) {
     {
       accessorKey: 'order_type',
       header: 'Type',
-      cell: ({ row }) => (
-        <Badge variant={row.original.order_type === 'manual' ? 'secondary' : 'default'}>
-          {row.original.order_type === 'manual' ? 'Manual' : 'WooCommerce'}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        if (row.original.order_type === 'manual') {
+          return <Badge variant="secondary">Manual</Badge>;
+        }
+        if (row.original.order_type === 'easy_digital_downloads') {
+          return <Badge variant="default">EDD</Badge>;
+        }
+        if (row.original.order_type === 'surecart') {
+          return <Badge variant="default">SureCart</Badge>;
+        }
+        return <Badge variant="default">WooCommerce</Badge>;
+      },
     },
     {
       id: 'product',
@@ -170,6 +290,18 @@ export function OrdersTab({ contactId }: OrdersTabProps) {
               {manualOrder.product_name} × {manualOrder.quantity}
             </span>
           );
+        }
+        if (row.original.order_type === 'easy_digital_downloads') {
+          const edd = row.original as EddOrder;
+          if (edd.product_summary) {
+            return <span className="text-sm">{edd.product_summary}</span>;
+          }
+        }
+        if (row.original.order_type === 'surecart') {
+          const sc = row.original as SureCartOrder;
+          if (sc.product_summary) {
+            return <span className="text-sm">{sc.product_summary}</span>;
+          }
         }
         return <span className="text-sm text-muted-foreground">-</span>;
       },
@@ -189,13 +321,15 @@ export function OrdersTab({ contactId }: OrdersTabProps) {
       cell: ({ row }) => {
         const isManual = row.original.order_type === 'manual';
         const manualOrder = isManual ? (row.original as ManualOrder) : null;
-        const wooOrder = !isManual ? (row.original as WooCommerceOrder) : null;
+        const providerOrder = !isManual
+          ? (row.original as WooCommerceOrder | EddOrder | SureCartOrder)
+          : null;
 
         return formatDistanceToNow(
           isManual && manualOrder
             ? parseUTCDate(manualOrder.order_date)
-            : wooOrder
-            ? parseUTCDate(wooOrder.date_created)
+            : providerOrder
+            ? parseUTCDate(providerOrder.date_created)
             : new Date(),
           { addSuffix: true, locale: defaultLocale }
         );
@@ -208,11 +342,14 @@ export function OrdersTab({ contactId }: OrdersTabProps) {
       cell: ({ row }) => {
         const isManual = row.original.order_type === 'manual';
         if (!isManual) {
-          const wooOrder = row.original as WooCommerceOrder;
+          const providerOrder = row.original as
+            | WooCommerceOrder
+            | EddOrder
+            | SureCartOrder;
           return (
             <div className="flex gap-1 justify-end" onClick={(e) => e.stopPropagation()}>
               <a
-                href={wooOrder.edit_url}
+                href={providerOrder.edit_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex justify-center items-center w-8 h-8 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -237,12 +374,34 @@ export function OrdersTab({ contactId }: OrdersTabProps) {
             </CardTitle>
             <div className="flex gap-2">
               <Button
-                onClick={handleAddWooCommerceOrder}
+                onClick={handleAddProviderOrder}
                 size="sm"
                 variant="outline"
+                disabled={!commerceDataReady || !canCreateProviderOrder}
               >
-                <WooCommerceIcon className="!w-6 !h-6" />
-                Create WooCommerce Order
+                {!commerceDataReady ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading…
+                  </>
+                ) : !canCreateProviderOrder ? (
+                  <>No commerce platform</>
+                ) : isSureCartSelected ? (
+                  <>
+                    <Package className="w-4 h-4" />
+                    Open SureCart Orders
+                  </>
+                ) : isEddSelected ? (
+                  <>
+                    <ShoppingBag className="w-4 h-4" />
+                    Create EDD Order
+                  </>
+                ) : (
+                  <>
+                    <WooCommerceIcon className="!w-6 !h-6" />
+                    Create WooCommerce Order
+                  </>
+                )}
               </Button>
               <Button onClick={() => setShowAddOrder(true)} size="sm">
                 <ShoppingBag className="w-4 h-4" />

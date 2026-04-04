@@ -13,6 +13,8 @@ export const useSettings = () => {
       api: false,
       is_pro: false,
       is_woocommerce_active: false,
+      image_search_operational: false,
+      sales_notification_commerce_active: false,
       modules: {},
       customization: {},
       proactive_sales_products: [],

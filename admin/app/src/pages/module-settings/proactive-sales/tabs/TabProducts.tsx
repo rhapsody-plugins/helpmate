@@ -17,6 +17,50 @@ import { DiscountedProduct } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+const SVG_THUMB_PLACEHOLDER =
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>'
+  );
+
+function discountedProductPlaceholderUrl(): string {
+  const base =
+    typeof window !== 'undefined'
+      ? window.helpmateApiSettings?.plugin_url
+      : undefined;
+  if (base) {
+    return `${base}assets/images/product-placeholder.svg`;
+  }
+  return SVG_THUMB_PLACEHOLDER;
+}
+
+function DiscountedProductThumbnail({
+  name,
+  imageUrl,
+}: {
+  name: string;
+  imageUrl: string;
+}) {
+  const placeholder = discountedProductPlaceholderUrl();
+  const initial = imageUrl?.trim() ? imageUrl : placeholder;
+
+  return (
+    <img
+      src={initial}
+      alt={name}
+      className="object-cover w-10 h-10 rounded-md bg-muted"
+      onError={(e) => {
+        const el = e.currentTarget;
+        if (el.getAttribute('data-img-fallback') === '1') {
+          return;
+        }
+        el.setAttribute('data-img-fallback', '1');
+        el.src = placeholder;
+      }}
+    />
+  );
+}
+
 // ============================================================================
 // COMPONENT
 // ============================================================================
@@ -112,10 +156,9 @@ export default function TabProducts() {
         accessorKey: 'image_url',
         header: 'Image',
         cell: ({ row }) => (
-          <img
-            src={row.original.image_url}
-            alt={row.original.name}
-            className="object-cover w-10 h-10 rounded-md"
+          <DiscountedProductThumbnail
+            name={row.original.name}
+            imageUrl={row.original.image_url}
           />
         ),
       },

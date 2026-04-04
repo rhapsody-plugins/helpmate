@@ -435,10 +435,9 @@ class Helpmate_CF7_Integration
 		$list = implode(', ', $labels);
 
 		/* translators: %s: Comma-separated list of field labels the visitor should complete. */
-		return sprintf(
-			__('Please complete or correct the following: %s.', 'helpmate-ai-chatbot'),
-			$list
-		);
+		$format = __('Please complete or correct the following: %s.', 'helpmate-ai-chatbot');
+
+		return sprintf($format, $list);
 	}
 
 	private function build_payload($action, array $field_map, array $posted_data)
@@ -776,6 +775,7 @@ class Helpmate_CF7_Integration
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin screen slug for script enqueue only; not form processing.
 		$page = isset($_GET['page']) ? sanitize_key((string) wp_unslash($_GET['page'])) : '';
 		if ($page !== 'wpcf7' && $page !== 'wpcf7-new') {
 			return;
@@ -805,11 +805,28 @@ class Helpmate_CF7_Integration
 			return;
 		}
 
-		if (!isset($_POST['helpmate_cf7_present']) || (string) wp_unslash($_POST['helpmate_cf7_present']) !== '1') {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- CF7 editor save button; nonce verified below with the same action as Contact Form 7 admin.
+		if (!isset($_POST['wpcf7-save'])) {
 			return;
 		}
 
-		if (!isset($_POST['wpcf7-save'])) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Used only to build the CF7 save nonce action; verified on the following lines (same action string as Contact Form 7 admin).
+		$save_post_id = isset($_POST['post_ID']) ? absint(wp_unslash($_POST['post_ID'])) : -1;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Value passed to wp_verify_nonce() on the following lines.
+		$cf7_nonce = isset($_POST['_wpnonce']) ? sanitize_text_field((string) wp_unslash($_POST['_wpnonce'])) : '';
+		if (
+			$cf7_nonce === ''
+			|| !wp_verify_nonce($cf7_nonce, 'wpcf7-save-contact-form_' . $save_post_id)
+		) {
+			return;
+		}
+
+		if (!isset($_POST['helpmate_cf7_present'])) {
+			return;
+		}
+
+		$helpmate_present = sanitize_text_field((string) wp_unslash($_POST['helpmate_cf7_present']));
+		if ($helpmate_present !== '1') {
 			return;
 		}
 
@@ -818,9 +835,11 @@ class Helpmate_CF7_Integration
 			return;
 		}
 
-		$raw = isset($_POST['helpmate_cf7']) && is_array($_POST['helpmate_cf7'])
-			? wp_unslash($_POST['helpmate_cf7'])
-			: [];
+		$raw = [];
+		if (isset($_POST['helpmate_cf7']) && is_array($_POST['helpmate_cf7'])) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Field map and options are normalized in sanitize_cf7_helpmate_post().
+			$raw = wp_unslash($_POST['helpmate_cf7']);
+		}
 
 		$cfg = $this->sanitize_cf7_helpmate_post($contact_form, $raw);
 
@@ -950,7 +969,14 @@ class Helpmate_CF7_Integration
 		$saved_field_map = isset($saved['field_map']) && is_array($saved['field_map']) ? $saved['field_map'] : [];
 
 		$posted_field_maps = [];
-		if (isset($_POST['helpmate_cf7_present'], $_POST['helpmate_cf7']) && is_array($_POST['helpmate_cf7'])) {
+		$cf7_save_nonce_action = 'wpcf7-save-contact-form_' . (int) $contact_form->id();
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- CF7 editor nonce verified in condition; repopulating panel from POST after failed save.
+		if (
+			isset($_POST['helpmate_cf7_present'], $_POST['helpmate_cf7'], $_POST['_wpnonce'])
+			&& is_array($_POST['helpmate_cf7'])
+			&& wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), $cf7_save_nonce_action)
+		) {
 			$posted = wp_unslash($_POST['helpmate_cf7']);
 			$enabled = !empty($posted['enabled']);
 			$current_action = isset($posted['action']) ? sanitize_key((string) $posted['action']) : '';
@@ -958,6 +984,7 @@ class Helpmate_CF7_Integration
 				$posted_field_maps = $posted['field_maps'];
 			}
 		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		$cf7_fields = $this->get_scannable_form_fields_for_admin($contact_form);
 		$definitions = $this->get_action_definitions();

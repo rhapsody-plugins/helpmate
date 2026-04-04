@@ -54,11 +54,16 @@ export default function TabRequests() {
     if (!selectedRefund) return;
 
     try {
-      await updateRefundReturnMutation({
+      const data = await updateRefundReturnMutation({
         id: selectedRefund.id,
         status,
       });
       toast.success('Status updated successfully');
+      if (data?.commerce_notice) {
+        toast.warning(
+          `The request was saved, but the store order could not be updated automatically: ${data.commerce_notice}`
+        );
+      }
       getRefundReturnsMutation({
         page,
         per_page: perPage,

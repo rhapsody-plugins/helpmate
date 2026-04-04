@@ -13,20 +13,77 @@ interface AbandonedCartAnalytics {
   avg_recovery_time?: number;
 }
 
-export default function useAbandonedCart() {
-  const { getProQuery } = useSettings();
+export interface AbandonedCartsPagination {
+  page: number;
+  per_page: number;
+  total: number;
+  total_pages: number;
+}
 
-  const getAbandonedCarts = useQuery<AbandonedCartType[]>({
-    queryKey: ['abandoned-carts'],
+export interface AbandonedCartsListResult {
+  carts: AbandonedCartType[];
+  pagination: AbandonedCartsPagination;
+}
+
+export interface UseAbandonedCartListParams {
+  page?: number;
+  perPage?: number;
+  search?: string;
+  /** When false, list query does not run (e.g. contact tab before email is known). */
+  listEnabled?: boolean;
+}
+
+export default function useAbandonedCart(
+  listParams: UseAbandonedCartListParams = {}
+) {
+  const { getProQuery } = useSettings();
+  const page = listParams.page ?? 1;
+  const perPage = listParams.perPage ?? 50;
+  const search = listParams.search ?? '';
+  const listEnabled = listParams.listEnabled ?? true;
+
+  const getAbandonedCarts = useQuery<AbandonedCartsListResult>({
+    queryKey: ['abandoned-carts', page, perPage, search],
     queryFn: async () => {
-      const response = await api.get('/get-abandoned-carts');
+      const response = await api.get('/get-abandoned-carts', {
+        params: {
+          page,
+          per_page: perPage,
+          ...(search.trim() ? { search: search.trim() } : {}),
+        },
+      });
       if (!response.data.error) {
-        return response.data.abandoned_carts;
+        const p = response.data.pagination;
+        return {
+          carts: (response.data.abandoned_carts ?? []) as AbandonedCartType[],
+          pagination: {
+            page: p?.page ?? page,
+            per_page: p?.per_page ?? perPage,
+            total: p?.total ?? 0,
+            total_pages: p?.total_pages ?? 1,
+          },
+        };
       }
-      return [];
+      return {
+        carts: [],
+        pagination: {
+          page: 1,
+          per_page: perPage,
+          total: 0,
+          total_pages: 1,
+        },
+      };
     },
-    initialData: [],
-    enabled: getProQuery.data,
+    initialData: {
+      carts: [],
+      pagination: {
+        page: 1,
+        per_page: perPage,
+        total: 0,
+        total_pages: 1,
+      },
+    },
+    enabled: Boolean(getProQuery.data && listEnabled),
   });
 
   const getAnalytics = useQuery<AbandonedCartAnalytics>({
@@ -53,12 +110,25 @@ export default function useAbandonedCart() {
       id: number;
       user_id: number;
       template_id: number;
-      cart_data: string;
+      cart_data: unknown;
+      to_email?: string;
+      to_name?: string;
     }) => {
-      const response = await api.post('/abandoned-cart/send-email', data);
+      const response = await api.post('/abandoned-cart/send-email', {
+        id: data.id,
+        user_id: data.user_id,
+        template_id: data.template_id,
+        cart_data: data.cart_data,
+        ...(data.to_email ? { to_email: data.to_email } : {}),
+        ...(data.to_name ? { to_name: data.to_name } : {}),
+      });
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (res: { error?: boolean }) => {
+      if (res?.error) {
+        toast.error('Failed to send email');
+        return;
+      }
       toast.success('Email sent successfully');
       getAbandonedCarts.refetch();
     },

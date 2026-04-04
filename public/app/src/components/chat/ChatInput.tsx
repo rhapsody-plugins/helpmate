@@ -74,10 +74,20 @@ export function ChatInput({
   const { data: settings } = getSettingsQuery;
 
   // Memoize expensive computations
-  const imageSearch = useMemo(
-    () => settings?.modules?.['image-search'] ?? false,
-    [settings?.modules]
-  );
+  const imageSearch = useMemo(() => {
+    const moduleOn = Boolean(settings?.modules?.['image-search']);
+    if (!moduleOn) {
+      return false;
+    }
+    if (settings?.image_search_operational !== undefined) {
+      return Boolean(settings.image_search_operational);
+    }
+    return Boolean(settings?.is_woocommerce_active);
+  }, [
+    settings?.modules,
+    settings?.image_search_operational,
+    settings?.is_woocommerce_active,
+  ]);
   const products = useMemo(
     () => settings?.proactive_sales_products ?? [],
     [settings?.proactive_sales_products]

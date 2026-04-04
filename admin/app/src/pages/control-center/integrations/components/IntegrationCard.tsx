@@ -8,7 +8,7 @@ type IntegrationCardProps = {
   description: string;
   statusClass: string;
   statusText: string;
-  onConfigure: () => void;
+  onConfigure?: () => void;
   onLogs: () => void;
   className?: string;
 };
@@ -40,9 +40,11 @@ export default function IntegrationCard({
           </div>
         </div>
         <div className="flex flex-wrap gap-2 shrink-0">
-          <Button type="button" onClick={onConfigure}>
-            Configure
-          </Button>
+          {onConfigure ? (
+            <Button type="button" onClick={onConfigure}>
+              Configure
+            </Button>
+          ) : null}
           <Button type="button" variant="outline" onClick={onLogs}>
             <ScrollText className="size-4" />
             Logs

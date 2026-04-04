@@ -184,6 +184,7 @@ class Helpmate_Formidable_Forms_Integration
 		}
 
 		$field_map = isset($config['field_map']) && is_array($config['field_map']) ? $config['field_map'] : [];
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only reached from Formidable `frm_entries_before_create` during front-end entry processing; `item_meta` is limited to this form’s field ids in normalize_formidable_item_meta() and sanitized in build_payload().
 		$item_meta = isset($_POST['item_meta']) && is_array($_POST['item_meta']) ? wp_unslash($_POST['item_meta']) : [];
 		$posted_map = $this->normalize_formidable_item_meta($item_meta, $form_id);
 		$payload = $this->build_payload($action, $field_map, $posted_map);

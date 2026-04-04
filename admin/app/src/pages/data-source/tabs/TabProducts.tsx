@@ -18,12 +18,14 @@ import {
 import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
 import { useSettings } from '@/hooks/useSettings';
+import api from '@/lib/axios';
 import { DataSource, WordPressPost } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 
 export default function TabProducts() {
   const [products, setProducts] = useState<WordPressPost[]>([]);
@@ -69,9 +71,23 @@ export default function TabProducts() {
   const { data: bulkJobsData, refetch: refetchBulkJobs } = getBulkJobsQuery;
   const { mutate: cancelBulkJobMutate } = cancelBulkJobMutation;
   const { mutate: deleteBulkJobMutate } = deleteBulkJobMutation;
+  const commerceConfigQuery = useQuery<{ selected_provider?: string }, Error>({
+    queryKey: ['settings', 'commerce_integration', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/settings/commerce_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+  const productPostType =
+    commerceConfigQuery.data?.selected_provider === 'easy_digital_downloads'
+      ? 'download'
+      : commerceConfigQuery.data?.selected_provider === 'surecart'
+        ? 'sc_product'
+        : 'product';
 
   const fetchProducts = useCallback(() => {
-    getPostsMutate('product', {
+    getPostsMutate(productPostType, {
       onSuccess: (data) => {
         if (!data) return;
         const formattedProducts = data.map((product: WordPressPost) => ({
@@ -90,7 +106,7 @@ export default function TabProducts() {
         setProducts(formattedProducts);
       },
     });
-  }, [getPostsMutate]);
+  }, [getPostsMutate, productPostType]);
 
   useEffect(() => {
     fetchProducts();

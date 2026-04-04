@@ -90,6 +90,13 @@ export default function TabCoupons() {
       {
         accessorKey: 'date_expires',
         header: 'Expires',
+        cell: ({ getValue }) => {
+          const v = getValue();
+          if (v == null || v === '') {
+            return 'Never';
+          }
+          return String(v);
+        },
       },
       {
         accessorKey: 'usage_count',
