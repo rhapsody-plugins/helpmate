@@ -387,7 +387,7 @@ export default function TabSettings() {
               <div className="pt-4 space-y-4 border-t">
                 <div className="flex gap-2 items-center">
                   <Label className="text-base font-medium">Shortcode</Label>
-                  <InfoTooltip message="Copy this shortcode and paste it on any page or post where you want to display the scheduling form." />
+                  <InfoTooltip message="Copy this shortcode and paste it on any page or post where you want to display the scheduling form. In the block editor you can also insert the Helpmate Scheduling block from the Helpmate category—do not use the shortcode and block on the same page." />
                 </div>
                 <div className="flex gap-2 items-center">
                   <Input
@@ -407,6 +407,13 @@ export default function TabSettings() {
                     )}
                   </Button>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Gutenberg:</strong> Add the{' '}
+                  <span className="font-medium">Helpmate Scheduling</span> block
+                  (block inserter → <span className="font-medium">Helpmate</span>{' '}
+                  category). Same form as the shortcode; use only one embed type per
+                  page.
+                </p>
               </div>
 
               {/* Chatbot Button Settings Section */}

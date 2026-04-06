@@ -1,0 +1,57 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "helpmate/promo-banner",
+	"version": "1.0.0",
+	"title": "Helpmate Promo Bar",
+	"category": "helpmate",
+	"icon": "megaphone",
+	"description": "Display a Helpmate promo banner with optional style overrides.",
+	"textdomain": "helpmate-ai-chatbot",
+	"supports": {
+		"anchor": true,
+		"html": false
+	},
+	"attributes": {
+		"bannerId": {
+			"type": "number",
+			"default": 0
+		},
+		"overrideBackgroundColor": {
+			"type": "string",
+			"default": ""
+		},
+		"overrideTextColor": {
+			"type": "string",
+			"default": ""
+		},
+		"overrideTextFontSize": {
+			"type": "string",
+			"default": ""
+		},
+		"overrideButtonBackgroundColor": {
+			"type": "string",
+			"default": ""
+		},
+		"overrideButtonTextColor": {
+			"type": "string",
+			"default": ""
+		},
+		"overrideButtonTextFontSize": {
+			"type": "string",
+			"default": ""
+		},
+		"overrideCountdownBackgroundColor": {
+			"type": "string",
+			"default": ""
+		},
+		"overrideCountdownTextColor": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"editorScript": "file:../build/index.js",
+	"editorStyle": [ "helpmate-promo-banner", "helpmate-blocks-editor" ],
+	"style": "helpmate-promo-banner",
+	"viewScript": "helpmate-promo-banner"
+}

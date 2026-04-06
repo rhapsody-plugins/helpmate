@@ -546,12 +546,31 @@ class Helpmate_Promo_Banner
      * @param array $banner The banner data.
      * @return void
      */
-    public function render_promo_banner($banner) {
+    /**
+     * @param array $banner Banner row with decoded metadata array.
+     * @param array $render_options {
+     *     @type array  $metadata_overrides Merge over banner metadata (sanitized by caller).
+     *     @type string $dom_id_suffix      Optional suffix for HTML/JS banner id (unique per Elementor instance).
+     * }
+     * @return void
+     */
+    public function render_promo_banner($banner, array $render_options = array()) {
         if (!$banner || !isset($banner['metadata'])) {
             return;
         }
 
+        $render_options = wp_parse_args(
+            $render_options,
+            array(
+                'metadata_overrides' => array(),
+                'dom_id_suffix'      => '',
+            )
+        );
+
         $metadata = $banner['metadata'];
+        if (!empty($render_options['metadata_overrides']) && is_array($render_options['metadata_overrides'])) {
+            $metadata = array_merge($metadata, $render_options['metadata_overrides']);
+        }
         $current_time = time() * 1000;
         $start_time = isset($banner['start_datetime']) ? (int) $banner['start_datetime'] : null;
         $end_time = isset($banner['end_datetime']) ? (int) $banner['end_datetime'] : null;
@@ -576,8 +595,15 @@ class Helpmate_Promo_Banner
             }
         }
 
-        // Generate unique ID for this banner
-        $banner_id = 'helpmate-promo-banner-' . $banner['id'];
+        // Generate unique ID for this banner (optional suffix for multiple Elementor instances).
+        $banner_id = 'helpmate-promo-banner-' . (int) $banner['id'];
+        $suffix    = isset($render_options['dom_id_suffix']) ? (string) $render_options['dom_id_suffix'] : '';
+        if ($suffix !== '') {
+            $suffix = sanitize_html_class($suffix);
+            if ($suffix !== '') {
+                $banner_id .= '-' . $suffix;
+            }
+        }
 
         // Prepare banner data for JavaScript
         $banner_data = array(
@@ -959,6 +985,17 @@ class Helpmate_Promo_Banner
             return;
         }
 
+        $current_page_id = get_the_ID();
+        if (!$current_page_id) {
+            global $wp_query;
+            if (isset($wp_query->queried_object_id)) {
+                $current_page_id = (int) $wp_query->queried_object_id;
+            }
+        }
+        if ($current_page_id && class_exists('Helpmate_Elementor_Utils') && Helpmate_Elementor_Utils::post_has_promo_embed($current_page_id)) {
+            return;
+        }
+
         global $wpdb;
         $current_time = time() * 1000;
 
@@ -976,16 +1013,6 @@ class Helpmate_Promo_Banner
 
         if (!$banners) {
             return;
-        }
-
-        // Get current page ID more reliably
-        $current_page_id = get_the_ID();
-        if (!$current_page_id) {
-            // Try to get page ID from query vars
-            global $wp_query;
-            if (isset($wp_query->queried_object_id)) {
-                $current_page_id = $wp_query->queried_object_id;
-            }
         }
 
         foreach ($banners as $banner) {

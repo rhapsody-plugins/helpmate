@@ -692,37 +692,9 @@ class Helpmate_Frontend_Routes
      */
     private function find_page_with_shortcode($shortcode)
     {
-        // Search in posts
-        $posts = get_posts(array(
-            'post_type' => array('post', 'page'),
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            's' => $shortcode,
-        ));
-
-        foreach ($posts as $post) {
-            if (has_shortcode($post->post_content, 'helpmate_scheduling')) {
-                return get_permalink($post->ID);
-            }
-        }
-
-        // Also search in post content directly (more reliable)
-        global $wpdb;
-        $shortcode_pattern = '%[helpmate_scheduling]%';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct query necessary; caching not appropriate for frequently changing data
-        $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT ID, post_type FROM {$wpdb->posts}
-            WHERE post_status = 'publish'
-            AND (post_type = 'post' OR post_type = 'page')
-            AND post_content LIKE %s
-            ORDER BY post_date DESC
-            LIMIT 1",
-            $shortcode_pattern
-        ));
-
-        if (!empty($results)) {
-            $post_id = $results[0]->ID;
-            return get_permalink($post_id);
+        if (class_exists('Helpmate_Elementor_Utils')) {
+            $url = Helpmate_Elementor_Utils::get_scheduling_landing_permalink();
+            return $url ? $url : null;
         }
 
         return null;

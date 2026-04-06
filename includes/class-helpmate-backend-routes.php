@@ -848,6 +848,38 @@ class Helpmate_Backend_Routes
             },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
+
+        register_rest_route('helpmate/v1', '/integrations/plugin-overview', array(
+            'methods' => 'GET',
+            'callback' => fn() => $this->helpmate->get_integration_plugins()->rest_plugin_overview(),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/plugins/install', array(
+            'methods' => 'POST',
+            'callback' => fn($request) => $this->helpmate->get_integration_plugins()->rest_install_plugin($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('install_plugins'),
+            'args' => array(
+                'slug' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_key',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/plugins/activate', array(
+            'methods' => 'POST',
+            'callback' => fn($request) => $this->helpmate->get_integration_plugins()->rest_activate_plugin($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('activate_plugins'),
+            'args' => array(
+                'plugin' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_text_field',
+                ),
+            ),
+        ));
         // Create default abandoned cart follow-up email templates
         register_rest_route('helpmate/v1', '/crm/abandoned-cart/create-default-followup-templates', array(
             'methods' => 'POST',
@@ -3225,33 +3257,10 @@ class Helpmate_Backend_Routes
                 $smart_scheduling_enabled = !empty($smart_scheduling['enabled']);
                 $smart_scheduling_button_text = $smart_scheduling['buttonText'] ?? 'Get Appointment';
 
-                // Find page with shortcode
+                // Find page with scheduling shortcode or Elementor widget.
                 $scheduling_page_url = null;
-                if ($smart_scheduling_enabled) {
-                    global $wpdb;
-                    $shortcode_pattern = '%[helpmate_scheduling]%';
-                    $cache_key = 'helpmate_scheduling_page_' . md5($shortcode_pattern);
-                    $results = wp_cache_get($cache_key, 'helpmate');
-
-                    if (false === $results) {
-                        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Direct query necessary for custom shortcode search
-                        $results = $wpdb->get_results($wpdb->prepare(
-                            "SELECT ID, post_type FROM {$wpdb->posts}
-                            WHERE post_status = 'publish'
-                            AND (post_type = 'post' OR post_type = 'page')
-                            AND post_content LIKE %s
-                            ORDER BY post_date DESC
-                            LIMIT 1",
-                            $shortcode_pattern
-                        ));
-                        // Cache for 1 hour
-                        wp_cache_set($cache_key, $results, 'helpmate', HOUR_IN_SECONDS);
-                    }
-
-                    if (!empty($results)) {
-                        $post_id = $results[0]->ID;
-                        $scheduling_page_url = get_permalink($post_id);
-                    }
+                if ($smart_scheduling_enabled && class_exists('Helpmate_Elementor_Utils')) {
+                    $scheduling_page_url = Helpmate_Elementor_Utils::get_scheduling_landing_permalink();
                 }
 
                 // Add default appointment starter if smart schedules is enabled
@@ -6292,32 +6301,8 @@ class Helpmate_Backend_Routes
 
                     // Get scheduling page URL
                     $smart_scheduling = $this->helpmate->get_settings()->get_setting('smart_schedules') ?? [];
-                    if (!empty($smart_scheduling['enabled'])) {
-                        // Find page with shortcode
-                        global $wpdb;
-                        $shortcode_pattern = '%[helpmate_scheduling]%';
-                        $cache_key = 'helpmate_scheduling_page_' . md5($shortcode_pattern);
-                        $results = wp_cache_get($cache_key, 'helpmate');
-
-                        if (false === $results) {
-                            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Direct query necessary for custom shortcode search
-                            $results = $wpdb->get_results($wpdb->prepare(
-                                "SELECT ID, post_type FROM {$wpdb->posts}
-                                WHERE post_status = 'publish'
-                                AND (post_type = 'post' OR post_type = 'page')
-                                AND post_content LIKE %s
-                                ORDER BY post_date DESC
-                                LIMIT 1",
-                                $shortcode_pattern
-                            ));
-                            // Cache for 1 hour
-                            wp_cache_set($cache_key, $results, 'helpmate', HOUR_IN_SECONDS);
-                        }
-
-                        if (!empty($results)) {
-                            $post_id = $results[0]->ID;
-                            $scheduling_page_url = get_permalink($post_id);
-                        }
+                    if (!empty($smart_scheduling['enabled']) && class_exists('Helpmate_Elementor_Utils')) {
+                        $scheduling_page_url = Helpmate_Elementor_Utils::get_scheduling_landing_permalink();
                     }
                 } else {
                     // Not appointment - find the conversation starter text for this payload

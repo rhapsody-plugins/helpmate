@@ -86,3 +86,30 @@ export type IntegrationRegistryItem = {
   emptySupportingText: string;
   logsDescription: string;
 };
+
+/** Keys returned by GET /integrations/plugin-overview `plugins` map. */
+export type IntegrationOverviewPluginId =
+  | IntegrationRegistryItem['id']
+  | 'woocommerce'
+  | 'easy_digital_downloads'
+  | 'surecart'
+  | 'elementor'
+  | 'beaver_builder'
+  | 'gutenberg';
+
+export type IntegrationPluginOverviewEntry = {
+  present: boolean;
+  active: boolean;
+  plugin_file: string | null;
+  wp_org_slug: string | null;
+  is_core?: boolean;
+};
+
+export type IntegrationPluginOverviewResponse = {
+  error: boolean;
+  capabilities: {
+    install_plugins: boolean;
+    activate_plugins: boolean;
+  };
+  plugins: Record<string, IntegrationPluginOverviewEntry>;
+};

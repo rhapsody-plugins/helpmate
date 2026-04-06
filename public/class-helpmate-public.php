@@ -85,6 +85,9 @@ class Helpmate_Public
 		add_filter('query_vars', array($this, 'register_unsubscribe_query_vars'));
 		add_action('template_redirect', array($this, 'handle_unsubscribe_page'));
 
+		// Register early so Elementor (and other builders) can enqueue via script/style depends before render().
+		add_action('wp_enqueue_scripts', array($this, 'register_scheduling_assets'), 1);
+
 	}
 
 	/**
@@ -92,6 +95,32 @@ class Helpmate_Public
 	 *
 	 * @since    1.0.0
 	 */
+	/**
+	 * Register Smart Schedules CSS/JS handles (enqueue when the form is rendered).
+	 *
+	 * @since 1.4.0
+	 * @return void
+	 */
+	public function register_scheduling_assets()
+	{
+		$style_url = plugin_dir_url(__FILE__) . 'css/helpmate-scheduling.css';
+		$script_url = plugin_dir_url(__FILE__) . 'js/helpmate-scheduling.js';
+		wp_register_style(
+			$this->plugin_name . '-scheduling',
+			$style_url,
+			array(),
+			$this->version,
+			'all'
+		);
+		wp_register_script(
+			$this->plugin_name . '-scheduling',
+			$script_url,
+			array('jquery'),
+			$this->version,
+			true
+		);
+	}
+
 	public function enqueue_styles()
 	{
 
@@ -252,37 +281,65 @@ class Helpmate_Public
 	 */
 	public function render_scheduling_shortcode($atts = array())
 	{
-		// Check if feature is enabled
+		return $this->get_scheduling_form_html(array());
+	}
+
+	/**
+	 * Output HTML for the Smart Schedules form (shortcode, Elementor, blocks).
+	 *
+	 * @since 1.4.0
+	 * @param array $args {
+	 *     @type string $instance_suffix Unique suffix for element IDs (alphanumeric).
+	 *     @type string $heading_text    Optional heading; empty uses default translated string.
+	 *     @type string $text_align      Optional left|center|right for root text-align.
+	 * }
+	 * @return string HTML or empty if disabled.
+	 */
+	public function get_scheduling_form_html($args = array())
+	{
+		$args = wp_parse_args(
+			$args,
+			array(
+				'instance_suffix' => '',
+				'heading_text'    => '',
+				'text_align'      => '',
+			)
+		);
+
 		$settings = $GLOBALS['helpmate']->get_settings()->get_setting('smart_schedules', array());
 
 		if (empty($settings) || empty($settings['enabled'])) {
 			return '';
 		}
 
-		// Enqueue scripts and styles
-		wp_enqueue_style(
+		wp_enqueue_style($this->plugin_name . '-scheduling');
+		wp_enqueue_script($this->plugin_name . '-scheduling');
+
+		wp_localize_script(
 			$this->plugin_name . '-scheduling',
-			plugin_dir_url(__FILE__) . 'css/helpmate-scheduling.css',
-			array(),
-			$this->version,
-			'all'
+			'helpmateScheduling',
+			array(
+				'apiUrl' => rest_url('helpmate/v1/'),
+				'nonce'  => wp_create_nonce('wp_rest'),
+			)
 		);
 
-		wp_enqueue_script(
-			$this->plugin_name . '-scheduling',
-			plugin_dir_url(__FILE__) . 'js/helpmate-scheduling.js',
-			array('jquery'),
-			$this->version,
-			true
-		);
+		$helpmate_scheduling_instance = $args['instance_suffix'];
+		if ($helpmate_scheduling_instance === '') {
+			$helpmate_scheduling_instance = 'sc-' . wp_generate_password(8, false, false);
+		}
+		$helpmate_scheduling_instance = preg_replace('/[^a-zA-Z0-9_-]/', '', $helpmate_scheduling_instance);
+		if ($helpmate_scheduling_instance === '') {
+			$helpmate_scheduling_instance = 'hm1';
+		}
 
-		// Localize script with REST API URL
-		wp_localize_script($this->plugin_name . '-scheduling', 'helpmateScheduling', array(
-			'apiUrl' => rest_url('helpmate/v1/'),
-			'nonce' => wp_create_nonce('wp_rest')
-		));
+		$helpmate_scheduling_heading = $args['heading_text'] !== '' ? $args['heading_text'] : null;
 
-		// Render form template
+		$helpmate_scheduling_text_align = '';
+		if ( in_array( $args['text_align'], array( 'left', 'center', 'right' ), true ) ) {
+			$helpmate_scheduling_text_align = $args['text_align'];
+		}
+
 		ob_start();
 		include plugin_dir_path(__FILE__) . 'partials/helpmate-scheduling-form.php';
 		return ob_get_clean();

@@ -1,3 +1,4 @@
+import Loading from '@/components/Loading';
 import PageGuard from '@/components/PageGuard';
 import PageHeader from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -12,8 +13,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import {
   isPersistedCommerceProvider,
   resolveCommerceIntegration,
@@ -27,7 +30,11 @@ import IntegrationConfigSheet from './integrations/components/IntegrationConfigS
 import IntegrationLogsSheet from './integrations/components/IntegrationLogsSheet';
 import { useIntegrationConfig } from './integrations/hooks/useIntegrationConfig';
 import { INTEGRATION_REGISTRY } from './integrations/registry';
-import type { IntegrationRegistryItem } from './integrations/types';
+import type {
+  IntegrationPluginOverviewEntry,
+  IntegrationPluginOverviewResponse,
+  IntegrationRegistryItem,
+} from './integrations/types';
 
 const COMMERCE_PROVIDER_LABELS: Record<CommerceProviderId, string> = {
   woocommerce: 'WooCommerce',
@@ -35,25 +42,75 @@ const COMMERCE_PROVIDER_LABELS: Record<CommerceProviderId, string> = {
   surecart: 'SureCart',
 };
 
-function statusClass(isFetched: boolean, installed: boolean): string {
-  if (isFetched && !installed) return 'text-destructive';
-  if (installed) return 'text-emerald-600 dark:text-emerald-500';
-  return 'text-muted-foreground';
+const PAGE_BUILDERS = [
+  {
+    overviewKey: 'elementor' as const,
+    title: 'Elementor',
+    description:
+      'Use Helpmate widgets in Elementor (e.g. scheduling, promo banner). After activating Elementor, add widgets from the Helpmate category in the editor.',
+  },
+  {
+    overviewKey: 'gutenberg' as const,
+    title: 'Gutenberg',
+    description:
+      'Helpmate registers blocks in the WordPress block editor. Edit any page or post and insert Helpmate blocks from the block inserter.',
+  },
+  {
+    overviewKey: 'beaver_builder' as const,
+    title: 'Beaver Builder',
+    description:
+      'Use Helpmate modules in Beaver Builder layouts. After activating Beaver Builder, find Helpmate modules in the module list when editing a layout.',
+  },
+] as const;
+
+function emptySheetState(): Record<IntegrationRegistryItem['id'], boolean> {
+  return Object.fromEntries(
+    INTEGRATION_REGISTRY.map((e) => [e.id, false])
+  ) as Record<IntegrationRegistryItem['id'], boolean>;
 }
 
-function statusText(isFetched: boolean, installed: boolean): string {
-  if (isFetched && !installed) return 'Plugin not detected.';
-  if (installed) return 'Ready to configure.';
-  return 'Open configure to check status.';
+function pluginEntry(
+  plugins: IntegrationPluginOverviewResponse['plugins'] | undefined,
+  key: string
+): IntegrationPluginOverviewEntry | undefined {
+  return plugins?.[key];
 }
 
-function commerceStatusText(isFetched: boolean, installed: boolean): string {
-  if (isFetched && !installed) return 'Plugin not detected.';
-  if (installed) return 'Active.';
-  return 'Checking status…';
+function statusClassForPlugin(
+  ready: boolean,
+  p: IntegrationPluginOverviewEntry | undefined
+): string {
+  if (!ready || !p) return 'text-muted-foreground';
+  if (p.is_core) return 'text-emerald-600 dark:text-emerald-500';
+  if (p.active) return 'text-emerald-600 dark:text-emerald-500';
+  if (p.present) return 'text-amber-600 dark:text-amber-500';
+  return 'text-destructive';
+}
+
+function statusTextForm(ready: boolean, p: IntegrationPluginOverviewEntry | undefined): string {
+  if (!ready || !p) return '';
+  if (p.active) return 'Ready to configure.';
+  if (p.present) return 'Installed but not active.';
+  return 'Not installed.';
+}
+
+function statusTextCommerce(ready: boolean, p: IntegrationPluginOverviewEntry | undefined): string {
+  if (!ready || !p) return '';
+  if (p.active) return 'Active.';
+  if (p.present) return 'Installed but not active.';
+  return 'Not installed.';
+}
+
+function statusTextBuilder(ready: boolean, p: IntegrationPluginOverviewEntry | undefined): string {
+  if (!ready || !p) return '';
+  if (p.is_core) return 'Available in the block editor.';
+  if (p.active) return 'Active. Use it in the builder.';
+  if (p.present) return 'Installed but not active.';
+  return 'Not installed.';
 }
 
 export default function Integrations() {
+  const queryClient = useQueryClient();
   const { updateSettingsMutation, getProQuery } = useSettings();
   const isPro = getProQuery.data ?? false;
   const [wooLogsOpen, setWooLogsOpen] = useState(false);
@@ -62,25 +119,10 @@ export default function Integrations() {
   const [commerceProviderOverride, setCommerceProviderOverride] =
     useState<CommerceProviderId | null>(null);
 
-  const [sheetOpenById, setSheetOpenById] = useState<
-    Record<IntegrationRegistryItem['id'], boolean>
-  >({
-    cf7: false,
-    forminator: false,
-    ninja_forms: false,
-    formidable_forms: false,
-    wpforms: false,
-  });
-
-  const [logsOpenById, setLogsOpenById] = useState<
-    Record<IntegrationRegistryItem['id'], boolean>
-  >({
-    cf7: false,
-    forminator: false,
-    ninja_forms: false,
-    formidable_forms: false,
-    wpforms: false,
-  });
+  const [sheetOpenById, setSheetOpenById] =
+    useState<Record<IntegrationRegistryItem['id'], boolean>>(emptySheetState);
+  const [logsOpenById, setLogsOpenById] =
+    useState<Record<IntegrationRegistryItem['id'], boolean>>(emptySheetState);
 
   const cf7 = useIntegrationConfig({
     definition: INTEGRATION_REGISTRY[0],
@@ -119,26 +161,12 @@ export default function Integrations() {
     [cf7, forminator, formidableForms, ninjaForms, wpforms]
   );
 
-  const eddInstalledQuery = useQuery<{ installed: boolean }, Error>({
-    queryKey: ['integration-edd-installed'],
+  const overviewQuery = useQuery<IntegrationPluginOverviewResponse, Error>({
+    queryKey: ['integrations-plugin-overview'],
     queryFn: async () => {
-      const response = await api.get('/check-easy-digital-downloads');
-      return response.data;
-    },
-    refetchOnWindowFocus: false,
-  });
-  const wooInstalledQuery = useQuery<{ installed: boolean }, Error>({
-    queryKey: ['integration-woo-installed'],
-    queryFn: async () => {
-      const response = await api.get('/check-woocommerce');
-      return response.data;
-    },
-    refetchOnWindowFocus: false,
-  });
-  const surecartInstalledQuery = useQuery<{ installed: boolean }, Error>({
-    queryKey: ['integration-surecart-installed'],
-    queryFn: async () => {
-      const response = await api.get('/check-surecart');
+      const response = await api.get<IntegrationPluginOverviewResponse>(
+        '/integrations/plugin-overview'
+      );
       return response.data;
     },
     refetchOnWindowFocus: false,
@@ -153,27 +181,59 @@ export default function Integrations() {
     refetchOnWindowFocus: false,
   });
 
-  const eddInstalled = eddInstalledQuery.data?.installed ?? false;
-  const wooInstalled = wooInstalledQuery.data?.installed ?? false;
-  const surecartInstalled = surecartInstalledQuery.data?.installed ?? false;
+  const installMutation = useMutation({
+    mutationFn: async (slug: string) => {
+      await api.post('/integrations/plugins/install', { slug });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['integrations-plugin-overview'] });
+      toast.success('Plugin installed. You can activate it now.');
+    },
+    onError: (err: unknown) => {
+      const msg = axios.isAxiosError(err)
+        ? String((err.response?.data as { message?: string })?.message ?? err.message)
+        : 'Installation failed';
+      toast.error(msg);
+    },
+  });
 
-  const commerceDataReady =
-    commerceConfigQuery.isFetched &&
-    eddInstalledQuery.isFetched &&
-    wooInstalledQuery.isFetched &&
-    surecartInstalledQuery.isFetched;
+  const activateMutation = useMutation({
+    mutationFn: async (plugin: string) => {
+      await api.post('/integrations/plugins/activate', { plugin });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['integrations-plugin-overview'] });
+      toast.success('Plugin activated.');
+    },
+    onError: (err: unknown) => {
+      const msg = axios.isAxiosError(err)
+        ? String((err.response?.data as { message?: string })?.message ?? err.message)
+        : 'Activation failed';
+      toast.error(msg);
+    },
+  });
+
+  const plugins = overviewQuery.data?.plugins;
+  const caps = overviewQuery.data?.capabilities;
+
+  const wooInstalled = plugins?.woocommerce?.active === true;
+  const eddInstalled = plugins?.easy_digital_downloads?.active === true;
+  const surecartInstalled = plugins?.surecart?.active === true;
+
+  const commerceDataReady = commerceConfigQuery.isSuccess;
+  const overviewReady = overviewQuery.isSuccess;
 
   const detectedProviders = useMemo((): CommerceProviderId[] => {
-    if (!commerceDataReady) return [];
+    if (!overviewReady || !plugins) return [];
     const out: CommerceProviderId[] = [];
-    if (wooInstalled) out.push('woocommerce');
-    if (eddInstalled) out.push('easy_digital_downloads');
-    if (surecartInstalled) out.push('surecart');
+    if (plugins.woocommerce?.active) out.push('woocommerce');
+    if (plugins.easy_digital_downloads?.active) out.push('easy_digital_downloads');
+    if (plugins.surecart?.active) out.push('surecart');
     return out;
-  }, [commerceDataReady, wooInstalled, eddInstalled, surecartInstalled]);
+  }, [overviewReady, plugins]);
 
   const resolvedCommerce = useMemo((): CommerceIntegrationConfig | null => {
-    if (!commerceDataReady) return null;
+    if (!commerceDataReady || !overviewReady || !plugins) return null;
     return resolveCommerceIntegration(
       commerceConfigQuery.data ?? {},
       wooInstalled,
@@ -182,10 +242,12 @@ export default function Integrations() {
     );
   }, [
     commerceDataReady,
+    overviewReady,
     commerceConfigQuery.data,
     wooInstalled,
     eddInstalled,
     surecartInstalled,
+    plugins,
   ]);
 
   const effectiveCommerceConfig = useMemo((): CommerceIntegrationConfig | null => {
@@ -197,7 +259,7 @@ export default function Integrations() {
   }, [resolvedCommerce, commerceProviderOverride]);
 
   useEffect(() => {
-    if (!commerceDataReady) return;
+    if (!commerceDataReady || !overviewReady || !plugins) return;
     if (commerceProviderOverride !== null) return;
     const incoming = commerceConfigQuery.data ?? {};
     const detectedCount =
@@ -215,6 +277,7 @@ export default function Integrations() {
     }
   }, [
     commerceDataReady,
+    overviewReady,
     commerceProviderOverride,
     wooInstalled,
     eddInstalled,
@@ -222,6 +285,7 @@ export default function Integrations() {
     commerceConfigQuery.dataUpdatedAt,
     updateSettingsMutation,
     commerceConfigQuery,
+    plugins,
   ]);
 
   const groupedFormIntegrations = useMemo(
@@ -241,196 +305,344 @@ export default function Integrations() {
     return id;
   })();
 
+  const pagePending = overviewQuery.isPending || commerceConfigQuery.isPending;
+  const pageError = overviewQuery.isError || commerceConfigQuery.isError;
+  const pageReady = overviewQuery.isSuccess && commerceConfigQuery.isSuccess;
+
+  const blockEditorUrl = `${window.location.origin}/wp-admin/post-new.php`;
+
   return (
     <PageGuard page="control-center-integrations" requiredRole="admin">
       <div className="gap-0">
         <PageHeader title="Integrations" />
-        <div className="p-6">
-          <h1 className="!text-2xl !font-bold !my-0 !py-0 !mb-4">Integrations</h1>
-          <p className="text-sm text-muted-foreground max-w-xl mb-6!">
-            Connect external plugins to Helpmate workflows by category.
-          </p>
+        {pagePending ? (
+          <div className="flex min-h-[min(70vh,32rem)] flex-col items-center justify-center p-8">
+            <Loading />
+            <p className="mt-4 text-sm text-muted-foreground">Loading integrations…</p>
+          </div>
+        ) : pageError ? (
+          <div className="flex min-h-[min(50vh,24rem)] flex-col items-center justify-center gap-4 p-8">
+            <p className="text-sm text-destructive text-center max-w-md">
+              Could not load integrations. Check your connection and try again.
+            </p>
+            <div className="flex gap-2">
+              {overviewQuery.isError ? (
+                <Button type="button" variant="outline" onClick={() => overviewQuery.refetch()}>
+                  Retry status
+                </Button>
+              ) : null}
+              {commerceConfigQuery.isError ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => commerceConfigQuery.refetch()}
+                >
+                  Retry commerce settings
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        ) : (
+          <div className="p-6">
+            <h1 className="!text-2xl !font-bold !my-0 !py-0 !mb-4">Integrations</h1>
+            <p className="text-sm text-muted-foreground max-w-xl mb-6!">
+              Connect external plugins to Helpmate workflows by category.
+            </p>
 
-          <Tabs defaultValue="commerce" className="w-full">
-            <TabsList>
-              <TabsTrigger value="commerce">Commerce</TabsTrigger>
-              <TabsTrigger value="forms">Forms</TabsTrigger>
-            </TabsList>
+            <Tabs defaultValue="commerce" className="w-full">
+              <TabsList>
+                <TabsTrigger value="commerce">Commerce</TabsTrigger>
+                <TabsTrigger value="forms">Forms</TabsTrigger>
+                <TabsTrigger value="page_builders">Page builders</TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="commerce" className="mt-6">
-              {!commerceDataReady ? (
-                <p className="text-sm text-muted-foreground mb-6">
-                  Loading commerce settings…
-                </p>
-              ) : detectedProviders.length === 0 ? (
-                <p className="text-sm text-muted-foreground mb-6">
-                  No commerce plugin detected.
-                </p>
-              ) : (
-                <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:flex-wrap">
-                  <div className="space-y-2 min-w-[min(100%,16rem)] flex-1">
-                    <Label htmlFor="commerce-provider-select">Active commerce platform</Label>
-                    <Select
-                      value={selectValue}
-                      onValueChange={(value: CommerceProviderId) =>
-                        setCommerceProviderOverride(value)
+              <TabsContent value="commerce" className="mt-6">
+                {detectedProviders.length === 0 ? (
+                  <p className="text-sm text-muted-foreground mb-6">
+                    No active commerce plugin. Install and activate WooCommerce, Easy Digital
+                    Downloads, or SureCart below.
+                  </p>
+                ) : (
+                  <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:flex-wrap">
+                    <div className="space-y-2 min-w-[min(100%,16rem)] flex-1">
+                      <Label htmlFor="commerce-provider-select">Active commerce platform</Label>
+                      <Select
+                        value={selectValue}
+                        onValueChange={(value: CommerceProviderId) =>
+                          setCommerceProviderOverride(value)
+                        }
+                      >
+                        <SelectTrigger id="commerce-provider-select" className="w-full sm:max-w-xs">
+                          <SelectValue placeholder="Select a provider" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {detectedProviders.map((id) => (
+                            <SelectItem key={id} value={id}>
+                              {COMMERCE_PROVIDER_LABELS[id]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      type="button"
+                      disabled={
+                        updateSettingsMutation.isPending ||
+                        !effectiveCommerceConfig ||
+                        detectedProviders.length === 0
                       }
+                      onClick={async () => {
+                        if (!effectiveCommerceConfig) return;
+                        await updateSettingsMutation.mutateAsync({
+                          key: 'commerce_integration',
+                          data: effectiveCommerceConfig,
+                        });
+                        await commerceConfigQuery.refetch();
+                        setCommerceProviderOverride(null);
+                      }}
                     >
-                      <SelectTrigger id="commerce-provider-select" className="w-full sm:max-w-xs">
-                        <SelectValue placeholder="Select a provider" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {detectedProviders.map((id) => (
-                          <SelectItem key={id} value={id}>
-                            {COMMERCE_PROVIDER_LABELS[id]}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      Save
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    disabled={
-                      updateSettingsMutation.isPending ||
-                      !effectiveCommerceConfig ||
-                      detectedProviders.length === 0
-                    }
-                    onClick={async () => {
-                      if (!effectiveCommerceConfig) return;
-                      await updateSettingsMutation.mutateAsync({
-                        key: 'commerce_integration',
-                        data: effectiveCommerceConfig,
-                      });
-                      await commerceConfigQuery.refetch();
-                      setCommerceProviderOverride(null);
-                    }}
-                  >
-                    Save
-                  </Button>
-                </div>
-              )}
-
-              <IntegrationCard
-                title="WooCommerce"
-                description="Products, cart context, and order workflows used by Helpmate when WooCommerce is the selected commerce platform."
-                statusClass={statusClass(wooInstalledQuery.isFetched, wooInstalled)}
-                statusText={commerceStatusText(wooInstalledQuery.isFetched, wooInstalled)}
-                onLogs={() => setWooLogsOpen(true)}
-              />
-
-              <IntegrationCard
-                className="mt-4"
-                title="Easy Digital Downloads"
-                description="Digital products and order workflows used by Helpmate when EDD is the selected commerce platform."
-                statusClass={statusClass(eddInstalledQuery.isFetched, eddInstalled)}
-                statusText={commerceStatusText(eddInstalledQuery.isFetched, eddInstalled)}
-                onLogs={() => setEddLogsOpen(true)}
-              />
-
-              <IntegrationCard
-                className="mt-4"
-                title="SureCart"
-                description="Products and checkout workflows used by Helpmate when SureCart is the selected commerce platform."
-                statusClass={statusClass(
-                  surecartInstalledQuery.isFetched,
-                  surecartInstalled
                 )}
-                statusText={commerceStatusText(
-                  surecartInstalledQuery.isFetched,
-                  surecartInstalled
-                )}
-                onLogs={() => setSurecartLogsOpen(true)}
-              />
-            </TabsContent>
 
-            <TabsContent value="forms" className="mt-6">
-              <h2 className="!text-lg !font-semibold !mb-3">Forms</h2>
-              {groupedFormIntegrations.map((entry, index) => {
-                const current = dataById[entry.id];
-                const installed = current.formsQuery.data?.installed ?? false;
-                return (
-                  <IntegrationCard
-                    key={entry.id}
-                    title={entry.title}
-                    description={entry.description}
-                    statusClass={statusClass(current.formsQuery.isFetched, installed)}
-                    statusText={statusText(current.formsQuery.isFetched, installed)}
-                    onConfigure={() =>
-                      setSheetOpenById((prev) => ({ ...prev, [entry.id]: true }))
-                    }
-                    onLogs={() =>
-                      setLogsOpenById((prev) => ({ ...prev, [entry.id]: true }))
-                    }
-                    className={index > 0 ? 'mt-4' : undefined}
-                  />
-                );
-              })}
-            </TabsContent>
-          </Tabs>
-        </div>
+                <IntegrationCard
+                  title="WooCommerce"
+                  description="Products, cart context, and order workflows used by Helpmate when WooCommerce is the selected commerce platform."
+                  plugin={pluginEntry(plugins, 'woocommerce')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'woocommerce'))}
+                  statusText={statusTextCommerce(pageReady, pluginEntry(plugins, 'woocommerce'))}
+                  onInstall={
+                    pluginEntry(plugins, 'woocommerce')?.wp_org_slug
+                      ? () =>
+                          installMutation.mutate(
+                            pluginEntry(plugins, 'woocommerce')!.wp_org_slug as string
+                          )
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'woocommerce')?.plugin_file
+                      ? () =>
+                          activateMutation.mutate(
+                            pluginEntry(plugins, 'woocommerce')!.plugin_file as string
+                          )
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onLogs={() => setWooLogsOpen(true)}
+                />
 
-        <IntegrationLogsSheet
-          open={wooLogsOpen}
-          onOpenChange={setWooLogsOpen}
-          integrationSlug="woocommerce"
-          title="WooCommerce"
-          description="Integration events for WooCommerce detection, routing, and order lookups."
-        />
+                <IntegrationCard
+                  className="mt-4"
+                  title="Easy Digital Downloads"
+                  description="Digital products and order workflows used by Helpmate when EDD is the selected commerce platform."
+                  plugin={pluginEntry(plugins, 'easy_digital_downloads')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(
+                    pageReady,
+                    pluginEntry(plugins, 'easy_digital_downloads')
+                  )}
+                  statusText={statusTextCommerce(
+                    pageReady,
+                    pluginEntry(plugins, 'easy_digital_downloads')
+                  )}
+                  onInstall={
+                    pluginEntry(plugins, 'easy_digital_downloads')?.wp_org_slug
+                      ? () =>
+                          installMutation.mutate(
+                            pluginEntry(plugins, 'easy_digital_downloads')!.wp_org_slug as string
+                          )
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'easy_digital_downloads')?.plugin_file
+                      ? () =>
+                          activateMutation.mutate(
+                            pluginEntry(plugins, 'easy_digital_downloads')!.plugin_file as string
+                          )
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onLogs={() => setEddLogsOpen(true)}
+                />
 
-        <IntegrationLogsSheet
-          open={eddLogsOpen}
-          onOpenChange={setEddLogsOpen}
-          integrationSlug="easy_digital_downloads"
-          title="Easy Digital Downloads"
-          description="Integration events for EDD detection, routing, and order lookups."
-        />
+                <IntegrationCard
+                  className="mt-4"
+                  title="SureCart"
+                  description="Products and checkout workflows used by Helpmate when SureCart is the selected commerce platform."
+                  plugin={pluginEntry(plugins, 'surecart')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'surecart'))}
+                  statusText={statusTextCommerce(pageReady, pluginEntry(plugins, 'surecart'))}
+                  onInstall={
+                    pluginEntry(plugins, 'surecart')?.wp_org_slug
+                      ? () =>
+                          installMutation.mutate(
+                            pluginEntry(plugins, 'surecart')!.wp_org_slug as string
+                          )
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'surecart')?.plugin_file
+                      ? () =>
+                          activateMutation.mutate(
+                            pluginEntry(plugins, 'surecart')!.plugin_file as string
+                          )
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onLogs={() => setSurecartLogsOpen(true)}
+                />
+              </TabsContent>
 
-        <IntegrationLogsSheet
-          open={surecartLogsOpen}
-          onOpenChange={setSurecartLogsOpen}
-          integrationSlug="surecart"
-          title="SureCart"
-          description="Integration events for SureCart detection, routing, and product lookups."
-        />
+              <TabsContent value="forms" className="mt-6">
+                <h2 className="!text-lg !font-semibold !mb-3">Forms</h2>
+                {groupedFormIntegrations.map((entry, index) => {
+                  const p = pluginEntry(plugins, entry.id);
+                  return (
+                    <IntegrationCard
+                      key={entry.id}
+                      title={entry.title}
+                      description={entry.description}
+                      plugin={p}
+                      capabilities={caps}
+                      statusClass={statusClassForPlugin(pageReady, p)}
+                      statusText={statusTextForm(pageReady, p)}
+                      onInstall={
+                        p?.wp_org_slug
+                          ? () => installMutation.mutate(p.wp_org_slug as string)
+                          : undefined
+                      }
+                      onActivate={
+                        p?.plugin_file
+                          ? () => activateMutation.mutate(p.plugin_file as string)
+                          : undefined
+                      }
+                      installPending={installMutation.isPending}
+                      activatePending={activateMutation.isPending}
+                      onConfigure={() =>
+                        setSheetOpenById((prev) => ({ ...prev, [entry.id]: true }))
+                      }
+                      onLogs={() =>
+                        setLogsOpenById((prev) => ({ ...prev, [entry.id]: true }))
+                      }
+                      className={index > 0 ? 'mt-4' : undefined}
+                    />
+                  );
+                })}
+              </TabsContent>
 
-        {INTEGRATION_REGISTRY.map((entry) => (
-          <IntegrationLogsSheet
-            key={`logs-${entry.id}`}
-            open={logsOpenById[entry.id]}
-            onOpenChange={(open) =>
-              setLogsOpenById((prev) => ({ ...prev, [entry.id]: open }))
-            }
-            integrationSlug={entry.integrationSlug}
-            title={entry.title}
-            description={entry.logsDescription}
-          />
-        ))}
+              <TabsContent value="page_builders" className="mt-6">
+                <h2 className="!text-lg !font-semibold !mb-3">Page builders</h2>
+                {PAGE_BUILDERS.map((pb, index) => {
+                  const p = pluginEntry(plugins, pb.overviewKey);
+                  return (
+                    <IntegrationCard
+                      key={pb.overviewKey}
+                      title={pb.title}
+                      description={pb.description}
+                      plugin={p}
+                      capabilities={caps}
+                      statusClass={statusClassForPlugin(pageReady, p)}
+                      statusText={statusTextBuilder(pageReady, p)}
+                      onInstall={
+                        p?.wp_org_slug && !p.is_core
+                          ? () => installMutation.mutate(p.wp_org_slug as string)
+                          : undefined
+                      }
+                      onActivate={
+                        p?.plugin_file && !p.is_core
+                          ? () => activateMutation.mutate(p.plugin_file as string)
+                          : undefined
+                      }
+                      installPending={installMutation.isPending}
+                      activatePending={activateMutation.isPending}
+                      onConfigure={
+                        pb.overviewKey === 'gutenberg' && p?.is_core
+                          ? () => {
+                              window.open(blockEditorUrl, '_blank', 'noopener,noreferrer');
+                            }
+                          : undefined
+                      }
+                      className={index > 0 ? 'mt-4' : undefined}
+                    />
+                  );
+                })}
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
 
-        {INTEGRATION_REGISTRY.map((entry) => {
-          const current = dataById[entry.id];
-          return (
-            <IntegrationConfigSheet
-              key={`sheet-${entry.id}`}
-              open={sheetOpenById[entry.id]}
-              onOpenChange={(open) =>
-                setSheetOpenById((prev) => ({ ...prev, [entry.id]: open }))
-              }
-              title={entry.title}
-              idPrefix={entry.id}
-              query={current.formsQuery}
-              createFormUrl={entry.createFormUrl}
-              notInstalledText={entry.notInstalledText}
-              primaryCtaText={entry.primaryCtaText}
-              emptySupportingText={entry.emptySupportingText}
-              configs={current.configs}
-              isPro={isPro}
-              saving={updateSettingsMutation.isPending}
-              onUpdateConfig={current.updateConfig}
-              onUpdateFieldMap={current.updateFieldMap}
-              onSave={current.saveConfig}
+        {pageReady ? (
+          <>
+            <IntegrationLogsSheet
+              open={wooLogsOpen}
+              onOpenChange={setWooLogsOpen}
+              integrationSlug="woocommerce"
+              title="WooCommerce"
+              description="Integration events for WooCommerce detection, routing, and order lookups."
             />
-          );
-        })}
+
+            <IntegrationLogsSheet
+              open={eddLogsOpen}
+              onOpenChange={setEddLogsOpen}
+              integrationSlug="easy_digital_downloads"
+              title="Easy Digital Downloads"
+              description="Integration events for EDD detection, routing, and order lookups."
+            />
+
+            <IntegrationLogsSheet
+              open={surecartLogsOpen}
+              onOpenChange={setSurecartLogsOpen}
+              integrationSlug="surecart"
+              title="SureCart"
+              description="Integration events for SureCart detection, routing, and product lookups."
+            />
+
+            {INTEGRATION_REGISTRY.map((entry) => (
+              <IntegrationLogsSheet
+                key={`logs-${entry.id}`}
+                open={logsOpenById[entry.id]}
+                onOpenChange={(open) =>
+                  setLogsOpenById((prev) => ({ ...prev, [entry.id]: open }))
+                }
+                integrationSlug={entry.integrationSlug}
+                title={entry.title}
+                description={entry.logsDescription}
+              />
+            ))}
+
+            {INTEGRATION_REGISTRY.map((entry) => {
+              const current = dataById[entry.id];
+              return (
+                <IntegrationConfigSheet
+                  key={`sheet-${entry.id}`}
+                  open={sheetOpenById[entry.id]}
+                  onOpenChange={(open) =>
+                    setSheetOpenById((prev) => ({ ...prev, [entry.id]: open }))
+                  }
+                  title={entry.title}
+                  idPrefix={entry.id}
+                  query={current.formsQuery}
+                  createFormUrl={entry.createFormUrl}
+                  notInstalledText={entry.notInstalledText}
+                  primaryCtaText={entry.primaryCtaText}
+                  emptySupportingText={entry.emptySupportingText}
+                  configs={current.configs}
+                  isPro={isPro}
+                  saving={updateSettingsMutation.isPending}
+                  onUpdateConfig={current.updateConfig}
+                  onUpdateFieldMap={current.updateFieldMap}
+                  onSave={current.saveConfig}
+                />
+              );
+            })}
+          </>
+        ) : null}
       </div>
     </PageGuard>
   );

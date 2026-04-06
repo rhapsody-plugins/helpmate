@@ -338,6 +338,21 @@ class Helpmate
 	 */
 	private $formidable_forms_integration;
 
+	/**
+	 * Integration plugin overview / install / activate (REST).
+	 *
+	 * @var Helpmate_Integration_Plugins
+	 */
+	private $integration_plugins;
+
+	/**
+	 * Public-facing plugin instance (shortcodes, front assets).
+	 *
+	 * @since 1.4.0
+	 * @var Helpmate_Public|null
+	 */
+	private $plugin_public;
+
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -390,6 +405,7 @@ class Helpmate
 		$this->wpforms_integration = new Helpmate_WPForms_Integration($this, $this->integration_events);
 		$this->ninja_forms_integration = new Helpmate_Ninja_Forms_Integration($this, $this->integration_events);
 		$this->formidable_forms_integration = new Helpmate_Formidable_Forms_Integration($this, $this->integration_events);
+		$this->integration_plugins = new Helpmate_Integration_Plugins();
 
 		// Initialize post/page meta box for knowledge base
 		if (is_admin()) {
@@ -411,6 +427,45 @@ class Helpmate
 
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+
+		// Elementor loads before this plugin (typical alphabetical order), so elementor/loaded may have already fired.
+		if ( did_action( 'elementor/loaded' ) ) {
+			$this->init_elementor_integration();
+		} else {
+			add_action( 'elementor/loaded', array( $this, 'init_elementor_integration' ) );
+		}
+
+		if ( function_exists( 'register_block_type' ) ) {
+			Helpmate_Blocks::run( $this );
+		}
+
+		add_action( 'plugins_loaded', array( $this, 'init_beaver_integration' ), 20 );
+	}
+
+	/**
+	 * Load Beaver Builder modules when the builder is active.
+	 *
+	 * @return void
+	 */
+	public function init_beaver_integration() {
+		if ( ! class_exists( 'FLBuilder' ) ) {
+			return;
+		}
+		require_once HELPMATE_DIR . 'includes/integrations/class-helpmate-beaver-builder.php';
+		Helpmate_Beaver_Builder::instance()->run( $this );
+	}
+
+	/**
+	 * Load Elementor widgets when Elementor is active.
+	 *
+	 * @return void
+	 */
+	public function init_elementor_integration() {
+		if ( ! class_exists( '\Elementor\Plugin' ) ) {
+			return;
+		}
+		require_once HELPMATE_DIR . 'includes/integrations/class-helpmate-elementor.php';
+		Helpmate_Elementor::instance()->run( $this );
 	}
 
 	/**
@@ -488,6 +543,9 @@ class Helpmate
 			'includes/integrations/class-helpmate-wpforms-integration.php',
 			'includes/integrations/class-helpmate-ninja-forms-integration.php',
 			'includes/integrations/class-helpmate-formidable-forms-integration.php',
+			'includes/integrations/class-helpmate-integration-plugins.php',
+			'includes/integrations/class-helpmate-elementor-utils.php',
+			'includes/integrations/class-helpmate-blocks.php',
 		);
 
 		foreach ($required_files as $file) {
@@ -553,10 +611,10 @@ class Helpmate
 	 */
 	private function define_public_hooks()
 	{
-		$plugin_public = new Helpmate_Public($this->get_plugin_name(), $this->get_version(), $this->promo_banner, $this->sales_notification);
+		$this->plugin_public = new Helpmate_Public($this->get_plugin_name(), $this->get_version(), $this->promo_banner, $this->sales_notification);
 
-		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
-		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+		$this->loader->add_action('wp_enqueue_scripts', $this->plugin_public, 'enqueue_styles');
+		$this->loader->add_action('wp_enqueue_scripts', $this->plugin_public, 'enqueue_scripts');
 		$this->loader->add_action('rest_api_init', $this->frontend_routes, 'register_routes');
 		// Register backend routes with priority 20 to ensure custom fields route runs after pro plugin
 		// This allows our route to take precedence when pro route blocks access
@@ -1249,6 +1307,17 @@ class Helpmate
 	}
 
 	/**
+	 * Public class instance (shortcodes, scheduling, front hooks).
+	 *
+	 * @since 1.4.0
+	 * @return Helpmate_Public|null
+	 */
+	public function get_plugin_public()
+	{
+		return $this->plugin_public;
+	}
+
+	/**
 	 * Get the sales notification instance.
 	 *
 	 * @since    1.0.0
@@ -1317,6 +1386,16 @@ class Helpmate
 	public function get_formidable_forms_integration()
 	{
 		return $this->formidable_forms_integration;
+	}
+
+	/**
+	 * Integration plugins helper (overview / install / activate).
+	 *
+	 * @return Helpmate_Integration_Plugins
+	 */
+	public function get_integration_plugins()
+	{
+		return $this->integration_plugins;
 	}
 
 }

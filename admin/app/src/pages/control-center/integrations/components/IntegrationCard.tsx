@@ -1,15 +1,25 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Plug, ScrollText } from 'lucide-react';
+import { Loader2, Plug, ScrollText } from 'lucide-react';
+import type { IntegrationPluginOverviewEntry } from '../types';
 
 type IntegrationCardProps = {
   title: string;
   description: string;
   statusClass: string;
   statusText: string;
+  plugin?: IntegrationPluginOverviewEntry | null;
+  capabilities?: {
+    install_plugins: boolean;
+    activate_plugins: boolean;
+  };
+  onInstall?: () => void | Promise<void>;
+  onActivate?: () => void | Promise<void>;
+  installPending?: boolean;
+  activatePending?: boolean;
   onConfigure?: () => void;
-  onLogs: () => void;
+  onLogs?: () => void;
   className?: string;
 };
 
@@ -18,10 +28,28 @@ export default function IntegrationCard({
   description,
   statusClass,
   statusText,
+  plugin,
+  capabilities,
+  onInstall,
+  onActivate,
+  installPending,
+  activatePending,
   onConfigure,
   onLogs,
   className,
 }: IntegrationCardProps) {
+  const active = plugin?.active === true;
+  const present = plugin?.present === true;
+  const isCore = plugin?.is_core === true;
+  const canInstall = capabilities?.install_plugins === true && !!plugin?.wp_org_slug;
+  const canActivate = capabilities?.activate_plugins === true && !!plugin?.plugin_file;
+
+  const showInstall = !isCore && !present && canInstall && typeof onInstall === 'function';
+  const showActivate =
+    !isCore && present && !active && canActivate && typeof onActivate === 'function';
+  const showConfigure = Boolean(active && onConfigure);
+  const showLogs = Boolean(active && !isCore && onLogs);
+
   return (
     <Card className={cn('p-6', className)}>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -40,15 +68,51 @@ export default function IntegrationCard({
           </div>
         </div>
         <div className="flex flex-wrap gap-2 shrink-0">
-          {onConfigure ? (
-            <Button type="button" onClick={onConfigure}>
-              Configure
+          {showInstall ? (
+            <Button
+              type="button"
+              className="gap-2"
+              onClick={() => void onInstall()}
+              disabled={installPending}
+            >
+              {installPending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin shrink-0" aria-hidden />
+                  Installing…
+                </>
+              ) : (
+                'Install'
+              )}
             </Button>
           ) : null}
-          <Button type="button" variant="outline" onClick={onLogs}>
-            <ScrollText className="size-4" />
-            Logs
-          </Button>
+          {showActivate ? (
+            <Button
+              type="button"
+              className="gap-2"
+              onClick={() => void onActivate()}
+              disabled={activatePending}
+            >
+              {activatePending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin shrink-0" aria-hidden />
+                  Activating…
+                </>
+              ) : (
+                'Activate'
+              )}
+            </Button>
+          ) : null}
+          {showConfigure ? (
+            <Button type="button" onClick={onConfigure}>
+              {isCore ? 'Open block editor' : 'Configure'}
+            </Button>
+          ) : null}
+          {showLogs ? (
+            <Button type="button" variant="outline" onClick={onLogs}>
+              <ScrollText className="size-4" />
+              Logs
+            </Button>
+          ) : null}
         </div>
       </div>
     </Card>
