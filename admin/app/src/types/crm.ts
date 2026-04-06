@@ -69,6 +69,12 @@ export interface ManualOrder {
   order_type: 'manual';
 }
 
+export interface WooCommerceOrderVendorLine {
+  product_label: string;
+  vendor_store_name: string;
+  vendor_id: number;
+}
+
 export interface WooCommerceOrder {
   id: number;
   order_number: string;
@@ -77,6 +83,9 @@ export interface WooCommerceOrder {
   date_created: string;
   edit_url: string;
   order_type: 'woocommerce';
+  /** Present when Dokan integration + toggle enabled (optional). */
+  vendor_summary?: string;
+  vendor_lines?: WooCommerceOrderVendorLine[];
 }
 
 export interface EddOrder {

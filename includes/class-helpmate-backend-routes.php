@@ -179,6 +179,31 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
 
+        register_rest_route('helpmate/v1', '/check-dokan', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WordPress core filter
+                $active_plugins = apply_filters('active_plugins', get_option('active_plugins'));
+                $lite = in_array('dokan-lite/dokan.php', $active_plugins, true);
+                $pro = in_array('dokan-pro/dokan-pro.php', $active_plugins, true);
+                $installed = $lite || $pro;
+                $active = method_exists($this->helpmate, 'get_dokan') && $this->helpmate->get_dokan()->is_active();
+                try {
+                    return new WP_REST_Response([
+                        'error' => false,
+                        'installed' => $installed,
+                        'active' => $active,
+                    ], 200);
+                } catch (Exception $e) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
         /* --------------------------------------- */
         /*                   API                   */
         /* --------------------------------------- */
@@ -880,6 +905,64 @@ class Helpmate_Backend_Routes
                 ),
             ),
         ));
+
+        register_rest_route('helpmate/v1', '/integrations/dokan', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $dokan = $this->helpmate->get_dokan();
+                $status = $dokan->get_rest_status();
+                return new WP_REST_Response(
+                    array(
+                        'error'  => false,
+                        'active' => $status['active'],
+                        'vendor_count' => $status['vendor_count'],
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/dokan/vendors', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $dokan = $this->helpmate->get_dokan();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'vendors' => $dokan->get_vendors_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/dokan/sync-vendors', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $dokan = $this->helpmate->get_dokan();
+                if (!$dokan->is_active()) {
+                    return new WP_REST_Response(
+                        array(
+                            'error'   => true,
+                            'message' => __('Dokan is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $dokan->sync_all_vendors_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
         // Create default abandoned cart follow-up email templates
         register_rest_route('helpmate/v1', '/crm/abandoned-cart/create-default-followup-templates', array(
             'methods' => 'POST',
@@ -1107,10 +1190,32 @@ class Helpmate_Backend_Routes
                     }
                 }
 
-                return new WP_REST_Response([
+                $response = array(
                     'error' => false,
-                    'data' => $names
-                ], 200);
+                    'data'  => $names,
+                );
+
+                if (
+                    'woocommerce' === $provider
+                    && method_exists($this->helpmate, 'get_dokan')
+                    && $this->helpmate->get_dokan()->should_enrich_product_lists()
+                ) {
+                    $vendors = array();
+                    foreach ($product_ids as $product_id) {
+                        if ($product_id <= 0) {
+                            continue;
+                        }
+                        $author_id = (int) get_post_field('post_author', $product_id);
+                        $dokan = $this->helpmate->get_dokan();
+                        $vendors[ $product_id ] = array(
+                            'vendor_id'         => $author_id,
+                            'vendor_store_name' => $author_id > 0 ? $dokan->get_store_name_for_vendor($author_id) : '',
+                        );
+                    }
+                    $response['vendors'] = $vendors;
+                }
+
+                return new WP_REST_Response($response, 200);
             },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
             'args' => array(
@@ -5388,7 +5493,8 @@ class Helpmate_Backend_Routes
                 'date' => $post->post_date,
                 'content' => $content,
                 'author' => get_the_author_meta('display_name', $post->post_author),
-                'metadata' => $metadata
+                'author_id' => (int) $post->post_author,
+                'metadata' => $metadata,
             ];
         }
 
@@ -5507,21 +5613,26 @@ class Helpmate_Backend_Routes
 
             foreach ($products as $product) {
                 if ($product->is_on_sale()) {
-                    $discounted_products[] = array(
-                        'id' => $product->get_id(),
+                    $pid = $product->get_id();
+                    $row = array(
+                        'id' => $pid,
                         'name' => $product->get_name(),
                         'regular_price' => wc_price($product->get_regular_price()),
                         'sale_price' => wc_price($product->get_sale_price()),
                         'discount_percentage' => $product->get_regular_price() ? round((($product->get_regular_price() - $product->get_sale_price()) / $product->get_regular_price()) * 100) : 0,
                         'stock_status' => $product->get_stock_status(),
                         'stock_quantity' => $product->get_stock_quantity(),
-                        'image_url' => get_the_post_thumbnail_url($product->get_id(), 'full'),
-                        'categories' => wp_get_post_terms($product->get_id(), 'product_cat', array('fields' => 'names')),
+                        'image_url' => get_the_post_thumbnail_url($pid, 'full'),
+                        'categories' => wp_get_post_terms($pid, 'product_cat', array('fields' => 'names')),
                         'date_on_sale_from' => $product->get_date_on_sale_from(),
                         'date_on_sale_to' => $product->get_date_on_sale_to(),
                         'type' => $product->get_type(),
-                        'sku' => $product->get_sku()
+                        'sku' => $product->get_sku(),
                     );
+                    if (method_exists($this->helpmate, 'get_dokan')) {
+                        $row = $this->helpmate->get_dokan()->maybe_enrich_product_row($row, $pid);
+                    }
+                    $discounted_products[] = $row;
                 }
             }
 

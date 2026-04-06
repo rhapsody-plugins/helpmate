@@ -1216,6 +1216,11 @@ class Helpmate_Database
                 "proactive_sales_template" => "1",
                 "products" => []
             ],
+            'dokan_integration' => [
+                'show_vendor_in_orders_tab'        => false,
+                'show_vendor_in_training_products' => false,
+                'show_vendor_in_product_lists'     => false,
+            ],
             'coupons' => [
                 "coupons" => [],
                 "exit_intent_coupon" => "",

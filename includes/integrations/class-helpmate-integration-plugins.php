@@ -53,6 +53,13 @@ class Helpmate_Integration_Plugins {
 				'candidates'    => array( 'surecart/surecart.php' ),
 				'wp_org_slug'   => 'surecart',
 			),
+			'dokan'                 => array(
+				'candidates'    => array(
+					'dokan-lite/dokan.php',
+					'dokan-pro/dokan-pro.php',
+				),
+				'wp_org_slug'   => 'dokan-lite',
+			),
 			'elementor'             => array(
 				'candidates'    => array( 'elementor/elementor.php' ),
 				'wp_org_slug'   => 'elementor',

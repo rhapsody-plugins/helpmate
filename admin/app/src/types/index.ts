@@ -53,6 +53,9 @@ export interface DiscountedProduct {
   discount_percentage: number;
   stock_status: string;
   image_url: string;
+  /** Dokan optional fields when integration toggle is on. */
+  vendor_id?: number;
+  vendor_store_name?: string;
 }
 
 export interface Product {
@@ -144,6 +147,8 @@ export interface WordPressPost {
   status: string;
   date: string;
   author: string;
+  /** WP user ID of post author (from REST); optional for backward compatibility. */
+  author_id?: number;
   content?: string;
   metadata?: unknown;
 }

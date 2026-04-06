@@ -424,6 +424,124 @@ class Helpmate_CRM
     }
 
     /**
+     * Create or update a CRM contact from Dokan vendor profile (match by email).
+     *
+     * @since 1.x.x
+     * @param array $data Mapped vendor fields (email, names, phone, address, wp_user_id, status).
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_dokan_vendor(array $data)
+    {
+        $email = isset($data['email']) ? sanitize_email((string) $data['email']) : '';
+        if (empty($email)) {
+            return new WP_Error('no_email', __('Vendor email is required.', 'helpmate-ai-chatbot'));
+        }
+
+        $payload = array(
+            'first_name'     => isset($data['first_name']) ? sanitize_text_field((string) $data['first_name']) : '',
+            'last_name'      => isset($data['last_name']) ? sanitize_text_field((string) $data['last_name']) : '',
+            'email'          => $email,
+            'phone'          => isset($data['phone']) ? sanitize_text_field((string) $data['phone']) : '',
+            'address_line_1' => isset($data['address_line_1']) ? sanitize_text_field((string) $data['address_line_1']) : '',
+            'address_line_2' => isset($data['address_line_2']) ? sanitize_text_field((string) $data['address_line_2']) : '',
+            'city'           => isset($data['city']) ? sanitize_text_field((string) $data['city']) : '',
+            'state'          => isset($data['state']) ? sanitize_text_field((string) $data['state']) : '',
+            'zip_code'       => isset($data['zip_code']) ? sanitize_text_field((string) $data['zip_code']) : '',
+            'country'        => isset($data['country']) ? sanitize_text_field((string) $data['country']) : '',
+            'wp_user_id'     => isset($data['wp_user_id']) ? (int) $data['wp_user_id'] : null,
+            'status'         => isset($data['status']) ? sanitize_text_field((string) $data['status']) : 'subscribed',
+        );
+
+        $existing = $this->get_contact_by_email($email);
+        if ($existing) {
+            $ok = $this->replace_contact_from_dokan_data((int) $existing['id'], $payload);
+            if (!$ok) {
+                return new WP_Error('update_failed', __('Could not update contact from vendor data.', 'helpmate-ai-chatbot'));
+            }
+            return array('updated' => true, 'id' => (int) $existing['id']);
+        }
+
+        $contact_id = $this->create_contact($payload);
+        if (is_wp_error($contact_id)) {
+            return $contact_id;
+        }
+        if (false === $contact_id) {
+            return new WP_Error('create_failed', __('Could not create contact.', 'helpmate-ai-chatbot'));
+        }
+
+        return array('created' => true, 'id' => (int) $contact_id);
+    }
+
+    /**
+     * Overwrite mapped scalar columns from Dokan (empty strings allowed).
+     *
+     * @since 1.x.x
+     * @param int   $contact_id Contact ID.
+     * @param array $data       Normalized payload from upsert_contact_from_dokan_vendor.
+     * @return bool
+     */
+    private function replace_contact_from_dokan_data(int $contact_id, array $data): bool
+    {
+        global $wpdb;
+        $table = esc_sql($wpdb->prefix . 'helpmate_crm_contacts');
+
+        if (!empty($data['email'])) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Duplicate check before update
+            $existing = $wpdb->get_var(
+                $wpdb->prepare(
+                    // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix
+                    "SELECT id FROM {$table} WHERE email = %s AND id != %d"
+                    // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    ,
+                    $data['email'],
+                    $contact_id
+                )
+            );
+            if ($existing) {
+                return false;
+            }
+        }
+
+        $update_data = array(
+            'first_name'     => $data['first_name'],
+            'last_name'      => $data['last_name'],
+            'email'          => $data['email'],
+            'phone'          => $data['phone'],
+            'address_line_1' => $data['address_line_1'],
+            'address_line_2' => $data['address_line_2'],
+            'city'           => $data['city'],
+            'state'          => $data['state'],
+            'zip_code'       => $data['zip_code'],
+            'country'        => $data['country'],
+            'status'         => $data['status'],
+            'updated_at'     => current_time('mysql'),
+        );
+        if (!empty($data['wp_user_id'])) {
+            $update_data['wp_user_id'] = (int) $data['wp_user_id'];
+        }
+
+        $formats = array();
+        foreach (array_keys($update_data) as $col) {
+            $formats[] = ('wp_user_id' === $col) ? '%d' : '%s';
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Dokan sync overwrite path
+        $result = $wpdb->update(
+            $table,
+            $update_data,
+            array('id' => $contact_id),
+            $formats,
+            array('%d')
+        );
+
+        if (false !== $result) {
+            $this->schedule_segment_count_refresh();
+        }
+
+        return false !== $result;
+    }
+
+    /**
      * Delete a contact.
      *
      * @since    1.3.0
@@ -1084,14 +1202,16 @@ class Helpmate_CRM
             ]);
 
             foreach ($customer_orders as $order) {
-                $orders[] = [
+                $row = [
                     'id' => $order->get_id(),
                     'order_number' => $order->get_order_number(),
                     'status' => $order->get_status(),
                     'total' => $order->get_total(),
                     'date_created' => $order->get_date_created()->date('Y-m-d H:i:s'),
-                    'edit_url' => admin_url('post.php?post=' . $order->get_id() . '&action=edit')
+                    'edit_url' => admin_url('post.php?post=' . $order->get_id() . '&action=edit'),
                 ];
+                $row = $this->maybe_append_dokan_vendor_to_woo_order_row($row, $order);
+                $orders[] = $row;
             }
         }
 
@@ -1115,19 +1235,41 @@ class Helpmate_CRM
                 }
 
                 if (!$exists) {
-                    $orders[] = [
+                    $row = [
                         'id' => $order->get_id(),
                         'order_number' => $order->get_order_number(),
                         'status' => $order->get_status(),
                         'total' => $order->get_total(),
                         'date_created' => $order->get_date_created()->date('Y-m-d H:i:s'),
-                        'edit_url' => admin_url('post.php?post=' . $order->get_id() . '&action=edit')
+                        'edit_url' => admin_url('post.php?post=' . $order->get_id() . '&action=edit'),
                     ];
+                    $row = $this->maybe_append_dokan_vendor_to_woo_order_row($row, $order);
+                    $orders[] = $row;
                 }
             }
         }
 
         return $orders;
+    }
+
+    /**
+     * Append Dokan vendor display fields when integration toggle is on (additive only).
+     *
+     * @param array    $row   Order row.
+     * @param WC_Order $order Order object.
+     * @return array
+     */
+    private function maybe_append_dokan_vendor_to_woo_order_row(array $row, $order): array
+    {
+        if (!method_exists($this->helpmate, 'get_dokan')) {
+            return $row;
+        }
+        $dokan = $this->helpmate->get_dokan();
+        if (!$dokan->should_enrich_orders()) {
+            return $row;
+        }
+        $extra = $dokan->get_vendor_display_for_order($order);
+        return array_merge($row, $extra);
     }
 
     /**

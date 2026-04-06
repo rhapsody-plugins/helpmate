@@ -12,9 +12,11 @@ import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Input } from '@/components/ui/input';
 import { useDataSource } from '@/hooks/useDataSource';
 import { useSettings } from '@/hooks/useSettings';
+import api from '@/lib/axios';
 import { cn } from '@/lib/utils';
 import { DiscountedProduct } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
+import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const SVG_THUMB_PLACEHOLDER =
@@ -146,6 +148,31 @@ export default function TabProducts() {
     [getSettings, proactiveSales, updateSettings]
   );
 
+  const dokanCheckQuery = useQuery<{ active?: boolean }, Error>({
+    queryKey: ['check-dokan', 'proactive-sales-products'],
+    queryFn: async () => {
+      const response = await api.get('/check-dokan');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const dokanIntegrationQuery = useQuery<
+    { show_vendor_in_product_lists?: boolean },
+    Error
+  >({
+    queryKey: ['settings', 'dokan_integration', 'proactive-sales'],
+    queryFn: async () => {
+      const response = await api.get('/settings/dokan_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const showVendorOnDiscounted =
+    dokanCheckQuery.data?.active === true &&
+    dokanIntegrationQuery.data?.show_vendor_in_product_lists === true;
+
   // ========================================================================
   // MEMOIZED VALUES
   // ========================================================================
@@ -217,9 +244,19 @@ export default function TabProducts() {
     []
   );
 
-  const columns = useMemo<ColumnDef<DiscountedProduct>[]>(
-    () => [
-      ...commonColumns,
+  const columns = useMemo<ColumnDef<DiscountedProduct>[]>(() => {
+    const vendorCol: ColumnDef<DiscountedProduct> = {
+      id: 'vendor_store',
+      header: 'Vendor',
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">
+          {row.original.vendor_store_name?.trim()
+            ? row.original.vendor_store_name
+            : '—'}
+        </span>
+      ),
+    };
+    const tail: ColumnDef<DiscountedProduct>[] = [
       {
         accessorKey: 'actions',
         header: 'Actions',
@@ -229,13 +266,26 @@ export default function TabProducts() {
           </Button>
         ),
       },
-    ],
-    [commonColumns, handleAdd]
-  );
+    ];
+    if (showVendorOnDiscounted) {
+      return [...commonColumns, vendorCol, ...tail];
+    }
+    return [...commonColumns, ...tail];
+  }, [commonColumns, handleAdd, showVendorOnDiscounted]);
 
-  const savedColumns = useMemo<ColumnDef<DiscountedProduct>[]>(
-    () => [
-      ...commonColumns,
+  const savedColumns = useMemo<ColumnDef<DiscountedProduct>[]>(() => {
+    const vendorCol: ColumnDef<DiscountedProduct> = {
+      id: 'vendor_store_saved',
+      header: 'Vendor',
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">
+          {row.original.vendor_store_name?.trim()
+            ? row.original.vendor_store_name
+            : '—'}
+        </span>
+      ),
+    };
+    const tail: ColumnDef<DiscountedProduct>[] = [
       {
         accessorKey: 'actions',
         header: 'Actions',
@@ -249,9 +299,12 @@ export default function TabProducts() {
           </Button>
         ),
       },
-    ],
-    [commonColumns, handleRemove]
-  );
+    ];
+    if (showVendorOnDiscounted) {
+      return [...commonColumns, vendorCol, ...tail];
+    }
+    return [...commonColumns, ...tail];
+  }, [commonColumns, handleRemove, showVendorOnDiscounted]);
 
   // ========================================================================
   // RENDER

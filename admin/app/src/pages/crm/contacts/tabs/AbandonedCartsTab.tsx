@@ -95,6 +95,9 @@ export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
   const [previewCart, setPreviewCart] = useState<AbandonedCartType | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [productNames, setProductNames] = useState<Record<number, string>>({});
+  const [productVendors, setProductVendors] = useState<Record<number, string>>(
+    {}
+  );
 
   const abandonedCarts = getAbandonedCarts.data?.carts ?? [];
   const { isFetching: isFetchingCarts } = getAbandonedCarts;
@@ -122,6 +125,8 @@ export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
       return;
     }
 
+    setProductVendors({});
+
     const fetchProductNames = async () => {
       const cartItems = parseCartItems(previewCart);
       const productIds = new Set<number>();
@@ -141,6 +146,10 @@ export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
           const response = await api.get<{
             error: boolean;
             data: Record<string, string | null>;
+            vendors?: Record<
+              string,
+              { vendor_id: number; vendor_store_name: string }
+            >;
           }>('/products/names', { params: { ids: idsParam } });
 
           if (response.data && !response.data.error && response.data.data) {
@@ -156,6 +165,20 @@ export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
               }
             });
             setProductNames(fetchedNames);
+            if (response.data.vendors) {
+              const vmap: Record<number, string> = {};
+              Object.entries(response.data.vendors).forEach(([id, v]) => {
+                const productId = parseInt(id, 10);
+                if (
+                  !isNaN(productId) &&
+                  v?.vendor_store_name &&
+                  typeof v.vendor_store_name === 'string'
+                ) {
+                  vmap[productId] = v.vendor_store_name;
+                }
+              });
+              setProductVendors(vmap);
+            }
           } else {
             const fallbackNames: Record<number, string> = {};
             idsArray.forEach((id) => {
@@ -282,6 +305,11 @@ export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
               >
                 <div>
                   <div className="font-medium">{productName}</div>
+                  {productId && productVendors[productId] ? (
+                    <div className="text-xs text-muted-foreground">
+                      {productVendors[productId]}
+                    </div>
+                  ) : null}
                   {item.variation_id && item.product_id && (
                     <div className="text-xs text-muted-foreground">
                       Variation

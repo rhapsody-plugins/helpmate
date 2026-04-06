@@ -28,6 +28,7 @@ import type {
 import IntegrationCard from './integrations/components/IntegrationCard';
 import IntegrationConfigSheet from './integrations/components/IntegrationConfigSheet';
 import IntegrationLogsSheet from './integrations/components/IntegrationLogsSheet';
+import DokanIntegrationSheet from './integrations/multivendor/DokanIntegrationSheet';
 import { useIntegrationConfig } from './integrations/hooks/useIntegrationConfig';
 import { INTEGRATION_REGISTRY } from './integrations/registry';
 import type {
@@ -116,6 +117,7 @@ export default function Integrations() {
   const [wooLogsOpen, setWooLogsOpen] = useState(false);
   const [eddLogsOpen, setEddLogsOpen] = useState(false);
   const [surecartLogsOpen, setSurecartLogsOpen] = useState(false);
+  const [dokanSheetOpen, setDokanSheetOpen] = useState(false);
   const [commerceProviderOverride, setCommerceProviderOverride] =
     useState<CommerceProviderId | null>(null);
 
@@ -352,6 +354,7 @@ export default function Integrations() {
             <Tabs defaultValue="commerce" className="w-full">
               <TabsList>
                 <TabsTrigger value="commerce">Commerce</TabsTrigger>
+                <TabsTrigger value="multivendor">Multivendor</TabsTrigger>
                 <TabsTrigger value="forms">Forms</TabsTrigger>
                 <TabsTrigger value="page_builders">Page builders</TabsTrigger>
               </TabsList>
@@ -499,6 +502,41 @@ export default function Integrations() {
                 />
               </TabsContent>
 
+              <TabsContent value="multivendor" className="mt-6">
+                <h2 className="!text-lg !font-semibold !mb-3">Multivendor</h2>
+                <IntegrationCard
+                  title="Dokan"
+                  description="Optional vendor display in CRM, product training, and proactive sales. Sync Dokan sellers to CRM contacts on demand."
+                  plugin={pluginEntry(plugins, 'dokan')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'dokan'))}
+                  statusText={statusTextCommerce(pageReady, pluginEntry(plugins, 'dokan'))}
+                  onInstall={
+                    pluginEntry(plugins, 'dokan')?.wp_org_slug
+                      ? () =>
+                          installMutation.mutate(
+                            pluginEntry(plugins, 'dokan')!.wp_org_slug as string
+                          )
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'dokan')?.plugin_file
+                      ? () =>
+                          activateMutation.mutate(
+                            pluginEntry(plugins, 'dokan')!.plugin_file as string
+                          )
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onConfigure={
+                    pluginEntry(plugins, 'dokan')?.active
+                      ? () => setDokanSheetOpen(true)
+                      : undefined
+                  }
+                />
+              </TabsContent>
+
               <TabsContent value="forms" className="mt-6">
                 <h2 className="!text-lg !font-semibold !mb-3">Forms</h2>
                 {groupedFormIntegrations.map((entry, index) => {
@@ -579,6 +617,12 @@ export default function Integrations() {
 
         {pageReady ? (
           <>
+            <DokanIntegrationSheet
+              open={dokanSheetOpen}
+              onOpenChange={setDokanSheetOpen}
+              dokanPluginActive={pluginEntry(plugins, 'dokan')?.active === true}
+            />
+
             <IntegrationLogsSheet
               open={wooLogsOpen}
               onOpenChange={setWooLogsOpen}

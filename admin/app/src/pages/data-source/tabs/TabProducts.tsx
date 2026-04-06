@@ -9,6 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Tooltip,
   TooltipContent,
@@ -40,6 +48,7 @@ export default function TabProducts() {
     useState<string>('');
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
+  const [vendorFilter, setVendorFilter] = useState<string>('all');
   const [activeBulkJobId, setActiveBulkJobId] = useState<string | null>(null);
   const refreshedJobsRef = useRef<Set<string>>(new Set());
 
@@ -86,6 +95,68 @@ export default function TabProducts() {
         ? 'sc_product'
         : 'product';
 
+  const dokanCheckQuery = useQuery<
+    { installed?: boolean; active?: boolean },
+    Error
+  >({
+    queryKey: ['check-dokan', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/check-dokan');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const dokanIntegrationQuery = useQuery<
+    {
+      show_vendor_in_training_products?: boolean;
+    },
+    Error
+  >({
+    queryKey: ['settings', 'dokan_integration', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/settings/dokan_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const showVendorColumn =
+    productPostType === 'product' &&
+    dokanCheckQuery.data?.active === true &&
+    dokanIntegrationQuery.data?.show_vendor_in_training_products === true;
+
+  const dokanVendorsQuery = useQuery<
+    { id: number; store_name: string; email: string }[],
+    Error
+  >({
+    queryKey: ['integrations-dokan-vendors', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get<{ vendors: { id: number; store_name: string; email: string }[] }>(
+        '/integrations/dokan/vendors'
+      );
+      return response.data?.vendors ?? [];
+    },
+    enabled: showVendorColumn,
+    refetchOnWindowFocus: false,
+  });
+
+  const vendorNameByUserId = useMemo(() => {
+    const map: Record<number, string> = {};
+    (dokanVendorsQuery.data ?? []).forEach((v) => {
+      map[v.id] = v.store_name;
+    });
+    return map;
+  }, [dokanVendorsQuery.data]);
+
+  const authorByProductId = useMemo(() => {
+    const m: Record<number, number> = {};
+    products.forEach((p) => {
+      m[p.id] = typeof p.author_id === 'number' ? p.author_id : 0;
+    });
+    return m;
+  }, [products]);
+
   const fetchProducts = useCallback(() => {
     getPostsMutate(productPostType, {
       onSuccess: (data) => {
@@ -100,6 +171,8 @@ export default function TabProducts() {
           status: product.status,
           date: new Date(product.date).toLocaleDateString(),
           author: product.author,
+          author_id:
+            typeof product.author_id === 'number' ? product.author_id : 0,
           content: product.content,
           metadata: product.metadata,
         }));
@@ -371,8 +444,55 @@ export default function TabProducts() {
     }
   }, [activeBulkJobId, deleteBulkJobMutate]);
 
-  const columns = useMemo<ColumnDef<WordPressPost>[]>(
-    () => [
+  useEffect(() => {
+    if (!showVendorColumn) {
+      setVendorFilter('all');
+    }
+  }, [showVendorColumn]);
+
+  const productsForTable = useMemo(() => {
+    const rows = handleProducts(fetchData, products);
+    if (!showVendorColumn || vendorFilter === 'all') {
+      return rows;
+    }
+    const vid = parseInt(vendorFilter, 10);
+    if (Number.isNaN(vid)) {
+      return rows;
+    }
+    return rows.filter((r) => (r.author_id ?? 0) === vid);
+  }, [handleProducts, fetchData, products, showVendorColumn, vendorFilter]);
+
+  const savedProductsForTable = useMemo(() => {
+    const rows = fetchData ?? [];
+    if (!showVendorColumn || vendorFilter === 'all') {
+      return rows;
+    }
+    const vid = parseInt(vendorFilter, 10);
+    if (Number.isNaN(vid)) {
+      return rows;
+    }
+    return rows.filter((source) => {
+      const parsed = JSON.parse(source.metadata as unknown as string) as {
+        post_id?: number;
+      };
+      const postId = parsed.post_id ?? 0;
+      return (authorByProductId[postId] ?? 0) === vid;
+    });
+  }, [fetchData, showVendorColumn, vendorFilter, authorByProductId]);
+
+  const columns = useMemo<ColumnDef<WordPressPost>[]>(() => {
+    const vendorColumn: ColumnDef<WordPressPost> = {
+      id: 'vendor',
+      header: 'Vendor',
+      cell: ({ row }) => {
+        const aid = row.original.author_id ?? 0;
+        const name =
+          aid > 0 ? (vendorNameByUserId[aid] ?? '—') : '—';
+        return <span className="text-sm text-muted-foreground">{name}</span>;
+      },
+    };
+
+    const cols: ColumnDef<WordPressPost>[] = [
       {
         accessorKey: 'image',
         header: 'Image',
@@ -419,6 +539,11 @@ export default function TabProducts() {
         accessorKey: 'date',
         header: 'Date',
       },
+    ];
+    if (showVendorColumn) {
+      cols.push(vendorColumn);
+    }
+    cols.push(
       {
         accessorKey: 'author',
         header: 'Author',
@@ -441,13 +566,34 @@ export default function TabProducts() {
             </div>
           );
         },
-      },
-    ],
-    [handleAdd, addIsPending, addingProductId]
-  );
+      }
+    );
+    return cols;
+  }, [
+    handleAdd,
+    addIsPending,
+    addingProductId,
+    showVendorColumn,
+    vendorNameByUserId,
+  ]);
 
-  const savedColumns = useMemo<ColumnDef<DataSource>[]>(
-    () => [
+  const savedColumns = useMemo<ColumnDef<DataSource>[]>(() => {
+    const vendorSavedColumn: ColumnDef<DataSource> = {
+      id: 'vendor_saved',
+      header: 'Vendor',
+      cell: ({ row }) => {
+        const parsedMetadata = JSON.parse(
+          row.original.metadata as unknown as string
+        ) as { post_id?: number };
+        const pid = parsedMetadata.post_id ?? 0;
+        const aid = authorByProductId[pid] ?? 0;
+        const name =
+          aid > 0 ? (vendorNameByUserId[aid] ?? '—') : '—';
+        return <span className="text-sm text-muted-foreground">{name}</span>;
+      },
+    };
+
+    const cols: ColumnDef<DataSource>[] = [
       {
         accessorKey: 'title',
         header: 'Title',
@@ -480,6 +626,11 @@ export default function TabProducts() {
           );
         },
       },
+    ];
+    if (showVendorColumn) {
+      cols.push(vendorSavedColumn);
+    }
+    cols.push(
       {
         accessorKey: 'last_updated',
         header: 'Last Updated',
@@ -533,16 +684,19 @@ export default function TabProducts() {
             </div>
           );
         },
-      },
-    ],
-    [
-      handleRemove,
-      removeIsPending,
-      removingProductId,
-      handleContentDisplay,
-      canEditOrDelete,
-    ]
-  );
+      }
+    );
+    return cols;
+  }, [
+    handleRemove,
+    removeIsPending,
+    removingProductId,
+    handleContentDisplay,
+    canEditOrDelete,
+    showVendorColumn,
+    authorByProductId,
+    vendorNameByUserId,
+  ]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -565,7 +719,27 @@ export default function TabProducts() {
                 />
               </CardTitle>
             </div>
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center justify-end">
+              {showVendorColumn ? (
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="vendor-filter-products" className="sr-only">
+                    Vendor
+                  </Label>
+                  <Select value={vendorFilter} onValueChange={setVendorFilter}>
+                    <SelectTrigger id="vendor-filter-products" className="w-[200px]">
+                      <SelectValue placeholder="All vendors" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All vendors</SelectItem>
+                      {(dokanVendorsQuery.data ?? []).map((v) => (
+                        <SelectItem key={v.id} value={String(v.id)}>
+                          {v.store_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
               <Input
                 placeholder="Search products..."
                 value={searchFilter}
@@ -578,7 +752,7 @@ export default function TabProducts() {
         <CardContent>
           <ReusableTable
             columns={columns}
-            data={handleProducts(fetchData, products)}
+            data={productsForTable}
             className="w-full"
             loading={getPostsIsPending}
             onSelectionChange={setSelectedRows}
@@ -622,7 +796,7 @@ export default function TabProducts() {
         <CardContent>
           <ReusableTable
             columns={savedColumns}
-            data={fetchData || []}
+            data={savedProductsForTable}
             loading={fetchIsPending}
             className="w-full"
             onSelectionChange={setSelectedRowsSaved}

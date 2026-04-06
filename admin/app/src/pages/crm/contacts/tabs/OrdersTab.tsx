@@ -303,6 +303,29 @@ export function OrdersTab({ contactId }: OrdersTabProps) {
             return <span className="text-sm">{sc.product_summary}</span>;
           }
         }
+        if (row.original.order_type === 'woocommerce') {
+          const woo = row.original as WooCommerceOrder;
+          if (woo.vendor_summary) {
+            return <span className="text-sm">{woo.vendor_summary}</span>;
+          }
+          if (woo.vendor_lines?.length) {
+            return (
+              <ul className="text-sm text-muted-foreground list-disc pl-4 space-y-0.5 max-w-xs">
+                {woo.vendor_lines.map((line, idx) => (
+                  <li key={`${line.vendor_id}-${idx}`}>
+                    {line.product_label}
+                    {line.vendor_store_name ? (
+                      <span className="text-muted-foreground">
+                        {' '}
+                        — {line.vendor_store_name}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            );
+          }
+        }
         return <span className="text-sm text-muted-foreground">-</span>;
       },
     },
