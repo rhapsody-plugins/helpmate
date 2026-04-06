@@ -29,6 +29,7 @@ import IntegrationCard from './integrations/components/IntegrationCard';
 import IntegrationConfigSheet from './integrations/components/IntegrationConfigSheet';
 import IntegrationLogsSheet from './integrations/components/IntegrationLogsSheet';
 import DokanIntegrationSheet from './integrations/multivendor/DokanIntegrationSheet';
+import WcfmIntegrationSheet from './integrations/multivendor/WcfmIntegrationSheet';
 import { useIntegrationConfig } from './integrations/hooks/useIntegrationConfig';
 import { INTEGRATION_REGISTRY } from './integrations/registry';
 import type {
@@ -41,6 +42,13 @@ const COMMERCE_PROVIDER_LABELS: Record<CommerceProviderId, string> = {
   woocommerce: 'WooCommerce',
   easy_digital_downloads: 'Easy Digital Downloads',
   surecart: 'SureCart',
+};
+
+type MultivendorProviderId = 'dokan' | 'wcfm';
+
+const MULTIVENDOR_PROVIDER_LABELS: Record<MultivendorProviderId, string> = {
+  dokan: 'Dokan',
+  wcfm: 'WCFM Marketplace',
 };
 
 const PAGE_BUILDERS = [
@@ -118,6 +126,9 @@ export default function Integrations() {
   const [eddLogsOpen, setEddLogsOpen] = useState(false);
   const [surecartLogsOpen, setSurecartLogsOpen] = useState(false);
   const [dokanSheetOpen, setDokanSheetOpen] = useState(false);
+  const [wcfmSheetOpen, setWcfmSheetOpen] = useState(false);
+  const [multivendorProviderOverride, setMultivendorProviderOverride] =
+    useState<MultivendorProviderId | null>(null);
   const [commerceProviderOverride, setCommerceProviderOverride] =
     useState<CommerceProviderId | null>(null);
 
@@ -178,6 +189,15 @@ export default function Integrations() {
     queryKey: ['settings', 'commerce_integration'],
     queryFn: async () => {
       const response = await api.get('/settings/commerce_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const multivendorConfigQuery = useQuery<{ selected_provider?: string }, Error>({
+    queryKey: ['settings', 'multivendor_integration'],
+    queryFn: async () => {
+      const response = await api.get('/settings/multivendor_integration');
       return response.data ?? {};
     },
     refetchOnWindowFocus: false,
@@ -307,9 +327,60 @@ export default function Integrations() {
     return id;
   })();
 
-  const pagePending = overviewQuery.isPending || commerceConfigQuery.isPending;
-  const pageError = overviewQuery.isError || commerceConfigQuery.isError;
-  const pageReady = overviewQuery.isSuccess && commerceConfigQuery.isSuccess;
+  const detectedMultivendorProviders = useMemo((): MultivendorProviderId[] => {
+    if (!overviewReady || !plugins) return [];
+    const out: MultivendorProviderId[] = [];
+    if (plugins.dokan?.active) out.push('dokan');
+    if (plugins.wcfm?.active) out.push('wcfm');
+    return out;
+  }, [overviewReady, plugins]);
+
+  const savedMultivendorProvider = useMemo<MultivendorProviderId | ''>(() => {
+    const raw = (multivendorConfigQuery.data?.selected_provider ?? '') as string;
+    return raw === 'dokan' || raw === 'wcfm' ? raw : '';
+  }, [multivendorConfigQuery.data?.selected_provider]);
+
+  const effectiveMultivendorProvider = useMemo<MultivendorProviderId | ''>(() => {
+    if (multivendorProviderOverride !== null) return multivendorProviderOverride;
+    return savedMultivendorProvider;
+  }, [multivendorProviderOverride, savedMultivendorProvider]);
+
+  useEffect(() => {
+    if (!overviewReady || !commerceDataReady) return;
+    if (multivendorConfigQuery.isPending || multivendorConfigQuery.isError) return;
+    if (multivendorProviderOverride !== null) return;
+
+    const incoming = (multivendorConfigQuery.data?.selected_provider ?? '') as string;
+    if (incoming === 'dokan' || incoming === 'wcfm') return;
+
+    const smartDefault: MultivendorProviderId =
+      detectedMultivendorProviders.includes('dokan')
+        ? 'dokan'
+        : detectedMultivendorProviders.includes('wcfm')
+          ? 'wcfm'
+          : 'dokan';
+
+    void updateSettingsMutation
+      .mutateAsync({
+        key: 'multivendor_integration',
+        data: { selected_provider: smartDefault },
+      })
+      .then(() => multivendorConfigQuery.refetch());
+  }, [
+    overviewReady,
+    commerceDataReady,
+    multivendorConfigQuery,
+    multivendorProviderOverride,
+    detectedMultivendorProviders,
+    updateSettingsMutation,
+  ]);
+
+  const pagePending =
+    overviewQuery.isPending || commerceConfigQuery.isPending || multivendorConfigQuery.isPending;
+  const pageError =
+    overviewQuery.isError || commerceConfigQuery.isError || multivendorConfigQuery.isError;
+  const pageReady =
+    overviewQuery.isSuccess && commerceConfigQuery.isSuccess && multivendorConfigQuery.isSuccess;
 
   const blockEditorUrl = `${window.location.origin}/wp-admin/post-new.php`;
 
@@ -504,6 +575,60 @@ export default function Integrations() {
 
               <TabsContent value="multivendor" className="mt-6">
                 <h2 className="!text-lg !font-semibold !mb-3">Multivendor</h2>
+                <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:flex-wrap">
+                  <div className="space-y-2 min-w-[min(100%,16rem)] flex-1">
+                    <Label htmlFor="multivendor-provider-select">Primary multivendor provider</Label>
+                    <Select
+                      value={effectiveMultivendorProvider || undefined}
+                      onValueChange={(value: MultivendorProviderId) =>
+                        setMultivendorProviderOverride(value)
+                      }
+                    >
+                      <SelectTrigger id="multivendor-provider-select" className="w-full sm:max-w-xs">
+                        <SelectValue placeholder="Select a provider" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {detectedMultivendorProviders.map((id) => (
+                          <SelectItem key={id} value={id}>
+                            {MULTIVENDOR_PROVIDER_LABELS[id]}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    type="button"
+                    disabled={
+                      updateSettingsMutation.isPending ||
+                      !effectiveMultivendorProvider ||
+                      detectedMultivendorProviders.length === 0
+                    }
+                    onClick={async () => {
+                      if (!effectiveMultivendorProvider) return;
+                      await updateSettingsMutation.mutateAsync({
+                        key: 'multivendor_integration',
+                        data: { selected_provider: effectiveMultivendorProvider },
+                      });
+                      await multivendorConfigQuery.refetch();
+                      setMultivendorProviderOverride(null);
+                    }}
+                  >
+                    Save
+                  </Button>
+                </div>
+                {detectedMultivendorProviders.length === 0 ? (
+                  <p className="text-sm text-muted-foreground mb-6">
+                    No active multivendor plugin. Install and activate Dokan or WCFM Marketplace
+                    below.
+                  </p>
+                ) : null}
+                {effectiveMultivendorProvider &&
+                !detectedMultivendorProviders.includes(effectiveMultivendorProvider) ? (
+                  <p className="text-sm text-amber-600 mb-6">
+                    Selected primary provider is inactive. Multivendor enrichment is disabled until
+                    you activate it or switch primary provider.
+                  </p>
+                ) : null}
                 <IntegrationCard
                   title="Dokan"
                   description="Optional vendor display in CRM, product training, and proactive sales. Sync Dokan sellers to CRM contacts on demand."
@@ -532,6 +657,39 @@ export default function Integrations() {
                   onConfigure={
                     pluginEntry(plugins, 'dokan')?.active
                       ? () => setDokanSheetOpen(true)
+                      : undefined
+                  }
+                />
+
+                <IntegrationCard
+                  className="mt-4"
+                  title="WCFM Marketplace"
+                  description="Optional vendor display in CRM, product training, and proactive sales. Sync WCFM sellers to CRM contacts on demand."
+                  plugin={pluginEntry(plugins, 'wcfm')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'wcfm'))}
+                  statusText={statusTextCommerce(pageReady, pluginEntry(plugins, 'wcfm'))}
+                  onInstall={
+                    pluginEntry(plugins, 'wcfm')?.wp_org_slug
+                      ? () =>
+                          installMutation.mutate(
+                            pluginEntry(plugins, 'wcfm')!.wp_org_slug as string
+                          )
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'wcfm')?.plugin_file
+                      ? () =>
+                          activateMutation.mutate(
+                            pluginEntry(plugins, 'wcfm')!.plugin_file as string
+                          )
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onConfigure={
+                    pluginEntry(plugins, 'wcfm')?.active
+                      ? () => setWcfmSheetOpen(true)
                       : undefined
                   }
                 />
@@ -621,6 +779,12 @@ export default function Integrations() {
               open={dokanSheetOpen}
               onOpenChange={setDokanSheetOpen}
               dokanPluginActive={pluginEntry(plugins, 'dokan')?.active === true}
+            />
+
+            <WcfmIntegrationSheet
+              open={wcfmSheetOpen}
+              onOpenChange={setWcfmSheetOpen}
+              wcfmPluginActive={pluginEntry(plugins, 'wcfm')?.active === true}
             />
 
             <IntegrationLogsSheet

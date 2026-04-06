@@ -107,6 +107,18 @@ export default function TabProducts() {
     refetchOnWindowFocus: false,
   });
 
+  const wcfmCheckQuery = useQuery<
+    { installed?: boolean; active?: boolean },
+    Error
+  >({
+    queryKey: ['check-wcfm', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/check-wcfm');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
   const dokanIntegrationQuery = useQuery<
     {
       show_vendor_in_training_products?: boolean;
@@ -121,33 +133,80 @@ export default function TabProducts() {
     refetchOnWindowFocus: false,
   });
 
-  const showVendorColumn =
-    productPostType === 'product' &&
-    dokanCheckQuery.data?.active === true &&
-    dokanIntegrationQuery.data?.show_vendor_in_training_products === true;
+  const wcfmIntegrationQuery = useQuery<
+    {
+      show_vendor_in_training_products?: boolean;
+    },
+    Error
+  >({
+    queryKey: ['settings', 'wcfm_integration', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/settings/wcfm_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
 
-  const dokanVendorsQuery = useQuery<
+  const multivendorConfigQuery = useQuery<{ selected_provider?: string }, Error>({
+    queryKey: ['settings', 'multivendor_integration', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/settings/multivendor_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const selectedMultivendorProvider =
+    multivendorConfigQuery.data?.selected_provider === 'wcfm'
+      ? 'wcfm'
+      : multivendorConfigQuery.data?.selected_provider === 'dokan'
+        ? 'dokan'
+        : 'dokan';
+
+  const activeMultivendorProvider =
+    productPostType === 'product' &&
+    selectedMultivendorProvider === 'wcfm' &&
+    wcfmCheckQuery.data?.active === true
+      ? 'wcfm'
+      : productPostType === 'product' &&
+          selectedMultivendorProvider === 'dokan' &&
+          dokanCheckQuery.data?.active === true
+        ? 'dokan'
+        : null;
+
+  const showVendorColumn =
+    activeMultivendorProvider === 'wcfm'
+      ? wcfmIntegrationQuery.data?.show_vendor_in_training_products === true
+      : activeMultivendorProvider === 'dokan'
+        ? dokanIntegrationQuery.data?.show_vendor_in_training_products === true
+        : false;
+
+  const multivendorVendorsQuery = useQuery<
     { id: number; store_name: string; email: string }[],
     Error
   >({
-    queryKey: ['integrations-dokan-vendors', 'tab-products'],
+    queryKey: ['integrations-multivendor-vendors', activeMultivendorProvider, 'tab-products'],
     queryFn: async () => {
+      const endpoint =
+        activeMultivendorProvider === 'wcfm'
+          ? '/integrations/wcfm/vendors'
+          : '/integrations/dokan/vendors';
       const response = await api.get<{ vendors: { id: number; store_name: string; email: string }[] }>(
-        '/integrations/dokan/vendors'
+        endpoint
       );
       return response.data?.vendors ?? [];
     },
-    enabled: showVendorColumn,
+    enabled: showVendorColumn && !!activeMultivendorProvider,
     refetchOnWindowFocus: false,
   });
 
   const vendorNameByUserId = useMemo(() => {
     const map: Record<number, string> = {};
-    (dokanVendorsQuery.data ?? []).forEach((v) => {
+    (multivendorVendorsQuery.data ?? []).forEach((v) => {
       map[v.id] = v.store_name;
     });
     return map;
-  }, [dokanVendorsQuery.data]);
+  }, [multivendorVendorsQuery.data]);
 
   const authorByProductId = useMemo(() => {
     const m: Record<number, number> = {};
@@ -731,7 +790,7 @@ export default function TabProducts() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All vendors</SelectItem>
-                      {(dokanVendorsQuery.data ?? []).map((v) => (
+                      {(multivendorVendorsQuery.data ?? []).map((v) => (
                         <SelectItem key={v.id} value={String(v.id)}>
                           {v.store_name}
                         </SelectItem>

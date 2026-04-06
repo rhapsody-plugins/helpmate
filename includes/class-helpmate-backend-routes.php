@@ -204,6 +204,29 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
 
+        register_rest_route('helpmate/v1', '/check-wcfm', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WordPress core filter
+                $active_plugins = apply_filters('active_plugins', get_option('active_plugins'));
+                $installed = in_array('wc-multivendor-marketplace/wc-multivendor-marketplace.php', $active_plugins, true);
+                $active = method_exists($this->helpmate, 'get_wcfm') && $this->helpmate->get_wcfm()->is_active();
+                try {
+                    return new WP_REST_Response([
+                        'error' => false,
+                        'installed' => $installed,
+                        'active' => $active,
+                    ], 200);
+                } catch (Exception $e) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
         /* --------------------------------------- */
         /*                   API                   */
         /* --------------------------------------- */
@@ -963,6 +986,63 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
         ));
 
+        register_rest_route('helpmate/v1', '/integrations/wcfm', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $wcfm = $this->helpmate->get_wcfm();
+                $status = $wcfm->get_rest_status();
+                return new WP_REST_Response(
+                    array(
+                        'error'  => false,
+                        'active' => $status['active'],
+                        'vendor_count' => $status['vendor_count'],
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/wcfm/vendors', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $wcfm = $this->helpmate->get_wcfm();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'vendors' => $wcfm->get_vendors_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/wcfm/sync-vendors', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $wcfm = $this->helpmate->get_wcfm();
+                if (!$wcfm->is_active()) {
+                    return new WP_REST_Response(
+                        array(
+                            'error'   => true,
+                            'message' => __('WCFM Marketplace is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $wcfm->sync_all_vendors_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
         // Create default abandoned cart follow-up email templates
         register_rest_route('helpmate/v1', '/crm/abandoned-cart/create-default-followup-templates', array(
             'methods' => 'POST',
@@ -1195,21 +1275,33 @@ class Helpmate_Backend_Routes
                     'data'  => $names,
                 );
 
-                if (
-                    'woocommerce' === $provider
-                    && method_exists($this->helpmate, 'get_dokan')
-                    && $this->helpmate->get_dokan()->should_enrich_product_lists()
-                ) {
+                $vendor_helper = null;
+                if ('woocommerce' === $provider) {
+                    $primary = method_exists($this->helpmate, 'get_primary_multivendor_provider')
+                        ? $this->helpmate->get_primary_multivendor_provider()
+                        : '';
+
+                    if ('wcfm' === $primary && method_exists($this->helpmate, 'get_wcfm') && $this->helpmate->get_wcfm()->should_enrich_product_lists()) {
+                        $vendor_helper = $this->helpmate->get_wcfm();
+                    } elseif ('dokan' === $primary && method_exists($this->helpmate, 'get_dokan') && $this->helpmate->get_dokan()->should_enrich_product_lists()) {
+                        $vendor_helper = $this->helpmate->get_dokan();
+                    }
+                }
+
+                if ($vendor_helper) {
                     $vendors = array();
                     foreach ($product_ids as $product_id) {
                         if ($product_id <= 0) {
                             continue;
                         }
-                        $author_id = (int) get_post_field('post_author', $product_id);
-                        $dokan = $this->helpmate->get_dokan();
+                        if (method_exists($vendor_helper, 'resolve_vendor_id_for_product')) {
+                            $author_id = (int) $vendor_helper->resolve_vendor_id_for_product($product_id);
+                        } else {
+                            $author_id = (int) get_post_field('post_author', $product_id);
+                        }
                         $vendors[ $product_id ] = array(
                             'vendor_id'         => $author_id,
-                            'vendor_store_name' => $author_id > 0 ? $dokan->get_store_name_for_vendor($author_id) : '',
+                            'vendor_store_name' => $author_id > 0 ? $vendor_helper->get_store_name_for_vendor($author_id) : '',
                         );
                     }
                     $response['vendors'] = $vendors;
@@ -5629,7 +5721,13 @@ class Helpmate_Backend_Routes
                         'type' => $product->get_type(),
                         'sku' => $product->get_sku(),
                     );
-                    if (method_exists($this->helpmate, 'get_dokan')) {
+                    $primary = method_exists($this->helpmate, 'get_primary_multivendor_provider')
+                        ? $this->helpmate->get_primary_multivendor_provider()
+                        : '';
+
+                    if ('wcfm' === $primary && method_exists($this->helpmate, 'get_wcfm')) {
+                        $row = $this->helpmate->get_wcfm()->maybe_enrich_product_row($row, $pid);
+                    } elseif ('dokan' === $primary && method_exists($this->helpmate, 'get_dokan')) {
                         $row = $this->helpmate->get_dokan()->maybe_enrich_product_row($row, $pid);
                     }
                     $discounted_products[] = $row;

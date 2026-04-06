@@ -157,6 +157,15 @@ export default function TabProducts() {
     refetchOnWindowFocus: false,
   });
 
+  const wcfmCheckQuery = useQuery<{ active?: boolean }, Error>({
+    queryKey: ['check-wcfm', 'proactive-sales-products'],
+    queryFn: async () => {
+      const response = await api.get('/check-wcfm');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
   const dokanIntegrationQuery = useQuery<
     { show_vendor_in_product_lists?: boolean },
     Error
@@ -169,9 +178,40 @@ export default function TabProducts() {
     refetchOnWindowFocus: false,
   });
 
+  const wcfmIntegrationQuery = useQuery<
+    { show_vendor_in_product_lists?: boolean },
+    Error
+  >({
+    queryKey: ['settings', 'wcfm_integration', 'proactive-sales'],
+    queryFn: async () => {
+      const response = await api.get('/settings/wcfm_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const multivendorConfigQuery = useQuery<{ selected_provider?: string }, Error>({
+    queryKey: ['settings', 'multivendor_integration', 'proactive-sales'],
+    queryFn: async () => {
+      const response = await api.get('/settings/multivendor_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const selectedMultivendorProvider =
+    multivendorConfigQuery.data?.selected_provider === 'wcfm'
+      ? 'wcfm'
+      : multivendorConfigQuery.data?.selected_provider === 'dokan'
+        ? 'dokan'
+        : 'dokan';
+
   const showVendorOnDiscounted =
-    dokanCheckQuery.data?.active === true &&
-    dokanIntegrationQuery.data?.show_vendor_in_product_lists === true;
+    selectedMultivendorProvider === 'wcfm' && wcfmCheckQuery.data?.active === true
+      ? wcfmIntegrationQuery.data?.show_vendor_in_product_lists === true
+      : selectedMultivendorProvider === 'dokan' &&
+        dokanCheckQuery.data?.active === true &&
+        dokanIntegrationQuery.data?.show_vendor_in_product_lists === true;
 
   // ========================================================================
   // MEMOIZED VALUES

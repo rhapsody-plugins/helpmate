@@ -186,6 +186,13 @@ class Helpmate
 	private $dokan;
 
 	/**
+	 * WCFM integration helper (optional multivendor).
+	 *
+	 * @var Helpmate_WCFM
+	 */
+	private $wcfm;
+
+	/**
 	 * The Easy Digital Downloads instance.
 	 *
 	 * @since    2.0.3
@@ -401,6 +408,7 @@ class Helpmate
 		$this->surecart = new Helpmate_SureCart($this->settings);
 		$this->social_chat = new Helpmate_Social_Chat($this);
 		$this->dokan = new Helpmate_Dokan($this);
+		$this->wcfm = new Helpmate_WCFM($this);
 		$this->crm = new Helpmate_CRM($this);
 		$this->crm_order_metabox = new Helpmate_Crm_Order_Metabox($this->crm);
 		$this->team = new Helpmate_Team($this);
@@ -553,6 +561,7 @@ class Helpmate
 			'includes/integrations/class-helpmate-formidable-forms-integration.php',
 			'includes/integrations/class-helpmate-integration-plugins.php',
 			'includes/integrations/class-helpmate-dokan.php',
+			'includes/integrations/class-helpmate-wcfm.php',
 			'includes/integrations/class-helpmate-elementor-utils.php',
 			'includes/integrations/class-helpmate-blocks.php',
 		);
@@ -910,6 +919,75 @@ class Helpmate
 	}
 
 	/**
+	 * Get multivendor integration settings.
+	 *
+	 * @return array{selected_provider:string}
+	 */
+	public function get_multivendor_integration_settings(): array
+	{
+		$settings = $this->settings->get_setting('multivendor_integration');
+		if (!is_array($settings)) {
+			$settings = [];
+		}
+
+		return [
+			'selected_provider' => isset($settings['selected_provider']) ? (string) $settings['selected_provider'] : '',
+		];
+	}
+
+	/**
+	 * Get active multivendor providers by runtime readiness.
+	 *
+	 * @return string[]
+	 */
+	public function get_detected_multivendor_providers(): array
+	{
+		$providers = [];
+		if (method_exists($this, 'get_dokan') && $this->get_dokan()->is_active()) {
+			$providers[] = 'dokan';
+		}
+		if (method_exists($this, 'get_wcfm') && $this->get_wcfm()->is_active()) {
+			$providers[] = 'wcfm';
+		}
+		return $providers;
+	}
+
+	/**
+	 * Smart default provider for initial persistence.
+	 *
+	 * @return string
+	 */
+	public function get_multivendor_default_provider_for_persist(): string
+	{
+		$detected = $this->get_detected_multivendor_providers();
+		if (in_array('dokan', $detected, true)) {
+			return 'dokan';
+		}
+		if (in_array('wcfm', $detected, true)) {
+			return 'wcfm';
+		}
+		return 'dokan';
+	}
+
+	/**
+	 * Get selected primary multivendor provider.
+	 *
+	 * Strict mode: no cross-provider fallback when selected provider is inactive.
+	 *
+	 * @return string
+	 */
+	public function get_primary_multivendor_provider(): string
+	{
+		$settings = $this->get_multivendor_integration_settings();
+		$selected = isset($settings['selected_provider']) ? (string) $settings['selected_provider'] : '';
+		$detected = $this->get_detected_multivendor_providers();
+		if (!empty($selected) && in_array($selected, ['dokan', 'wcfm'], true) && in_array($selected, $detected, true)) {
+			return $selected;
+		}
+		return '';
+	}
+
+	/**
 	 * Get commerce integration settings.
 	 *
 	 * @since 2.0.3
@@ -1142,6 +1220,16 @@ class Helpmate
 	public function get_dokan()
 	{
 		return $this->dokan;
+	}
+
+	/**
+	 * WCFM integration helper.
+	 *
+	 * @return Helpmate_WCFM
+	 */
+	public function get_wcfm()
+	{
+		return $this->wcfm;
 	}
 
 	/**

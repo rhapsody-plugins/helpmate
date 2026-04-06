@@ -473,6 +473,19 @@ class Helpmate_CRM
     }
 
     /**
+     * Create or update a CRM contact from WCFM vendor profile (match by email).
+     *
+     * Uses the same full-overwrite semantics as Dokan vendor sync.
+     *
+     * @param array $data Mapped vendor fields (email, names, phone, address, wp_user_id, status).
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_wcfm_vendor(array $data)
+    {
+        return $this->upsert_contact_from_dokan_vendor($data);
+    }
+
+    /**
      * Overwrite mapped scalar columns from Dokan (empty strings allowed).
      *
      * @since 1.x.x
@@ -1210,7 +1223,7 @@ class Helpmate_CRM
                     'date_created' => $order->get_date_created()->date('Y-m-d H:i:s'),
                     'edit_url' => admin_url('post.php?post=' . $order->get_id() . '&action=edit'),
                 ];
-                $row = $this->maybe_append_dokan_vendor_to_woo_order_row($row, $order);
+                $row = $this->maybe_append_multivendor_to_woo_order_row($row, $order);
                 $orders[] = $row;
             }
         }
@@ -1243,7 +1256,7 @@ class Helpmate_CRM
                         'date_created' => $order->get_date_created()->date('Y-m-d H:i:s'),
                         'edit_url' => admin_url('post.php?post=' . $order->get_id() . '&action=edit'),
                     ];
-                    $row = $this->maybe_append_dokan_vendor_to_woo_order_row($row, $order);
+                    $row = $this->maybe_append_multivendor_to_woo_order_row($row, $order);
                     $orders[] = $row;
                 }
             }
@@ -1253,23 +1266,37 @@ class Helpmate_CRM
     }
 
     /**
-     * Append Dokan vendor display fields when integration toggle is on (additive only).
+     * Append multivendor display fields when integration toggle is on (additive only).
+     *
+     * WCFM takes precedence over Dokan if both are active/enabled.
      *
      * @param array    $row   Order row.
      * @param WC_Order $order Order object.
      * @return array
      */
-    private function maybe_append_dokan_vendor_to_woo_order_row(array $row, $order): array
+    private function maybe_append_multivendor_to_woo_order_row(array $row, $order): array
     {
-        if (!method_exists($this->helpmate, 'get_dokan')) {
-            return $row;
+        $primary = method_exists($this->helpmate, 'get_primary_multivendor_provider')
+            ? $this->helpmate->get_primary_multivendor_provider()
+            : '';
+
+        if ('wcfm' === $primary && method_exists($this->helpmate, 'get_wcfm')) {
+            $wcfm = $this->helpmate->get_wcfm();
+            if ($wcfm->should_enrich_orders()) {
+                $extra = $wcfm->get_vendor_display_for_order($order);
+                return array_merge($row, $extra);
+            }
         }
-        $dokan = $this->helpmate->get_dokan();
-        if (!$dokan->should_enrich_orders()) {
-            return $row;
+
+        if ('dokan' === $primary && method_exists($this->helpmate, 'get_dokan')) {
+            $dokan = $this->helpmate->get_dokan();
+            if ($dokan->should_enrich_orders()) {
+                $extra = $dokan->get_vendor_display_for_order($order);
+                return array_merge($row, $extra);
+            }
         }
-        $extra = $dokan->get_vendor_display_for_order($order);
-        return array_merge($row, $extra);
+
+        return $row;
     }
 
     /**

@@ -60,6 +60,12 @@ class Helpmate_Integration_Plugins {
 				),
 				'wp_org_slug'   => 'dokan-lite',
 			),
+			'wcfm'                  => array(
+				'candidates'    => array(
+					'wc-multivendor-marketplace/wc-multivendor-marketplace.php',
+				),
+				'wp_org_slug'   => 'wc-multivendor-marketplace',
+			),
 			'elementor'             => array(
 				'candidates'    => array( 'elementor/elementor.php' ),
 				'wp_org_slug'   => 'elementor',

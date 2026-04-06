@@ -1221,6 +1221,14 @@ class Helpmate_Database
                 'show_vendor_in_training_products' => false,
                 'show_vendor_in_product_lists'     => false,
             ],
+            'wcfm_integration' => [
+                'show_vendor_in_orders_tab'        => false,
+                'show_vendor_in_training_products' => false,
+                'show_vendor_in_product_lists'     => false,
+            ],
+            'multivendor_integration' => [
+                'selected_provider' => 'dokan',
+            ],
             'coupons' => [
                 "coupons" => [],
                 "exit_intent_coupon" => "",
