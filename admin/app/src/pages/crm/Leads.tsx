@@ -32,6 +32,10 @@ import {
 import { useMain } from '@/contexts/MainContext';
 import useActivity from '@/hooks/useActivity';
 import { useCrm } from '@/hooks/useCrm';
+import {
+  useMarkReadByEntity,
+  useNotificationsList,
+} from '@/hooks/useNotifications';
 import { cn } from '@/lib/utils';
 import { ContactCreateSheet } from '@/pages/crm/contacts/components/ContactCreateSheet';
 import { Lead } from '@/types';
@@ -78,6 +82,26 @@ export default function Leads() {
 
   const getLeads = useGetLeads(page, perPage);
   const { data: leads, isPending: leadsLoading, refetch: refetchLeads } = getLeads;
+
+  // Unread lead notifications (cap 500, same as tasks list)
+  const { data: unreadLeadNotifications } = useNotificationsList({
+    type: 'lead',
+    read: 'unread',
+    per_page: 500,
+  });
+  const { mutate: markReadByEntity } = useMarkReadByEntity();
+
+  // Normalize IDs: REST/axios may return lead.id as string while entity_id is numeric — Set.has must match.
+  const leadIdsWithUnread = useMemo(
+    () =>
+      new Set(
+        (unreadLeadNotifications?.data ?? [])
+          .filter((n) => n.entity_id != null)
+          .map((n) => Number(n.entity_id))
+          .filter((id) => Number.isFinite(id) && id > 0)
+      ),
+    [unreadLeadNotifications?.data]
+  );
 
   // Fetch contacts for search
   const { data: contactsData } = useContacts({ search: contactSearch }, 1, 50);
@@ -137,30 +161,50 @@ export default function Leads() {
   }, [leads, selectedLead]);
 
   const sidebarContent = useMemo(() => {
-    return (leads?.leads ?? []).map((lead: Lead) => (
-      <SidebarMenuItem key={String(lead.id)} className="pb-2">
-        <SidebarMenuButton
-          onClick={() => setSelectedLead(lead)}
-          isActive={selectedLead?.id === lead.id}
-          className={cn('p-3 h-auto rounded-none')}
-        >
-          <div className={cn('flex flex-col items-start')}>
-            <span className="font-medium text-sm truncate max-w-[180px]">
-              {lead.name}
-            </span>
-            <div className="flex gap-2 items-center">
-              <span className="text-xs">{formatDateTime(lead.timestamp)}</span>
-              {lead.source && (
-                <Badge variant="outline" className="text-xs capitalize">
-                  {formatSource(lead.source)}
-                </Badge>
-              )}
+    return (leads?.leads ?? []).map((lead: Lead) => {
+      const leadIdNum = Number(lead.id);
+      const isUnread = !Number.isNaN(leadIdNum) && leadIdsWithUnread.has(leadIdNum);
+      const isSelected = Number(selectedLead?.id) === leadIdNum;
+      return (
+        <SidebarMenuItem key={String(lead.id)}>
+          <SidebarMenuButton
+            onClick={() => {
+              setSelectedLead(lead);
+              markReadByEntity({
+                entity_type: 'lead',
+                entity_id: leadIdNum,
+              });
+            }}
+            isActive={isSelected}
+            className={cn(
+              'p-3 h-auto rounded-none',
+              // Same hue as selected row (sidebar-primary), lower opacity — not selected only
+              isUnread && !isSelected && 'bg-sidebar-primary/30'
+            )}
+          >
+            <div className={cn('flex flex-col items-start gap-1 w-full min-w-0')}>
+              <span className="font-medium text-sm truncate w-full min-w-0">
+                {lead.name}
+              </span>
+              <div className="flex gap-2 items-center flex-wrap">
+                <span className="text-xs">{formatDateTime(lead.timestamp)}</span>
+                {lead.source && (
+                  <Badge variant="outline" className="text-xs capitalize">
+                    {formatSource(lead.source)}
+                  </Badge>
+                )}
+              </div>
             </div>
-          </div>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    ));
-  }, [leads?.leads, selectedLead?.id]);
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      );
+    });
+  }, [
+    leads?.leads,
+    selectedLead?.id,
+    leadIdsWithUnread,
+    markReadByEntity,
+  ]);
 
   const handleCreateContact = async () => {
     if (!selectedLead) return;
