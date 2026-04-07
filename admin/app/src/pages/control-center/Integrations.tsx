@@ -446,46 +446,72 @@ export default function Integrations() {
                     Downloads, or SureCart below.
                   </p>
                 ) : (
-                  <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:flex-wrap">
-                    <div className="space-y-2 min-w-[min(100%,16rem)] flex-1">
-                      <Label htmlFor="commerce-provider-select">Active commerce platform</Label>
-                      <Select
-                        value={selectValue}
-                        onValueChange={(value: CommerceProviderId) =>
-                          setCommerceProviderOverride(value)
+                  <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                      <div className="space-y-2 min-w-[min(100%,16rem)]">
+                        <Label htmlFor="commerce-provider-select">Active commerce platform</Label>
+                        <Select
+                          value={selectValue}
+                          onValueChange={(value: CommerceProviderId) =>
+                            setCommerceProviderOverride(value)
+                          }
+                        >
+                          <SelectTrigger id="commerce-provider-select" className="w-full sm:max-w-xs">
+                            <SelectValue placeholder="Select a provider" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {detectedProviders.map((id) => (
+                              <SelectItem key={id} value={id}>
+                                {COMMERCE_PROVIDER_LABELS[id]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        type="button"
+                        disabled={
+                          updateSettingsMutation.isPending ||
+                          !effectiveCommerceConfig ||
+                          detectedProviders.length === 0
                         }
+                        onClick={async () => {
+                          if (!effectiveCommerceConfig) return;
+                          await updateSettingsMutation.mutateAsync({
+                            key: 'commerce_integration',
+                            data: effectiveCommerceConfig,
+                          });
+                          await commerceConfigQuery.refetch();
+                          setCommerceProviderOverride(null);
+                        }}
                       >
-                        <SelectTrigger id="commerce-provider-select" className="w-full sm:max-w-xs">
-                          <SelectValue placeholder="Select a provider" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {detectedProviders.map((id) => (
-                            <SelectItem key={id} value={id}>
-                              {COMMERCE_PROVIDER_LABELS[id]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        Save
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      disabled={
-                        updateSettingsMutation.isPending ||
-                        !effectiveCommerceConfig ||
-                        detectedProviders.length === 0
-                      }
-                      onClick={async () => {
-                        if (!effectiveCommerceConfig) return;
-                        await updateSettingsMutation.mutateAsync({
-                          key: 'commerce_integration',
-                          data: effectiveCommerceConfig,
-                        });
-                        await commerceConfigQuery.refetch();
-                        setCommerceProviderOverride(null);
-                      }}
-                    >
-                      Save
-                    </Button>
+                    {selectedCommerceProvider === 'woocommerce' &&
+                    pluginEntry(plugins, 'woocommerce')?.active ? (
+                      <CommerceCustomerSyncButton
+                        providerLabel="WooCommerce"
+                        endpoint="/integrations/woocommerce/sync-customers"
+                        compact
+                      />
+                    ) : null}
+                    {selectedCommerceProvider === 'easy_digital_downloads' &&
+                    pluginEntry(plugins, 'easy_digital_downloads')?.active ? (
+                      <CommerceCustomerSyncButton
+                        providerLabel="Easy Digital Downloads"
+                        endpoint="/integrations/edd/sync-customers"
+                        compact
+                      />
+                    ) : null}
+                    {selectedCommerceProvider === 'surecart' &&
+                    pluginEntry(plugins, 'surecart')?.active ? (
+                      <CommerceCustomerSyncButton
+                        providerLabel="SureCart"
+                        endpoint="/integrations/surecart/sync-customers"
+                        compact
+                      />
+                    ) : null}
                   </div>
                 )}
 
@@ -516,13 +542,6 @@ export default function Integrations() {
                   activatePending={activateMutation.isPending}
                   onLogs={() => setWooLogsOpen(true)}
                 />
-                {selectedCommerceProvider === 'woocommerce' &&
-                pluginEntry(plugins, 'woocommerce')?.active ? (
-                  <CommerceCustomerSyncButton
-                    providerLabel="WooCommerce"
-                    endpoint="/integrations/woocommerce/sync-customers"
-                  />
-                ) : null}
 
                 <IntegrationCard
                   className="mt-4"
@@ -558,13 +577,6 @@ export default function Integrations() {
                   activatePending={activateMutation.isPending}
                   onLogs={() => setEddLogsOpen(true)}
                 />
-                {selectedCommerceProvider === 'easy_digital_downloads' &&
-                pluginEntry(plugins, 'easy_digital_downloads')?.active ? (
-                  <CommerceCustomerSyncButton
-                    providerLabel="Easy Digital Downloads"
-                    endpoint="/integrations/edd/sync-customers"
-                  />
-                ) : null}
 
                 <IntegrationCard
                   className="mt-4"
@@ -594,13 +606,6 @@ export default function Integrations() {
                   activatePending={activateMutation.isPending}
                   onLogs={() => setSurecartLogsOpen(true)}
                 />
-                {selectedCommerceProvider === 'surecart' &&
-                pluginEntry(plugins, 'surecart')?.active ? (
-                  <CommerceCustomerSyncButton
-                    providerLabel="SureCart"
-                    endpoint="/integrations/surecart/sync-customers"
-                  />
-                ) : null}
               </TabsContent>
 
               <TabsContent value="lms" className="mt-6">

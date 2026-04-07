@@ -375,14 +375,23 @@ class Helpmate_Admin
 			array($this, 'redirect_to_support')
 		);
 
-		add_submenu_page(
-			'helpmate',
-			'Upgrade',
-			'Upgrade',
-			'edit_posts',
-			'helpmate-upgrade',
-			array($this, 'redirect_to_pricing')
-		);
+		$helpmate = isset($GLOBALS['helpmate']) ? $GLOBALS['helpmate'] : null;
+		$has_pro_license = is_object($helpmate) && method_exists($helpmate, 'get_product_slug')
+			&& 'helpmate-free' !== (string) $helpmate->get_product_slug();
+		$is_pro_plugin_active = is_object($helpmate) && method_exists($helpmate, 'is_helpmate_pro_active')
+			&& true === (bool) $helpmate->is_helpmate_pro_active();
+
+		// Hide Upgrade when both license and Pro plugin are active.
+		if (!($has_pro_license && $is_pro_plugin_active)) {
+			add_submenu_page(
+				'helpmate',
+				'Upgrade',
+				'Upgrade',
+				'edit_posts',
+				'helpmate-upgrade',
+				array($this, 'redirect_to_pricing')
+			);
+		}
 	}
 
 	/**

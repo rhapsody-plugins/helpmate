@@ -24,11 +24,13 @@ type SyncSummary = {
 type CommerceCustomerSyncButtonProps = {
   providerLabel: string;
   endpoint: string;
+  compact?: boolean;
 };
 
 export default function CommerceCustomerSyncButton({
   providerLabel,
   endpoint,
+  compact = false,
 }: CommerceCustomerSyncButtonProps) {
   const queryClient = useQueryClient();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -74,19 +76,23 @@ export default function CommerceCustomerSyncButton({
 
   return (
     <>
-      <div className="border-t pt-4 mt-4 space-y-2">
+      <div className={compact ? '' : 'border-t pt-4 mt-4 space-y-2'}>
         <Button type="button" variant="secondary" onClick={() => setConfirmOpen(true)}>
           Sync customers to CRM
         </Button>
-        <p className="text-xs text-muted-foreground">
-          One-way import from {providerLabel}: customers are matched by email and CRM contact
-          fields are overwritten from {providerLabel} data.
-        </p>
-        <p className="text-xs text-muted-foreground">
-          If you run sync from another commerce provider later, that latest sync wins for matching
-          emails.
-        </p>
       </div>
+      {!compact && (
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground">
+            One-way import from {providerLabel}: customers are matched by email and CRM contact
+            fields are overwritten from {providerLabel} data.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            If you run sync from another commerce provider later, that latest sync wins for matching
+            emails.
+          </p>
+        </div>
+      )}
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
