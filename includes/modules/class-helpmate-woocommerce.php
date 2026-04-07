@@ -18,6 +18,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 class Helpmate_WooCommerce
 {
+    /**
+     * Core plugin instance.
+     *
+     * @var Helpmate|null
+     */
+    private $helpmate;
+
 
     /**
      * The settings handler instance.
@@ -34,9 +41,10 @@ class Helpmate_WooCommerce
      * @since    1.0.0
      * @param    Helpmate_Settings    $settings    The settings handler instance.
      */
-    public function __construct($settings)
+    public function __construct($settings, $helpmate = null)
     {
         $this->settings = $settings;
+        $this->helpmate = $helpmate;
     }
 
     /**
@@ -407,5 +415,128 @@ class Helpmate_WooCommerce
                 'text' => 'Product information: ' . json_encode($product_info_response)
             ]);
         }
+    }
+
+    /**
+     * Sync WooCommerce customers into CRM (one-way, email keyed).
+     *
+     * WP user-backed customers only (role: customer).
+     *
+     * @return array{created:int,updated:int,skipped_no_email:int,truncated:bool,errors:array<int, array{email:string,message:string}>}
+     */
+    public function sync_all_customers_to_crm(): array
+    {
+        $summary = array(
+            'created' => 0,
+            'updated' => 0,
+            'skipped_no_email' => 0,
+            'truncated' => false,
+            'errors' => array(),
+        );
+
+        if (!class_exists('WooCommerce') || !$this->helpmate || !method_exists($this->helpmate, 'get_crm')) {
+            return $summary;
+        }
+
+        $crm = $this->helpmate->get_crm();
+        $limit = 5000;
+        $processed = 0;
+        $offset = 0;
+        $batch_size = 250;
+
+        while ($processed < $limit) {
+            $remaining = $limit - $processed;
+            $number = min($batch_size, $remaining);
+            $user_ids = get_users(array(
+                'role' => 'customer',
+                'fields' => 'ID',
+                'number' => $number,
+                'offset' => $offset,
+                'orderby' => 'ID',
+                'order' => 'ASC',
+            ));
+
+            if (empty($user_ids)) {
+                break;
+            }
+
+            foreach ($user_ids as $user_id) {
+                if ($processed >= $limit) {
+                    $summary['truncated'] = true;
+                    break 2;
+                }
+                ++$processed;
+
+                $customer = new WC_Customer((int) $user_id);
+                $data = $this->map_customer_to_contact_data($customer);
+                if (null === $data) {
+                    ++$summary['skipped_no_email'];
+                    continue;
+                }
+
+                $result = $crm->upsert_contact_from_commerce_sync($data);
+                if (is_wp_error($result)) {
+                    $summary['errors'][] = array(
+                        'email' => $data['email'],
+                        'message' => $result->get_error_message(),
+                    );
+                    continue;
+                }
+                if (!empty($result['created'])) {
+                    ++$summary['created'];
+                } elseif (!empty($result['updated'])) {
+                    ++$summary['updated'];
+                }
+            }
+
+            $offset += count($user_ids);
+            if (count($user_ids) < $number) {
+                break;
+            }
+        }
+
+        return $summary;
+    }
+
+    /**
+     * Map Woo customer fields to CRM contact payload.
+     *
+     * @param WC_Customer $customer Woo customer.
+     * @return array<string, mixed>|null
+     */
+    private function map_customer_to_contact_data($customer): ?array
+    {
+        if (!$customer || !method_exists($customer, 'get_email')) {
+            return null;
+        }
+
+        $email = sanitize_email((string) $customer->get_email());
+        if ('' === $email) {
+            return null;
+        }
+
+        $first = sanitize_text_field((string) $customer->get_first_name());
+        $last = sanitize_text_field((string) $customer->get_last_name());
+        if ('' === $first && '' === $last) {
+            $first = sanitize_text_field((string) $customer->get_billing_first_name());
+            $last = sanitize_text_field((string) $customer->get_billing_last_name());
+        }
+
+        $phone = sanitize_text_field((string) $customer->get_billing_phone());
+
+        return array(
+            'email' => $email,
+            'first_name' => $first,
+            'last_name' => $last,
+            'phone' => $phone,
+            'address_line_1' => sanitize_text_field((string) $customer->get_billing_address_1()),
+            'address_line_2' => sanitize_text_field((string) $customer->get_billing_address_2()),
+            'city' => sanitize_text_field((string) $customer->get_billing_city()),
+            'state' => sanitize_text_field((string) $customer->get_billing_state()),
+            'zip_code' => sanitize_text_field((string) $customer->get_billing_postcode()),
+            'country' => sanitize_text_field((string) $customer->get_billing_country()),
+            'wp_user_id' => (int) $customer->get_id(),
+            'status' => 'subscribed',
+        );
     }
 }

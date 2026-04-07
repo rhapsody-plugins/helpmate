@@ -21,6 +21,7 @@ import {
   isPersistedCommerceProvider,
   resolveCommerceIntegration,
 } from './integrations/commerce/resolve-commerce';
+import CommerceCustomerSyncButton from './integrations/commerce/CommerceCustomerSyncButton';
 import type {
   CommerceIntegrationConfig,
   CommerceProviderId,
@@ -326,6 +327,7 @@ export default function Integrations() {
     }
     return id;
   })();
+  const selectedCommerceProvider = effectiveCommerceConfig?.selected_provider ?? '';
 
   const detectedMultivendorProviders = useMemo((): MultivendorProviderId[] => {
     if (!overviewReady || !plugins) return [];
@@ -507,6 +509,13 @@ export default function Integrations() {
                   activatePending={activateMutation.isPending}
                   onLogs={() => setWooLogsOpen(true)}
                 />
+                {selectedCommerceProvider === 'woocommerce' &&
+                pluginEntry(plugins, 'woocommerce')?.active ? (
+                  <CommerceCustomerSyncButton
+                    providerLabel="WooCommerce"
+                    endpoint="/integrations/woocommerce/sync-customers"
+                  />
+                ) : null}
 
                 <IntegrationCard
                   className="mt-4"
@@ -542,6 +551,13 @@ export default function Integrations() {
                   activatePending={activateMutation.isPending}
                   onLogs={() => setEddLogsOpen(true)}
                 />
+                {selectedCommerceProvider === 'easy_digital_downloads' &&
+                pluginEntry(plugins, 'easy_digital_downloads')?.active ? (
+                  <CommerceCustomerSyncButton
+                    providerLabel="Easy Digital Downloads"
+                    endpoint="/integrations/edd/sync-customers"
+                  />
+                ) : null}
 
                 <IntegrationCard
                   className="mt-4"
@@ -571,6 +587,13 @@ export default function Integrations() {
                   activatePending={activateMutation.isPending}
                   onLogs={() => setSurecartLogsOpen(true)}
                 />
+                {selectedCommerceProvider === 'surecart' &&
+                pluginEntry(plugins, 'surecart')?.active ? (
+                  <CommerceCustomerSyncButton
+                    providerLabel="SureCart"
+                    endpoint="/integrations/surecart/sync-customers"
+                  />
+                ) : null}
               </TabsContent>
 
               <TabsContent value="multivendor" className="mt-6">

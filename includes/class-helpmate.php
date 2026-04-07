@@ -403,9 +403,9 @@ class Helpmate
 		$this->ticket = new Helpmate_Ticket($this->settings);
 
 		$this->document_handler = new Helpmate_Document_Handler($this->api, $this->chat);
-		$this->woocommerce = new Helpmate_WooCommerce($this->settings);
-		$this->edd = new Helpmate_EDD($this->settings);
-		$this->surecart = new Helpmate_SureCart($this->settings);
+		$this->woocommerce = new Helpmate_WooCommerce($this->settings, $this);
+		$this->edd = new Helpmate_EDD($this->settings, $this);
+		$this->surecart = new Helpmate_SureCart($this->settings, $this);
 		$this->social_chat = new Helpmate_Social_Chat($this);
 		$this->dokan = new Helpmate_Dokan($this);
 		$this->wcfm = new Helpmate_WCFM($this);

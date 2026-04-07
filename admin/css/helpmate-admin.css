@@ -7,7 +7,7 @@
   text-align: center;
 }
 
-.toplevel_page_helpmate .wp-menu-image img {
+#toplevel_page_helpmate .wp-menu-image img {
   padding: 0 !important;
   opacity: 1 !important;
 }

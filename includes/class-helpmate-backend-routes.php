@@ -1043,6 +1043,78 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
         ));
 
+        register_rest_route('helpmate/v1', '/integrations/woocommerce/sync-customers', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                if (!class_exists('WooCommerce')) {
+                    return new WP_REST_Response(
+                        array(
+                            'error' => true,
+                            'message' => __('WooCommerce is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $this->helpmate->get_woocommerce()->sync_all_customers_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error' => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/edd/sync-customers', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                if (!function_exists('edd_get_customers')) {
+                    return new WP_REST_Response(
+                        array(
+                            'error' => true,
+                            'message' => __('Easy Digital Downloads is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $this->helpmate->get_edd()->sync_all_customers_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error' => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/surecart/sync-customers', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                if (!class_exists('\SureCart\Models\Customer')) {
+                    return new WP_REST_Response(
+                        array(
+                            'error' => true,
+                            'message' => __('SureCart is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $this->helpmate->get_surecart()->sync_all_customers_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error' => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
         // Create default abandoned cart follow-up email templates
         register_rest_route('helpmate/v1', '/crm/abandoned-cart/create-default-followup-templates', array(
             'methods' => 'POST',

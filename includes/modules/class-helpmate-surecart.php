@@ -18,10 +18,17 @@ class Helpmate_SureCart
 	 * @var Helpmate_Settings
 	 */
 	private $settings;
+	/**
+	 * Core plugin instance.
+	 *
+	 * @var Helpmate|null
+	 */
+	private $helpmate;
 
-	public function __construct($settings)
+	public function __construct($settings, $helpmate = null)
 	{
 		$this->settings = $settings;
+		$this->helpmate = $helpmate;
 	}
 
 	public function get_products_by_keywords(string $keywords, int $limit = 10): array
@@ -324,5 +331,182 @@ class Helpmate_SureCart
 		];
 
 		return $map[$currency] ?? ($currency . ' ');
+	}
+
+	/**
+	 * Sync SureCart live-mode customers into CRM (one-way, email keyed).
+	 *
+	 * @return array{created:int,updated:int,skipped_no_email:int,truncated:bool,errors:array<int, array{email:string,message:string}>}
+	 */
+	public function sync_all_customers_to_crm(): array
+	{
+		$summary = array(
+			'created' => 0,
+			'updated' => 0,
+			'skipped_no_email' => 0,
+			'truncated' => false,
+			'errors' => array(),
+		);
+
+		if (
+			!class_exists('\SureCart\Models\Customer') ||
+			!class_exists('\SureCart\Models\User') ||
+			!$this->helpmate ||
+			!method_exists($this->helpmate, 'get_crm')
+		) {
+			return $summary;
+		}
+
+		$crm = $this->helpmate->get_crm();
+		$limit = 5000;
+		$processed = 0;
+		$page = 1;
+		$per_page = 200;
+		$max_pages = 100;
+
+		while ($processed < $limit && $page <= $max_pages) {
+			$page_result = \SureCart\Models\Customer::where(
+				array(
+					'live_mode' => true,
+				)
+			)->paginate(
+				array(
+					'per_page' => $per_page,
+					'page' => $page,
+				)
+			);
+
+			if (is_wp_error($page_result)) {
+				$summary['errors'][] = array(
+					'email' => '',
+					'message' => $page_result->get_error_message(),
+				);
+				break;
+			}
+
+			$list = $this->extract_surecart_paginate_list($page_result);
+			if (empty($list)) {
+				break;
+			}
+
+			foreach ($list as $customer) {
+				if ($processed >= $limit) {
+					$summary['truncated'] = true;
+					break 2;
+				}
+				++$processed;
+
+				$data = $this->map_surecart_customer_to_contact_data($customer);
+				if (null === $data) {
+					++$summary['skipped_no_email'];
+					continue;
+				}
+
+				$result = $crm->upsert_contact_from_commerce_sync($data);
+				if (is_wp_error($result)) {
+					$summary['errors'][] = array(
+						'email' => $data['email'],
+						'message' => $result->get_error_message(),
+					);
+					continue;
+				}
+				if (!empty($result['created'])) {
+					++$summary['created'];
+				} elseif (!empty($result['updated'])) {
+					++$summary['updated'];
+				}
+			}
+
+			if (count($list) < $per_page) {
+				break;
+			}
+			++$page;
+		}
+
+		return $summary;
+	}
+
+	/**
+	 * Extract customer rows from SureCart paginate response.
+	 *
+	 * @param mixed $page_result SureCart collection response.
+	 * @return array<int, mixed>
+	 */
+	private function extract_surecart_paginate_list($page_result): array
+	{
+		if (is_array($page_result)) {
+			return $page_result;
+		}
+		if (!is_object($page_result)) {
+			return array();
+		}
+		$raw = null;
+		if (method_exists($page_result, 'getAttribute')) {
+			$raw = $page_result->getAttribute('data');
+		}
+		if (!is_array($raw) && isset($page_result->data)) {
+			$raw = $page_result->data;
+		}
+		return is_array($raw) ? $raw : array();
+	}
+
+	/**
+	 * Map SureCart customer fields to CRM payload.
+	 *
+	 * @param mixed $customer SureCart customer model.
+	 * @return array<string, mixed>|null
+	 */
+	private function map_surecart_customer_to_contact_data($customer): ?array
+	{
+		if (!is_object($customer)) {
+			return null;
+		}
+
+		$email = sanitize_email((string) ($customer->email ?? ''));
+		if ('' === $email) {
+			return null;
+		}
+
+		$first = sanitize_text_field((string) ($customer->first_name ?? ''));
+		$last = sanitize_text_field((string) ($customer->last_name ?? ''));
+		if ('' === $first && '' === $last) {
+			$name = sanitize_text_field((string) ($customer->name ?? ''));
+			if ('' !== $name) {
+				$parts = preg_split('/\s+/', trim($name));
+				if (is_array($parts) && !empty($parts)) {
+					$first = sanitize_text_field((string) array_shift($parts));
+					$last = sanitize_text_field((string) implode(' ', $parts));
+				}
+			}
+		}
+
+		$phone = sanitize_text_field((string) ($customer->phone ?? ''));
+		$address = is_object($customer->billing_address ?? null) ? $customer->billing_address : (object) array();
+
+		$wp_user_id = 0;
+		if (!empty($customer->id)) {
+			$sc_user = \SureCart\Models\User::findByCustomerId((string) $customer->id);
+			if ($sc_user && method_exists($sc_user, 'getWPUser')) {
+				$wp_user = $sc_user->getWPUser();
+				if ($wp_user instanceof \WP_User) {
+					$wp_user_id = (int) $wp_user->ID;
+				}
+			}
+		}
+
+		return array(
+			'email' => $email,
+			'first_name' => $first,
+			'last_name' => $last,
+			'phone' => $phone,
+			'address_line_1' => sanitize_text_field((string) ($address->address ?? $address->line1 ?? '')),
+			'address_line_2' => sanitize_text_field((string) ($address->address_2 ?? $address->line2 ?? '')),
+			'city' => sanitize_text_field((string) ($address->city ?? '')),
+			'state' => sanitize_text_field((string) ($address->state ?? '')),
+			'zip_code' => sanitize_text_field((string) ($address->postal_code ?? $address->zip ?? '')),
+			'country' => sanitize_text_field((string) ($address->country ?? '')),
+			'wp_user_id' => $wp_user_id,
+			'status' => 'subscribed',
+		);
 	}
 }

@@ -432,9 +432,57 @@ class Helpmate_CRM
      */
     public function upsert_contact_from_dokan_vendor(array $data)
     {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            false,
+            __('Could not update contact from vendor data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Create or update a CRM contact from WCFM vendor profile (match by email).
+     *
+     * Uses the same full-overwrite semantics as Dokan vendor sync.
+     *
+     * @param array $data Mapped vendor fields (email, names, phone, address, wp_user_id, status).
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_wcfm_vendor(array $data)
+    {
+        return $this->upsert_contact_from_dokan_vendor($data);
+    }
+
+    /**
+     * Create or update a CRM contact from commerce customer sync (match by email).
+     *
+     * Uses one-way full overwrite semantics by email, but preserves existing contact
+     * subscription status on update to avoid unintentionally resubscribing contacts.
+     *
+     * @param array $data Mapped customer fields (email, names, phone, address, wp_user_id, status).
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_commerce_sync(array $data)
+    {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            true,
+            __('Could not update contact from imported data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Shared upsert path for vendor/customer imports (match by email).
+     *
+     * @param array  $data                     Import payload.
+     * @param bool   $preserve_status_on_update Preserve existing contact status when updating.
+     * @param string $update_error_message     Message to return when update fails.
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    private function upsert_contact_from_import_data(array $data, bool $preserve_status_on_update, string $update_error_message)
+    {
         $email = isset($data['email']) ? sanitize_email((string) $data['email']) : '';
         if (empty($email)) {
-            return new WP_Error('no_email', __('Vendor email is required.', 'helpmate-ai-chatbot'));
+            return new WP_Error('no_email', __('A valid email is required.', 'helpmate-ai-chatbot'));
         }
 
         $payload = array(
@@ -454,9 +502,13 @@ class Helpmate_CRM
 
         $existing = $this->get_contact_by_email($email);
         if ($existing) {
-            $ok = $this->replace_contact_from_dokan_data((int) $existing['id'], $payload);
+            $ok = $this->replace_contact_from_import_data(
+                (int) $existing['id'],
+                $payload,
+                $preserve_status_on_update
+            );
             if (!$ok) {
-                return new WP_Error('update_failed', __('Could not update contact from vendor data.', 'helpmate-ai-chatbot'));
+                return new WP_Error('update_failed', $update_error_message);
             }
             return array('updated' => true, 'id' => (int) $existing['id']);
         }
@@ -473,27 +525,15 @@ class Helpmate_CRM
     }
 
     /**
-     * Create or update a CRM contact from WCFM vendor profile (match by email).
-     *
-     * Uses the same full-overwrite semantics as Dokan vendor sync.
-     *
-     * @param array $data Mapped vendor fields (email, names, phone, address, wp_user_id, status).
-     * @return array{created?:true,updated?:true,id:int}|WP_Error
-     */
-    public function upsert_contact_from_wcfm_vendor(array $data)
-    {
-        return $this->upsert_contact_from_dokan_vendor($data);
-    }
-
-    /**
-     * Overwrite mapped scalar columns from Dokan (empty strings allowed).
+     * Overwrite mapped scalar columns from imported profile data (empty strings allowed).
      *
      * @since 1.x.x
      * @param int   $contact_id Contact ID.
-     * @param array $data       Normalized payload from upsert_contact_from_dokan_vendor.
+     * @param array $data       Normalized payload from upsert_contact_from_import_data.
+     * @param bool  $preserve_status Whether to preserve existing contact status.
      * @return bool
      */
-    private function replace_contact_from_dokan_data(int $contact_id, array $data): bool
+    private function replace_contact_from_import_data(int $contact_id, array $data, bool $preserve_status = false): bool
     {
         global $wpdb;
         $table = esc_sql($wpdb->prefix . 'helpmate_crm_contacts');
@@ -526,9 +566,11 @@ class Helpmate_CRM
             'state'          => $data['state'],
             'zip_code'       => $data['zip_code'],
             'country'        => $data['country'],
-            'status'         => $data['status'],
             'updated_at'     => current_time('mysql'),
         );
+        if (!$preserve_status) {
+            $update_data['status'] = $data['status'];
+        }
         if (!empty($data['wp_user_id'])) {
             $update_data['wp_user_id'] = (int) $data['wp_user_id'];
         }

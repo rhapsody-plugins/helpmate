@@ -18,10 +18,17 @@ class Helpmate_EDD
      * @var Helpmate_Settings
      */
     private $settings;
+    /**
+     * Core plugin instance.
+     *
+     * @var Helpmate|null
+     */
+    private $helpmate;
 
-    public function __construct($settings)
+    public function __construct($settings, $helpmate = null)
     {
         $this->settings = $settings;
+        $this->helpmate = $helpmate;
     }
 
     /**
@@ -275,5 +282,125 @@ class Helpmate_EDD
             'tags' => wp_get_post_terms($post_id, 'download_tag', ['fields' => 'names']),
             'type' => 'download',
         ]);
+    }
+
+    /**
+     * Sync EDD customers into CRM (one-way, email keyed).
+     *
+     * @return array{created:int,updated:int,skipped_no_email:int,truncated:bool,errors:array<int, array{email:string,message:string}>}
+     */
+    public function sync_all_customers_to_crm(): array
+    {
+        $summary = array(
+            'created' => 0,
+            'updated' => 0,
+            'skipped_no_email' => 0,
+            'truncated' => false,
+            'errors' => array(),
+        );
+
+        if (!function_exists('edd_get_customers') || !$this->helpmate || !method_exists($this->helpmate, 'get_crm')) {
+            return $summary;
+        }
+
+        $crm = $this->helpmate->get_crm();
+        $limit = 5000;
+        $processed = 0;
+        $offset = 0;
+        $batch_size = 200;
+
+        while ($processed < $limit) {
+            $remaining = $limit - $processed;
+            $number = min($batch_size, $remaining);
+            $customers = edd_get_customers(array(
+                'number' => $number,
+                'offset' => $offset,
+                'orderby' => 'id',
+                'order' => 'ASC',
+            ));
+
+            if (empty($customers) || !is_array($customers)) {
+                break;
+            }
+
+            foreach ($customers as $customer) {
+                if ($processed >= $limit) {
+                    $summary['truncated'] = true;
+                    break 2;
+                }
+                ++$processed;
+
+                $data = $this->map_edd_customer_to_contact_data($customer);
+                if (null === $data) {
+                    ++$summary['skipped_no_email'];
+                    continue;
+                }
+
+                $result = $crm->upsert_contact_from_commerce_sync($data);
+                if (is_wp_error($result)) {
+                    $summary['errors'][] = array(
+                        'email' => $data['email'],
+                        'message' => $result->get_error_message(),
+                    );
+                    continue;
+                }
+                if (!empty($result['created'])) {
+                    ++$summary['created'];
+                } elseif (!empty($result['updated'])) {
+                    ++$summary['updated'];
+                }
+            }
+
+            $offset += count($customers);
+            if (count($customers) < $number) {
+                break;
+            }
+        }
+
+        return $summary;
+    }
+
+    /**
+     * Map EDD customer fields to CRM payload.
+     *
+     * @param mixed $customer EDD_Customer row/model.
+     * @return array<string, mixed>|null
+     */
+    private function map_edd_customer_to_contact_data($customer): ?array
+    {
+        if (!is_object($customer)) {
+            return null;
+        }
+
+        $email = sanitize_email((string) ($customer->email ?? ''));
+        if ('' === $email) {
+            return null;
+        }
+
+        $name = sanitize_text_field((string) ($customer->name ?? ''));
+        $first = '';
+        $last = '';
+        if ('' !== $name) {
+            $parts = preg_split('/\s+/', trim($name));
+            if (is_array($parts) && !empty($parts)) {
+                $first = sanitize_text_field((string) array_shift($parts));
+                $last = sanitize_text_field((string) implode(' ', $parts));
+            }
+        }
+
+        return array(
+            'email' => $email,
+            'first_name' => $first,
+            'last_name' => $last,
+            'phone' => '',
+            'address_line_1' => '',
+            'address_line_2' => '',
+            'city' => '',
+            'state' => '',
+            'zip_code' => '',
+            'country' => '',
+            'wp_user_id' => isset($customer->user_id) ? (int) $customer->user_id : 0,
+            'status' => 'subscribed',
+        );
     }
 }
