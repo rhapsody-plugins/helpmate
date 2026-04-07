@@ -487,6 +487,7 @@ class Helpmate_WooCommerce
                 } elseif (!empty($result['updated'])) {
                     ++$summary['updated'];
                 }
+                $crm->add_contact_sync_source((int) $result['id'], 'woocommerce');
             }
 
             $offset += count($user_ids);

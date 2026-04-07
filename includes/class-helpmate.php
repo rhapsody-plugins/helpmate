@@ -193,6 +193,13 @@ class Helpmate
 	private $wcfm;
 
 	/**
+	 * LearnPress integration helper (optional LMS).
+	 *
+	 * @var Helpmate_LearnPress
+	 */
+	private $learnpress;
+
+	/**
 	 * The Easy Digital Downloads instance.
 	 *
 	 * @since    2.0.3
@@ -409,6 +416,7 @@ class Helpmate
 		$this->social_chat = new Helpmate_Social_Chat($this);
 		$this->dokan = new Helpmate_Dokan($this);
 		$this->wcfm = new Helpmate_WCFM($this);
+		$this->learnpress = new Helpmate_LearnPress($this);
 		$this->crm = new Helpmate_CRM($this);
 		$this->crm_order_metabox = new Helpmate_Crm_Order_Metabox($this->crm);
 		$this->team = new Helpmate_Team($this);
@@ -562,6 +570,7 @@ class Helpmate
 			'includes/integrations/class-helpmate-integration-plugins.php',
 			'includes/integrations/class-helpmate-dokan.php',
 			'includes/integrations/class-helpmate-wcfm.php',
+			'includes/integrations/class-helpmate-learnpress.php',
 			'includes/integrations/class-helpmate-elementor-utils.php',
 			'includes/integrations/class-helpmate-blocks.php',
 		);
@@ -1230,6 +1239,16 @@ class Helpmate
 	public function get_wcfm()
 	{
 		return $this->wcfm;
+	}
+
+	/**
+	 * LearnPress integration helper.
+	 *
+	 * @return Helpmate_LearnPress
+	 */
+	public function get_learnpress()
+	{
+		return $this->learnpress;
 	}
 
 	/**

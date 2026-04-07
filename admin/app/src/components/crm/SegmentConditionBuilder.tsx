@@ -39,6 +39,10 @@ const STANDARD_FIELDS = [
   { value: 'zip_code', label: 'Zip Code' },
   { value: 'status', label: 'Status' },
   { value: 'date_of_birth', label: 'Date of Birth' },
+  { value: 'lp_enrolled_course_ids', label: 'LearnPress: Enrolled Course ID' },
+  { value: 'lp_completed_course_ids', label: 'LearnPress: Completed Course ID' },
+  { value: 'lp_in_progress_course_ids', label: 'LearnPress: In Progress Course ID' },
+  { value: 'lp_completed_lesson_ids', label: 'LearnPress: Completed Lesson ID' },
 ];
 
 const OPERATORS = [
@@ -56,6 +60,21 @@ const OPERATORS = [
   { value: 'is_not_empty', label: 'Is Not Empty' },
 ];
 
+const LEARNPRESS_TOKEN_FIELDS = new Set([
+  'lp_enrolled_course_ids',
+  'lp_completed_course_ids',
+  'lp_in_progress_course_ids',
+  'lp_completed_lesson_ids',
+]);
+
+const INTERNAL_LMS_FIELDS = new Set([
+  'lp_enrolled_course_ids',
+  'lp_completed_course_ids',
+  'lp_in_progress_course_ids',
+  'lp_completed_lesson_ids',
+  'lp_last_synced_at',
+]);
+
 export default function SegmentConditionBuilder({
   form,
   customFields,
@@ -65,11 +84,15 @@ export default function SegmentConditionBuilder({
 
   const allFields = [
     ...STANDARD_FIELDS,
-    ...customFields.map((cf) => ({
-      value: cf.field_name,
-      label: cf.field_label,
-    })),
-  ];
+    ...customFields
+      .filter((cf) => !INTERNAL_LMS_FIELDS.has(cf.field_name))
+      .map((cf) => ({
+        value: cf.field_name,
+        label: cf.field_label,
+      })),
+  ].filter(
+    (field, index, arr) => arr.findIndex((f) => f.value === field.value) === index
+  );
 
   const addGroup = () => {
     const currentGroups = form.getValues('conditions.groups') || [];
@@ -118,6 +141,15 @@ export default function SegmentConditionBuilder({
 
   const getOperatorNeedsValue = (operator: string) => {
     return !['is_empty', 'is_not_empty'].includes(operator);
+  };
+
+  const getOperatorsForField = (fieldName: string) => {
+    if (LEARNPRESS_TOKEN_FIELDS.has(fieldName)) {
+      return OPERATORS.filter((op) =>
+        ['contains', 'not_contains', 'is_empty', 'is_not_empty'].includes(op.value)
+      );
+    }
+    return OPERATORS;
   };
 
   return (
@@ -245,6 +277,13 @@ export default function SegmentConditionBuilder({
                     name={`conditions.groups.${groupIndex}.conditions.${conditionIndex}.operator`}
                     render={({ field }) => (
                       <FormItem className="w-40">
+                        {(() => {
+                          const selectedField =
+                            form.watch(
+                              `conditions.groups.${groupIndex}.conditions.${conditionIndex}.field`
+                            ) || '';
+                          const allowedOperators = getOperatorsForField(selectedField);
+                          return (
                         <FormControl>
                           <Select
                             value={field.value || undefined}
@@ -254,7 +293,7 @@ export default function SegmentConditionBuilder({
                               <SelectValue placeholder="Operator" />
                             </SelectTrigger>
                             <SelectContent>
-                              {OPERATORS.map((op) => (
+                              {allowedOperators.map((op) => (
                                 <SelectItem key={op.value} value={op.value}>
                                   {op.label}
                                 </SelectItem>
@@ -262,6 +301,8 @@ export default function SegmentConditionBuilder({
                             </SelectContent>
                           </Select>
                         </FormControl>
+                          );
+                        })()}
                         <FormMessage />
                       </FormItem>
                     )}

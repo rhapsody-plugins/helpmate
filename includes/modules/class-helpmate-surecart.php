@@ -415,6 +415,7 @@ class Helpmate_SureCart
 				} elseif (!empty($result['updated'])) {
 					++$summary['updated'];
 				}
+				$crm->add_contact_sync_source((int) $result['id'], 'surecart');
 			}
 
 			if (count($list) < $per_page) {

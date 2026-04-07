@@ -349,6 +349,7 @@ class Helpmate_EDD
                 } elseif (!empty($result['updated'])) {
                     ++$summary['updated'];
                 }
+                $crm->add_contact_sync_source((int) $result['id'], 'easy_digital_downloads');
             }
 
             $offset += count($customers);

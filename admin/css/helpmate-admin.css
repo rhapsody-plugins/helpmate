@@ -10,6 +10,7 @@
 #toplevel_page_helpmate .wp-menu-image img {
   padding: 0 !important;
   opacity: 1 !important;
+  width: 36px !important;
 }
 
 .helpmate-spinner {

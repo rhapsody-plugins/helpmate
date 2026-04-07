@@ -66,6 +66,12 @@ class Helpmate_Integration_Plugins {
 				),
 				'wp_org_slug'   => 'wc-multivendor-marketplace',
 			),
+			'learnpress'            => array(
+				'candidates'    => array(
+					'learnpress/learnpress.php',
+				),
+				'wp_org_slug'   => 'learnpress',
+			),
 			'elementor'             => array(
 				'candidates'    => array( 'elementor/elementor.php' ),
 				'wp_org_slug'   => 'elementor',

@@ -1043,6 +1043,80 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
         ));
 
+        register_rest_route('helpmate/v1', '/integrations/learnpress', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $learnpress = $this->helpmate->get_learnpress();
+                $status = $learnpress->get_rest_status();
+                return new WP_REST_Response(
+                    array(
+                        'error'         => false,
+                        'active'        => $status['active'],
+                        'student_count' => $status['student_count'],
+                        'course_count'  => $status['course_count'],
+                        'lesson_count'  => $status['lesson_count'],
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/learnpress/courses', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $learnpress = $this->helpmate->get_learnpress();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'courses' => $learnpress->get_courses_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/learnpress/lessons', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $learnpress = $this->helpmate->get_learnpress();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'lessons' => $learnpress->get_lessons_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/learnpress/sync-students', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $learnpress = $this->helpmate->get_learnpress();
+                if (!$learnpress->is_active()) {
+                    return new WP_REST_Response(
+                        array(
+                            'error'   => true,
+                            'message' => __('LearnPress is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $learnpress->sync_all_students_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
         register_rest_route('helpmate/v1', '/integrations/woocommerce/sync-customers', array(
             'methods' => 'POST',
             'callback' => function () {
@@ -3752,6 +3826,7 @@ class Helpmate_Backend_Routes
                     'city' => $request->get_param('city'),
                     'state' => $request->get_param('state'),
                     'country' => $request->get_param('country'),
+                    'integration_source' => $request->get_param('integration_source'),
                 ];
                 $filters = array_filter($filters, fn($v) => $v !== null && $v !== '');
 
@@ -3773,8 +3848,21 @@ class Helpmate_Backend_Routes
                 'date_to' => array('sanitize_callback' => 'sanitize_text_field'),
                 'city' => array('sanitize_callback' => 'sanitize_text_field'),
                 'state' => array('sanitize_callback' => 'sanitize_text_field'),
-                'country' => array('sanitize_callback' => 'sanitize_text_field')
+                'country' => array('sanitize_callback' => 'sanitize_text_field'),
+                'integration_source' => array('sanitize_callback' => 'sanitize_key'),
             )
+        ));
+
+        // Get available CRM integration source filter options.
+        register_rest_route('helpmate/v1', '/crm/contacts/filter-options/integration-sources', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $this->helpmate->get_crm()->get_contact_sync_source_options(),
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
         ));
 
         // Create contact
@@ -4071,6 +4159,31 @@ class Helpmate_Backend_Routes
             'args' => array(
                 'id' => array('required' => true, 'validate_callback' => fn($param) => is_numeric($param) && $param > 0)
             )
+        ));
+
+        // Get LearnPress progress payload for one contact.
+        register_rest_route('helpmate/v1', '/crm/contacts/(?P<id>\d+)/learnpress', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                $contact_id = (int) $request->get_param('id');
+                $contact = $this->helpmate->get_crm()->get_contact($contact_id);
+                if (!$contact) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => 'Contact not found',
+                    ], 404);
+                }
+
+                $data = $this->helpmate->get_learnpress()->get_contact_lms_details($contact);
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $data,
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+            'args' => array(
+                'id' => array('required' => true, 'validate_callback' => fn($param) => is_numeric($param) && $param > 0),
+            ),
         ));
 
         // Create manual order

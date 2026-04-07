@@ -114,6 +114,34 @@ export interface SureCartOrder {
 
 export type Order = ManualOrder | WooCommerceOrder | EddOrder | SureCartOrder;
 
+export interface LearnPressNamedItem {
+  id: number;
+  title: string;
+}
+
+export interface LearnPressProgressSnapshot {
+  enrolled_course_ids: number[];
+  completed_course_ids: number[];
+  in_progress_course_ids: number[];
+  completed_lesson_ids: number[];
+  enrolled_courses: LearnPressNamedItem[];
+  completed_lessons: LearnPressNamedItem[];
+  counts: {
+    enrolled_courses: number;
+    completed_courses: number;
+    in_progress_courses: number;
+    completed_lessons: number;
+  };
+}
+
+export interface ContactLearnPressData {
+  active: boolean;
+  wp_user_id: number | null;
+  live: LearnPressProgressSnapshot;
+  snapshot: LearnPressProgressSnapshot;
+  last_synced_at: string | null;
+}
+
 export interface ContactFilters {
   status?: string;
   search?: string;
@@ -122,6 +150,12 @@ export interface ContactFilters {
   city?: string;
   state?: string;
   country?: string;
+  integration_source?: string;
+}
+
+export interface ContactIntegrationSourceOption {
+  value: string;
+  label: string;
 }
 
 export interface Pagination {

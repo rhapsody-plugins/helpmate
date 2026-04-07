@@ -359,6 +359,7 @@ class Helpmate_WCFM {
 			} elseif ( ! empty( $result['updated'] ) ) {
 				++$summary['updated'];
 			}
+			$crm->add_contact_sync_source( (int) $result['id'], 'wcfm' );
 		}
 
 		return $summary;

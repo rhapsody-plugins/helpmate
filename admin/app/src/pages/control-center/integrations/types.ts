@@ -93,6 +93,7 @@ export type IntegrationOverviewPluginId =
   | 'woocommerce'
   | 'easy_digital_downloads'
   | 'surecart'
+  | 'learnpress'
   | 'elementor'
   | 'beaver_builder'
   | 'gutenberg';

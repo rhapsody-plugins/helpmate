@@ -20,6 +20,27 @@ if (!defined('ABSPATH'))
 class Helpmate_CRM
 {
     /**
+     * Allowed CRM sync source tokens.
+     *
+     * @var array<int,string>
+     */
+    private $allowed_sync_sources = ['woocommerce', 'easy_digital_downloads', 'surecart', 'dokan', 'wcfm', 'learnpress'];
+
+    /**
+     * Human labels for sync sources.
+     *
+     * @var array<string,string>
+     */
+    private $sync_source_labels = [
+        'woocommerce' => 'WooCommerce',
+        'easy_digital_downloads' => 'Easy Digital Downloads',
+        'surecart' => 'SureCart',
+        'dokan' => 'Dokan',
+        'wcfm' => 'WCFM Marketplace',
+        'learnpress' => 'LearnPress',
+        'none' => 'No Integration',
+    ];
+    /**
      * The helpmate instance.
      *
      * @since    1.3.0
@@ -158,6 +179,27 @@ class Helpmate_CRM
         if (!empty($filters['country'])) {
             $where[] = 'c.country = %s';
             $params[] = $filters['country'];
+        }
+
+        // Integration source filter.
+        if (isset($filters['integration_source']) && '' !== $filters['integration_source']) {
+            $source = sanitize_key((string) $filters['integration_source']);
+            if ('none' === $source) {
+                $params[] = 'crm_sync_sources';
+                $where[] =
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix
+                    "NOT EXISTS (SELECT 1 FROM {$field_values_table} fv
+                    INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                    WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value != '')";
+            } elseif (in_array($source, $this->allowed_sync_sources, true)) {
+                $params[] = 'crm_sync_sources';
+                $params[] = '%,' . $source . ',%';
+                $where[] =
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix
+                    "EXISTS (SELECT 1 FROM {$field_values_table} fv
+                    INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                    WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+            }
         }
 
         $where_clause = implode(' AND ', $where);
@@ -471,6 +513,62 @@ class Helpmate_CRM
     }
 
     /**
+     * Create or update a CRM contact from LMS student sync (match by email).
+     *
+     * @param array $data Mapped student fields.
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_lms_student(array $data)
+    {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            true,
+            __('Could not update contact from LMS student data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Save LearnPress snapshot fields for a contact.
+     *
+     * Uses token-safe list format for segment matching (e.g. ",12,45,").
+     *
+     * @param int   $contact_id Contact ID.
+     * @param array $snapshot   LMS snapshot.
+     * @return bool
+     */
+    public function save_contact_lms_snapshot(int $contact_id, array $snapshot): bool
+    {
+        $field_values = [
+            'lp_enrolled_course_ids' => $this->normalize_lms_token_list($snapshot['enrolled_course_ids'] ?? []),
+            'lp_completed_course_ids' => $this->normalize_lms_token_list($snapshot['completed_course_ids'] ?? []),
+            'lp_in_progress_course_ids' => $this->normalize_lms_token_list($snapshot['in_progress_course_ids'] ?? []),
+            'lp_completed_lesson_ids' => $this->normalize_lms_token_list($snapshot['completed_lesson_ids'] ?? []),
+            'lp_last_synced_at' => isset($snapshot['last_synced_at'])
+                ? sanitize_text_field((string) $snapshot['last_synced_at'])
+                : gmdate('Y-m-d H:i:s'),
+        ];
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
+        if (empty($field_ids)) {
+            return false;
+        }
+
+        $values_by_id = [];
+        foreach ($field_values as $field_name => $value) {
+            if (!isset($field_ids[$field_name])) {
+                continue;
+            }
+            $values_by_id[(int) $field_ids[$field_name]] = $value;
+        }
+
+        if (empty($values_by_id)) {
+            return false;
+        }
+
+        return $this->save_contact_custom_field_values($contact_id, $values_by_id);
+    }
+
+    /**
      * Shared upsert path for vendor/customer imports (match by email).
      *
      * @param array  $data                     Import payload.
@@ -655,6 +753,188 @@ class Helpmate_CRM
         }
 
         return $result !== false;
+    }
+
+    /**
+     * Ensure contact custom fields exist and return field_name => field_id map.
+     *
+     * @param array<int,string> $field_names Field names.
+     * @return array<string,int>
+     */
+    private function get_or_create_contact_custom_field_ids(array $field_names): array
+    {
+        $field_names = array_values(array_unique(array_filter(array_map('sanitize_key', $field_names))));
+        if (empty($field_names)) {
+            return [];
+        }
+
+        $current = $this->get_custom_fields('contact');
+        $map = [];
+        foreach ($current as $row) {
+            if (empty($row['field_name']) || empty($row['id'])) {
+                continue;
+            }
+            $map[(string) $row['field_name']] = (int) $row['id'];
+        }
+
+        foreach ($field_names as $field_name) {
+            if (isset($map[$field_name])) {
+                continue;
+            }
+            $label = ucwords(str_replace('_', ' ', $field_name));
+            $created = $this->create_custom_field([
+                'field_name' => $field_name,
+                'field_label' => $label,
+                'field_type' => 'text',
+                'is_required' => 0,
+                'entity_type' => 'contact',
+                'display_order' => 0,
+            ]);
+            if ($created) {
+                $map[$field_name] = (int) $created;
+            }
+        }
+
+        return $map;
+    }
+
+    /**
+     * Convert an ID list into token-safe list string.
+     *
+     * @param mixed $ids Raw IDs.
+     * @return string
+     */
+    private function normalize_lms_token_list($ids): string
+    {
+        if (!is_array($ids)) {
+            return '';
+        }
+        $clean = array_values(array_unique(array_filter(array_map('absint', $ids))));
+        if (empty($clean)) {
+            return '';
+        }
+        return ',' . implode(',', $clean) . ',';
+    }
+
+    /**
+     * Append a sync source token to one contact.
+     *
+     * @param int    $contact_id Contact ID.
+     * @param string $source     Source token.
+     * @return bool
+     */
+    public function add_contact_sync_source(int $contact_id, string $source): bool
+    {
+        $source = sanitize_key($source);
+        if (!in_array($source, $this->allowed_sync_sources, true)) {
+            return false;
+        }
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(['crm_sync_sources']);
+        $field_id = isset($field_ids['crm_sync_sources']) ? (int) $field_ids['crm_sync_sources'] : 0;
+        if ($field_id <= 0) {
+            return false;
+        }
+
+        $custom_fields = $this->get_contact_custom_field_values($contact_id);
+        $existing_raw = '';
+        foreach ($custom_fields as $row) {
+            if (!is_array($row) || empty($row['field_name']) || 'crm_sync_sources' !== $row['field_name']) {
+                continue;
+            }
+            $existing_raw = is_scalar($row['value']) ? (string) $row['value'] : '';
+            break;
+        }
+
+        $sources = $this->parse_sync_source_tokens($existing_raw);
+        if (!in_array($source, $sources, true)) {
+            $sources[] = $source;
+        }
+        $tokenized = $this->encode_sync_source_tokens($sources);
+
+        return $this->save_contact_custom_field_values($contact_id, [$field_id => $tokenized]);
+    }
+
+    /**
+     * Return source options detected from CRM data.
+     *
+     * @return array<int,array{value:string,label:string}>
+     */
+    public function get_contact_sync_source_options(): array
+    {
+        global $wpdb;
+        $values_table = esc_sql($wpdb->prefix . 'helpmate_crm_contact_field_values');
+        $fields_table = esc_sql($wpdb->prefix . 'helpmate_crm_custom_fields');
+        $tokens = [];
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Query for filter options; low-cost and frequently changing
+        $rows = $wpdb->get_col(
+            $wpdb->prepare(
+                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix
+                "SELECT fv.field_value
+                FROM {$values_table} fv
+                INNER JOIN {$fields_table} cf ON fv.field_id = cf.id
+                WHERE cf.field_name = %s AND fv.field_value IS NOT NULL AND fv.field_value != ''"
+                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                ,
+                'crm_sync_sources'
+            )
+        );
+
+        if (is_array($rows)) {
+            foreach ($rows as $raw) {
+                foreach ($this->parse_sync_source_tokens((string) $raw) as $token) {
+                    if (in_array($token, $this->allowed_sync_sources, true)) {
+                        $tokens[$token] = true;
+                    }
+                }
+            }
+        }
+
+        $options = [];
+        foreach ($this->allowed_sync_sources as $token) {
+            if (!empty($tokens[$token])) {
+                $options[] = [
+                    'value' => $token,
+                    'label' => $this->sync_source_labels[$token] ?? ucfirst(str_replace('_', ' ', $token)),
+                ];
+            }
+        }
+        $options[] = ['value' => 'none', 'label' => $this->sync_source_labels['none']];
+
+        return $options;
+    }
+
+    /**
+     * Parse token list ",a,b,c," to array.
+     *
+     * @param string $raw Raw value.
+     * @return array<int,string>
+     */
+    private function parse_sync_source_tokens(string $raw): array
+    {
+        $raw = trim($raw);
+        if ('' === $raw) {
+            return [];
+        }
+        $parts = explode(',', trim($raw, ','));
+        $tokens = array_values(array_unique(array_filter(array_map('sanitize_key', $parts))));
+        return array_values(array_filter($tokens));
+    }
+
+    /**
+     * Encode source tokens as token-safe list.
+     *
+     * @param array<int,string> $tokens Tokens.
+     * @return string
+     */
+    private function encode_sync_source_tokens(array $tokens): string
+    {
+        $tokens = array_values(array_unique(array_filter(array_map('sanitize_key', $tokens))));
+        if (empty($tokens)) {
+            return '';
+        }
+        return ',' . implode(',', $tokens) . ',';
     }
 
     /**
@@ -3677,6 +3957,8 @@ class Helpmate_CRM
         $contacts_table = esc_sql($wpdb->prefix . 'helpmate_crm_contacts');
         $field_values_table = esc_sql($wpdb->prefix . 'helpmate_crm_contact_field_values');
         $custom_fields_table = esc_sql($wpdb->prefix . 'helpmate_crm_custom_fields');
+        $tokenized_lms_fields = ['lp_enrolled_course_ids', 'lp_completed_course_ids', 'lp_in_progress_course_ids', 'lp_completed_lesson_ids'];
+        $is_tokenized_lms_field = in_array($field, $tokenized_lms_fields, true);
 
         // Check if it's a standard contact field
         $standard_fields = ['first_name', 'last_name', 'email', 'phone', 'city', 'state', 'country', 'zip_code', 'status', 'date_of_birth'];
@@ -3696,6 +3978,18 @@ class Helpmate_CRM
                     $params[] = $value;
                     return "{$field_ref} = %s";
                 } else {
+                    if ($is_tokenized_lms_field) {
+                        $needle = absint($value);
+                        if ($needle <= 0) {
+                            return null;
+                        }
+                        $params[] = $field;
+                        $params[] = '%,' . $needle . ',%';
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
+                        return "EXISTS (SELECT 1 FROM {$field_values_table} fv
+                        INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                        WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+                    }
                     // Custom field
                     $params[] = $field;
                     $params[] = $value;
@@ -3710,6 +4004,18 @@ class Helpmate_CRM
                     $params[] = $value;
                     return "{$field_ref} != %s";
                 } else {
+                    if ($is_tokenized_lms_field) {
+                        $needle = absint($value);
+                        if ($needle <= 0) {
+                            return null;
+                        }
+                        $params[] = $field;
+                        $params[] = '%,' . $needle . ',%';
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
+                        return "NOT EXISTS (SELECT 1 FROM {$field_values_table} fv
+                        INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                        WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+                    }
                     $params[] = $field;
                     $params[] = $value;
                     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
@@ -3719,11 +4025,16 @@ class Helpmate_CRM
                 }
 
             case 'contains':
-                $search_value = '%' . $wpdb->esc_like($value) . '%';
+                $search_value = $is_tokenized_lms_field
+                    ? '%,' . absint($value) . ',%'
+                    : '%' . $wpdb->esc_like($value) . '%';
                 if ($is_standard_field) {
                     $params[] = $search_value;
                     return "{$field_ref} LIKE %s";
                 } else {
+                    if ($is_tokenized_lms_field && absint($value) <= 0) {
+                        return null;
+                    }
                     $params[] = $field;
                     $params[] = $search_value;
                     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
@@ -3733,11 +4044,16 @@ class Helpmate_CRM
                 }
 
             case 'not_contains':
-                $search_value = '%' . $wpdb->esc_like($value) . '%';
+                $search_value = $is_tokenized_lms_field
+                    ? '%,' . absint($value) . ',%'
+                    : '%' . $wpdb->esc_like($value) . '%';
                 if ($is_standard_field) {
                     $params[] = $search_value;
                     return "{$field_ref} NOT LIKE %s";
                 } else {
+                    if ($is_tokenized_lms_field && absint($value) <= 0) {
+                        return null;
+                    }
                     $params[] = $field;
                     $params[] = $search_value;
                     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later

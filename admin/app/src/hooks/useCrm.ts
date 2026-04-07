@@ -6,6 +6,8 @@ import {
   Contact,
   ContactEmail,
   ContactFilters,
+  ContactIntegrationSourceOption,
+  ContactLearnPressData,
   ContactNote,
   CustomField,
   EmailSequence,
@@ -485,6 +487,22 @@ export function useCrm() {
     });
   };
 
+  // Get LearnPress progress for a contact
+  const useContactLearnPress = (contactId: number | null, enabled = true) => {
+    return useQuery({
+      queryKey: ['crm-contact-learnpress', contactId],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          data: ContactLearnPressData;
+        }>(`/crm/contacts/${contactId}/learnpress`);
+        return response.data.data;
+      },
+      enabled: enabled && contactId !== null,
+      refetchOnWindowFocus: false,
+    });
+  };
+
   // Get contact statuses
   const useContactStatuses = () => {
     return useQuery({
@@ -494,6 +512,20 @@ export function useCrm() {
           error: boolean;
           data: string[];
         }>('/crm/statuses');
+        return response.data.data;
+      },
+      refetchOnWindowFocus: false,
+    });
+  };
+
+  const useContactIntegrationSourceOptions = () => {
+    return useQuery({
+      queryKey: ['crm-contact-integration-source-options'],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          data: ContactIntegrationSourceOption[];
+        }>('/crm/contacts/filter-options/integration-sources');
         return response.data.data;
       },
       refetchOnWindowFocus: false,
@@ -1187,8 +1219,10 @@ export function useCrm() {
     useWooCommerceNewOrderUrl,
     useEddNewOrderUrl,
     useSureCartNewOrderUrl,
+    useContactLearnPress,
     // Statuses
     useContactStatuses,
+    useContactIntegrationSourceOptions,
     addStatusMutation,
     removeStatusMutation,
     // WordPress Users

@@ -12,6 +12,7 @@ import {
   Calendar,
   ClipboardList,
   FileText,
+  GraduationCap,
   Mail,
   MessageCircle,
   ShoppingBag,
@@ -32,6 +33,7 @@ import { OverviewTab } from './contacts/tabs/OverviewTab';
 import { SchedulesTab } from './contacts/tabs/SchedulesTab';
 import { TasksTab } from './contacts/tabs/TasksTab';
 import { TicketsTab } from './contacts/tabs/TicketsTab';
+import { LearnPressTab } from './contacts/tabs/LearnPressTab';
 
 export default function ContactDetails() {
   const { setPage } = useMain();
@@ -332,6 +334,10 @@ export default function ContactDetails() {
                 <FileText className="!w-3 !h-3" />
                 Notes
               </TabsTrigger>
+              <TabsTrigger value="learnpress" className="!text-xs">
+                <GraduationCap className="!w-3 !h-3" />
+                LearnPress
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-4">
@@ -372,6 +378,10 @@ export default function ContactDetails() {
 
             <TabsContent value="notes" className="mt-4">
               <NotesTab contactId={contactId} />
+            </TabsContent>
+
+            <TabsContent value="learnpress" className="mt-4">
+              <LearnPressTab contactId={contactId} />
             </TabsContent>
           </Tabs>
         </div>

@@ -31,6 +31,7 @@ import IntegrationConfigSheet from './integrations/components/IntegrationConfigS
 import IntegrationLogsSheet from './integrations/components/IntegrationLogsSheet';
 import DokanIntegrationSheet from './integrations/multivendor/DokanIntegrationSheet';
 import WcfmIntegrationSheet from './integrations/multivendor/WcfmIntegrationSheet';
+import LearnPressIntegrationSheet from './integrations/lms/LearnPressIntegrationSheet';
 import { useIntegrationConfig } from './integrations/hooks/useIntegrationConfig';
 import { INTEGRATION_REGISTRY } from './integrations/registry';
 import type {
@@ -128,6 +129,7 @@ export default function Integrations() {
   const [surecartLogsOpen, setSurecartLogsOpen] = useState(false);
   const [dokanSheetOpen, setDokanSheetOpen] = useState(false);
   const [wcfmSheetOpen, setWcfmSheetOpen] = useState(false);
+  const [learnPressSheetOpen, setLearnPressSheetOpen] = useState(false);
   const [multivendorProviderOverride, setMultivendorProviderOverride] =
     useState<MultivendorProviderId | null>(null);
   const [commerceProviderOverride, setCommerceProviderOverride] =
@@ -428,6 +430,7 @@ export default function Integrations() {
               <TabsList>
                 <TabsTrigger value="commerce">Commerce</TabsTrigger>
                 <TabsTrigger value="multivendor">Multivendor</TabsTrigger>
+                <TabsTrigger value="lms">LMS</TabsTrigger>
                 <TabsTrigger value="forms">Forms</TabsTrigger>
                 <TabsTrigger value="page_builders">Page builders</TabsTrigger>
               </TabsList>
@@ -594,6 +597,41 @@ export default function Integrations() {
                     endpoint="/integrations/surecart/sync-customers"
                   />
                 ) : null}
+              </TabsContent>
+
+              <TabsContent value="lms" className="mt-6">
+                <h2 className="!text-lg !font-semibold !mb-3">LMS</h2>
+                <IntegrationCard
+                  title="LearnPress"
+                  description="Sync LearnPress students into CRM and use lesson/course progress data in contact details and segmentation."
+                  plugin={pluginEntry(plugins, 'learnpress')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'learnpress'))}
+                  statusText={statusTextCommerce(pageReady, pluginEntry(plugins, 'learnpress'))}
+                  onInstall={
+                    pluginEntry(plugins, 'learnpress')?.wp_org_slug
+                      ? () =>
+                          installMutation.mutate(
+                            pluginEntry(plugins, 'learnpress')!.wp_org_slug as string
+                          )
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'learnpress')?.plugin_file
+                      ? () =>
+                          activateMutation.mutate(
+                            pluginEntry(plugins, 'learnpress')!.plugin_file as string
+                          )
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onConfigure={
+                    pluginEntry(plugins, 'learnpress')?.active
+                      ? () => setLearnPressSheetOpen(true)
+                      : undefined
+                  }
+                />
               </TabsContent>
 
               <TabsContent value="multivendor" className="mt-6">
@@ -808,6 +846,12 @@ export default function Integrations() {
               open={wcfmSheetOpen}
               onOpenChange={setWcfmSheetOpen}
               wcfmPluginActive={pluginEntry(plugins, 'wcfm')?.active === true}
+            />
+
+            <LearnPressIntegrationSheet
+              open={learnPressSheetOpen}
+              onOpenChange={setLearnPressSheetOpen}
+              learnPressPluginActive={pluginEntry(plugins, 'learnpress')?.active === true}
             />
 
             <IntegrationLogsSheet

@@ -783,8 +783,14 @@ export default function ContactsList() {
 
   const { getProQuery } = useSettings();
   const { data: isPro } = getProQuery;
-  const { useContactStatuses, useContacts, deleteContactMutation } = useCrm();
+  const {
+    useContactStatuses,
+    useContactIntegrationSourceOptions,
+    useContacts,
+    deleteContactMutation,
+  } = useCrm();
   const { data: statusesData } = useContactStatuses();
+  const { data: integrationSourceOptions = [] } = useContactIntegrationSourceOptions();
   const statuses = statusesData || [];
 
   const { data: contactsData, isLoading } = useContacts(
@@ -969,6 +975,28 @@ export default function ContactsList() {
                   {statuses.map((status) => (
                     <SelectItem key={status} value={status}>
                       {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={filters.integration_source || 'all'}
+                onValueChange={(value) => {
+                  setFilters((prev) => ({
+                    ...prev,
+                    integration_source: value === 'all' ? undefined : value,
+                  }));
+                  setPageState(1);
+                }}
+              >
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Integration" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Integrations</SelectItem>
+                  {integrationSourceOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
