@@ -7,6 +7,7 @@ import {
   ContactEmail,
   ContactFilters,
   ContactIntegrationSourceOption,
+  ContactLifterLmsData,
   ContactLearnPressData,
   ContactTutorData,
   ContactNote,
@@ -513,6 +514,22 @@ export function useCrm() {
           error: boolean;
           data: ContactTutorData;
         }>(`/crm/contacts/${contactId}/tutor`);
+        return response.data.data;
+      },
+      enabled: enabled && contactId !== null,
+      refetchOnWindowFocus: false,
+    });
+  };
+
+  // Get LifterLMS progress for a contact
+  const useContactLifterLms = (contactId: number | null, enabled = true) => {
+    return useQuery({
+      queryKey: ['crm-contact-lifterlms', contactId],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          data: ContactLifterLmsData;
+        }>(`/crm/contacts/${contactId}/lifterlms`);
         return response.data.data;
       },
       enabled: enabled && contactId !== null,
@@ -1238,6 +1255,7 @@ export function useCrm() {
     useSureCartNewOrderUrl,
     useContactLearnPress,
     useContactTutor,
+    useContactLifterLms,
     // Statuses
     useContactStatuses,
     useContactIntegrationSourceOptions,

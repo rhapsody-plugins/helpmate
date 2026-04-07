@@ -95,6 +95,7 @@ export type IntegrationOverviewPluginId =
   | 'surecart'
   | 'learnpress'
   | 'tutor'
+  | 'lifterlms'
   | 'elementor'
   | 'beaver_builder'
   | 'gutenberg';

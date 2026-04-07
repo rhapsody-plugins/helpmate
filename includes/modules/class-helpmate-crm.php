@@ -24,7 +24,7 @@ class Helpmate_CRM
      *
      * @var array<int,string>
      */
-    private $allowed_sync_sources = ['woocommerce', 'easy_digital_downloads', 'surecart', 'dokan', 'wcfm', 'learnpress', 'tutor'];
+    private $allowed_sync_sources = ['woocommerce', 'easy_digital_downloads', 'surecart', 'dokan', 'wcfm', 'learnpress', 'tutor', 'lifterlms'];
 
     /**
      * Human labels for sync sources.
@@ -39,6 +39,7 @@ class Helpmate_CRM
         'wcfm' => 'WCFM Marketplace',
         'learnpress' => 'LearnPress',
         'tutor' => 'Tutor LMS',
+        'lifterlms' => 'LifterLMS',
         'none' => 'No Integration',
     ];
     /**
@@ -586,6 +587,47 @@ class Helpmate_CRM
             'tutor_in_progress_course_ids' => $this->normalize_lms_token_list($snapshot['in_progress_course_ids'] ?? []),
             'tutor_completed_lesson_ids' => $this->normalize_lms_token_list($snapshot['completed_lesson_ids'] ?? []),
             'tutor_last_synced_at' => isset($snapshot['last_synced_at'])
+                ? sanitize_text_field((string) $snapshot['last_synced_at'])
+                : gmdate('Y-m-d H:i:s'),
+        ];
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
+        if (empty($field_ids)) {
+            return false;
+        }
+
+        $values_by_id = [];
+        foreach ($field_values as $field_name => $value) {
+            if (!isset($field_ids[$field_name])) {
+                continue;
+            }
+            $values_by_id[(int) $field_ids[$field_name]] = $value;
+        }
+
+        if (empty($values_by_id)) {
+            return false;
+        }
+
+        return $this->save_contact_custom_field_values($contact_id, $values_by_id);
+    }
+
+    /**
+     * Save LifterLMS snapshot fields for a contact.
+     *
+     * Uses token-safe list format for segment matching (e.g. ",12,45,").
+     *
+     * @param int   $contact_id Contact ID.
+     * @param array $snapshot   LMS snapshot.
+     * @return bool
+     */
+    public function save_contact_lifterlms_snapshot(int $contact_id, array $snapshot): bool
+    {
+        $field_values = [
+            'lifter_enrolled_course_ids' => $this->normalize_lms_token_list($snapshot['enrolled_course_ids'] ?? []),
+            'lifter_completed_course_ids' => $this->normalize_lms_token_list($snapshot['completed_course_ids'] ?? []),
+            'lifter_in_progress_course_ids' => $this->normalize_lms_token_list($snapshot['in_progress_course_ids'] ?? []),
+            'lifter_completed_lesson_ids' => $this->normalize_lms_token_list($snapshot['completed_lesson_ids'] ?? []),
+            'lifter_last_synced_at' => isset($snapshot['last_synced_at'])
                 ? sanitize_text_field((string) $snapshot['last_synced_at'])
                 : gmdate('Y-m-d H:i:s'),
         ];
@@ -4008,6 +4050,10 @@ class Helpmate_CRM
             'tutor_completed_course_ids',
             'tutor_in_progress_course_ids',
             'tutor_completed_lesson_ids',
+            'lifter_enrolled_course_ids',
+            'lifter_completed_course_ids',
+            'lifter_in_progress_course_ids',
+            'lifter_completed_lesson_ids',
         ];
         $is_tokenized_lms_field = in_array($field, $tokenized_lms_fields, true);
 

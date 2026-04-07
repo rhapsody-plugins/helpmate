@@ -33,6 +33,7 @@ import DokanIntegrationSheet from './integrations/multivendor/DokanIntegrationSh
 import WcfmIntegrationSheet from './integrations/multivendor/WcfmIntegrationSheet';
 import LearnPressIntegrationSheet from './integrations/lms/LearnPressIntegrationSheet';
 import TutorIntegrationSheet from './integrations/lms/TutorIntegrationSheet';
+import LifterLmsIntegrationSheet from './integrations/lms/LifterLmsIntegrationSheet';
 import { useIntegrationConfig } from './integrations/hooks/useIntegrationConfig';
 import { INTEGRATION_REGISTRY } from './integrations/registry';
 import type {
@@ -132,6 +133,7 @@ export default function Integrations() {
   const [wcfmSheetOpen, setWcfmSheetOpen] = useState(false);
   const [learnPressSheetOpen, setLearnPressSheetOpen] = useState(false);
   const [tutorSheetOpen, setTutorSheetOpen] = useState(false);
+  const [lifterSheetOpen, setLifterSheetOpen] = useState(false);
   const [multivendorProviderOverride, setMultivendorProviderOverride] =
     useState<MultivendorProviderId | null>(null);
   const [commerceProviderOverride, setCommerceProviderOverride] =
@@ -666,6 +668,38 @@ export default function Integrations() {
                       : undefined
                   }
                 />
+                <IntegrationCard
+                  className="mt-4"
+                  title="LifterLMS"
+                  description="Sync LifterLMS students into CRM and use lesson/course progress data in contact details and segmentation."
+                  plugin={pluginEntry(plugins, 'lifterlms')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'lifterlms'))}
+                  statusText={statusTextCommerce(pageReady, pluginEntry(plugins, 'lifterlms'))}
+                  onInstall={
+                    pluginEntry(plugins, 'lifterlms')?.wp_org_slug
+                      ? () =>
+                          installMutation.mutate(
+                            pluginEntry(plugins, 'lifterlms')!.wp_org_slug as string
+                          )
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'lifterlms')?.plugin_file
+                      ? () =>
+                          activateMutation.mutate(
+                            pluginEntry(plugins, 'lifterlms')!.plugin_file as string
+                          )
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onConfigure={
+                    pluginEntry(plugins, 'lifterlms')?.active
+                      ? () => setLifterSheetOpen(true)
+                      : undefined
+                  }
+                />
               </TabsContent>
 
               <TabsContent value="multivendor" className="mt-6">
@@ -892,6 +926,12 @@ export default function Integrations() {
               open={tutorSheetOpen}
               onOpenChange={setTutorSheetOpen}
               tutorPluginActive={pluginEntry(plugins, 'tutor')?.active === true}
+            />
+
+            <LifterLmsIntegrationSheet
+              open={lifterSheetOpen}
+              onOpenChange={setLifterSheetOpen}
+              lifterPluginActive={pluginEntry(plugins, 'lifterlms')?.active === true}
             />
 
             <IntegrationLogsSheet

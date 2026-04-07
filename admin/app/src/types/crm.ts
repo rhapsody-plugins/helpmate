@@ -150,6 +150,14 @@ export interface ContactTutorData {
   last_synced_at: string | null;
 }
 
+export interface ContactLifterLmsData {
+  active: boolean;
+  wp_user_id: number | null;
+  live: LearnPressProgressSnapshot;
+  snapshot: LearnPressProgressSnapshot;
+  last_synced_at: string | null;
+}
+
 export interface ContactFilters {
   status?: string;
   search?: string;

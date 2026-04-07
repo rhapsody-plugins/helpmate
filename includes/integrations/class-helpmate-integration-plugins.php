@@ -78,6 +78,12 @@ class Helpmate_Integration_Plugins {
 				),
 				'wp_org_slug'   => 'tutor',
 			),
+			'lifterlms'            => array(
+				'candidates'    => array(
+					'lifterlms/lifterlms.php',
+				),
+				'wp_org_slug'   => 'lifterlms',
+			),
 			'elementor'             => array(
 				'candidates'    => array( 'elementor/elementor.php' ),
 				'wp_org_slug'   => 'elementor',

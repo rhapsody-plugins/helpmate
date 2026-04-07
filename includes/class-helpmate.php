@@ -207,6 +207,13 @@ class Helpmate
 	private $tutor;
 
 	/**
+	 * LifterLMS integration helper (optional LMS).
+	 *
+	 * @var Helpmate_LifterLMS
+	 */
+	private $lifterlms;
+
+	/**
 	 * The Easy Digital Downloads instance.
 	 *
 	 * @since    2.0.3
@@ -425,6 +432,7 @@ class Helpmate
 		$this->wcfm = new Helpmate_WCFM($this);
 		$this->learnpress = new Helpmate_LearnPress($this);
 		$this->tutor = new Helpmate_Tutor($this);
+		$this->lifterlms = new Helpmate_LifterLMS($this);
 		$this->crm = new Helpmate_CRM($this);
 		$this->crm_order_metabox = new Helpmate_Crm_Order_Metabox($this->crm);
 		$this->team = new Helpmate_Team($this);
@@ -580,6 +588,7 @@ class Helpmate
 			'includes/integrations/class-helpmate-wcfm.php',
 			'includes/integrations/class-helpmate-learnpress.php',
 			'includes/integrations/class-helpmate-tutor.php',
+			'includes/integrations/class-helpmate-lifterlms.php',
 			'includes/integrations/class-helpmate-elementor-utils.php',
 			'includes/integrations/class-helpmate-blocks.php',
 		);
@@ -1268,6 +1277,16 @@ class Helpmate
 	public function get_tutor()
 	{
 		return $this->tutor;
+	}
+
+	/**
+	 * LifterLMS integration helper.
+	 *
+	 * @return Helpmate_LifterLMS
+	 */
+	public function get_lifterlms()
+	{
+		return $this->lifterlms;
 	}
 
 	/**
