@@ -32,6 +32,7 @@ import IntegrationLogsSheet from './integrations/components/IntegrationLogsSheet
 import DokanIntegrationSheet from './integrations/multivendor/DokanIntegrationSheet';
 import WcfmIntegrationSheet from './integrations/multivendor/WcfmIntegrationSheet';
 import LearnPressIntegrationSheet from './integrations/lms/LearnPressIntegrationSheet';
+import TutorIntegrationSheet from './integrations/lms/TutorIntegrationSheet';
 import { useIntegrationConfig } from './integrations/hooks/useIntegrationConfig';
 import { INTEGRATION_REGISTRY } from './integrations/registry';
 import type {
@@ -130,6 +131,7 @@ export default function Integrations() {
   const [dokanSheetOpen, setDokanSheetOpen] = useState(false);
   const [wcfmSheetOpen, setWcfmSheetOpen] = useState(false);
   const [learnPressSheetOpen, setLearnPressSheetOpen] = useState(false);
+  const [tutorSheetOpen, setTutorSheetOpen] = useState(false);
   const [multivendorProviderOverride, setMultivendorProviderOverride] =
     useState<MultivendorProviderId | null>(null);
   const [commerceProviderOverride, setCommerceProviderOverride] =
@@ -632,6 +634,38 @@ export default function Integrations() {
                       : undefined
                   }
                 />
+                <IntegrationCard
+                  className="mt-4"
+                  title="Tutor LMS"
+                  description="Sync Tutor LMS students into CRM and use lesson/course progress data in contact details and segmentation."
+                  plugin={pluginEntry(plugins, 'tutor')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'tutor'))}
+                  statusText={statusTextCommerce(pageReady, pluginEntry(plugins, 'tutor'))}
+                  onInstall={
+                    pluginEntry(plugins, 'tutor')?.wp_org_slug
+                      ? () =>
+                          installMutation.mutate(
+                            pluginEntry(plugins, 'tutor')!.wp_org_slug as string
+                          )
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'tutor')?.plugin_file
+                      ? () =>
+                          activateMutation.mutate(
+                            pluginEntry(plugins, 'tutor')!.plugin_file as string
+                          )
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onConfigure={
+                    pluginEntry(plugins, 'tutor')?.active
+                      ? () => setTutorSheetOpen(true)
+                      : undefined
+                  }
+                />
               </TabsContent>
 
               <TabsContent value="multivendor" className="mt-6">
@@ -852,6 +886,12 @@ export default function Integrations() {
               open={learnPressSheetOpen}
               onOpenChange={setLearnPressSheetOpen}
               learnPressPluginActive={pluginEntry(plugins, 'learnpress')?.active === true}
+            />
+
+            <TutorIntegrationSheet
+              open={tutorSheetOpen}
+              onOpenChange={setTutorSheetOpen}
+              tutorPluginActive={pluginEntry(plugins, 'tutor')?.active === true}
             />
 
             <IntegrationLogsSheet

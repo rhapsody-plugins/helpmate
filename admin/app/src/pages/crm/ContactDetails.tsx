@@ -33,7 +33,7 @@ import { OverviewTab } from './contacts/tabs/OverviewTab';
 import { SchedulesTab } from './contacts/tabs/SchedulesTab';
 import { TasksTab } from './contacts/tabs/TasksTab';
 import { TicketsTab } from './contacts/tabs/TicketsTab';
-import { LearnPressTab } from './contacts/tabs/LearnPressTab';
+import { LmsTab } from './contacts/tabs/LmsTab';
 
 export default function ContactDetails() {
   const { setPage } = useMain();
@@ -334,9 +334,9 @@ export default function ContactDetails() {
                 <FileText className="!w-3 !h-3" />
                 Notes
               </TabsTrigger>
-              <TabsTrigger value="learnpress" className="!text-xs">
+              <TabsTrigger value="lms" className="!text-xs">
                 <GraduationCap className="!w-3 !h-3" />
-                LearnPress
+                LMS
               </TabsTrigger>
             </TabsList>
 
@@ -380,8 +380,8 @@ export default function ContactDetails() {
               <NotesTab contactId={contactId} />
             </TabsContent>
 
-            <TabsContent value="learnpress" className="mt-4">
-              <LearnPressTab contactId={contactId} />
+            <TabsContent value="lms" className="mt-4">
+              <LmsTab contactId={contactId} />
             </TabsContent>
           </Tabs>
         </div>

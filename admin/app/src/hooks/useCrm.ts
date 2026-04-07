@@ -8,6 +8,7 @@ import {
   ContactFilters,
   ContactIntegrationSourceOption,
   ContactLearnPressData,
+  ContactTutorData,
   ContactNote,
   CustomField,
   EmailSequence,
@@ -496,6 +497,22 @@ export function useCrm() {
           error: boolean;
           data: ContactLearnPressData;
         }>(`/crm/contacts/${contactId}/learnpress`);
+        return response.data.data;
+      },
+      enabled: enabled && contactId !== null,
+      refetchOnWindowFocus: false,
+    });
+  };
+
+  // Get Tutor LMS progress for a contact
+  const useContactTutor = (contactId: number | null, enabled = true) => {
+    return useQuery({
+      queryKey: ['crm-contact-tutor', contactId],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          data: ContactTutorData;
+        }>(`/crm/contacts/${contactId}/tutor`);
         return response.data.data;
       },
       enabled: enabled && contactId !== null,
@@ -1220,6 +1237,7 @@ export function useCrm() {
     useEddNewOrderUrl,
     useSureCartNewOrderUrl,
     useContactLearnPress,
+    useContactTutor,
     // Statuses
     useContactStatuses,
     useContactIntegrationSourceOptions,

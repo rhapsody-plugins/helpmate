@@ -1117,6 +1117,80 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
         ));
 
+        register_rest_route('helpmate/v1', '/integrations/tutor', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $tutor = $this->helpmate->get_tutor();
+                $status = $tutor->get_rest_status();
+                return new WP_REST_Response(
+                    array(
+                        'error'         => false,
+                        'active'        => $status['active'],
+                        'student_count' => $status['student_count'],
+                        'course_count'  => $status['course_count'],
+                        'lesson_count'  => $status['lesson_count'],
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/tutor/courses', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $tutor = $this->helpmate->get_tutor();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'courses' => $tutor->get_courses_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/tutor/lessons', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $tutor = $this->helpmate->get_tutor();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'lessons' => $tutor->get_lessons_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/tutor/sync-students', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $tutor = $this->helpmate->get_tutor();
+                if (!$tutor->is_active()) {
+                    return new WP_REST_Response(
+                        array(
+                            'error'   => true,
+                            'message' => __('Tutor LMS is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $tutor->sync_all_students_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
         register_rest_route('helpmate/v1', '/integrations/woocommerce/sync-customers', array(
             'methods' => 'POST',
             'callback' => function () {
@@ -4175,6 +4249,31 @@ class Helpmate_Backend_Routes
                 }
 
                 $data = $this->helpmate->get_learnpress()->get_contact_lms_details($contact);
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $data,
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+            'args' => array(
+                'id' => array('required' => true, 'validate_callback' => fn($param) => is_numeric($param) && $param > 0),
+            ),
+        ));
+
+        // Get Tutor LMS progress payload for one contact.
+        register_rest_route('helpmate/v1', '/crm/contacts/(?P<id>\d+)/tutor', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                $contact_id = (int) $request->get_param('id');
+                $contact = $this->helpmate->get_crm()->get_contact($contact_id);
+                if (!$contact) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => 'Contact not found',
+                    ], 404);
+                }
+
+                $data = $this->helpmate->get_tutor()->get_contact_lms_details($contact);
                 return new WP_REST_Response([
                     'error' => false,
                     'data' => $data,

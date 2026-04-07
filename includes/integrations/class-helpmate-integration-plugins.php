@@ -72,6 +72,12 @@ class Helpmate_Integration_Plugins {
 				),
 				'wp_org_slug'   => 'learnpress',
 			),
+			'tutor'                 => array(
+				'candidates'    => array(
+					'tutor/tutor.php',
+				),
+				'wp_org_slug'   => 'tutor',
+			),
 			'elementor'             => array(
 				'candidates'    => array( 'elementor/elementor.php' ),
 				'wp_org_slug'   => 'elementor',

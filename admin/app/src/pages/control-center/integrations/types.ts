@@ -94,6 +94,7 @@ export type IntegrationOverviewPluginId =
   | 'easy_digital_downloads'
   | 'surecart'
   | 'learnpress'
+  | 'tutor'
   | 'elementor'
   | 'beaver_builder'
   | 'gutenberg';

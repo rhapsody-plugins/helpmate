@@ -43,6 +43,10 @@ const STANDARD_FIELDS = [
   { value: 'lp_completed_course_ids', label: 'LearnPress: Completed Course ID' },
   { value: 'lp_in_progress_course_ids', label: 'LearnPress: In Progress Course ID' },
   { value: 'lp_completed_lesson_ids', label: 'LearnPress: Completed Lesson ID' },
+  { value: 'tutor_enrolled_course_ids', label: 'Tutor LMS: Enrolled Course ID' },
+  { value: 'tutor_completed_course_ids', label: 'Tutor LMS: Completed Course ID' },
+  { value: 'tutor_in_progress_course_ids', label: 'Tutor LMS: In Progress Course ID' },
+  { value: 'tutor_completed_lesson_ids', label: 'Tutor LMS: Completed Lesson ID' },
 ];
 
 const OPERATORS = [
@@ -65,6 +69,10 @@ const LEARNPRESS_TOKEN_FIELDS = new Set([
   'lp_completed_course_ids',
   'lp_in_progress_course_ids',
   'lp_completed_lesson_ids',
+  'tutor_enrolled_course_ids',
+  'tutor_completed_course_ids',
+  'tutor_in_progress_course_ids',
+  'tutor_completed_lesson_ids',
 ]);
 
 const INTERNAL_LMS_FIELDS = new Set([
@@ -73,6 +81,11 @@ const INTERNAL_LMS_FIELDS = new Set([
   'lp_in_progress_course_ids',
   'lp_completed_lesson_ids',
   'lp_last_synced_at',
+  'tutor_enrolled_course_ids',
+  'tutor_completed_course_ids',
+  'tutor_in_progress_course_ids',
+  'tutor_completed_lesson_ids',
+  'tutor_last_synced_at',
 ]);
 
 export default function SegmentConditionBuilder({
