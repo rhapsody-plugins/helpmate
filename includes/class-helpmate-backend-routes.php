@@ -1015,6 +1015,49 @@ class Helpmate_Backend_Routes
             ),
         ));
 
+        register_rest_route('helpmate/v1', '/integrations/user-registration', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $this->helpmate->get_user_registration()->get_rest_status(),
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/user-registration/sync-members', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                return $this->helpmate->get_user_registration()->rest_sync_members($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+            'args' => array(
+                'limit' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+                'offset' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/user-registration/profile-support', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                return $this->helpmate->get_user_registration()->rest_profile_support($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in(),
+            'args' => array(
+                'user_id' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+            ),
+        ));
+
         register_rest_route('helpmate/v1', '/integrations/dokan', array(
             'methods' => 'GET',
             'callback' => function () {

@@ -251,6 +251,8 @@ class Helpmate_Integration_Events
 			'user_id',
 			'manual_backfill',
 			'role_changes',
+			'registration_form',
+			'account_status',
 			'validation_fields',
 			'missing_fields',
 			'route_mode',

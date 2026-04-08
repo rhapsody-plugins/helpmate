@@ -95,6 +95,7 @@ export type IntegrationOverviewPluginId =
   | 'surecart'
   | 'ultimate_member'
   | 'members'
+  | 'user_registration'
   | 'learnpress'
   | 'tutor'
   | 'lifterlms'

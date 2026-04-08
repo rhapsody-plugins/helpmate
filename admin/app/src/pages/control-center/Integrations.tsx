@@ -36,6 +36,7 @@ import TutorIntegrationSheet from './integrations/lms/TutorIntegrationSheet';
 import LifterLmsIntegrationSheet from './integrations/lms/LifterLmsIntegrationSheet';
 import UltimateMemberIntegrationSheet from './integrations/membership/UltimateMemberIntegrationSheet';
 import MembersIntegrationSheet from './integrations/membership/MembersIntegrationSheet';
+import UserRegistrationIntegrationSheet from './integrations/membership/UserRegistrationIntegrationSheet';
 import { useIntegrationConfig } from './integrations/hooks/useIntegrationConfig';
 import { INTEGRATION_REGISTRY } from './integrations/registry';
 import type {
@@ -140,6 +141,8 @@ export default function Integrations() {
   const [ultimateMemberLogsOpen, setUltimateMemberLogsOpen] = useState(false);
   const [membersSheetOpen, setMembersSheetOpen] = useState(false);
   const [membersLogsOpen, setMembersLogsOpen] = useState(false);
+  const [userRegistrationSheetOpen, setUserRegistrationSheetOpen] = useState(false);
+  const [userRegistrationLogsOpen, setUserRegistrationLogsOpen] = useState(false);
   const [multivendorProviderOverride, setMultivendorProviderOverride] =
     useState<MultivendorProviderId | null>(null);
   const [commerceProviderOverride, setCommerceProviderOverride] =
@@ -718,7 +721,8 @@ export default function Integrations() {
                 <h2 className="!text-lg !font-semibold !mb-3">Membership</h2>
                 <p className="text-sm text-muted-foreground !mb-6">
                   Connect member profile/account events to CRM sync and integration logs. Ultimate
-                  Member focuses account/profile lifecycle, while Members focuses roles/capabilities.
+                  Member focuses account/profile lifecycle, Members focuses roles/capabilities, and
+                  User Registration focuses registration/profile flows.
                 </p>
                 <IntegrationCard
                   title="Ultimate Member"
@@ -781,6 +785,43 @@ export default function Integrations() {
                   }
                   onLogs={
                     pluginEntry(plugins, 'members')?.active ? () => setMembersLogsOpen(true) : undefined
+                  }
+                />
+                <IntegrationCard
+                  className="mt-4"
+                  title="User Registration & Membership"
+                  description="Sync members to CRM, track registration/profile lifecycle events, and review User Registration integration logs."
+                  plugin={pluginEntry(plugins, 'user_registration')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'user_registration'))}
+                  statusText={statusTextCommerce(pageReady, pluginEntry(plugins, 'user_registration'))}
+                  onInstall={
+                    pluginEntry(plugins, 'user_registration')?.wp_org_slug
+                      ? () =>
+                          installMutation.mutate(
+                            pluginEntry(plugins, 'user_registration')!.wp_org_slug as string
+                          )
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'user_registration')?.plugin_file
+                      ? () =>
+                          activateMutation.mutate(
+                            pluginEntry(plugins, 'user_registration')!.plugin_file as string
+                          )
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onConfigure={
+                    pluginEntry(plugins, 'user_registration')?.active
+                      ? () => setUserRegistrationSheetOpen(true)
+                      : undefined
+                  }
+                  onLogs={
+                    pluginEntry(plugins, 'user_registration')?.active
+                      ? () => setUserRegistrationLogsOpen(true)
+                      : undefined
                   }
                 />
               </TabsContent>
@@ -1029,6 +1070,12 @@ export default function Integrations() {
               membersPluginActive={pluginEntry(plugins, 'members')?.active === true}
             />
 
+            <UserRegistrationIntegrationSheet
+              open={userRegistrationSheetOpen}
+              onOpenChange={setUserRegistrationSheetOpen}
+              userRegistrationPluginActive={pluginEntry(plugins, 'user_registration')?.active === true}
+            />
+
             <IntegrationLogsSheet
               open={wooLogsOpen}
               onOpenChange={setWooLogsOpen}
@@ -1067,6 +1114,14 @@ export default function Integrations() {
               integrationSlug="members"
               title="Members"
               description="Integration events for Members role lifecycle events, CRM sync, and member imports."
+            />
+
+            <IntegrationLogsSheet
+              open={userRegistrationLogsOpen}
+              onOpenChange={setUserRegistrationLogsOpen}
+              integrationSlug="user_registration"
+              title="User Registration"
+              description="Integration events for User Registration lifecycle events, CRM sync, and member imports."
             />
 
             {INTEGRATION_REGISTRY.map((entry) => (

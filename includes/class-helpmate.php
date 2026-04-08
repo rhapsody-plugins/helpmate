@@ -395,6 +395,13 @@ class Helpmate
 	private $members;
 
 	/**
+	 * User Registration integration helper (optional membership/forms).
+	 *
+	 * @var Helpmate_User_Registration
+	 */
+	private $user_registration;
+
+	/**
 	 * Public-facing plugin instance (shortcodes, front assets).
 	 *
 	 * @since 1.4.0
@@ -462,6 +469,7 @@ class Helpmate
 		$this->integration_plugins = new Helpmate_Integration_Plugins();
 		$this->ultimate_member = new Helpmate_Ultimate_Member($this, $this->integration_events);
 		$this->members = new Helpmate_Members($this, $this->integration_events);
+		$this->user_registration = new Helpmate_User_Registration($this, $this->integration_events);
 
 		// Initialize post/page meta box for knowledge base
 		if (is_admin()) {
@@ -607,6 +615,7 @@ class Helpmate
 			'includes/integrations/class-helpmate-lifterlms.php',
 			'includes/integrations/class-helpmate-ultimate-member.php',
 			'includes/integrations/class-helpmate-members.php',
+			'includes/integrations/class-helpmate-user-registration.php',
 			'includes/integrations/class-helpmate-elementor-utils.php',
 			'includes/integrations/class-helpmate-blocks.php',
 		);
@@ -1598,6 +1607,16 @@ class Helpmate
 	public function get_members()
 	{
 		return $this->members;
+	}
+
+	/**
+	 * User Registration integration helper.
+	 *
+	 * @return Helpmate_User_Registration
+	 */
+	public function get_user_registration()
+	{
+		return $this->user_registration;
 	}
 
 }

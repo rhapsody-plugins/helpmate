@@ -51,6 +51,13 @@ const STANDARD_FIELDS = [
   { value: 'members_registered_at', label: 'Members: Registered At' },
   { value: 'members_last_login_at', label: 'Members: Last Login At' },
   { value: 'members_profile_completed', label: 'Members: Profile Completed (0/1)' },
+  { value: 'ur_account_status', label: 'User Registration: Account Status' },
+  { value: 'ur_primary_role', label: 'User Registration: Primary Role' },
+  { value: 'ur_all_roles', label: 'User Registration: All Roles' },
+  { value: 'ur_registered_at', label: 'User Registration: Registered At' },
+  { value: 'ur_last_login_at', label: 'User Registration: Last Login At' },
+  { value: 'ur_registration_form', label: 'User Registration: Registration Form' },
+  { value: 'ur_profile_completed', label: 'User Registration: Profile Completed (0/1)' },
   { value: 'lp_enrolled_course_ids', label: 'LearnPress: Enrolled Course ID' },
   { value: 'lp_completed_course_ids', label: 'LearnPress: Completed Course ID' },
   { value: 'lp_in_progress_course_ids', label: 'LearnPress: In Progress Course ID' },
@@ -95,8 +102,12 @@ const LEARNPRESS_TOKEN_FIELDS = new Set([
   'lifter_completed_lesson_ids',
 ]);
 
-const SOURCE_TOKEN_FIELDS = new Set(['integration_source']);
-const UM_BOOLEAN_FIELDS = new Set(['um_profile_completed', 'members_profile_completed']);
+const SOURCE_TOKEN_FIELDS = new Set(['integration_source', 'ur_all_roles']);
+const UM_BOOLEAN_FIELDS = new Set([
+  'um_profile_completed',
+  'members_profile_completed',
+  'ur_profile_completed',
+]);
 
 const INTERNAL_LMS_FIELDS = new Set([
   'lp_enrolled_course_ids',

@@ -98,6 +98,14 @@ class Helpmate_Integration_Plugins {
 				),
 				'wp_org_slug'   => 'members',
 			),
+			'user_registration'   => array(
+				'candidates'    => array(
+					'user-registration/user-registration.php',
+					'user-registration-pro/user-registration.php',
+					'user-registration-pro/user-registration-pro.php',
+				),
+				'wp_org_slug'   => 'user-registration',
+			),
 			'elementor'             => array(
 				'candidates'    => array( 'elementor/elementor.php' ),
 				'wp_org_slug'   => 'elementor',

@@ -24,7 +24,7 @@ class Helpmate_CRM
      *
      * @var array<int,string>
      */
-    private $allowed_sync_sources = ['woocommerce', 'easy_digital_downloads', 'surecart', 'dokan', 'wcfm', 'learnpress', 'tutor', 'lifterlms', 'ultimate_member', 'members'];
+    private $allowed_sync_sources = ['woocommerce', 'easy_digital_downloads', 'surecart', 'dokan', 'wcfm', 'learnpress', 'tutor', 'lifterlms', 'ultimate_member', 'members', 'user_registration'];
 
     /**
      * Human labels for sync sources.
@@ -42,6 +42,7 @@ class Helpmate_CRM
         'lifterlms' => 'LifterLMS',
         'ultimate_member' => 'Ultimate Member',
         'members' => 'Members',
+        'user_registration' => 'User Registration',
         'none' => 'No Integration',
     ];
     /**
@@ -562,6 +563,21 @@ class Helpmate_CRM
     }
 
     /**
+     * Create or update a CRM contact from User Registration sync (match by email).
+     *
+     * @param array $data Mapped member fields.
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_user_registration(array $data)
+    {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            true,
+            __('Could not update contact from User Registration data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
      * Save Ultimate Member snapshot fields for a contact.
      *
      * @param int   $contact_id Contact ID.
@@ -615,6 +631,45 @@ class Helpmate_CRM
             'members_last_login_at' => isset($snapshot['last_login_at']) ? sanitize_text_field((string) $snapshot['last_login_at']) : '',
             'members_profile_completed' => !empty($snapshot['profile_completed']) ? '1' : '0',
             'members_last_synced_at' => gmdate('Y-m-d H:i:s'),
+        ];
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
+        if (empty($field_ids)) {
+            return false;
+        }
+
+        $values_by_id = [];
+        foreach ($field_values as $field_name => $value) {
+            if (!isset($field_ids[$field_name])) {
+                continue;
+            }
+            $values_by_id[(int) $field_ids[$field_name]] = $value;
+        }
+        if (empty($values_by_id)) {
+            return false;
+        }
+
+        return $this->save_contact_custom_field_values($contact_id, $values_by_id);
+    }
+
+    /**
+     * Save User Registration snapshot fields for a contact.
+     *
+     * @param int   $contact_id Contact ID.
+     * @param array $snapshot   User Registration snapshot.
+     * @return bool
+     */
+    public function save_contact_user_registration_snapshot(int $contact_id, array $snapshot): bool
+    {
+        $field_values = [
+            'ur_account_status' => isset($snapshot['account_status']) ? sanitize_key((string) $snapshot['account_status']) : '',
+            'ur_primary_role' => isset($snapshot['primary_role']) ? sanitize_key((string) $snapshot['primary_role']) : '',
+            'ur_all_roles' => isset($snapshot['all_roles']) ? sanitize_text_field((string) $snapshot['all_roles']) : '',
+            'ur_registered_at' => isset($snapshot['registered_at']) ? sanitize_text_field((string) $snapshot['registered_at']) : '',
+            'ur_last_login_at' => isset($snapshot['last_login_at']) ? sanitize_text_field((string) $snapshot['last_login_at']) : '',
+            'ur_registration_form' => isset($snapshot['registration_form']) ? sanitize_text_field((string) $snapshot['registration_form']) : '',
+            'ur_profile_completed' => !empty($snapshot['profile_completed']) ? '1' : '0',
+            'ur_last_synced_at' => gmdate('Y-m-d H:i:s'),
         ];
 
         $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
@@ -4165,7 +4220,11 @@ class Helpmate_CRM
             'lifter_in_progress_course_ids',
             'lifter_completed_lesson_ids',
         ];
+        $tokenized_role_fields = [
+            'ur_all_roles',
+        ];
         $is_tokenized_lms_field = in_array($field, $tokenized_lms_fields, true);
+        $is_tokenized_role_field = in_array($field, $tokenized_role_fields, true);
         $is_tokenized_source_field = ('crm_sync_sources' === $field);
 
         // Check if it's a standard contact field
@@ -4187,6 +4246,18 @@ class Helpmate_CRM
                     return "{$field_ref} = %s";
                 } else {
                     if ($is_tokenized_source_field) {
+                        $needle = sanitize_key((string) $value);
+                        if ($needle === '') {
+                            return null;
+                        }
+                        $params[] = $field;
+                        $params[] = '%,' . $needle . ',%';
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
+                        return "EXISTS (SELECT 1 FROM {$field_values_table} fv
+                        INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                        WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+                    }
+                    if ($is_tokenized_role_field) {
                         $needle = sanitize_key((string) $value);
                         if ($needle === '') {
                             return null;
@@ -4236,6 +4307,18 @@ class Helpmate_CRM
                         INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
                         WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
                     }
+                    if ($is_tokenized_role_field) {
+                        $needle = sanitize_key((string) $value);
+                        if ($needle === '') {
+                            return null;
+                        }
+                        $params[] = $field;
+                        $params[] = '%,' . $needle . ',%';
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
+                        return "NOT EXISTS (SELECT 1 FROM {$field_values_table} fv
+                        INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                        WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+                    }
                     if ($is_tokenized_lms_field) {
                         $needle = absint($value);
                         if ($needle <= 0) {
@@ -4261,8 +4344,10 @@ class Helpmate_CRM
                     ? '%,' . absint($value) . ',%'
                     : ($is_tokenized_source_field
                         ? '%,' . sanitize_key((string) $value) . ',%'
-                        : '%' . $wpdb->esc_like($value) . '%');
-                if ($is_tokenized_source_field && sanitize_key((string) $value) === '') {
+                        : ($is_tokenized_role_field
+                            ? '%,' . sanitize_key((string) $value) . ',%'
+                            : '%' . $wpdb->esc_like($value) . '%'));
+                if (($is_tokenized_source_field || $is_tokenized_role_field) && sanitize_key((string) $value) === '') {
                     return null;
                 }
                 if ($is_standard_field) {
@@ -4285,8 +4370,10 @@ class Helpmate_CRM
                     ? '%,' . absint($value) . ',%'
                     : ($is_tokenized_source_field
                         ? '%,' . sanitize_key((string) $value) . ',%'
-                        : '%' . $wpdb->esc_like($value) . '%');
-                if ($is_tokenized_source_field && sanitize_key((string) $value) === '') {
+                        : ($is_tokenized_role_field
+                            ? '%,' . sanitize_key((string) $value) . ',%'
+                            : '%' . $wpdb->esc_like($value) . '%'));
+                if (($is_tokenized_source_field || $is_tokenized_role_field) && sanitize_key((string) $value) === '') {
                     return null;
                 }
                 if ($is_standard_field) {
