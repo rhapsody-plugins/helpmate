@@ -46,6 +46,11 @@ const STANDARD_FIELDS = [
   { value: 'um_last_login_at', label: 'Ultimate Member: Last Login At' },
   { value: 'um_registration_form', label: 'Ultimate Member: Registration Form' },
   { value: 'um_profile_completed', label: 'Ultimate Member: Profile Completed (0/1)' },
+  { value: 'members_primary_role', label: 'Members: Primary Role' },
+  { value: 'members_all_roles', label: 'Members: All Roles' },
+  { value: 'members_registered_at', label: 'Members: Registered At' },
+  { value: 'members_last_login_at', label: 'Members: Last Login At' },
+  { value: 'members_profile_completed', label: 'Members: Profile Completed (0/1)' },
   { value: 'lp_enrolled_course_ids', label: 'LearnPress: Enrolled Course ID' },
   { value: 'lp_completed_course_ids', label: 'LearnPress: Completed Course ID' },
   { value: 'lp_in_progress_course_ids', label: 'LearnPress: In Progress Course ID' },
@@ -91,7 +96,7 @@ const LEARNPRESS_TOKEN_FIELDS = new Set([
 ]);
 
 const SOURCE_TOKEN_FIELDS = new Set(['integration_source']);
-const UM_BOOLEAN_FIELDS = new Set(['um_profile_completed']);
+const UM_BOOLEAN_FIELDS = new Set(['um_profile_completed', 'members_profile_completed']);
 
 const INTERNAL_LMS_FIELDS = new Set([
   'lp_enrolled_course_ids',

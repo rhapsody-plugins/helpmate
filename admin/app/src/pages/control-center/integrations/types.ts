@@ -94,6 +94,7 @@ export type IntegrationOverviewPluginId =
   | 'easy_digital_downloads'
   | 'surecart'
   | 'ultimate_member'
+  | 'members'
   | 'learnpress'
   | 'tutor'
   | 'lifterlms'

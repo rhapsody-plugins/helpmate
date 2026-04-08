@@ -972,6 +972,49 @@ class Helpmate_Backend_Routes
             ),
         ));
 
+        register_rest_route('helpmate/v1', '/integrations/members', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $this->helpmate->get_members()->get_rest_status(),
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/members/sync-members', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                return $this->helpmate->get_members()->rest_sync_members($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+            'args' => array(
+                'limit' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+                'offset' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/members/profile-support', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                return $this->helpmate->get_members()->rest_profile_support($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in(),
+            'args' => array(
+                'user_id' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+            ),
+        ));
+
         register_rest_route('helpmate/v1', '/integrations/dokan', array(
             'methods' => 'GET',
             'callback' => function () {

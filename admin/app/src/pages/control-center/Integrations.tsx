@@ -35,6 +35,7 @@ import LearnPressIntegrationSheet from './integrations/lms/LearnPressIntegration
 import TutorIntegrationSheet from './integrations/lms/TutorIntegrationSheet';
 import LifterLmsIntegrationSheet from './integrations/lms/LifterLmsIntegrationSheet';
 import UltimateMemberIntegrationSheet from './integrations/membership/UltimateMemberIntegrationSheet';
+import MembersIntegrationSheet from './integrations/membership/MembersIntegrationSheet';
 import { useIntegrationConfig } from './integrations/hooks/useIntegrationConfig';
 import { INTEGRATION_REGISTRY } from './integrations/registry';
 import type {
@@ -137,6 +138,8 @@ export default function Integrations() {
   const [lifterSheetOpen, setLifterSheetOpen] = useState(false);
   const [ultimateMemberSheetOpen, setUltimateMemberSheetOpen] = useState(false);
   const [ultimateMemberLogsOpen, setUltimateMemberLogsOpen] = useState(false);
+  const [membersSheetOpen, setMembersSheetOpen] = useState(false);
+  const [membersLogsOpen, setMembersLogsOpen] = useState(false);
   const [multivendorProviderOverride, setMultivendorProviderOverride] =
     useState<MultivendorProviderId | null>(null);
   const [commerceProviderOverride, setCommerceProviderOverride] =
@@ -714,7 +717,8 @@ export default function Integrations() {
               <TabsContent value="membership" className="mt-6">
                 <h2 className="!text-lg !font-semibold !mb-3">Membership</h2>
                 <p className="text-sm text-muted-foreground !mb-6">
-                  Connect member profile/account events to CRM sync and integration logs.
+                  Connect member profile/account events to CRM sync and integration logs. Ultimate
+                  Member focuses account/profile lifecycle, while Members focuses roles/capabilities.
                 </p>
                 <IntegrationCard
                   title="Ultimate Member"
@@ -750,6 +754,33 @@ export default function Integrations() {
                     pluginEntry(plugins, 'ultimate_member')?.active
                       ? () => setUltimateMemberLogsOpen(true)
                       : undefined
+                  }
+                />
+                <IntegrationCard
+                  className="mt-4"
+                  title="Members"
+                  description="Sync members to CRM, track role lifecycle events, and review Members integration logs."
+                  plugin={pluginEntry(plugins, 'members')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'members'))}
+                  statusText={statusTextCommerce(pageReady, pluginEntry(plugins, 'members'))}
+                  onInstall={
+                    pluginEntry(plugins, 'members')?.wp_org_slug
+                      ? () => installMutation.mutate(pluginEntry(plugins, 'members')!.wp_org_slug as string)
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'members')?.plugin_file
+                      ? () => activateMutation.mutate(pluginEntry(plugins, 'members')!.plugin_file as string)
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onConfigure={
+                    pluginEntry(plugins, 'members')?.active ? () => setMembersSheetOpen(true) : undefined
+                  }
+                  onLogs={
+                    pluginEntry(plugins, 'members')?.active ? () => setMembersLogsOpen(true) : undefined
                   }
                 />
               </TabsContent>
@@ -992,6 +1023,12 @@ export default function Integrations() {
               ultimateMemberPluginActive={pluginEntry(plugins, 'ultimate_member')?.active === true}
             />
 
+            <MembersIntegrationSheet
+              open={membersSheetOpen}
+              onOpenChange={setMembersSheetOpen}
+              membersPluginActive={pluginEntry(plugins, 'members')?.active === true}
+            />
+
             <IntegrationLogsSheet
               open={wooLogsOpen}
               onOpenChange={setWooLogsOpen}
@@ -1022,6 +1059,14 @@ export default function Integrations() {
               integrationSlug="ultimate_member"
               title="Ultimate Member"
               description="Integration events for Ultimate Member lifecycle events, CRM sync, and member imports."
+            />
+
+            <IntegrationLogsSheet
+              open={membersLogsOpen}
+              onOpenChange={setMembersLogsOpen}
+              integrationSlug="members"
+              title="Members"
+              description="Integration events for Members role lifecycle events, CRM sync, and member imports."
             />
 
             {INTEGRATION_REGISTRY.map((entry) => (

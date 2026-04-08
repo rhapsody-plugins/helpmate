@@ -250,6 +250,7 @@ class Helpmate_Integration_Events
 			'request_id',
 			'user_id',
 			'manual_backfill',
+			'role_changes',
 			'validation_fields',
 			'missing_fields',
 			'route_mode',

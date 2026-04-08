@@ -90,6 +90,14 @@ class Helpmate_Integration_Plugins {
 				),
 				'wp_org_slug'   => 'ultimate-member',
 			),
+			'members'             => array(
+				'candidates'    => array(
+					'members/members.php',
+					'members-pro/members.php',
+					'members-pro/members-pro.php',
+				),
+				'wp_org_slug'   => 'members',
+			),
 			'elementor'             => array(
 				'candidates'    => array( 'elementor/elementor.php' ),
 				'wp_org_slug'   => 'elementor',

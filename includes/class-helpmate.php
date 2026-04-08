@@ -388,6 +388,13 @@ class Helpmate
 	private $ultimate_member;
 
 	/**
+	 * Members integration helper (optional membership/roles).
+	 *
+	 * @var Helpmate_Members
+	 */
+	private $members;
+
+	/**
 	 * Public-facing plugin instance (shortcodes, front assets).
 	 *
 	 * @since 1.4.0
@@ -454,6 +461,7 @@ class Helpmate
 		$this->formidable_forms_integration = new Helpmate_Formidable_Forms_Integration($this, $this->integration_events);
 		$this->integration_plugins = new Helpmate_Integration_Plugins();
 		$this->ultimate_member = new Helpmate_Ultimate_Member($this, $this->integration_events);
+		$this->members = new Helpmate_Members($this, $this->integration_events);
 
 		// Initialize post/page meta box for knowledge base
 		if (is_admin()) {
@@ -598,6 +606,7 @@ class Helpmate
 			'includes/integrations/class-helpmate-tutor.php',
 			'includes/integrations/class-helpmate-lifterlms.php',
 			'includes/integrations/class-helpmate-ultimate-member.php',
+			'includes/integrations/class-helpmate-members.php',
 			'includes/integrations/class-helpmate-elementor-utils.php',
 			'includes/integrations/class-helpmate-blocks.php',
 		);
@@ -1579,6 +1588,16 @@ class Helpmate
 	public function get_ultimate_member()
 	{
 		return $this->ultimate_member;
+	}
+
+	/**
+	 * Members integration helper.
+	 *
+	 * @return Helpmate_Members
+	 */
+	public function get_members()
+	{
+		return $this->members;
 	}
 
 }

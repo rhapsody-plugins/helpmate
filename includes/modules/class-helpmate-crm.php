@@ -24,7 +24,7 @@ class Helpmate_CRM
      *
      * @var array<int,string>
      */
-    private $allowed_sync_sources = ['woocommerce', 'easy_digital_downloads', 'surecart', 'dokan', 'wcfm', 'learnpress', 'tutor', 'lifterlms', 'ultimate_member'];
+    private $allowed_sync_sources = ['woocommerce', 'easy_digital_downloads', 'surecart', 'dokan', 'wcfm', 'learnpress', 'tutor', 'lifterlms', 'ultimate_member', 'members'];
 
     /**
      * Human labels for sync sources.
@@ -41,6 +41,7 @@ class Helpmate_CRM
         'tutor' => 'Tutor LMS',
         'lifterlms' => 'LifterLMS',
         'ultimate_member' => 'Ultimate Member',
+        'members' => 'Members',
         'none' => 'No Integration',
     ];
     /**
@@ -546,6 +547,21 @@ class Helpmate_CRM
     }
 
     /**
+     * Create or update a CRM contact from Members sync (match by email).
+     *
+     * @param array $data Mapped member fields.
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_members(array $data)
+    {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            true,
+            __('Could not update contact from Members data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
      * Save Ultimate Member snapshot fields for a contact.
      *
      * @param int   $contact_id Contact ID.
@@ -562,6 +578,43 @@ class Helpmate_CRM
             'um_registration_form' => isset($snapshot['registration_form']) ? sanitize_text_field((string) $snapshot['registration_form']) : '',
             'um_profile_completed' => !empty($snapshot['profile_completed']) ? '1' : '0',
             'um_last_synced_at' => gmdate('Y-m-d H:i:s'),
+        ];
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
+        if (empty($field_ids)) {
+            return false;
+        }
+
+        $values_by_id = [];
+        foreach ($field_values as $field_name => $value) {
+            if (!isset($field_ids[$field_name])) {
+                continue;
+            }
+            $values_by_id[(int) $field_ids[$field_name]] = $value;
+        }
+        if (empty($values_by_id)) {
+            return false;
+        }
+
+        return $this->save_contact_custom_field_values($contact_id, $values_by_id);
+    }
+
+    /**
+     * Save Members snapshot fields for a contact.
+     *
+     * @param int   $contact_id Contact ID.
+     * @param array $snapshot   Members snapshot.
+     * @return bool
+     */
+    public function save_contact_members_snapshot(int $contact_id, array $snapshot): bool
+    {
+        $field_values = [
+            'members_primary_role' => isset($snapshot['primary_role']) ? sanitize_key((string) $snapshot['primary_role']) : '',
+            'members_all_roles' => isset($snapshot['all_roles']) ? sanitize_text_field((string) $snapshot['all_roles']) : '',
+            'members_registered_at' => isset($snapshot['registered_at']) ? sanitize_text_field((string) $snapshot['registered_at']) : '',
+            'members_last_login_at' => isset($snapshot['last_login_at']) ? sanitize_text_field((string) $snapshot['last_login_at']) : '',
+            'members_profile_completed' => !empty($snapshot['profile_completed']) ? '1' : '0',
+            'members_last_synced_at' => gmdate('Y-m-d H:i:s'),
         ];
 
         $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
