@@ -39,6 +39,13 @@ const STANDARD_FIELDS = [
   { value: 'zip_code', label: 'Zip Code' },
   { value: 'status', label: 'Status' },
   { value: 'date_of_birth', label: 'Date of Birth' },
+  { value: 'integration_source', label: 'Integration Source' },
+  { value: 'um_account_status', label: 'Ultimate Member: Account Status' },
+  { value: 'um_primary_role', label: 'Ultimate Member: Primary Role' },
+  { value: 'um_registered_at', label: 'Ultimate Member: Registered At' },
+  { value: 'um_last_login_at', label: 'Ultimate Member: Last Login At' },
+  { value: 'um_registration_form', label: 'Ultimate Member: Registration Form' },
+  { value: 'um_profile_completed', label: 'Ultimate Member: Profile Completed (0/1)' },
   { value: 'lp_enrolled_course_ids', label: 'LearnPress: Enrolled Course ID' },
   { value: 'lp_completed_course_ids', label: 'LearnPress: Completed Course ID' },
   { value: 'lp_in_progress_course_ids', label: 'LearnPress: In Progress Course ID' },
@@ -82,6 +89,9 @@ const LEARNPRESS_TOKEN_FIELDS = new Set([
   'lifter_in_progress_course_ids',
   'lifter_completed_lesson_ids',
 ]);
+
+const SOURCE_TOKEN_FIELDS = new Set(['integration_source']);
+const UM_BOOLEAN_FIELDS = new Set(['um_profile_completed']);
 
 const INTERNAL_LMS_FIELDS = new Set([
   'lp_enrolled_course_ids',
@@ -173,6 +183,18 @@ export default function SegmentConditionBuilder({
     if (LEARNPRESS_TOKEN_FIELDS.has(fieldName)) {
       return OPERATORS.filter((op) =>
         ['contains', 'not_contains', 'is_empty', 'is_not_empty'].includes(op.value)
+      );
+    }
+    if (SOURCE_TOKEN_FIELDS.has(fieldName)) {
+      return OPERATORS.filter((op) =>
+        ['equals', 'not_equals', 'contains', 'not_contains', 'is_empty', 'is_not_empty'].includes(
+          op.value
+        )
+      );
+    }
+    if (UM_BOOLEAN_FIELDS.has(fieldName)) {
+      return OPERATORS.filter((op) =>
+        ['equals', 'not_equals', 'is_empty', 'is_not_empty'].includes(op.value)
       );
     }
     return OPERATORS;

@@ -84,6 +84,12 @@ class Helpmate_Integration_Plugins {
 				),
 				'wp_org_slug'   => 'lifterlms',
 			),
+			'ultimate_member'      => array(
+				'candidates'    => array(
+					'ultimate-member/ultimate-member.php',
+				),
+				'wp_org_slug'   => 'ultimate-member',
+			),
 			'elementor'             => array(
 				'candidates'    => array( 'elementor/elementor.php' ),
 				'wp_org_slug'   => 'elementor',

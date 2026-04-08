@@ -248,6 +248,8 @@ class Helpmate_Integration_Events
 	{
 		$allowlist = [
 			'request_id',
+			'user_id',
+			'manual_backfill',
 			'validation_fields',
 			'missing_fields',
 			'route_mode',

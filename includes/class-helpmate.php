@@ -381,6 +381,13 @@ class Helpmate
 	private $integration_plugins;
 
 	/**
+	 * Ultimate Member integration helper (optional membership/community).
+	 *
+	 * @var Helpmate_Ultimate_Member
+	 */
+	private $ultimate_member;
+
+	/**
 	 * Public-facing plugin instance (shortcodes, front assets).
 	 *
 	 * @since 1.4.0
@@ -446,6 +453,7 @@ class Helpmate
 		$this->ninja_forms_integration = new Helpmate_Ninja_Forms_Integration($this, $this->integration_events);
 		$this->formidable_forms_integration = new Helpmate_Formidable_Forms_Integration($this, $this->integration_events);
 		$this->integration_plugins = new Helpmate_Integration_Plugins();
+		$this->ultimate_member = new Helpmate_Ultimate_Member($this, $this->integration_events);
 
 		// Initialize post/page meta box for knowledge base
 		if (is_admin()) {
@@ -589,6 +597,7 @@ class Helpmate
 			'includes/integrations/class-helpmate-learnpress.php',
 			'includes/integrations/class-helpmate-tutor.php',
 			'includes/integrations/class-helpmate-lifterlms.php',
+			'includes/integrations/class-helpmate-ultimate-member.php',
 			'includes/integrations/class-helpmate-elementor-utils.php',
 			'includes/integrations/class-helpmate-blocks.php',
 		);
@@ -1560,6 +1569,16 @@ class Helpmate
 	public function get_integration_plugins()
 	{
 		return $this->integration_plugins;
+	}
+
+	/**
+	 * Ultimate Member integration helper.
+	 *
+	 * @return Helpmate_Ultimate_Member
+	 */
+	public function get_ultimate_member()
+	{
+		return $this->ultimate_member;
 	}
 
 }

@@ -34,6 +34,7 @@ import WcfmIntegrationSheet from './integrations/multivendor/WcfmIntegrationShee
 import LearnPressIntegrationSheet from './integrations/lms/LearnPressIntegrationSheet';
 import TutorIntegrationSheet from './integrations/lms/TutorIntegrationSheet';
 import LifterLmsIntegrationSheet from './integrations/lms/LifterLmsIntegrationSheet';
+import UltimateMemberIntegrationSheet from './integrations/membership/UltimateMemberIntegrationSheet';
 import { useIntegrationConfig } from './integrations/hooks/useIntegrationConfig';
 import { INTEGRATION_REGISTRY } from './integrations/registry';
 import type {
@@ -134,6 +135,8 @@ export default function Integrations() {
   const [learnPressSheetOpen, setLearnPressSheetOpen] = useState(false);
   const [tutorSheetOpen, setTutorSheetOpen] = useState(false);
   const [lifterSheetOpen, setLifterSheetOpen] = useState(false);
+  const [ultimateMemberSheetOpen, setUltimateMemberSheetOpen] = useState(false);
+  const [ultimateMemberLogsOpen, setUltimateMemberLogsOpen] = useState(false);
   const [multivendorProviderOverride, setMultivendorProviderOverride] =
     useState<MultivendorProviderId | null>(null);
   const [commerceProviderOverride, setCommerceProviderOverride] =
@@ -435,6 +438,7 @@ export default function Integrations() {
                 <TabsTrigger value="commerce">Commerce</TabsTrigger>
                 <TabsTrigger value="multivendor">Multivendor</TabsTrigger>
                 <TabsTrigger value="lms">LMS</TabsTrigger>
+                <TabsTrigger value="membership">Membership</TabsTrigger>
                 <TabsTrigger value="forms">Forms</TabsTrigger>
                 <TabsTrigger value="page_builders">Page builders</TabsTrigger>
               </TabsList>
@@ -707,6 +711,49 @@ export default function Integrations() {
                 />
               </TabsContent>
 
+              <TabsContent value="membership" className="mt-6">
+                <h2 className="!text-lg !font-semibold !mb-3">Membership</h2>
+                <p className="text-sm text-muted-foreground !mb-6">
+                  Connect member profile/account events to CRM sync and integration logs.
+                </p>
+                <IntegrationCard
+                  title="Ultimate Member"
+                  description="Sync members to CRM, enable member lifecycle event tracking, and review activity logs."
+                  plugin={pluginEntry(plugins, 'ultimate_member')}
+                  capabilities={caps}
+                  statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'ultimate_member'))}
+                  statusText={statusTextCommerce(pageReady, pluginEntry(plugins, 'ultimate_member'))}
+                  onInstall={
+                    pluginEntry(plugins, 'ultimate_member')?.wp_org_slug
+                      ? () =>
+                          installMutation.mutate(
+                            pluginEntry(plugins, 'ultimate_member')!.wp_org_slug as string
+                          )
+                      : undefined
+                  }
+                  onActivate={
+                    pluginEntry(plugins, 'ultimate_member')?.plugin_file
+                      ? () =>
+                          activateMutation.mutate(
+                            pluginEntry(plugins, 'ultimate_member')!.plugin_file as string
+                          )
+                      : undefined
+                  }
+                  installPending={installMutation.isPending}
+                  activatePending={activateMutation.isPending}
+                  onConfigure={
+                    pluginEntry(plugins, 'ultimate_member')?.active
+                      ? () => setUltimateMemberSheetOpen(true)
+                      : undefined
+                  }
+                  onLogs={
+                    pluginEntry(plugins, 'ultimate_member')?.active
+                      ? () => setUltimateMemberLogsOpen(true)
+                      : undefined
+                  }
+                />
+              </TabsContent>
+
               <TabsContent value="multivendor" className="mt-6">
                 <h2 className="!text-lg !font-semibold !mb-3">Multivendor</h2>
                 <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:flex-wrap">
@@ -751,14 +798,14 @@ export default function Integrations() {
                   </Button>
                 </div>
                 {detectedMultivendorProviders.length === 0 ? (
-                  <p className="text-sm text-muted-foreground mb-6">
+                  <p className="text-sm text-muted-foreground !mb-6">
                     No active multivendor plugin. Install and activate Dokan or WCFM Marketplace
                     below.
                   </p>
                 ) : null}
                 {effectiveMultivendorProvider &&
                 !detectedMultivendorProviders.includes(effectiveMultivendorProvider) ? (
-                  <p className="text-sm text-amber-600 mb-6">
+                  <p className="text-sm text-amber-600 !mb-6">
                     Selected primary provider is inactive. Multivendor enrichment is disabled until
                     you activate it or switch primary provider.
                   </p>
@@ -939,6 +986,12 @@ export default function Integrations() {
               lifterPluginActive={pluginEntry(plugins, 'lifterlms')?.active === true}
             />
 
+            <UltimateMemberIntegrationSheet
+              open={ultimateMemberSheetOpen}
+              onOpenChange={setUltimateMemberSheetOpen}
+              ultimateMemberPluginActive={pluginEntry(plugins, 'ultimate_member')?.active === true}
+            />
+
             <IntegrationLogsSheet
               open={wooLogsOpen}
               onOpenChange={setWooLogsOpen}
@@ -961,6 +1014,14 @@ export default function Integrations() {
               integrationSlug="surecart"
               title="SureCart"
               description="Integration events for SureCart detection, routing, and product lookups."
+            />
+
+            <IntegrationLogsSheet
+              open={ultimateMemberLogsOpen}
+              onOpenChange={setUltimateMemberLogsOpen}
+              integrationSlug="ultimate_member"
+              title="Ultimate Member"
+              description="Integration events for Ultimate Member lifecycle events, CRM sync, and member imports."
             />
 
             {INTEGRATION_REGISTRY.map((entry) => (
