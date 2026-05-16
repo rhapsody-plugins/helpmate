@@ -85,6 +85,9 @@ cd public/app
 pnpm run typecheck
 cd ../..
 
+# POT/PO/MO/JSON + Jed aliases (see languages/build-i18n.sh)
+bash "$SCRIPT_DIR/languages/build-i18n.sh"
+
 # Create a new directory for the build
 echo "Creating new build directory..."
 rm -rf ../helpmate-build
@@ -92,7 +95,7 @@ mkdir -p ../helpmate-build
 
 # Copy files excluding node_modules (portable: no rsync)
 echo "Copying files..."
-tar --exclude='node_modules' --exclude='.git' --exclude='.gitignore' --exclude='README.md' --exclude='.DS_Store' --exclude='build.sh' --exclude='composer.json' --exclude='composer.lock' -cf - . | (cd ../helpmate-build && tar xf -)
+tar --exclude='node_modules' --exclude='.git' --exclude='.gitignore' --exclude='README.md' --exclude='.DS_Store' --exclude='build.sh' --exclude='build-i18n.sh' --exclude='composer.json' --exclude='composer.lock' -cf - . | (cd ../helpmate-build && tar xf -)
 
 # Verify copy operation
 if [ ! -d "../helpmate-build" ]; then

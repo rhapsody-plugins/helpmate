@@ -18,6 +18,7 @@ import {
 import { ReusableTable } from '@/components/ReusableTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { WordPressPost } from '@/types';
+import { __, sprintf } from '@/lib/utils';
 
 interface Step3DataTrainingProps {
   onComplete: () => void;
@@ -672,11 +673,11 @@ export default function Step3DataTraining({
     },
     {
       accessorKey: 'title',
-      header: 'Title',
+      header: __('Title'),
     },
     {
       accessorKey: 'date',
-      header: 'Date',
+      header: __('Date'),
     },
   ];
 
@@ -687,10 +688,10 @@ export default function Step3DataTraining({
     <div className="space-y-6">
       <div className="mb-6 text-center">
         <h2 className="!mb-2 !mt-0 !text-2xl !font-bold">
-          Step 3: Train Your Data (Optional)
+          {__('Step 3: Train Your Data (Optional)')}
         </h2>
         <p className="text-muted-foreground !my-0">
-          Select content to train your chatbot. Minimum 3 items recommended.
+          {__('Select content to train your chatbot. Minimum 3 items recommended.')}
         </p>
       </div>
 
@@ -698,13 +699,13 @@ export default function Step3DataTraining({
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
           <div className="flex gap-3 items-center mb-2">
             <div className="w-5 h-5 rounded-full border-2 border-blue-600 animate-spin border-t-transparent" />
-            <span className="font-medium">Training in progress...</span>
+            <span className="font-medium">{__('Training in progress...')}</span>
           </div>
           <div className="mt-3 space-y-2">
             {activeJobIds.post && (
               <div className="space-y-1">
                 <div className="flex justify-between text-sm">
-                  <span>Posts & Pages</span>
+                  <span>{__('Posts & Pages')}</span>
                   <span>{trainingProgress.post}%</span>
                 </div>
                 <div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full">
@@ -720,7 +721,7 @@ export default function Step3DataTraining({
             {activeJobIds.product && (
               <div className="space-y-1">
                 <div className="flex justify-between text-sm">
-                  <span>Products</span>
+                  <span>{__('Products')}</span>
                   <span>{trainingProgress.product}%</span>
                 </div>
                 <div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full">
@@ -751,7 +752,7 @@ export default function Step3DataTraining({
             <div className="flex justify-between items-center">
               <div className="flex gap-2 items-center">
                 <FileText className="w-5 h-5 text-primary" />
-                <CardTitle className="text-lg">Pages</CardTitle>
+                <CardTitle className="text-lg">{__('Pages')}</CardTitle>
               </div>
               <Checkbox
                 checked={selectedTypes.includes('page')}
@@ -762,12 +763,20 @@ export default function Step3DataTraining({
           </CardHeader>
           <CardContent>
             <p className="!my-0 text-sm text-muted-foreground">
-              {pages.length} pages available
+              {sprintf(
+                /* translators: %d: Page count */
+                __('%d pages available'),
+                pages.length
+              )}
             </p>
             {selectedTypes.includes('page') && (
               <div className="space-y-2">
                 <p className="text-sm font-medium">
-                  {selectedItems.page.length} selected
+                  {sprintf(
+                    /* translators: %d: Number of selected items */
+                    __('%d selected'),
+                    selectedItems.page.length
+                  )}
                 </p>
                 <Button
                   size="sm"
@@ -778,7 +787,7 @@ export default function Step3DataTraining({
                     setIsSelectionDialogOpen('page');
                   }}
                 >
-                  Select Items
+                  {__('Select Items')}
                 </Button>
               </div>
             )}
@@ -798,7 +807,7 @@ export default function Step3DataTraining({
             <div className="flex justify-between items-center">
               <div className="flex gap-2 items-center">
                 <File className="w-5 h-5 text-primary" />
-                <CardTitle className="text-lg">Posts</CardTitle>
+                <CardTitle className="text-lg">{__('Posts')}</CardTitle>
               </div>
               <Checkbox
                 checked={selectedTypes.includes('post')}
@@ -809,12 +818,20 @@ export default function Step3DataTraining({
           </CardHeader>
           <CardContent>
             <p className="!my-0 text-sm text-muted-foreground">
-              {posts.length} posts available
+              {sprintf(
+                /* translators: %d: Post count */
+                __('%d posts available'),
+                posts.length
+              )}
             </p>
             {selectedTypes.includes('post') && (
               <div className="space-y-2">
                 <p className="text-sm font-medium">
-                  {selectedItems.post.length} selected
+                  {sprintf(
+                    /* translators: %d: Number of selected items */
+                    __('%d selected'),
+                    selectedItems.post.length
+                  )}
                 </p>
                 <Button
                   size="sm"
@@ -825,7 +842,7 @@ export default function Step3DataTraining({
                     setIsSelectionDialogOpen('post');
                   }}
                 >
-                  Select Items
+                  {__('Select Items')}
                 </Button>
               </div>
             )}
@@ -848,7 +865,7 @@ export default function Step3DataTraining({
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">
                   <Package className="w-5 h-5 text-primary" />
-                  <CardTitle className="text-lg">Products</CardTitle>
+                  <CardTitle className="text-lg">{__('Products')}</CardTitle>
                 </div>
                 <Checkbox
                   checked={selectedTypes.includes('product')}
@@ -859,12 +876,20 @@ export default function Step3DataTraining({
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground !my-0">
-                {products.length} products available
+                {sprintf(
+                  /* translators: %d: Product count */
+                  __('%d products available'),
+                  products.length
+                )}
               </p>
               {selectedTypes.includes('product') && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">
-                    {selectedItems.product.length} selected
+                    {sprintf(
+                      /* translators: %d: Number of selected items */
+                      __('%d selected'),
+                      selectedItems.product.length
+                    )}
                   </p>
                   <Button
                     size="sm"
@@ -875,7 +900,7 @@ export default function Step3DataTraining({
                     setIsSelectionDialogOpen('product');
                   }}
                   >
-                    Select Items
+                    {__('Select Items')}
                   </Button>
                 </div>
               )}
@@ -889,16 +914,26 @@ export default function Step3DataTraining({
           {totalSelected >= 3 ? (
             <span className="font-medium text-green-600">
               <CheckCircle2 className="inline mr-1 w-4 h-4" />
-              {totalSelected} items selected (ready to train)
+              {sprintf(
+                /* translators: %d: Selected item count */
+                __('%d items selected (ready to train)'),
+                totalSelected
+              )}
             </span>
           ) : (
-            <span>{totalSelected} of 3 minimum items selected</span>
+            <span>
+              {sprintf(
+                /* translators: %d: Selected item count toward minimum */
+                __('%d of 3 minimum items selected'),
+                totalSelected
+              )}
+            </span>
           )}
         </div>
         <div className="flex gap-3">
           {!isTraining && !trainingCompleted && (
             <Button variant="outline" onClick={onSkip}>
-              Skip This Step
+              {__('Skip This Step')}
             </Button>
           )}
           {isTraining || trainingCompleted ? (
@@ -911,14 +946,14 @@ export default function Step3DataTraining({
                 onComplete();
               }}
             >
-              Test Chatbot
+              {__('Test Chatbot')}
             </Button>
           ) : (
             <Button
               onClick={handleStartTraining}
               disabled={!canStartTraining}
             >
-              Start Training
+              {__('Start Training')}
             </Button>
           )}
         </div>
@@ -932,12 +967,11 @@ export default function Step3DataTraining({
         <DialogContent className="max-w-4xl max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>
-              Select{' '}
               {isSelectionDialogOpen === 'page'
-                ? 'Pages'
+                ? __('Select Pages')
                 : isSelectionDialogOpen === 'post'
-                ? 'Posts'
-                : 'Products'}
+                ? __('Select Posts')
+                : __('Select Products')}
             </DialogTitle>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-auto">
@@ -951,12 +985,17 @@ export default function Step3DataTraining({
           </div>
           <div className="flex justify-between items-center pt-4 border-t">
             <span className="text-sm text-muted-foreground">
-              {isSelectionDialogOpen
-                ? getSelectedItemsForType(isSelectionDialogOpen).length
-                : 0}{' '}
-              items selected
+              {sprintf(
+                /* translators: %d: Selected item count in dialog */
+                __('%d items selected'),
+                isSelectionDialogOpen
+                  ? getSelectedItemsForType(isSelectionDialogOpen).length
+                  : 0
+              )}
             </span>
-            <Button onClick={() => setIsSelectionDialogOpen(null)}>Done</Button>
+            <Button onClick={() => setIsSelectionDialogOpen(null)}>
+              {__('Done')}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

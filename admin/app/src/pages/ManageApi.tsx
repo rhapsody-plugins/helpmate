@@ -16,7 +16,7 @@ import {
   OpenAIApiKeysURL,
   OpenAIBillingURL,
 } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -183,7 +183,7 @@ export default function ManageApi() {
 
   const handleSaveOpenAiKey = () => {
     if (!openAiKey.trim()) {
-      toast.error('Please enter an OpenAI API key');
+      toast.error(__('Please enter an OpenAI API key'));
       return;
     }
     saveOpenAiKey(openAiKey, {
@@ -203,10 +203,10 @@ export default function ManageApi() {
   return (
     <PageGuard page="manage-api" requiredRole="admin">
       <div className="gap-0">
-        <PageHeader title="Manage API Key" />
+        <PageHeader title={__('Manage API Key')} />
         <div className="p-6">
           {!apiKeyData?.api_key ? (
-            <div>Please activate your API key to continue.</div>
+            <div>{__('Please activate your API key to continue.')}</div>
           ) : (
             <Card className="py-0 mx-auto w-full">
               <CardContent className="p-8">
@@ -219,10 +219,10 @@ export default function ManageApi() {
                     <div className="mb-4">
                       <div className="flex gap-2 items-center mb-2">
                         <h3 className="text-lg font-medium !my-0">
-                          Helpmate API Key
+                          {__('Helpmate API Key')}
                         </h3>
                         <InfoTooltip
-                          message={`Get This Key From RhapsodyPlugins <a href="${HelpmateLoginURL}" target="_blank">My Account Dashboard</a>.`}
+                          message={`${__('Get This Key From RhapsodyPlugins')} <a href="${HelpmateLoginURL}" target="_blank">${__('My Account Dashboard')}</a>.`}
                         />
                       </div>
                       <div className="flex gap-2">
@@ -251,23 +251,23 @@ export default function ManageApi() {
                           className="bg-green-500 hover:bg-green-600"
                         >
                           {isActivateApiKeyPending
-                            ? 'Activating...'
+                            ? __('Activating...')
                             : apiKeyData?.api_key
-                              ? 'Change Api Key'
-                              : 'Activate Api Key'}
+                              ? __('Change Api Key')
+                              : __('Activate Api Key')}
                         </Button>
                       </div>
                       <div className="mt-2 text-sm text-muted-foreground">
-                        API Key Type: <Badge variant="outline">{apiKeyData?.product_slug.toUpperCase()}</Badge>
+                        {__('API Key Type')}: <Badge variant="outline">{apiKeyData?.product_slug.toUpperCase()}</Badge>
                       </div>
                     </div>
                     <div>
-                      <h3 className="mb-2 text-lg font-medium">Credit Usage</h3>
+                      <h3 className="mb-2 text-lg font-medium">{__('Credit Usage')}</h3>
                       <div className="flex gap-4 items-center">
                         {isFeatureUsagePending ||
                           isApiKeyPending ||
                           isActivateApiKeyPending ? (
-                          <p>Loading credits...</p>
+                          <p>{__('Loading credits...')}</p>
                         ) : mainCredit ? (
                           mainCredit
                             .filter(
@@ -300,7 +300,7 @@ export default function ManageApi() {
                               </div>
                             ))
                         ) : (
-                          <p>No credits available</p>
+                          <p>{__('No credits available')}</p>
                         )}
                       </div>
                     </div>
@@ -309,8 +309,8 @@ export default function ManageApi() {
                     <div className="relative mb-4">
                       {!isPro && (
                         <ProBadge
-                          topMessage="Unlimited Chat Usage (via Your OpenAI API Key)"
-                          buttonText="Enable Unlimited Chats"
+                          topMessage={__('Unlimited Chat Usage (via Your OpenAI API Key)')}
+                          buttonText={__('Enable Unlimited Chats')}
                           tooltipMessage={null}
                         />
                       )}
@@ -321,49 +321,45 @@ export default function ManageApi() {
                         )}
                       >
                         <h3 className="mb-2 text-lg font-medium !mt-0">
-                          OpenAI API Key
+                          {__('OpenAI API Key')}
                         </h3>
                         <p className="mb-3 text-sm text-muted-foreground">
-                          Add your own OpenAI API key to use when your credits
-                          are exhausted. This is optional.
+                          {__('Add your own OpenAI API key to use when your credits are exhausted. This is optional.')}
                         </p>
                         <div className="mb-3 space-y-2 text-sm text-muted-foreground">
                           <p>
-                            <strong>Get your API key:</strong>{' '}
+                            <strong>{__('Get your API key:')}</strong>{' '}
                             <a
                               href={OpenAIApiKeysURL}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-primary underline hover:no-underline"
                             >
-                              OpenAI API keys
+                              {__('OpenAI API keys')}
                             </a>{' '}
-                            — sign in at platform.openai.com → API keys →
-                            Create new secret key.
+                            — {__('sign in at platform.openai.com → API keys →')}
+                            {__('Create new secret key.')}
                           </p>
                           <p>
-                            <strong>Add credit/balance:</strong> You must add
-                            credit in your OpenAI account for the API to work
-                            without issues:{' '}
+                            <strong>{__('Add credit/balance:')}</strong> {__('You must add credit in your OpenAI account for the API to work without issues:')}
                             <a
                               href={OpenAIBillingURL}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-primary underline hover:no-underline"
                             >
-                              Billing
+                              {__('Billing')}
                             </a>
                             .
                           </p>
                           <p>
-                            This uses the OpenAI API (pay-as-you-go), not a
-                            ChatGPT Plus subscription.
+                            {__('This uses the OpenAI API (pay-as-you-go), not a ChatGPT Plus subscription.')}
                           </p>
                         </div>
                         {openAiKeyData?.openai_key && (
                           <div className="flex flex-wrap gap-2 items-center mb-3">
                             <div className="p-2 text-sm bg-gray-50 rounded-md text-muted-foreground">
-                              Current key
+                              {__('Current key')}
                               : {formatOpenAiKey(openAiKeyData.openai_key)}
                             </div>
                             <Button
@@ -374,14 +370,14 @@ export default function ManageApi() {
                               onClick={() => {
                                 if (
                                   confirm(
-                                    'Remove your saved OpenAI API key? You can add it again later.'
+                                    __('Remove your saved OpenAI API key? You can add it again later.')
                                   )
                                 ) {
                                   deleteOpenAiKey();
                                 }
                               }}
                             >
-                              {isDeletingOpenAiKey ? 'Removing...' : 'Delete key'}
+                              {isDeletingOpenAiKey ? __('Removing...') : __('Delete key')}
                             </Button>
                           </div>
                         )}
@@ -416,16 +412,14 @@ export default function ManageApi() {
                             className="bg-blue-500 hover:bg-blue-600"
                           >
                             {isSavingOpenAiKey
-                              ? 'Saving...'
+                              ? __('Saving...')
                               : openAiKeyData?.openai_key
-                                ? 'Update Key'
-                                : 'Save Key'}
+                                ? __('Update Key')
+                                : __('Save Key')}
                           </Button>
                         </div>
                         <div className="mt-2 text-xs text-muted-foreground">
-                          Your key will be encrypted and stored securely. It
-                          will only be used when your license credits are
-                          exhausted.
+                          {__('Your key will be encrypted and stored securely. It will only be used when your license credits are exhausted.')}
                         </div>
                       </div>
                     </div>
@@ -434,12 +428,12 @@ export default function ManageApi() {
                 <div className="flex justify-between items-center pt-6 mt-6 border-t">
                   {apiKeyData?.last_sync && (
                     <div className="text-sm text-muted-foreground">
-                      Last synced:{' '}
+                      {__('Last synced:')}{' '}
                       {new Date(apiKeyData.last_sync * 1000).toLocaleString()}
                     </div>
                   )}
                   <Button size="sm" onClick={() => syncCredits()}>
-                    Sync Credits
+                    {__('Sync Credits')}
                   </Button>
                 </div>
               </CardContent>

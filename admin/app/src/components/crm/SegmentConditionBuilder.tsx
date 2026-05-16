@@ -20,6 +20,7 @@ import {
   SegmentCondition,
   SegmentConditionGroup,
 } from '@/types/crm';
+import { __, sprintf } from '@/lib/utils';
 import { Plus, Trash, X } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 
@@ -219,9 +220,9 @@ export default function SegmentConditionBuilder({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <FormLabel>Conditions</FormLabel>
+        <FormLabel>{__('Conditions')}</FormLabel>
         <div className="flex gap-2 items-center">
-          <span className="text-sm text-muted-foreground">Match</span>
+          <span className="text-sm text-muted-foreground">{__('Match')}</span>
           <Select
             value={topLevelLogic}
             onValueChange={(value) => form.setValue('conditions.logic', value as 'AND' | 'OR')}
@@ -230,8 +231,8 @@ export default function SegmentConditionBuilder({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="AND">All Groups</SelectItem>
-              <SelectItem value="OR">Any Group</SelectItem>
+              <SelectItem value="AND">{__('All Groups')}</SelectItem>
+              <SelectItem value="OR">{__('Any Group')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -252,7 +253,7 @@ export default function SegmentConditionBuilder({
           } else if (Array.isArray(groupErrors.conditions) && groupErrors.conditions.some(error => error)) {
             // Individual condition errors
             hasConditionErrors = true;
-            errorMessage = 'Please fill in all fields for each condition in this group';
+            errorMessage = __('Please fill in all fields for each condition in this group');
           }
         }
 
@@ -264,7 +265,11 @@ export default function SegmentConditionBuilder({
             <div className="flex justify-between items-center">
               <div className="flex gap-2 items-center">
                 <span className="text-sm font-medium">
-                  Group {groupIndex + 1}
+                  {sprintf(
+                    /* translators: %d: Condition group number */
+                    __('Group %d'),
+                    groupIndex + 1
+                  )}
                 </span>
                 <Select
                   value={group.logic || 'AND'}
@@ -276,8 +281,8 @@ export default function SegmentConditionBuilder({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="AND">All</SelectItem>
-                    <SelectItem value="OR">Any</SelectItem>
+                    <SelectItem value="AND">{__('All')}</SelectItem>
+                    <SelectItem value="OR">{__('Any')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -325,7 +330,7 @@ export default function SegmentConditionBuilder({
                                   key={field.value}
                                   value={field.value}
                                 >
-                                  {field.label}
+                                  {__(field.label)}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -359,7 +364,7 @@ export default function SegmentConditionBuilder({
                             <SelectContent>
                               {allowedOperators.map((op) => (
                                 <SelectItem key={op.value} value={op.value}>
-                                  {op.label}
+                                  {__(op.label)}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -415,7 +420,7 @@ export default function SegmentConditionBuilder({
               className="w-full"
             >
               <Plus className="mr-2 w-4 h-4" />
-              Add Condition
+              {__('Add Condition')}
             </Button>
           </div>
         </div>
@@ -435,7 +440,7 @@ export default function SegmentConditionBuilder({
         className="w-full"
       >
         <Plus className="mr-2 w-4 h-4" />
-        Add Group
+        {__('Add Group')}
       </Button>
     </div>
   );

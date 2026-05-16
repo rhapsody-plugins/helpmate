@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { Loader2, Plug, ScrollText } from 'lucide-react';
 import type { IntegrationPluginOverviewEntry } from '../types';
 
@@ -18,6 +18,7 @@ type IntegrationCardProps = {
   onActivate?: () => void | Promise<void>;
   installPending?: boolean;
   activatePending?: boolean;
+  actionsDisabled?: boolean;
   onConfigure?: () => void;
   onLogs?: () => void;
   className?: string;
@@ -34,6 +35,7 @@ export default function IntegrationCard({
   onActivate,
   installPending,
   activatePending,
+  actionsDisabled,
   onConfigure,
   onLogs,
   className,
@@ -58,12 +60,12 @@ export default function IntegrationCard({
             <Plug className="w-5 h-5 text-primary" strokeWidth={1.5} />
           </div>
           <div className="min-w-0">
-            <h3 className="!text-lg !font-semibold !my-0 !py-0">{title}</h3>
+            <h3 className="!text-lg !font-semibold !my-0 !py-0">{__(title)}</h3>
             <p className="!text-sm !text-muted-foreground !my-0 !py-0 mt-1">
-              {description}
+              {__(description)}
             </p>
             <p className={cn('!text-xs !my-0 !py-0 !mt-1', statusClass)}>
-              {statusText}
+              {statusText ? __(statusText) : ''}
             </p>
           </div>
         </div>
@@ -73,15 +75,15 @@ export default function IntegrationCard({
               type="button"
               className="gap-2"
               onClick={() => void onInstall()}
-              disabled={installPending}
+              disabled={installPending || actionsDisabled}
             >
               {installPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin shrink-0" aria-hidden />
-                  Installing…
+                  {__('Installing…')}
                 </>
               ) : (
-                'Install'
+                __('Install')
               )}
             </Button>
           ) : null}
@@ -90,27 +92,27 @@ export default function IntegrationCard({
               type="button"
               className="gap-2"
               onClick={() => void onActivate()}
-              disabled={activatePending}
+              disabled={activatePending || actionsDisabled}
             >
               {activatePending ? (
                 <>
                   <Loader2 className="size-4 animate-spin shrink-0" aria-hidden />
-                  Activating…
+                  {__('Activating…')}
                 </>
               ) : (
-                'Activate'
+                __('Activate')
               )}
             </Button>
           ) : null}
           {showConfigure ? (
             <Button type="button" onClick={onConfigure}>
-              {isCore ? 'Open block editor' : 'Configure'}
+              {isCore ? __('Open block editor') : __('Configure')}
             </Button>
           ) : null}
           {showLogs ? (
             <Button type="button" variant="outline" onClick={onLogs}>
               <ScrollText className="size-4" />
-              Logs
+              {__('Logs')}
             </Button>
           ) : null}
         </div>

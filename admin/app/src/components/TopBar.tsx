@@ -21,7 +21,7 @@ import {
   HelpmatePricingURL,
   HelpmateSupportURL,
 } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import { Icon } from '@iconify/react';
 import {
   ArrowUpRight,
@@ -160,7 +160,7 @@ export default function TopBar() {
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="start">
               <div className="p-2 border-b flex justify-between items-center">
-                <span className="font-medium text-sm">Notifications</span>
+                <span className="font-medium text-sm">{__('Notifications')}</span>
                 {notifications.length > 0 && (
                   <Button
                     variant="ghost"
@@ -169,14 +169,14 @@ export default function TopBar() {
                     onClick={() => clearAll()}
                     disabled={isClearing}
                   >
-                    Clear all
+                    {__('Clear all')}
                   </Button>
                 )}
               </div>
               <ScrollArea className="h-[280px]">
                 {notifications.length === 0 ? (
                   <p className="p-4 text-sm text-muted-foreground text-center">
-                    No notifications
+                    {__('No notifications')}
                   </p>
                 ) : (
                   <ul className="py-1 divide-y divide-border">
@@ -255,7 +255,7 @@ export default function TopBar() {
               window.open(HelpmateSupportURL, '_blank');
             }}
           >
-            Support <ArrowUpRight className="!w-3" />
+            {__('Support')} <ArrowUpRight className="!w-3" />
           </Button>
           <Button
             variant="link"
@@ -265,7 +265,7 @@ export default function TopBar() {
               window.open(HelpmateDocsURL, '_blank');
             }}
           >
-            Docs <ArrowUpRight className="!w-3" />
+            {__('Docs')} <ArrowUpRight className="!w-3" />
           </Button>
           {apiKeyData?.api_key && (
             <div className="flex gap-2 items-center px-2 py-1 bg-white rounded-sm">
@@ -279,14 +279,14 @@ export default function TopBar() {
                   <div className="flex gap-1 items-center text-xs leading-none">
                     {openAiKeyData?.openai_key ? (
                       <>
-                        Chat Credits: <span className="text-green-600">Unlimited</span>
+                        {__('Chat Credits')}: <span className="text-green-600">{__('Unlimited')}</span>
                       </>
                     ) : (
                       <>
-                        Free Chat Credits: {total_spent_credits}/{total_credits}
+                        {__('Free Chat Credits')}: {total_spent_credits}/{total_credits}
                         <button
                           className="p-0.5 text-gray-400 hover:text-primary-600 disabled:opacity-50"
-                          title="Sync Credits"
+                          title={__('Sync Credits')}
                           onClick={() => syncCredits()}
                           disabled={isSyncing}
                           style={{ lineHeight: 0 }}
@@ -326,7 +326,7 @@ export default function TopBar() {
                     }
                   }}
                 >
-                  Get Pro
+                  {__('Get Pro')}
                   <HandCoins className="!w-3" />
                 </Button>
               ) : (
@@ -337,7 +337,7 @@ export default function TopBar() {
                     window.open(HelpmateLoginURL, '_blank');
                   }}
                 >
-                  My Account
+                  {__('My Account')}
                   <User className="!w-3" />
                 </Button>
               )}

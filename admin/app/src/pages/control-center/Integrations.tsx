@@ -13,6 +13,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
+import { __ } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
@@ -46,36 +47,39 @@ import type {
 } from './integrations/types';
 
 const COMMERCE_PROVIDER_LABELS: Record<CommerceProviderId, string> = {
-  woocommerce: 'WooCommerce',
-  easy_digital_downloads: 'Easy Digital Downloads',
-  surecart: 'SureCart',
+  woocommerce: __('WooCommerce'),
+  easy_digital_downloads: __('Easy Digital Downloads'),
+  surecart: __('SureCart'),
 };
 
 type MultivendorProviderId = 'dokan' | 'wcfm';
 
 const MULTIVENDOR_PROVIDER_LABELS: Record<MultivendorProviderId, string> = {
-  dokan: 'Dokan',
-  wcfm: 'WCFM Marketplace',
+  dokan: __('Dokan'),
+  wcfm: __('WCFM Marketplace'),
 };
 
 const PAGE_BUILDERS = [
   {
     overviewKey: 'elementor' as const,
-    title: 'Elementor',
-    description:
-      'Use Helpmate widgets in Elementor (e.g. scheduling, promo banner). After activating Elementor, add widgets from the Helpmate category in the editor.',
+    title: __('Elementor'),
+    description: __(
+      'Use Helpmate widgets in Elementor (e.g. scheduling, promo banner). After activating Elementor, add widgets from the Helpmate category in the editor.'
+    ),
   },
   {
     overviewKey: 'gutenberg' as const,
-    title: 'Gutenberg',
-    description:
-      'Helpmate registers blocks in the WordPress block editor. Edit any page or post and insert Helpmate blocks from the block inserter.',
+    title: __('Gutenberg'),
+    description: __(
+      'Helpmate registers blocks in the WordPress block editor. Edit any page or post and insert Helpmate blocks from the block inserter.'
+    ),
   },
   {
     overviewKey: 'beaver_builder' as const,
-    title: 'Beaver Builder',
-    description:
-      'Use Helpmate modules in Beaver Builder layouts. After activating Beaver Builder, find Helpmate modules in the module list when editing a layout.',
+    title: __('Beaver Builder'),
+    description: __(
+      'Use Helpmate modules in Beaver Builder layouts. After activating Beaver Builder, find Helpmate modules in the module list when editing a layout.'
+    ),
   },
 ] as const;
 
@@ -105,24 +109,24 @@ function statusClassForPlugin(
 
 function statusTextForm(ready: boolean, p: IntegrationPluginOverviewEntry | undefined): string {
   if (!ready || !p) return '';
-  if (p.active) return 'Ready to configure.';
-  if (p.present) return 'Installed but not active.';
-  return 'Not installed.';
+  if (p.active) return __('Ready to configure.');
+  if (p.present) return __('Installed but not active.');
+  return __('Not installed.');
 }
 
 function statusTextCommerce(ready: boolean, p: IntegrationPluginOverviewEntry | undefined): string {
   if (!ready || !p) return '';
-  if (p.active) return 'Active.';
-  if (p.present) return 'Installed but not active.';
-  return 'Not installed.';
+  if (p.active) return __('Active.');
+  if (p.present) return __('Installed but not active.');
+  return __('Not installed.');
 }
 
 function statusTextBuilder(ready: boolean, p: IntegrationPluginOverviewEntry | undefined): string {
   if (!ready || !p) return '';
-  if (p.is_core) return 'Available in the block editor.';
-  if (p.active) return 'Active. Use it in the builder.';
-  if (p.present) return 'Installed but not active.';
-  return 'Not installed.';
+  if (p.is_core) return __('Available in the block editor.');
+  if (p.active) return __('Active. Use it in the builder.');
+  if (p.present) return __('Installed but not active.');
+  return __('Not installed.');
 }
 
 export default function Integrations() {
@@ -147,6 +151,8 @@ export default function Integrations() {
     useState<MultivendorProviderId | null>(null);
   const [commerceProviderOverride, setCommerceProviderOverride] =
     useState<CommerceProviderId | null>(null);
+  const [installingSlug, setInstallingSlug] = useState<string | null>(null);
+  const [activatingPluginFile, setActivatingPluginFile] = useState<string | null>(null);
 
   const [sheetOpenById, setSheetOpenById] =
     useState<Record<IntegrationRegistryItem['id'], boolean>>(emptySheetState);
@@ -223,9 +229,15 @@ export default function Integrations() {
     mutationFn: async (slug: string) => {
       await api.post('/integrations/plugins/install', { slug });
     },
+    onMutate: (slug: string) => {
+      setInstallingSlug(slug);
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['integrations-plugin-overview'] });
       toast.success('Plugin installed. You can activate it now.');
+    },
+    onSettled: () => {
+      setInstallingSlug(null);
     },
     onError: (err: unknown) => {
       const msg = axios.isAxiosError(err)
@@ -239,9 +251,15 @@ export default function Integrations() {
     mutationFn: async (plugin: string) => {
       await api.post('/integrations/plugins/activate', { plugin });
     },
+    onMutate: (plugin: string) => {
+      setActivatingPluginFile(plugin);
+    },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['integrations-plugin-overview'] });
       toast.success('Plugin activated.');
+    },
+    onSettled: () => {
+      setActivatingPluginFile(null);
     },
     onError: (err: unknown) => {
       const msg = axios.isAxiosError(err)
@@ -253,6 +271,15 @@ export default function Integrations() {
 
   const plugins = overviewQuery.data?.plugins;
   const caps = overviewQuery.data?.capabilities;
+  const anyPluginActionPending = installMutation.isPending || activateMutation.isPending;
+  const isInstallingPlugin = (plugin: IntegrationPluginOverviewEntry | undefined) =>
+    installMutation.isPending &&
+    Boolean(plugin?.wp_org_slug) &&
+    plugin?.wp_org_slug === installingSlug;
+  const isActivatingPlugin = (plugin: IntegrationPluginOverviewEntry | undefined) =>
+    activateMutation.isPending &&
+    Boolean(plugin?.plugin_file) &&
+    plugin?.plugin_file === activatingPluginFile;
 
   const wooInstalled = plugins?.woocommerce?.active === true;
   const eddInstalled = plugins?.easy_digital_downloads?.active === true;
@@ -404,21 +431,23 @@ export default function Integrations() {
   return (
     <PageGuard page="control-center-integrations" requiredRole="admin">
       <div className="gap-0">
-        <PageHeader title="Integrations" />
+        <PageHeader title={__('Integrations')} />
         {pagePending ? (
           <div className="flex min-h-[min(70vh,32rem)] flex-col items-center justify-center p-8">
             <Loading />
-            <p className="mt-4 text-sm text-muted-foreground">Loading integrations…</p>
+            <p className="mt-4 text-sm text-muted-foreground">{__('Loading integrations…')}</p>
           </div>
         ) : pageError ? (
           <div className="flex min-h-[min(50vh,24rem)] flex-col items-center justify-center gap-4 p-8">
-            <p className="text-sm text-destructive text-center max-w-md">
-              Could not load integrations. Check your connection and try again.
+            <p className="max-w-md text-sm text-center text-destructive">
+              {__(
+                'Could not load integrations. Check your connection and try again.'
+              )}
             </p>
             <div className="flex gap-2">
               {overviewQuery.isError ? (
                 <Button type="button" variant="outline" onClick={() => overviewQuery.refetch()}>
-                  Retry status
+                  {__('Retry status')}
                 </Button>
               ) : null}
               {commerceConfigQuery.isError ? (
@@ -427,39 +456,40 @@ export default function Integrations() {
                   variant="outline"
                   onClick={() => commerceConfigQuery.refetch()}
                 >
-                  Retry commerce settings
+                  {__('Retry commerce settings')}
                 </Button>
               ) : null}
             </div>
           </div>
         ) : (
           <div className="p-6">
-            <h1 className="!text-2xl !font-bold !my-0 !py-0 !mb-4">Integrations</h1>
+            <h1 className="!text-2xl !font-bold !my-0 !py-0 !mb-4">{__('Integrations')}</h1>
             <p className="text-sm text-muted-foreground max-w-xl mb-6!">
-              Connect external plugins to Helpmate workflows by category.
+              {__('Connect external plugins to Helpmate workflows by category.')}
             </p>
 
             <Tabs defaultValue="commerce" className="w-full">
               <TabsList>
-                <TabsTrigger value="commerce">Commerce</TabsTrigger>
-                <TabsTrigger value="multivendor">Multivendor</TabsTrigger>
-                <TabsTrigger value="lms">LMS</TabsTrigger>
-                <TabsTrigger value="membership">Membership</TabsTrigger>
-                <TabsTrigger value="forms">Forms</TabsTrigger>
-                <TabsTrigger value="page_builders">Page builders</TabsTrigger>
+                <TabsTrigger value="commerce">{__('Commerce')}</TabsTrigger>
+                <TabsTrigger value="multivendor">{__('Multivendor')}</TabsTrigger>
+                <TabsTrigger value="lms">{__('LMS')}</TabsTrigger>
+                <TabsTrigger value="membership">{__('Membership')}</TabsTrigger>
+                <TabsTrigger value="forms">{__('Forms')}</TabsTrigger>
+                <TabsTrigger value="page_builders">{__('Page builders')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="commerce" className="mt-6">
                 {detectedProviders.length === 0 ? (
-                  <p className="text-sm text-muted-foreground mb-6">
-                    No active commerce plugin. Install and activate WooCommerce, Easy Digital
-                    Downloads, or SureCart below.
+                  <p className="mb-6 text-sm text-muted-foreground">
+                    {__(
+                      'No active commerce plugin. Install and activate WooCommerce, Easy Digital Downloads, or SureCart below.'
+                    )}
                   </p>
                 ) : (
-                  <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-end sm:justify-between">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                       <div className="space-y-2 min-w-[min(100%,16rem)]">
-                        <Label htmlFor="commerce-provider-select">Active commerce platform</Label>
+                        <Label htmlFor="commerce-provider-select">{__('Active commerce platform')}</Label>
                         <Select
                           value={selectValue}
                           onValueChange={(value: CommerceProviderId) =>
@@ -495,11 +525,11 @@ export default function Integrations() {
                           setCommerceProviderOverride(null);
                         }}
                       >
-                        Save
+                        {__('Save')}
                       </Button>
                     </div>
                     {selectedCommerceProvider === 'woocommerce' &&
-                    pluginEntry(plugins, 'woocommerce')?.active ? (
+                      pluginEntry(plugins, 'woocommerce')?.active ? (
                       <CommerceCustomerSyncButton
                         providerLabel="WooCommerce"
                         endpoint="/integrations/woocommerce/sync-customers"
@@ -507,7 +537,7 @@ export default function Integrations() {
                       />
                     ) : null}
                     {selectedCommerceProvider === 'easy_digital_downloads' &&
-                    pluginEntry(plugins, 'easy_digital_downloads')?.active ? (
+                      pluginEntry(plugins, 'easy_digital_downloads')?.active ? (
                       <CommerceCustomerSyncButton
                         providerLabel="Easy Digital Downloads"
                         endpoint="/integrations/edd/sync-customers"
@@ -515,7 +545,7 @@ export default function Integrations() {
                       />
                     ) : null}
                     {selectedCommerceProvider === 'surecart' &&
-                    pluginEntry(plugins, 'surecart')?.active ? (
+                      pluginEntry(plugins, 'surecart')?.active ? (
                       <CommerceCustomerSyncButton
                         providerLabel="SureCart"
                         endpoint="/integrations/surecart/sync-customers"
@@ -526,8 +556,10 @@ export default function Integrations() {
                 )}
 
                 <IntegrationCard
-                  title="WooCommerce"
-                  description="Products, cart context, and order workflows used by Helpmate when WooCommerce is the selected commerce platform."
+                  title={__('WooCommerce')}
+                  description={__(
+                    'Products, cart context, and order workflows used by Helpmate when WooCommerce is the selected commerce platform.'
+                  )}
                   plugin={pluginEntry(plugins, 'woocommerce')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'woocommerce'))}
@@ -535,28 +567,31 @@ export default function Integrations() {
                   onInstall={
                     pluginEntry(plugins, 'woocommerce')?.wp_org_slug
                       ? () =>
-                          installMutation.mutate(
-                            pluginEntry(plugins, 'woocommerce')!.wp_org_slug as string
-                          )
+                        installMutation.mutate(
+                          pluginEntry(plugins, 'woocommerce')!.wp_org_slug as string
+                        )
                       : undefined
                   }
                   onActivate={
                     pluginEntry(plugins, 'woocommerce')?.plugin_file
                       ? () =>
-                          activateMutation.mutate(
-                            pluginEntry(plugins, 'woocommerce')!.plugin_file as string
-                          )
+                        activateMutation.mutate(
+                          pluginEntry(plugins, 'woocommerce')!.plugin_file as string
+                        )
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'woocommerce'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'woocommerce'))}
+                  actionsDisabled={anyPluginActionPending}
                   onLogs={() => setWooLogsOpen(true)}
                 />
 
                 <IntegrationCard
                   className="mt-4"
-                  title="Easy Digital Downloads"
-                  description="Digital products and order workflows used by Helpmate when EDD is the selected commerce platform."
+                  title={__('Easy Digital Downloads')}
+                  description={__(
+                    'Digital products and order workflows used by Helpmate when EDD is the selected commerce platform.'
+                  )}
                   plugin={pluginEntry(plugins, 'easy_digital_downloads')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(
@@ -570,28 +605,31 @@ export default function Integrations() {
                   onInstall={
                     pluginEntry(plugins, 'easy_digital_downloads')?.wp_org_slug
                       ? () =>
-                          installMutation.mutate(
-                            pluginEntry(plugins, 'easy_digital_downloads')!.wp_org_slug as string
-                          )
+                        installMutation.mutate(
+                          pluginEntry(plugins, 'easy_digital_downloads')!.wp_org_slug as string
+                        )
                       : undefined
                   }
                   onActivate={
                     pluginEntry(plugins, 'easy_digital_downloads')?.plugin_file
                       ? () =>
-                          activateMutation.mutate(
-                            pluginEntry(plugins, 'easy_digital_downloads')!.plugin_file as string
-                          )
+                        activateMutation.mutate(
+                          pluginEntry(plugins, 'easy_digital_downloads')!.plugin_file as string
+                        )
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'easy_digital_downloads'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'easy_digital_downloads'))}
+                  actionsDisabled={anyPluginActionPending}
                   onLogs={() => setEddLogsOpen(true)}
                 />
 
                 <IntegrationCard
                   className="mt-4"
-                  title="SureCart"
-                  description="Products and checkout workflows used by Helpmate when SureCart is the selected commerce platform."
+                  title={__('SureCart')}
+                  description={__(
+                    'Products and checkout workflows used by Helpmate when SureCart is the selected commerce platform.'
+                  )}
                   plugin={pluginEntry(plugins, 'surecart')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'surecart'))}
@@ -599,30 +637,33 @@ export default function Integrations() {
                   onInstall={
                     pluginEntry(plugins, 'surecart')?.wp_org_slug
                       ? () =>
-                          installMutation.mutate(
-                            pluginEntry(plugins, 'surecart')!.wp_org_slug as string
-                          )
+                        installMutation.mutate(
+                          pluginEntry(plugins, 'surecart')!.wp_org_slug as string
+                        )
                       : undefined
                   }
                   onActivate={
                     pluginEntry(plugins, 'surecart')?.plugin_file
                       ? () =>
-                          activateMutation.mutate(
-                            pluginEntry(plugins, 'surecart')!.plugin_file as string
-                          )
+                        activateMutation.mutate(
+                          pluginEntry(plugins, 'surecart')!.plugin_file as string
+                        )
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'surecart'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'surecart'))}
+                  actionsDisabled={anyPluginActionPending}
                   onLogs={() => setSurecartLogsOpen(true)}
                 />
               </TabsContent>
 
               <TabsContent value="lms" className="mt-6">
-                <h2 className="!text-lg !font-semibold !mb-3">LMS</h2>
+                <h2 className="!text-lg !font-semibold !mb-3">{__('LMS')}</h2>
                 <IntegrationCard
-                  title="LearnPress"
-                  description="Sync LearnPress students into CRM and use lesson/course progress data in contact details and segmentation."
+                  title={__('LearnPress')}
+                  description={__(
+                    'Sync LearnPress students into CRM and use lesson/course progress data in contact details and segmentation.'
+                  )}
                   plugin={pluginEntry(plugins, 'learnpress')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'learnpress'))}
@@ -630,21 +671,22 @@ export default function Integrations() {
                   onInstall={
                     pluginEntry(plugins, 'learnpress')?.wp_org_slug
                       ? () =>
-                          installMutation.mutate(
-                            pluginEntry(plugins, 'learnpress')!.wp_org_slug as string
-                          )
+                        installMutation.mutate(
+                          pluginEntry(plugins, 'learnpress')!.wp_org_slug as string
+                        )
                       : undefined
                   }
                   onActivate={
                     pluginEntry(plugins, 'learnpress')?.plugin_file
                       ? () =>
-                          activateMutation.mutate(
-                            pluginEntry(plugins, 'learnpress')!.plugin_file as string
-                          )
+                        activateMutation.mutate(
+                          pluginEntry(plugins, 'learnpress')!.plugin_file as string
+                        )
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'learnpress'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'learnpress'))}
+                  actionsDisabled={anyPluginActionPending}
                   onConfigure={
                     pluginEntry(plugins, 'learnpress')?.active
                       ? () => setLearnPressSheetOpen(true)
@@ -653,8 +695,10 @@ export default function Integrations() {
                 />
                 <IntegrationCard
                   className="mt-4"
-                  title="Tutor LMS"
-                  description="Sync Tutor LMS students into CRM and use lesson/course progress data in contact details and segmentation."
+                  title={__('Tutor LMS')}
+                  description={__(
+                    'Sync Tutor LMS students into CRM and use lesson/course progress data in contact details and segmentation.'
+                  )}
                   plugin={pluginEntry(plugins, 'tutor')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'tutor'))}
@@ -662,21 +706,22 @@ export default function Integrations() {
                   onInstall={
                     pluginEntry(plugins, 'tutor')?.wp_org_slug
                       ? () =>
-                          installMutation.mutate(
-                            pluginEntry(plugins, 'tutor')!.wp_org_slug as string
-                          )
+                        installMutation.mutate(
+                          pluginEntry(plugins, 'tutor')!.wp_org_slug as string
+                        )
                       : undefined
                   }
                   onActivate={
                     pluginEntry(plugins, 'tutor')?.plugin_file
                       ? () =>
-                          activateMutation.mutate(
-                            pluginEntry(plugins, 'tutor')!.plugin_file as string
-                          )
+                        activateMutation.mutate(
+                          pluginEntry(plugins, 'tutor')!.plugin_file as string
+                        )
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'tutor'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'tutor'))}
+                  actionsDisabled={anyPluginActionPending}
                   onConfigure={
                     pluginEntry(plugins, 'tutor')?.active
                       ? () => setTutorSheetOpen(true)
@@ -685,8 +730,10 @@ export default function Integrations() {
                 />
                 <IntegrationCard
                   className="mt-4"
-                  title="LifterLMS"
-                  description="Sync LifterLMS students into CRM and use lesson/course progress data in contact details and segmentation."
+                  title={__('LifterLMS')}
+                  description={__(
+                    'Sync LifterLMS students into CRM and use lesson/course progress data in contact details and segmentation.'
+                  )}
                   plugin={pluginEntry(plugins, 'lifterlms')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'lifterlms'))}
@@ -694,21 +741,22 @@ export default function Integrations() {
                   onInstall={
                     pluginEntry(plugins, 'lifterlms')?.wp_org_slug
                       ? () =>
-                          installMutation.mutate(
-                            pluginEntry(plugins, 'lifterlms')!.wp_org_slug as string
-                          )
+                        installMutation.mutate(
+                          pluginEntry(plugins, 'lifterlms')!.wp_org_slug as string
+                        )
                       : undefined
                   }
                   onActivate={
                     pluginEntry(plugins, 'lifterlms')?.plugin_file
                       ? () =>
-                          activateMutation.mutate(
-                            pluginEntry(plugins, 'lifterlms')!.plugin_file as string
-                          )
+                        activateMutation.mutate(
+                          pluginEntry(plugins, 'lifterlms')!.plugin_file as string
+                        )
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'lifterlms'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'lifterlms'))}
+                  actionsDisabled={anyPluginActionPending}
                   onConfigure={
                     pluginEntry(plugins, 'lifterlms')?.active
                       ? () => setLifterSheetOpen(true)
@@ -718,15 +766,17 @@ export default function Integrations() {
               </TabsContent>
 
               <TabsContent value="membership" className="mt-6">
-                <h2 className="!text-lg !font-semibold !mb-3">Membership</h2>
+                <h2 className="!text-lg !font-semibold !mb-3">{__('Membership')}</h2>
                 <p className="text-sm text-muted-foreground !mb-6">
-                  Connect member profile/account events to CRM sync and integration logs. Ultimate
-                  Member focuses account/profile lifecycle, Members focuses roles/capabilities, and
-                  User Registration focuses registration/profile flows.
+                  {__(
+                    'Connect member profile/account events to CRM sync and integration logs. Ultimate Member focuses account/profile lifecycle, Members focuses roles/capabilities, and User Registration focuses registration/profile flows.'
+                  )}
                 </p>
                 <IntegrationCard
-                  title="Ultimate Member"
-                  description="Sync members to CRM, enable member lifecycle event tracking, and review activity logs."
+                  title={__('Ultimate Member')}
+                  description={__(
+                    'Sync members to CRM, enable member lifecycle event tracking, and review activity logs.'
+                  )}
                   plugin={pluginEntry(plugins, 'ultimate_member')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'ultimate_member'))}
@@ -734,21 +784,22 @@ export default function Integrations() {
                   onInstall={
                     pluginEntry(plugins, 'ultimate_member')?.wp_org_slug
                       ? () =>
-                          installMutation.mutate(
-                            pluginEntry(plugins, 'ultimate_member')!.wp_org_slug as string
-                          )
+                        installMutation.mutate(
+                          pluginEntry(plugins, 'ultimate_member')!.wp_org_slug as string
+                        )
                       : undefined
                   }
                   onActivate={
                     pluginEntry(plugins, 'ultimate_member')?.plugin_file
                       ? () =>
-                          activateMutation.mutate(
-                            pluginEntry(plugins, 'ultimate_member')!.plugin_file as string
-                          )
+                        activateMutation.mutate(
+                          pluginEntry(plugins, 'ultimate_member')!.plugin_file as string
+                        )
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'ultimate_member'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'ultimate_member'))}
+                  actionsDisabled={anyPluginActionPending}
                   onConfigure={
                     pluginEntry(plugins, 'ultimate_member')?.active
                       ? () => setUltimateMemberSheetOpen(true)
@@ -762,8 +813,10 @@ export default function Integrations() {
                 />
                 <IntegrationCard
                   className="mt-4"
-                  title="Members"
-                  description="Sync members to CRM, track role lifecycle events, and review Members integration logs."
+                  title={__('Members')}
+                  description={__(
+                    'Sync members to CRM, track role lifecycle events, and review Members integration logs.'
+                  )}
                   plugin={pluginEntry(plugins, 'members')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'members'))}
@@ -778,8 +831,9 @@ export default function Integrations() {
                       ? () => activateMutation.mutate(pluginEntry(plugins, 'members')!.plugin_file as string)
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'members'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'members'))}
+                  actionsDisabled={anyPluginActionPending}
                   onConfigure={
                     pluginEntry(plugins, 'members')?.active ? () => setMembersSheetOpen(true) : undefined
                   }
@@ -789,8 +843,10 @@ export default function Integrations() {
                 />
                 <IntegrationCard
                   className="mt-4"
-                  title="User Registration & Membership"
-                  description="Sync members to CRM, track registration/profile lifecycle events, and review User Registration integration logs."
+                  title={__('User Registration & Membership')}
+                  description={__(
+                    'Sync members to CRM, track registration/profile lifecycle events, and review User Registration integration logs.'
+                  )}
                   plugin={pluginEntry(plugins, 'user_registration')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'user_registration'))}
@@ -798,21 +854,22 @@ export default function Integrations() {
                   onInstall={
                     pluginEntry(plugins, 'user_registration')?.wp_org_slug
                       ? () =>
-                          installMutation.mutate(
-                            pluginEntry(plugins, 'user_registration')!.wp_org_slug as string
-                          )
+                        installMutation.mutate(
+                          pluginEntry(plugins, 'user_registration')!.wp_org_slug as string
+                        )
                       : undefined
                   }
                   onActivate={
                     pluginEntry(plugins, 'user_registration')?.plugin_file
                       ? () =>
-                          activateMutation.mutate(
-                            pluginEntry(plugins, 'user_registration')!.plugin_file as string
-                          )
+                        activateMutation.mutate(
+                          pluginEntry(plugins, 'user_registration')!.plugin_file as string
+                        )
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'user_registration'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'user_registration'))}
+                  actionsDisabled={anyPluginActionPending}
                   onConfigure={
                     pluginEntry(plugins, 'user_registration')?.active
                       ? () => setUserRegistrationSheetOpen(true)
@@ -827,64 +884,70 @@ export default function Integrations() {
               </TabsContent>
 
               <TabsContent value="multivendor" className="mt-6">
-                <h2 className="!text-lg !font-semibold !mb-3">Multivendor</h2>
-                <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:flex-wrap">
-                  <div className="space-y-2 min-w-[min(100%,16rem)] flex-1">
-                    <Label htmlFor="multivendor-provider-select">Primary multivendor provider</Label>
-                    <Select
-                      value={effectiveMultivendorProvider || undefined}
-                      onValueChange={(value: MultivendorProviderId) =>
-                        setMultivendorProviderOverride(value)
+                <h2 className="!text-lg !font-semibold !mb-3">{__('Multivendor')}</h2>
+                {detectedMultivendorProviders.length !== 0 ? (
+                  <div className="flex flex-col gap-3 mb-6 sm:flex-row sm:items-end sm:flex-wrap">
+                    <div className="space-y-2 min-w-[min(100%,16rem)] flex-1">
+                      <Label htmlFor="multivendor-provider-select">{__('Primary multivendor provider')}</Label>
+                      <Select
+                        value={effectiveMultivendorProvider || undefined}
+                        onValueChange={(value: MultivendorProviderId) =>
+                          setMultivendorProviderOverride(value)
+                        }
+                      >
+                        <SelectTrigger id="multivendor-provider-select" className="w-full sm:max-w-xs">
+                          <SelectValue placeholder="Select a provider" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {detectedMultivendorProviders.map((id) => (
+                            <SelectItem key={id} value={id}>
+                              {MULTIVENDOR_PROVIDER_LABELS[id]}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      type="button"
+                      disabled={
+                        updateSettingsMutation.isPending ||
+                        !effectiveMultivendorProvider ||
+                        detectedMultivendorProviders.length === 0
                       }
+                      onClick={async () => {
+                        if (!effectiveMultivendorProvider) return;
+                        await updateSettingsMutation.mutateAsync({
+                          key: 'multivendor_integration',
+                          data: { selected_provider: effectiveMultivendorProvider },
+                        });
+                        await multivendorConfigQuery.refetch();
+                        setMultivendorProviderOverride(null);
+                      }}
                     >
-                      <SelectTrigger id="multivendor-provider-select" className="w-full sm:max-w-xs">
-                        <SelectValue placeholder="Select a provider" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {detectedMultivendorProviders.map((id) => (
-                          <SelectItem key={id} value={id}>
-                            {MULTIVENDOR_PROVIDER_LABELS[id]}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      {__('Save')}
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    disabled={
-                      updateSettingsMutation.isPending ||
-                      !effectiveMultivendorProvider ||
-                      detectedMultivendorProviders.length === 0
-                    }
-                    onClick={async () => {
-                      if (!effectiveMultivendorProvider) return;
-                      await updateSettingsMutation.mutateAsync({
-                        key: 'multivendor_integration',
-                        data: { selected_provider: effectiveMultivendorProvider },
-                      });
-                      await multivendorConfigQuery.refetch();
-                      setMultivendorProviderOverride(null);
-                    }}
-                  >
-                    Save
-                  </Button>
-                </div>
+                ) : null}
                 {detectedMultivendorProviders.length === 0 ? (
                   <p className="text-sm text-muted-foreground !mb-6">
-                    No active multivendor plugin. Install and activate Dokan or WCFM Marketplace
-                    below.
+                    {__(
+                      'No active multivendor plugin. Install and activate Dokan or WCFM Marketplace below.'
+                    )}
                   </p>
                 ) : null}
                 {effectiveMultivendorProvider &&
-                !detectedMultivendorProviders.includes(effectiveMultivendorProvider) ? (
+                  !detectedMultivendorProviders.includes(effectiveMultivendorProvider) ? (
                   <p className="text-sm text-amber-600 !mb-6">
-                    Selected primary provider is inactive. Multivendor enrichment is disabled until
-                    you activate it or switch primary provider.
+                    {__(
+                      'Selected primary provider is inactive. Multivendor enrichment is disabled until you activate it or switch primary provider.'
+                    )}
                   </p>
                 ) : null}
                 <IntegrationCard
-                  title="Dokan"
-                  description="Optional vendor display in CRM, product training, and proactive sales. Sync Dokan sellers to CRM contacts on demand."
+                  title={__('Dokan')}
+                  description={__(
+                    'Optional vendor display in CRM, product training, and proactive sales. Sync Dokan sellers to CRM contacts on demand.'
+                  )}
                   plugin={pluginEntry(plugins, 'dokan')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'dokan'))}
@@ -892,21 +955,22 @@ export default function Integrations() {
                   onInstall={
                     pluginEntry(plugins, 'dokan')?.wp_org_slug
                       ? () =>
-                          installMutation.mutate(
-                            pluginEntry(plugins, 'dokan')!.wp_org_slug as string
-                          )
+                        installMutation.mutate(
+                          pluginEntry(plugins, 'dokan')!.wp_org_slug as string
+                        )
                       : undefined
                   }
                   onActivate={
                     pluginEntry(plugins, 'dokan')?.plugin_file
                       ? () =>
-                          activateMutation.mutate(
-                            pluginEntry(plugins, 'dokan')!.plugin_file as string
-                          )
+                        activateMutation.mutate(
+                          pluginEntry(plugins, 'dokan')!.plugin_file as string
+                        )
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'dokan'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'dokan'))}
+                  actionsDisabled={anyPluginActionPending}
                   onConfigure={
                     pluginEntry(plugins, 'dokan')?.active
                       ? () => setDokanSheetOpen(true)
@@ -916,8 +980,10 @@ export default function Integrations() {
 
                 <IntegrationCard
                   className="mt-4"
-                  title="WCFM Marketplace"
-                  description="Optional vendor display in CRM, product training, and proactive sales. Sync WCFM sellers to CRM contacts on demand."
+                  title={__('WCFM Marketplace')}
+                  description={__(
+                    'Optional vendor display in CRM, product training, and proactive sales. Sync WCFM sellers to CRM contacts on demand.'
+                  )}
                   plugin={pluginEntry(plugins, 'wcfm')}
                   capabilities={caps}
                   statusClass={statusClassForPlugin(pageReady, pluginEntry(plugins, 'wcfm'))}
@@ -925,21 +991,22 @@ export default function Integrations() {
                   onInstall={
                     pluginEntry(plugins, 'wcfm')?.wp_org_slug
                       ? () =>
-                          installMutation.mutate(
-                            pluginEntry(plugins, 'wcfm')!.wp_org_slug as string
-                          )
+                        installMutation.mutate(
+                          pluginEntry(plugins, 'wcfm')!.wp_org_slug as string
+                        )
                       : undefined
                   }
                   onActivate={
                     pluginEntry(plugins, 'wcfm')?.plugin_file
                       ? () =>
-                          activateMutation.mutate(
-                            pluginEntry(plugins, 'wcfm')!.plugin_file as string
-                          )
+                        activateMutation.mutate(
+                          pluginEntry(plugins, 'wcfm')!.plugin_file as string
+                        )
                       : undefined
                   }
-                  installPending={installMutation.isPending}
-                  activatePending={activateMutation.isPending}
+                  installPending={isInstallingPlugin(pluginEntry(plugins, 'wcfm'))}
+                  activatePending={isActivatingPlugin(pluginEntry(plugins, 'wcfm'))}
+                  actionsDisabled={anyPluginActionPending}
                   onConfigure={
                     pluginEntry(plugins, 'wcfm')?.active
                       ? () => setWcfmSheetOpen(true)
@@ -949,7 +1016,7 @@ export default function Integrations() {
               </TabsContent>
 
               <TabsContent value="forms" className="mt-6">
-                <h2 className="!text-lg !font-semibold !mb-3">Forms</h2>
+                <h2 className="!text-lg !font-semibold !mb-3">{__('Forms')}</h2>
                 {groupedFormIntegrations.map((entry, index) => {
                   const p = pluginEntry(plugins, entry.id);
                   return (
@@ -971,8 +1038,9 @@ export default function Integrations() {
                           ? () => activateMutation.mutate(p.plugin_file as string)
                           : undefined
                       }
-                      installPending={installMutation.isPending}
-                      activatePending={activateMutation.isPending}
+                      installPending={isInstallingPlugin(p)}
+                      activatePending={isActivatingPlugin(p)}
+                      actionsDisabled={anyPluginActionPending}
                       onConfigure={() =>
                         setSheetOpenById((prev) => ({ ...prev, [entry.id]: true }))
                       }
@@ -986,7 +1054,7 @@ export default function Integrations() {
               </TabsContent>
 
               <TabsContent value="page_builders" className="mt-6">
-                <h2 className="!text-lg !font-semibold !mb-3">Page builders</h2>
+                <h2 className="!text-lg !font-semibold !mb-3">{__('Page builders')}</h2>
                 {PAGE_BUILDERS.map((pb, index) => {
                   const p = pluginEntry(plugins, pb.overviewKey);
                   return (
@@ -1008,13 +1076,14 @@ export default function Integrations() {
                           ? () => activateMutation.mutate(p.plugin_file as string)
                           : undefined
                       }
-                      installPending={installMutation.isPending}
-                      activatePending={activateMutation.isPending}
+                      installPending={isInstallingPlugin(p)}
+                      activatePending={isActivatingPlugin(p)}
+                      actionsDisabled={anyPluginActionPending}
                       onConfigure={
                         pb.overviewKey === 'gutenberg' && p?.is_core
                           ? () => {
-                              window.open(blockEditorUrl, '_blank', 'noopener,noreferrer');
-                            }
+                            window.open(blockEditorUrl, '_blank', 'noopener,noreferrer');
+                          }
                           : undefined
                       }
                       className={index > 0 ? 'mt-4' : undefined}

@@ -4,6 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCrm } from '@/hooks/useCrm';
 import { useTasks } from '@/hooks/useTasks';
 import api from '@/lib/axios';
+import { __ } from '@/lib/utils';
 import {
   KanbanColumn,
   Task,
@@ -34,10 +35,10 @@ export function TasksKanban({ filters, onTaskClick }: TasksKanbanProps) {
   // Get status field
   const statusField = customFields?.find((f) => f.field_name === 'status');
   const statusOptions = statusField?.field_options || [
-    'To Do',
-    'In Progress',
-    'Review',
-    'Done',
+    __('To Do'),
+    __('In Progress'),
+    __('Review'),
+    __('Done'),
   ];
 
   // Group tasks by status
@@ -113,7 +114,7 @@ export function TasksKanban({ filters, onTaskClick }: TasksKanbanProps) {
   if (!statusField) {
     return (
       <div className="flex justify-center items-center h-64 text-muted-foreground">
-        No status field configured for tasks
+        {__('No status field configured for tasks')}
       </div>
     );
   }
@@ -143,7 +144,7 @@ export function TasksKanban({ filters, onTaskClick }: TasksKanbanProps) {
                 >
                   {column.tasks.length === 0 ? (
                     <div className="py-8 text-sm text-center text-muted-foreground">
-                      No tasks
+                      {__('No tasks')}
                     </div>
                   ) : (
                     column.tasks.map((task) => (

@@ -175,10 +175,14 @@ class Helpmate_Admin
 					wp_enqueue_script(
 						$vite_handle,
 						$vite_app_url . 'dist/assets/' . $latest_js,
-						array(),
+						array( 'wp-i18n' ),
 						$this->version,
 						false
 					);
+					// Must run after enqueue: wp_set_script_translations is a no-op if the handle is not registered yet.
+					if ( defined( 'HELPMATE_DIR' ) ) {
+						wp_set_script_translations( $vite_handle, 'helpmate-ai-chatbot', HELPMATE_DIR . 'languages' );
+					}
 					wp_localize_script($vite_handle, 'helpmateApiSettings', array(
 						'nonce' => wp_create_nonce('wp_rest'),
 						'site_url' => get_site_url(),

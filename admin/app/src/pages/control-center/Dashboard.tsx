@@ -35,7 +35,7 @@ import { useDashboard } from '@/hooks/useDashboard';
 import { useDashboardChecklist } from '@/hooks/useDashboardChecklist';
 import { useSettings } from '@/hooks/useSettings';
 import { HelpmateFreeVsProURL, HelpmatePricingURL } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { Icon } from '@iconify/react';
 import {
   ArrowUpRight,
@@ -163,82 +163,96 @@ interface UpgradeFeature {
   freeLimit?: number;
   proValue?: string;
 }
+type UpgradeSectionId =
+  | 'helpmate-ai'
+  | 'automations'
+  | 'inbox'
+  | 'channels'
+  | 'crm'
+  | 'admin-hub';
 interface UpgradeSection {
+  id: UpgradeSectionId;
   title: string;
   features: UpgradeFeature[];
 }
 
 const UPGRADE_SECTIONS: UpgradeSection[] = [
   {
-    title: 'Helpmate AI',
+    id: 'helpmate-ai',
+    title: __('Helpmate AI'),
     features: [
-      { name: 'Knowledge Base', icon: 'database', free: 'limit', freeLimit: 30, proValue: '1k to 30k' },
+      { name: __('Knowledge Base'), icon: 'database', free: 'limit', freeLimit: 30, proValue: __('1k to 30k') },
     ],
   },
   {
-    title: 'Automations',
+    id: 'automations',
+    title: __('Automations'),
     features: [
-      { name: 'Auto DM & Comments', icon: 'messageCircleReply' },
-      { name: 'Test Chatbot', icon: 'flaskConical', free: 'check' },
-      { name: 'Appearance', icon: 'palette', free: 'check' },
-      { name: 'Behavior', icon: 'behavior', free: 'check' },
-      { name: 'Chatbot Tone & Language', icon: 'chatbotToneLanguage', free: 'check' },
-      { name: 'Order Status Tracking', icon: 'truckLocation' },
-      { name: 'Product Search by Image', icon: 'scanSearch' },
-      { name: 'Refund & Return', icon: 'rotateCCW' },
-      { name: 'Email Campaigns', icon: 'send' },
-      { name: 'Lead Capture', icon: 'userRoundSearch' },
-      { name: 'Coupon Delivery', icon: 'ticketPercent' },
-      { name: 'Proactive Sales', icon: 'rocket' },
-      { name: 'Email Sequences', icon: 'mails' },
-      { name: 'Abandoned Cart', icon: 'shoppingCartAbandoned' },
-      { name: 'Promo Bar', icon: 'promoMegaphone', freeText: '1 template' },
-      { name: 'Sales Notifications', icon: 'bellRing', freeText: '1 template' },
+      { name: __('Auto DM & Comments'), icon: 'messageCircleReply' },
+      { name: __('Test Chatbot'), icon: 'flaskConical', free: 'check' },
+      { name: __('Appearance'), icon: 'palette', free: 'check' },
+      { name: __('Behavior'), icon: 'behavior', free: 'check' },
+      { name: __('Chatbot Tone & Language'), icon: 'chatbotToneLanguage', free: 'check' },
+      { name: __('Order Status Tracking'), icon: 'truckLocation' },
+      { name: __('Product Search by Image'), icon: 'scanSearch' },
+      { name: __('Refund & Return'), icon: 'rotateCCW' },
+      { name: __('Email Campaigns'), icon: 'send' },
+      { name: __('Lead Capture'), icon: 'userRoundSearch' },
+      { name: __('Coupon Delivery'), icon: 'ticketPercent' },
+      { name: __('Proactive Sales'), icon: 'rocket' },
+      { name: __('Email Sequences'), icon: 'mails' },
+      { name: __('Abandoned Cart'), icon: 'shoppingCartAbandoned' },
+      { name: __('Promo Bar'), icon: 'promoMegaphone', freeText: __('1 template') },
+      { name: __('Sales Notifications'), icon: 'bellRing', freeText: __('1 template') },
     ],
   },
   {
-    title: 'Inbox',
+    id: 'inbox',
+    title: __('Inbox'),
     features: [
-      { name: 'All Conversations', icon: 'inbox', freeText: 'Partial' },
-      { name: 'Chatbot', icon: 'bot', free: 'limit', freeLimit: 200, proValue: 'Unlimited (BYOK)' },
-      { name: 'Live Chat', icon: 'liveChat' },
-      { name: 'Tickets', icon: 'ticketSystem', free: 'check' },
-      { name: 'Social Messages', icon: 'share2' },
-      { name: 'Comments', icon: 'comments' },
+      { name: __('All Conversations'), icon: 'inbox', freeText: __('Partial') },
+      { name: __('Chatbot'), icon: 'bot', free: 'limit', freeLimit: 200, proValue: __('Unlimited (BYOK)') },
+      { name: __('Live Chat'), icon: 'liveChat' },
+      { name: __('Tickets'), icon: 'ticketSystem', free: 'check' },
+      { name: __('Social Messages'), icon: 'share2' },
+      { name: __('Comments'), icon: 'comments' },
     ],
   },
   {
-    title: 'Channels',
+    id: 'channels',
+    title: __('Channels'),
     features: [
-      { name: 'Facebook Messages', icon: 'facebook' },
-      { name: 'Facebook Comments', icon: 'facebook' },
-      { name: 'Instagram Messages', icon: 'instagram' },
-      { name: 'Instagram Comments', icon: 'instagram' },
-      { name: 'WhatsApp', icon: 'whatsapp' },
-      { name: 'TikTok (coming soon)', icon: 'tiktok' },
-      { name: 'Live Chat', icon: 'liveChat' },
+      { name: __('Facebook Messages'), icon: 'facebook' },
+      { name: __('Facebook Comments'), icon: 'facebook' },
+      { name: __('Instagram Messages'), icon: 'instagram' },
+      { name: __('Instagram Comments'), icon: 'instagram' },
+      { name: __('WhatsApp'), icon: 'whatsapp' },
+      { name: __('TikTok (coming soon)'), icon: 'tiktok' },
+      { name: __('Live Chat'), icon: 'liveChat' },
     ],
   },
   {
-    title: 'CRM',
+    id: 'crm',
+    title: __('CRM'),
     features: [
-      { name: 'Contacts', icon: 'bookUser', free: 'limit', freeLimit: 50, proValue: 'Unlimited' },
-      { name: 'Notes', icon: 'notebookPen', free: 'check' },
-      { name: 'Order Management', icon: 'shoppingCart', free: 'check' },
-      { name: 'Leads', icon: 'userSearch', freeText: 'Chat widget' },
-      { name: 'Appointments & Bookings', icon: 'calendarClock' },
-      { name: 'Segments', icon: 'layers' },
-      { name: 'Custom Fields', icon: 'textCursorInput' },
-      { name: 'Tasks', icon: 'listChecks' },
-      { name: 'Email Templates', icon: 'emailTemplate' },
+      { name: __('Contacts'), icon: 'bookUser', free: 'limit', freeLimit: 50, proValue: __('Unlimited') },
+      { name: __('Notes'), icon: 'notebookPen', free: 'check' },
+      { name: __('Order Management'), icon: 'shoppingCart', free: 'check' },
+      { name: __('Leads'), icon: 'userSearch', freeText: __('Chat widget') },
+      { name: __('Appointments & Bookings'), icon: 'calendarClock' },
+      { name: __('Segments'), icon: 'layers' },
+      { name: __('Custom Fields'), icon: 'textCursorInput' },
+      { name: __('Tasks'), icon: 'listChecks' },
+      { name: __('Email Templates'), icon: 'emailTemplate' },
     ],
   },
   {
-    title: 'Admin Hub',
+    id: 'admin-hub',
+    title: __('Admin Hub'),
     features: [
-      { name: 'Teams & Roles', icon: 'teamManagement', free: 'check' },
-      { name: 'Manage API Key', icon: 'keyRound', free: 'check' },
-      { name: 'Analytics', icon: 'barChart3', free: 'check' },
+      { name: __('Teams & Roles'), icon: 'teamManagement', free: 'check' },
+      { name: __('Manage API Key'), icon: 'keyRound', free: 'check' },
+      { name: __('Analytics'), icon: 'barChart3', free: 'check' },
     ],
   },
 ];
@@ -404,12 +418,12 @@ function ProCheck() {
   );
 }
 
-function SectionIcon({ title }: { title: string }) {
+function SectionIcon({ id }: { id: UpgradeSectionId }) {
   const className = 'w-4 h-4 text-foreground shrink-0';
-  switch (title) {
-    case 'Helpmate AI':
+  switch (id) {
+    case 'helpmate-ai':
       return <Brain className={className} strokeWidth={1.5} />;
-    case 'Automations':
+    case 'automations':
       return (
         <ChangeSvgColor
           src={automation}
@@ -417,11 +431,11 @@ function SectionIcon({ title }: { title: string }) {
           className={className}
         />
       );
-    case 'Inbox':
+    case 'inbox':
       return <Inbox className={className} strokeWidth={1.5} />;
-    case 'Channels':
+    case 'channels':
       return <Radio className={className} strokeWidth={1.5} />;
-    case 'CRM':
+    case 'crm':
       return (
         <ChangeSvgColor
           src={crm}
@@ -429,7 +443,7 @@ function SectionIcon({ title }: { title: string }) {
           className={cn(className, 'stroke-current [&_path]:stroke-current')}
         />
       );
-    case 'Admin Hub':
+    case 'admin-hub':
       return (
         <ChangeSvgColor
           src={adminHub}
@@ -454,15 +468,15 @@ export default function Dashboard() {
   return (
     <PageGuard page="control-center-dashboard">
       <div className="gap-0">
-        <PageHeader title="Dashboard" disableTrigger={true} />
+        <PageHeader title={__('Dashboard')} disableTrigger={true} />
         <div className="min-h-[30vh] flex flex-col justify-between p-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Left Column: System Overview */}
             <Card className="flex flex-col h-full shadow-lg">
               <CardHeader>
-                <CardTitle className="!text-lg">Overview</CardTitle>
+                <CardTitle className="!text-lg">{__('Overview')}</CardTitle>
                 <CardDescription>
-                  Key metrics and performance indicators
+                  {__('Key metrics and performance indicators')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col flex-1 px-6">
@@ -481,7 +495,7 @@ export default function Dashboard() {
                     <div className="flex justify-between items-center px-6 py-6 h-full bg-blue-50 rounded-lg">
                       <div className="flex flex-col justify-center h-full">
                         <p className="mb-2 text-sm font-normal text-gray-600">
-                          Total Chats
+                          {__('Total Chats')}
                         </p>
                         <p className="!text-2xl font-semibold text-gray-900 !my-0">
                           {overviewData?.total_chats?.toLocaleString() ?? 0}
@@ -499,7 +513,7 @@ export default function Dashboard() {
                     <div className="flex justify-between items-center px-6 py-6 h-full bg-purple-50 rounded-lg">
                       <div className="flex flex-col justify-center h-full">
                         <p className="mb-2 text-sm font-normal text-gray-600">
-                          Total Contacts
+                          {__('Total Contacts')}
                         </p>
                         <p className="!text-2xl font-semibold text-gray-900 !my-0">
                           {overviewData?.total_contacts?.toLocaleString() ?? 0}
@@ -517,11 +531,11 @@ export default function Dashboard() {
                     <div className="flex justify-between items-center px-6 py-6 h-full bg-yellow-50 rounded-lg">
                       <div className="flex flex-col justify-center h-full">
                         <p className="mb-2 text-sm font-normal text-gray-600">
-                          Employee of Month
+                          {__('Employee of Month')}
                         </p>
                         <p className="!text-xl font-semibold text-gray-900 !my-0">
                           {overviewData?.employee_of_month?.display_name ??
-                            'N/A'}
+                            __('N/A')}
                         </p>
                       </div>
                       <div className="flex flex-shrink-0 justify-center items-center w-14 h-14 bg-yellow-100 rounded-lg">
@@ -536,7 +550,7 @@ export default function Dashboard() {
                     <div className="flex justify-between items-center px-6 py-6 h-full bg-green-50 rounded-lg">
                       <div className="flex flex-col justify-center h-full">
                         <p className="mb-2 text-sm font-normal text-gray-600">
-                          Knowledge Bases
+                          {__('Knowledge Bases')}
                         </p>
                         <p className="!text-2xl font-semibold text-gray-900 !my-0">
                           {overviewData?.total_knowledge_bases?.toLocaleString() ??
@@ -558,42 +572,42 @@ export default function Dashboard() {
             {/* Right Column: Getting Started Checklist */}
             <Card className="flex flex-col h-full shadow-lg">
               <CardHeader>
-                <CardTitle className="!text-lg">Getting Started</CardTitle>
+                <CardTitle className="!text-lg">{__('Getting Started')}</CardTitle>
                 <CardDescription>
-                  Complete these steps to get the most out of your chatbot
+                  {__('Complete these steps to get the most out of your chatbot')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-1">
                 <div className="flex flex-col gap-3 h-full">
                   {checklistQuery.isLoading ? (
                     <div className="text-sm text-muted-foreground">
-                      Loading checklist...
+                      {__('Loading checklist...')}
                     </div>
                   ) : (
                     <>
                       <ChecklistItem
                         completed={checklist?.has_knowledge_base ?? false}
-                        label="Add knowledge base"
+                        label={__('Add knowledge base')}
                         onClick={() => setPage('data-source')}
                       />
                       <ChecklistItem
                         completed={checklist?.has_test_chat ?? false}
-                        label="Test chatbot"
+                        label={__('Test chatbot')}
                         onClick={() => setPage('test-chatbot')}
                       />
                       <ChecklistItem
                         completed={checklist?.has_customization ?? false}
-                        label="Customize chatbot"
+                        label={__('Customize chatbot')}
                         onClick={() => setPage('settings')}
                       />
                       <ChecklistItem
                         completed={checklist?.has_business_hours_configured ?? false}
-                        label="Configure business hours"
+                        label={__('Configure business hours')}
                         onClick={() => setPage('live-chat-settings')}
                       />
                       <ChecklistItem
                         completed={checklist?.has_contacts ?? false}
-                        label="Create contacts"
+                        label={__('Create contacts')}
                         onClick={() => setPage('crm-contacts')}
                       />
                     </>
@@ -610,11 +624,12 @@ export default function Dashboard() {
                 <Crown className="w-12 h-12 text-primary" />
                 <div className="flex-1">
                   <CardTitle className="text-2xl text-primary-800">
-                    Why upgrade to pro?
+                    {__('Why upgrade to pro?')}
                   </CardTitle>
                   <CardDescription className="text-base text-primary-800">
-                    Our top features that driving revenue and elevating the
-                    customer experience.
+                    {__(
+                      'Our top features that driving revenue and elevating the customer experience.'
+                    )}
                   </CardDescription>
                 </div>
               </div>
@@ -624,14 +639,14 @@ export default function Dashboard() {
                   size="default"
                   onClick={() => window.open(HelpmateFreeVsProURL, '_blank')}
                 >
-                  Learn More
+                  {__('Learn More')}
                   <ArrowUpRight className="w-4 h-4" />
                 </Button>
                 <Button
                   size="default"
                   onClick={() => window.open(HelpmatePricingURL, '_blank')}
                 >
-                  Upgrade Now
+                  {__('Upgrade Now')}
                   <ArrowUpRight className="w-4 h-4" />
                 </Button>
               </CardAction>
@@ -643,26 +658,26 @@ export default function Dashboard() {
                     <TableHead
                       className="w-[50%] border-r border-border font-semibold text-foreground"
                     >
-                      Feature Name
+                      {__('Feature Name')}
                     </TableHead>
                     <TableHead className="w-[25%] border-r border-border text-center font-semibold text-foreground">
-                      Free
+                      {__('Free')}
                     </TableHead>
                     <TableHead className="w-[25%] text-center font-semibold text-foreground">
                       <span className="inline-flex items-center gap-1.5">
                         <Crown className="w-4 h-4" strokeWidth={1.5} />
-                        Pro
+                        {__('Pro')}
                       </span>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {UPGRADE_SECTIONS.map((section) => (
-                    <React.Fragment key={section.title}>
+                    <React.Fragment key={section.id}>
                       <TableRow className="border-border bg-primary-50 hover:bg-primary-50/80">
                         <TableCell className="border-r border-border font-semibold text-foreground py-2">
                           <span className="flex font-medium items-center gap-2">
-                            <SectionIcon title={section.title} />
+                            <SectionIcon id={section.id} />
                             {section.title}
                           </span>
                         </TableCell>
@@ -671,7 +686,7 @@ export default function Dashboard() {
                       </TableRow>
                       {section.features.map((feature) => (
                         <TableRow
-                          key={`${section.title}-${feature.name}`}
+                          key={`${section.id}-${feature.name}`}
                           className="border-border"
                         >
                           <TableCell className="border-r border-border py-2.5">

@@ -4,7 +4,7 @@ import HelpmateIcon from '@/assets/helpmate-logo-icon.svg';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/context/ThemeContext';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { ChangeSvgColor } from 'svg-color-tools';
 
@@ -47,7 +47,7 @@ export function ChatHeader({
             {bot_icon ? (
               <img
                 src={bot_icon}
-                alt="Bot Icon"
+                alt={__('Bot icon')}
                 className="w-6 h-6 rounded-full"
               />
             ) : (
@@ -74,7 +74,7 @@ export function ChatHeader({
             size="sm"
             onClick={onDeleteChat}
             className="p-0 w-8 h-8 text-white rounded-full hover:!bg-white"
-            title="End chat"
+            title={__('End chat')}
           >
             <X size={16} />
           </Button>

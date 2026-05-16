@@ -187,6 +187,10 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+type CommerceIntegrationSettings = {
+  selected_provider?: string;
+};
+
 export default function TabSettings() {
   const { getSettingsMutation, updateSettingsMutation, getProQuery } =
     useSettings();
@@ -199,8 +203,9 @@ export default function TabSettings() {
   const commerceIntegrationQuery = useQuery({
     queryKey: ['settings', 'commerce_integration'],
     queryFn: async () => {
-      const response = await api.get('/settings/commerce_integration');
-      return response.data ?? {};
+      const response =
+        await api.get<CommerceIntegrationSettings>('/settings/commerce_integration');
+      return response ?? {};
     },
     refetchOnWindowFocus: false,
   });

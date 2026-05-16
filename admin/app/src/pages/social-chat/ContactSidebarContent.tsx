@@ -9,6 +9,7 @@ import { OverviewTab } from '@/pages/crm/contacts/tabs/OverviewTab';
 import { TasksTab } from '@/pages/crm/contacts/tabs/TasksTab';
 import { TicketsTab } from '@/pages/crm/contacts/tabs/TicketsTab';
 import { CustomField } from '@/types/crm';
+import { __ } from '@/lib/utils';
 import {
   ChevronLeft,
   ChevronRight,
@@ -116,31 +117,31 @@ export default function ContactSidebarContent({
             <TabsList className="flex" style={{ minWidth: 'max-content', width: 'max-content' }}>
               <TabsTrigger value="overview" className="flex-shrink-0 text-xs">
                 <User className="w-3 h-3" />
-                Info
+                {__('Info')}
               </TabsTrigger>
               <TabsTrigger value="emails" className="flex-shrink-0 text-xs">
                 <Mail className="w-3 h-3" />
-                Emails
+                {__('Emails')}
               </TabsTrigger>
               <TabsTrigger value="orders" className="flex-shrink-0 text-xs">
                 <ShoppingBag className="w-3 h-3" />
-                Orders
+                {__('Orders')}
               </TabsTrigger>
               <TabsTrigger value="conversations" className="flex-shrink-0 text-xs">
                 <MessageCircle className="w-3 h-3" />
-                Conversations
+                {__('Conversations')}
               </TabsTrigger>
               <TabsTrigger value="tickets" className="flex-shrink-0 text-xs">
                 <TicketPercent className="w-3 h-3" />
-                Tickets
+                {__('Tickets')}
               </TabsTrigger>
               <TabsTrigger value="tasks" className="flex-shrink-0 text-xs">
                 <ClipboardList className="w-3 h-3" />
-                Tasks
+                {__('Tasks')}
               </TabsTrigger>
               <TabsTrigger value="notes" className="flex-shrink-0 text-xs">
                 <FileText className="w-3 h-3" />
-                Notes
+                {__('Notes')}
               </TabsTrigger>
             </TabsList>
           </div>

@@ -1,7 +1,7 @@
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger, useSidebarOptional } from '@/components/ui/sidebar';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { MenuItem } from '@/types';
 import { ChevronRight } from 'lucide-react';
 export default function PageHeader({
@@ -51,7 +51,7 @@ export default function PageHeader({
                     : 'text-muted-foreground/50 cursor-not-allowed opacity-50'
                 }`}
               >
-                {item.title}
+                {item.displayTitle ?? __(item.title)}
               </TabsTrigger>
             ))}
           </TabsList>

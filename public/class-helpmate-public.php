@@ -115,7 +115,7 @@ class Helpmate_Public
 		wp_register_script(
 			$this->plugin_name . '-scheduling',
 			$script_url,
-			array('jquery'),
+			array( 'jquery', 'wp-i18n' ),
 			$this->version,
 			true
 		);
@@ -230,13 +230,17 @@ class Helpmate_Public
 		if (!$is_dev) {
 			// Production mode - load compiled JS
 			if (!empty($js_files)) {
+				$vite_handle = $this->plugin_name . '-public-vite';
 				wp_enqueue_script(
-					$this->plugin_name . '-public-vite',
+					$vite_handle,
 					$vite_app_url . 'dist/assets/' . $latest_js,
-					array(),
+					array( 'wp-i18n' ),
 					$this->version,
 					false
 				);
+				if ( defined( 'HELPMATE_DIR' ) ) {
+					wp_set_script_translations( $vite_handle, 'helpmate-ai-chatbot', HELPMATE_DIR . 'languages' );
+				}
 				add_filter('wp_script_attributes', array($this, 'add_type_attribute'), 10, 1);
 
 			}
@@ -314,6 +318,9 @@ class Helpmate_Public
 
 		wp_enqueue_style($this->plugin_name . '-scheduling');
 		wp_enqueue_script($this->plugin_name . '-scheduling');
+		if ( defined( 'HELPMATE_DIR' ) ) {
+			wp_set_script_translations( $this->plugin_name . '-scheduling', 'helpmate-ai-chatbot', HELPMATE_DIR . 'languages' );
+		}
 
 		wp_localize_script(
 			$this->plugin_name . '-scheduling',

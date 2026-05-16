@@ -3,6 +3,7 @@ import { useSettings } from '@/hooks/useSettings';
 import { ChangeSvgColor } from 'svg-color-tools';
 import { useEffect, useState } from 'react';
 import { TestChatWidget } from './TestChatWidget';
+import { __ } from '@/lib/utils';
 
 export function TestChatWithLauncher() {
   const [customization, setCustomization] = useState<{
@@ -113,7 +114,7 @@ export function TestChatWithLauncher() {
             />
           )}
           {icon_shape === 'rectangle' && (
-            <span className="text-xl font-medium text-white">Test Chat</span>
+            <span className="text-xl font-medium text-white">{__('Test Chat')}</span>
           )}
         </div>
       </div>

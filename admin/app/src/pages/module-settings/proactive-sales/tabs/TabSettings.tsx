@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -111,8 +111,10 @@ export default function TabSettings() {
       <div className="relative">
         {!getProQuery.data && (
           <ProBadge
-            topMessage="It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
-            buttonText="Boost Sales Conversations"
+          topMessage={__(
+            "It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
+          )}
+          buttonText={__('Boost Sales Conversations')}
             tooltipMessage={null}
           />
         )}
@@ -125,7 +127,7 @@ export default function TabSettings() {
           <CardHeader>
             <CardTitle className="flex gap-1 items-center text-xl font-bold">
               Proactive Sales Settings{' '}
-              <InfoTooltip message="This feature lets the chatbot automatically suggest discounted products on the Chat window. It increases conversion rates and average order value." />
+              <InfoTooltip message={__('This feature lets the chatbot automatically suggest discounted products on the Chat window. It increases conversion rates and average order value.')} />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -160,7 +162,7 @@ export default function TabSettings() {
                         name="proactive_sales_show_frequency"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Show Frequency</FormLabel>
+                            <FormLabel>{__('Show Frequency')}</FormLabel>
                             <FormControl>
                               <Select
                                 value={field.value}
@@ -171,20 +173,20 @@ export default function TabSettings() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="0.08">
-                                    5 Seconds
+                                    {__('5 Seconds')}
                                   </SelectItem>
                                   <SelectItem value="0.16">
-                                    10 Seconds
+                                    {__('10 Seconds')}
                                   </SelectItem>
                                   <SelectItem value="0.5">
-                                    30 Seconds
+                                    {__('30 Seconds')}
                                   </SelectItem>
-                                  <SelectItem value="1">1 Minute</SelectItem>
-                                  <SelectItem value="2">2 Minutes</SelectItem>
-                                  <SelectItem value="5">5 Minutes</SelectItem>
-                                  <SelectItem value="15">15 Minutes</SelectItem>
-                                  <SelectItem value="30">30 Minutes</SelectItem>
-                                  <SelectItem value="60">1 Hour</SelectItem>
+                                  <SelectItem value="1">{__('1 Minute')}</SelectItem>
+                                  <SelectItem value="2">{__('2 Minutes')}</SelectItem>
+                                  <SelectItem value="5">{__('5 Minutes')}</SelectItem>
+                                  <SelectItem value="15">{__('15 Minutes')}</SelectItem>
+                                  <SelectItem value="30">{__('30 Minutes')}</SelectItem>
+                                  <SelectItem value="60">{__('1 Hour')}</SelectItem>
                                 </SelectContent>
                               </Select>
                             </FormControl>
@@ -198,7 +200,7 @@ export default function TabSettings() {
                       name="proactive_sales_template"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Template</FormLabel>
+                          <FormLabel>{__('Template')}</FormLabel>
                           <FormControl>
                             <div className="grid grid-cols-3 gap-4">
                               <div
@@ -217,7 +219,7 @@ export default function TabSettings() {
                                 />
                                 <div className="flex absolute inset-0 justify-center items-center rounded-md opacity-0 transition-opacity bg-white/70 hover:opacity-100">
                                   <span className="text-lg font-semibold drop-shadow-lg">
-                                    Template 1
+                                    {__('Template 1')}
                                   </span>
                                 </div>
                               </div>
@@ -238,7 +240,7 @@ export default function TabSettings() {
                                 />
                                 <div className="flex absolute inset-0 justify-center items-center rounded-md opacity-0 transition-opacity bg-white/70 hover:opacity-100">
                                   <span className="text-lg font-semibold drop-shadow-lg">
-                                    Template 2
+                                    {__('Template 2')}
                                   </span>
                                 </div>
                               </div>
@@ -259,7 +261,7 @@ export default function TabSettings() {
                                 />
                                 <div className="flex absolute inset-0 justify-center items-center rounded-md opacity-0 transition-opacity bg-white/70 hover:opacity-100">
                                   <span className="text-lg font-semibold drop-shadow-lg">
-                                    Template 3
+                                    {__('Template 3')}
                                   </span>
                                 </div>
                               </div>
@@ -273,7 +275,7 @@ export default function TabSettings() {
                       disabled={isUpdating}
                       loading={isUpdating}
                     >
-                      {isUpdating ? 'Saving...' : 'Save'}
+                      {isUpdating ? __('Saving...') : __('Save')}
                     </Button>
                   </>
                 )}

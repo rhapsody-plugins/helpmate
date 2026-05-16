@@ -1,5 +1,6 @@
 import PageHeader from '@/components/PageHeader';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { __ } from '@/lib/utils';
 import { MenuItem } from '@/types';
 import { Suspense, lazy, useMemo, useState } from 'react';
 
@@ -31,9 +32,9 @@ export default function SmartScheduling() {
   return (
     <div className="relative">
       <Tabs className="gap-0" value={tab} onValueChange={setTab}>
-        <PageHeader menuItems={MENU_ITEMS} title="Scheduling" />
+        <PageHeader menuItems={MENU_ITEMS} title={__('Scheduling')} />
         <TabsContent value={tab} className="p-6">
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div>{__('Loading...')}</div>}>
             {tab === 'Schedules' && <TabSchedules />}
             {tab === 'Settings' && <TabSettings />}
           </Suspense>

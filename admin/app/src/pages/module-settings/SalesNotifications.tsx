@@ -22,7 +22,7 @@ import { Switch } from '@/components/ui/switch';
 import { useMain } from '@/contexts/MainContext';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { resolveCommerceIntegration } from '@/pages/control-center/integrations/commerce/resolve-commerce';
 import type { CommerceIntegrationConfig } from '@/pages/control-center/integrations/commerce/types';
 import { useQuery } from '@tanstack/react-query';
@@ -174,10 +174,10 @@ export default function SalesNotifications() {
     <PageGuard page="automation-sales-sales-notifications">
       <div className="gap-0">
         <PageHeader
-        title="Sales Notifications"
+        title={__('Sales Notifications')}
         rightActions={
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Enable Module</span>
+            <span className="text-sm text-muted-foreground">{__('Enable Module')}</span>
             <Switch
               checked={isModuleEnabled}
               onCheckedChange={handleModuleToggle}
@@ -196,7 +196,7 @@ export default function SalesNotifications() {
           <CardHeader>
             <CardTitle className="flex gap-1 items-center text-xl font-bold">
               Sales Notifications{' '}
-              <InfoTooltip message="Display real-time sales activity like “Someone just purchased this” to create social proof. Requires a primary commerce integration (WooCommerce, Easy Digital Downloads, or SureCart) with that plugin active." />
+              <InfoTooltip message={__('Display real-time sales activity like “Someone just purchased this” to create social proof. Requires a primary commerce integration (WooCommerce, Easy Digital Downloads, or SureCart) with that plugin active.')} />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -264,7 +264,7 @@ export default function SalesNotifications() {
                         name="sales_notification_show_frequency"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Show Frequency</FormLabel>
+                            <FormLabel>{__('Show Frequency')}</FormLabel>
                             <FormControl>
                               <Select
                                 value={field.value}
@@ -276,20 +276,20 @@ export default function SalesNotifications() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="0.08">
-                                    5 Seconds
+                                    {__('5 Seconds')}
                                   </SelectItem>
                                   <SelectItem value="0.16">
-                                    10 Seconds
+                                    {__('10 Seconds')}
                                   </SelectItem>
                                   <SelectItem value="0.5">
-                                    30 Seconds
+                                    {__('30 Seconds')}
                                   </SelectItem>
-                                  <SelectItem value="1">1 Minute</SelectItem>
-                                  <SelectItem value="2">2 Minutes</SelectItem>
-                                  <SelectItem value="5">5 Minutes</SelectItem>
-                                  <SelectItem value="15">15 Minutes</SelectItem>
-                                  <SelectItem value="30">30 Minutes</SelectItem>
-                                  <SelectItem value="60">1 Hour</SelectItem>
+                                  <SelectItem value="1">{__('1 Minute')}</SelectItem>
+                                  <SelectItem value="2">{__('2 Minutes')}</SelectItem>
+                                  <SelectItem value="5">{__('5 Minutes')}</SelectItem>
+                                  <SelectItem value="15">{__('15 Minutes')}</SelectItem>
+                                  <SelectItem value="30">{__('30 Minutes')}</SelectItem>
+                                  <SelectItem value="60">{__('1 Hour')}</SelectItem>
                                 </SelectContent>
                               </Select>
                             </FormControl>
@@ -303,7 +303,7 @@ export default function SalesNotifications() {
                       name="sales_notification_template"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Template</FormLabel>
+                          <FormLabel>{__('Template')}</FormLabel>
                           <FormControl>
                             <div className="grid grid-cols-3 gap-4">
                               <div
@@ -327,7 +327,7 @@ export default function SalesNotifications() {
                                 />
                                 <div className="flex absolute inset-0 justify-center items-center rounded-md opacity-0 transition-opacity bg-white/70 hover:opacity-100">
                                   <span className="text-lg font-semibold drop-shadow-lg">
-                                    Template 1
+                                    {__('Template 1')}
                                   </span>
                                 </div>
                               </div>
@@ -361,13 +361,13 @@ export default function SalesNotifications() {
                                 />
                                 <div className="flex absolute inset-0 justify-center items-center rounded-md opacity-0 transition-opacity bg-white/70 hover:opacity-100">
                                   <span className="text-lg font-semibold drop-shadow-lg">
-                                    Template 2{' '}
-                                    {!getProQuery.data && '(Pro Only)'}
+                                    {__('Template 2')}
+                                    {!getProQuery.data && ` ${__('(Pro Only)')}`}
                                   </span>
                                 </div>
                                 {!getProQuery.data && (
                                   <div className="absolute top-2 right-2 px-2 py-1 text-xs text-white bg-orange-500 rounded">
-                                    Pro Only
+                                    {__('Pro Only')}
                                   </div>
                                 )}
                               </div>
@@ -401,13 +401,13 @@ export default function SalesNotifications() {
                                 />
                                 <div className="flex absolute inset-0 justify-center items-center rounded-md opacity-0 transition-opacity bg-white/70 hover:opacity-100">
                                   <span className="text-lg font-semibold drop-shadow-lg">
-                                    Template 3{' '}
-                                    {!getProQuery.data && '(Pro Only)'}
+                                    {__('Template 3')}
+                                    {!getProQuery.data && ` ${__('(Pro Only)')}`}
                                   </span>
                                 </div>
                                 {!getProQuery.data && (
                                   <div className="absolute top-2 right-2 px-2 py-1 text-xs text-white bg-orange-500 rounded">
-                                    Pro Only
+                                    {__('Pro Only')}
                                   </div>
                                 )}
                               </div>
@@ -422,7 +422,7 @@ export default function SalesNotifications() {
                       disabled={isUpdating || !commerceSalesReady}
                       loading={isUpdating}
                     >
-                      {isUpdating ? 'Saving...' : 'Save'}
+                      {isUpdating ? __('Saving...') : __('Save')}
                     </Button>
                   </>
                 )}

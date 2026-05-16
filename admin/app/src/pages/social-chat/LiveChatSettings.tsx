@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { useSettings } from '@/hooks/useSettings';
 import { useTeam } from '@/hooks/useTeam';
 import { Plus, Trash2, UserCog } from 'lucide-react';
@@ -180,14 +180,15 @@ export default function LiveChatSettings() {
   const currentEnabled = form.watch('business_hours_enabled') ?? businessHoursEnabled;
 
   const handleRemoveAgent = (userId: number) => {
-    if (!confirm('Are you sure you want to remove this live chat agent?')) return;
+    if (!confirm(__('Are you sure you want to remove this live chat agent?')))
+      return;
     removeRoleMutation.mutate({ user_id: userId, role: 'live_chat_agent' });
   };
 
   return (
     <PageGuard page="live-chat-settings">
       <div className="gap-0">
-        <PageHeader title="Live Chat" />
+        <PageHeader title={__('Live Chat')} />
         <div className="p-6">
           <Card
             className={cn(
@@ -197,15 +198,21 @@ export default function LiveChatSettings() {
           >
             {!isPro && (
               <ProBadge
-                topMessage="Configure business hours to control when live agents are available. Upgrade to Pro to enable Live Chat settings."
-                buttonText="Unlock Live Chat Settings"
+                topMessage={__(
+                  'Configure business hours to control when live agents are available. Upgrade to Pro to enable Live Chat settings.'
+                )}
+                buttonText={__('Unlock Live Chat Settings')}
                 tooltipMessage={null}
               />
             )}
             <CardHeader>
               <CardTitle className="flex gap-1 items-center text-xl font-bold">
-                Settings
-                <InfoTooltip message="When Use business hours is OFF, live agents are always available. When ON, the chat widget uses these hours to show availability." />
+                {__('Settings')}
+                <InfoTooltip
+                  message={__(
+                    'When Use business hours is OFF, live agents are always available. When ON, the chat widget uses these hours to show availability.'
+                  )}
+                />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -233,22 +240,24 @@ export default function LiveChatSettings() {
 
                       <div className="space-y-4">
                         <h3 className="!flex gap-1 items-center text-lg font-medium !mt-0 !mb-2">
-                          Live Chat Agents
+                          {__('Live Chat Agents')}
                         </h3>
                         {agentsQuery.isLoading ? (
                           <Loading />
                         ) : agentsQuery.isError ? (
                           <div className="py-6 text-center text-red-500">
-                            Failed to load live chat agents
+                            {__('Failed to load live chat agents')}
                           </div>
                         ) : !agentsQuery.data || agentsQuery.data.length === 0 ? (
                           <div className="py-8 text-center">
                             <UserCog className="mx-auto mb-4 w-12 h-12 text-gray-400" />
                             <h4 className="mb-2 text-base font-semibold text-gray-900">
-                              No live chat agents yet
+                              {__('No live chat agents yet')}
                             </h4>
                             <p className="mb-4 text-gray-500 text-sm">
-                              Add team members as live chat agents to handle live chats.
+                              {__(
+                                'Add team members as live chat agents to handle live chats.'
+                              )}
                             </p>
                             <Button
                               type="button"
@@ -257,7 +266,7 @@ export default function LiveChatSettings() {
                               onClick={() => setIsAddAgentOpen(true)}
                             >
                               <Plus className="w-4 h-4 mr-2" />
-                              Add Live Chat Agent
+                              {__('Add Live Chat Agent')}
                             </Button>
                           </div>
                         ) : (
@@ -293,7 +302,7 @@ export default function LiveChatSettings() {
                               onClick={() => setIsAddAgentOpen(true)}
                             >
                               <Plus className="w-4 h-4 mr-2" />
-                              Add Live Chat Agent
+                              {__('Add Live Chat Agent')}
                             </Button>
                           </div>
                         )}
@@ -306,8 +315,14 @@ export default function LiveChatSettings() {
                           render={({ field }) => (
                             <FormItem className="max-w-xs">
                               <FormLabel className="flex gap-1 items-center">
-                                Switch to AI when no human reply for
-                                <InfoTooltip message="If no agent replies within this time, the chat switches back to AI." />
+                                {__(
+                                  'Switch to AI when no human reply for'
+                                )}
+                                <InfoTooltip
+                                  message={__(
+                                    'If no agent replies within this time, the chat switches back to AI.'
+                                  )}
+                                />
                               </FormLabel>
                               <Select
                                 value={String(field.value)}
@@ -327,7 +342,7 @@ export default function LiveChatSettings() {
                                       key={opt.value}
                                       value={String(opt.value)}
                                     >
-                                      {opt.label}
+                                      {__(opt.label)}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -335,34 +350,33 @@ export default function LiveChatSettings() {
                             </FormItem>
                           )}
                         />
-                      </div>
-
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <h3 className="!flex gap-1 items-center text-lg font-medium !my-0">
-                            Business hours
-                            <InfoTooltip message="When Use business hours is OFF, live agents are always available. When ON, users can be connected during these hours; outside these hours they will be offered a support ticket." />
-                          </h3>
-                          <FormField
-                            control={form.control}
-                            name="business_hours_enabled"
-                            render={({ field }) => (
-                              <FormItem className="flex items-center gap-2 mb-0">
-                                <FormControl>
-                                  <Switch
-                                    checked={field.value ?? false}
-                                    onCheckedChange={(checked) => {
-                                      field.onChange(!!checked);
-                                      setBusinessHoursEnabled(!!checked);
-                                    }}
-                                    disabled={!isPro}
-                                  />
-                                </FormControl>
-                                <FormLabel className="mb-0">Use business hours</FormLabel>
-                              </FormItem>
+                        <h3 className="!flex gap-1 items-center text-lg font-medium !my-0">
+                          {__('Business hours')}
+                          <InfoTooltip
+                            message={__(
+                              'When Use business hours is OFF, live agents are always available. When ON, users can be connected during these hours; outside these hours they will be offered a support ticket.'
                             )}
                           />
-                        </div>
+                        </h3>
+                        <FormField
+                          control={form.control}
+                          name="business_hours_enabled"
+                          render={({ field }) => (
+                            <FormItem className="flex items-center gap-2 mb-0">
+                              <FormControl>
+                                <Switch
+                                  checked={field.value ?? false}
+                                  onCheckedChange={(checked) => {
+                                    field.onChange(!!checked);
+                                    setBusinessHoursEnabled(!!checked);
+                                  }}
+                                  disabled={!isPro}
+                                />
+                              </FormControl>
+                              <FormLabel className="mb-0">{__('Use business hours')}</FormLabel>
+                            </FormItem>
+                          )}
+                        />
                         {currentEnabled && (
                           <>
                             <FormField
@@ -370,7 +384,7 @@ export default function LiveChatSettings() {
                               name="business_hours_timezone"
                               render={({ field }) => (
                                 <FormItem className="max-w-xs">
-                                  <FormLabel>Timezone for business hours</FormLabel>
+                                  <FormLabel>{__('Timezone for business hours')}</FormLabel>
                                   <Select
                                     value={field.value === '' ? '__site__' : field.value}
                                     onValueChange={(v) =>
@@ -388,15 +402,15 @@ export default function LiveChatSettings() {
                                           key={opt.value || '__site__'}
                                           value={opt.value || '__site__'}
                                         >
-                                          {opt.label}
+                                          {__(opt.label)}
                                         </SelectItem>
                                       ))}
                                     </SelectContent>
                                   </Select>
                                   <p className="text-xs text-muted-foreground">
-                                    Business hours are evaluated in this timezone. Choose
-                                    &quot;Site timezone&quot; to use your WordPress
-                                    Settings → General timezone.
+                                    {__(
+                                      'Business hours are evaluated in this timezone. Choose "Site timezone" to use your WordPress Settings → General timezone.'
+                                    )}
                                   </p>
                                 </FormItem>
                               )}
@@ -429,7 +443,7 @@ export default function LiveChatSettings() {
                                             />
                                           </FormControl>
                                           <FormLabel className="mb-0 text-sm w-20">
-                                            {day.label}
+                                            {__(day.label)}
                                           </FormLabel>
                                         </FormItem>
                                       )}
@@ -478,7 +492,7 @@ export default function LiveChatSettings() {
                         disabled={isUpdating || !isPro}
                         loading={isUpdating}
                       >
-                        {isUpdating ? 'Saving...' : 'Save'}
+                        {isUpdating ? __('Saving...') : __('Save')}
                       </Button>
                     </>
                   )}

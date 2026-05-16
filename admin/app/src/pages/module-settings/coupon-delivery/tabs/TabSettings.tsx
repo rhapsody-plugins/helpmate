@@ -25,7 +25,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import useCoupons from '@/hooks/useCoupons';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { useEffect } from 'react';
@@ -96,8 +96,10 @@ export default function TabSettings() {
     <div className="relative">
       {!getProQuery.data && (
         <ProBadge
-          topMessage="Imagine your chatbot whispering 'Here's 10% off' right before they bounce. That's smart conversion."
-          buttonText="Convert Exits into Orders"
+          topMessage={__(
+            "Imagine your chatbot whispering 'Here's 10% off' right before they bounce. That's smart conversion."
+          )}
+          buttonText={__('Convert Exits into Orders')}
           tooltipMessage={null}
         />
       )}
@@ -110,7 +112,7 @@ export default function TabSettings() {
         <CardHeader>
           <CardTitle className="flex gap-1 items-center text-xl font-bold">
             Coupon Delivery Settings{' '}
-            <InfoTooltip message="Automatically deliver personalized coupons when customers engage in chat or show exit intent. Helps reduce cart abandonment and increase average order value." />
+            <InfoTooltip message={__('Automatically deliver personalized coupons when customers engage in chat or show exit intent. Helps reduce cart abandonment and increase average order value.')} />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -145,7 +147,7 @@ export default function TabSettings() {
                     name="exit_intent_coupon"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Exit Intent Coupon</FormLabel>
+                        <FormLabel>{__('Exit Intent Coupon')}</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -162,7 +164,7 @@ export default function TabSettings() {
                                       (coupon) =>
                                         coupon.code === field.value
                                     )?.code
-                                  : 'Select coupon'}
+                                  : __('Select coupon')}
                                 <ChevronsUpDown className="ml-2 w-4 h-4 opacity-50 shrink-0" />
                               </Button>
                             </FormControl>
@@ -173,7 +175,7 @@ export default function TabSettings() {
                                 className="!border-none !ring-0 !ring-offset-0 h-5"
                                 placeholder="Search coupon..."
                               />
-                              <CommandEmpty>No coupon found.</CommandEmpty>
+                              <CommandEmpty>{__('No coupon found.')}</CommandEmpty>
                               <CommandGroup>
                                 <CommandItem
                                   value=""
@@ -189,7 +191,7 @@ export default function TabSettings() {
                                         : 'opacity-0'
                                     )}
                                   />
-                                  No coupon
+                                  {__('No coupon')}
                                 </CommandItem>
                                 {coupons.map((coupon) => (
                                   <CommandItem
@@ -226,7 +228,7 @@ export default function TabSettings() {
                     name="ask_ai_coupon"
                     render={({ field }) => (
                       <FormItem className="flex flex-row justify-between items-center self-end p-2 h-9 rounded-md border border-input">
-                        <FormLabel>Ask AI for Coupon</FormLabel>
+                        <FormLabel>{__('Ask AI for Coupon')}</FormLabel>
                         <FormControl>
                           <Switch
                             checked={field.value}
@@ -242,7 +244,7 @@ export default function TabSettings() {
                     name="specific_product_query_coupon"
                     render={({ field }) => (
                       <FormItem className="flex flex-row justify-between items-center p-2 h-9 rounded-md border border-input">
-                        <FormLabel>Specific Product Query Coupon</FormLabel>
+                        <FormLabel>{__('Specific Product Query Coupon')}</FormLabel>
                         <FormControl>
                           <Switch
                             checked={field.value}
@@ -258,7 +260,7 @@ export default function TabSettings() {
                     name="coupon_collect_lead"
                     render={({ field }) => (
                       <FormItem className="flex flex-row justify-between items-center p-2 h-9 rounded-md border border-input">
-                        <FormLabel>Collect Lead</FormLabel>
+                        <FormLabel>{__('Collect Lead')}</FormLabel>
                         <FormControl>
                           <Switch
                             checked={field.value}
@@ -275,7 +277,7 @@ export default function TabSettings() {
                   disabled={isUpdating}
                   loading={isUpdating}
                 >
-                  {isUpdating ? 'Saving...' : 'Save Settings'}
+                  {isUpdating ? __('Saving...') : __('Save Settings')}
                 </Button>
               </form>
             </Form>

@@ -332,10 +332,26 @@ class Helpmate_Tutor {
 				'course_id'
 			)
 		);
-		$course_col = ! empty( $columns ) ? 'course_id' : 'post_id';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name and selected column are from fixed safe allowlist
-		$rows = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT {$course_col} FROM {$table} WHERE user_id = %d AND {$course_col} > 0", $user_id ) );
+		if ( ! empty( $columns ) ) {
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Tutor enrollment fallback; not cacheable; table from esc_sql; user_id via placeholder
+			$rows = $wpdb->get_col(
+				$wpdb->prepare(
+					'SELECT DISTINCT course_id FROM ' . $table . ' WHERE user_id = %d AND course_id > 0',
+					$user_id
+				)
+			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+		} else {
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Tutor enrollment fallback; legacy post_id column; not cacheable; table from esc_sql
+			$rows = $wpdb->get_col(
+				$wpdb->prepare(
+					'SELECT DISTINCT post_id FROM ' . $table . ' WHERE user_id = %d AND post_id > 0',
+					$user_id
+				)
+			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+		}
 		if ( ! is_array( $rows ) ) {
 			return array();
 		}

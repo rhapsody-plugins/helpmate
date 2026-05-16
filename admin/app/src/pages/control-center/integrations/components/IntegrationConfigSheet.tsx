@@ -18,7 +18,11 @@ import {
 import { Switch } from '@/components/ui/switch';
 import type { UseQueryResult } from '@tanstack/react-query';
 import IntegrationFormsSheetStates from './IntegrationFormsSheetStates';
-import { UNMAPPED_FIELD, type IntegrationAction, type IntegrationForm } from '../types';
+import {
+  UNMAPPED_FIELD,
+  type IntegrationFormsResponse,
+} from '../types';
+import { __, sprintf } from '@/lib/utils';
 
 type FormConfigState = {
   enabled: boolean;
@@ -31,14 +35,7 @@ type IntegrationConfigSheetProps = {
   onOpenChange: (open: boolean) => void;
   title: string;
   idPrefix: string;
-  query: UseQueryResult<
-    {
-      installed: boolean;
-      forms: IntegrationForm[];
-      actions: IntegrationAction[];
-    },
-    Error
-  >;
+  query: UseQueryResult<IntegrationFormsResponse, Error>;
   createFormUrl: string;
   notInstalledText: string;
   primaryCtaText: string;
@@ -76,7 +73,7 @@ export default function IntegrationConfigSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex flex-col w-full sm:max-w-lg overflow-hidden">
         <SheetHeader>
-          <SheetTitle>{title}</SheetTitle>
+          <SheetTitle>{__(title)}</SheetTitle>
         </SheetHeader>
         <div className="p-4 flex flex-col flex-1 min-h-0 gap-4 overflow-y-auto">
           <IntegrationFormsSheetStates
@@ -103,12 +100,16 @@ export default function IntegrationConfigSheet({
                       <div>
                         <h4 className="!text-base !font-semibold !my-0">{form.title}</h4>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Form ID: {form.id}
+                          {sprintf(
+                            /* translators: %d: Form ID */
+                            __('Form ID: %d'),
+                            form.id
+                          )}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Label htmlFor={`${idPrefix}-enabled-${form.id}`}>
-                          Enabled
+                          {__('Enabled')}
                         </Label>
                         <Switch
                           id={`${idPrefix}-enabled-${form.id}`}
@@ -122,7 +123,7 @@ export default function IntegrationConfigSheet({
 
                     <div className="grid grid-cols-1 gap-3 mt-4">
                       <div>
-                        <Label>Action</Label>
+                        <Label>{__('Action')}</Label>
                         <Select
                           value={config.action || undefined}
                           onValueChange={(value) =>
@@ -143,7 +144,7 @@ export default function IntegrationConfigSheet({
                                   disabled={disabled}
                                 >
                                   {action.label}
-                                  {isProAction ? ' (Pro)' : ''}
+                                  {isProAction ? __(' (Pro)') : ''}
                                 </SelectItem>
                               );
                             })}
@@ -154,15 +155,16 @@ export default function IntegrationConfigSheet({
 
                     {selectedAction?.verification_contact_required ? (
                       <p className="mt-3 text-xs text-amber-700 dark:text-amber-500">
-                        Order tracker verification is on: map at least one of Email or
-                        Phone so customers can confirm the order.
+                        {__(
+                          'Order tracker verification is on: map at least one of Email or Phone so customers can confirm the order.'
+                        )}
                       </p>
                     ) : null}
 
                     {mappableFields.length > 0 ? (
                       <div className="mt-4 space-y-3">
                         <p className="!text-md !mb-3 font-medium !text-muted-foreground">
-                          Field Mapping:
+                          {__('Field Mapping:')}
                         </p>
                         {mappableFields.map((field) => {
                           const raw = config.field_map[field.key] ?? '';
@@ -185,7 +187,7 @@ export default function IntegrationConfigSheet({
                                   <SelectValue placeholder="None" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value={UNMAPPED_FIELD}>None</SelectItem>
+                                  <SelectItem value={UNMAPPED_FIELD}>{__('None')}</SelectItem>
                                   {form.fields.map((f) => (
                                     <SelectItem key={f.name} value={f.name}>
                                       {f.name}
@@ -213,7 +215,7 @@ export default function IntegrationConfigSheet({
               onClick={onSave}
               disabled={saving || query.isLoading}
             >
-              Save mapping
+              {__('Save mapping')}
             </Button>
           </SheetFooter>
         ) : null}

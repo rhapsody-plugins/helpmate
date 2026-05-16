@@ -17,6 +17,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useSettings } from '@/hooks/useSettings';
+import { __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -69,12 +70,12 @@ export default function WooCommerce() {
  */
   return (
     <div className="gap-0">
-      <PageHeader title="WooCommerce" />
+      <PageHeader title={__('WooCommerce')} />
       <Card className="p-6">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">WooCommerce</CardTitle>
+          <CardTitle className="text-xl font-bold">{__('WooCommerce')}</CardTitle>
           <CardDescription>
-            Settings for the WooCommerce module.
+            {__('Settings for the WooCommerce module.')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -93,7 +94,7 @@ export default function WooCommerce() {
                       name="order_tracker"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Enable Order Tracker</FormLabel>
+                          <FormLabel>{__('Enable Order Tracker')}</FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -109,7 +110,7 @@ export default function WooCommerce() {
                       name="coupon_delivery"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Enable Coupon Delivery</FormLabel>
+                          <FormLabel>{__('Enable Coupon Delivery')}</FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -126,7 +127,7 @@ export default function WooCommerce() {
                     disabled={isUpdating}
                     loading={isUpdating}
                   >
-                    {isUpdating ? 'Saving...' : 'Save'}
+                    {isUpdating ? __('Saving...') : __('Save')}
                   </Button>
                 </>
               )}

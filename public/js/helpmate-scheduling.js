@@ -66,15 +66,21 @@
 					clearReservation();
 					timeField.val('');
 					loadAvailableTimeSlots(currentDate);
-					showMessage('Your hold expired. Please select a time again.', 'error');
+					showMessage(wp.i18n.__('Your hold expired. Please select a time again.', 'helpmate-ai-chatbot'), 'error');
 					return;
 				}
 				const mins = Math.floor(remaining / 60);
 				const secs = remaining % 60;
 				const label = mins + ':' + String(secs).padStart(2, '0');
+				var countdownText = typeof wp !== 'undefined' && wp.i18n && typeof wp.i18n.sprintf === 'function'
+					? wp.i18n.sprintf(
+						wp.i18n.__('You have %s to complete your booking.', 'helpmate-ai-chatbot'),
+						label
+					)
+					: 'You have ' + label + ' to complete your booking.';
 				countdownEl
 					.show()
-					.text('You have ' + label + ' to complete your booking.')
+					.text(countdownText)
 					.toggleClass('helpmate-scheduling-countdown-urgent', remaining <= 60);
 			}
 			tick();
@@ -100,7 +106,7 @@
 			}).done(function(response) {
 				if (response.error) {
 					timeField.val('');
-					showMessage(response.message || 'This slot is no longer available. Please choose another time.', 'error');
+					showMessage(response.message || wp.i18n.__('This slot is no longer available. Please choose another time.', 'helpmate-ai-chatbot'), 'error');
 					loadAvailableTimeSlots(date);
 					return;
 				}
@@ -111,7 +117,7 @@
 				}
 			}).fail(function() {
 				timeField.val('');
-				showMessage('This slot is no longer available. Please choose another time.', 'error');
+				showMessage(wp.i18n.__('This slot is no longer available. Please choose another time.', 'helpmate-ai-chatbot'), 'error');
 				loadAvailableTimeSlots(date);
 			});
 		}
@@ -125,13 +131,13 @@
 				applyFieldVisibility();
 				applyFieldRequirements();
 			}).catch(function() {
-				showMessage('Failed to load form settings. Please refresh the page.', 'error');
+				showMessage(wp.i18n.__('Failed to load form settings. Please refresh the page.', 'helpmate-ai-chatbot'), 'error');
 			});
 
 			dateField.on('change', function() {
 				const selectedDate = $(this).val();
 				clearReservation();
-				timeField.html('<option value="">Select a time</option>');
+				timeField.empty().append($('<option>', { value: '', text: wp.i18n.__('Select a time', 'helpmate-ai-chatbot') }));
 				if (selectedDate) {
 					currentDate = selectedDate;
 					loadAvailableTimeSlots(selectedDate);
@@ -210,7 +216,7 @@
 				return;
 			}
 			timeField.prop('disabled', true);
-			timeField.html('<option value="">Loading...</option>');
+			timeField.empty().append($('<option>', { value: '', text: wp.i18n.__('Loading…', 'helpmate-ai-chatbot') }));
 			$.ajax({
 				url: helpmateScheduling.apiUrl + 'schedules/available-slots',
 				method: 'GET',
@@ -219,18 +225,18 @@
 					xhr.setRequestHeader('X-WP-Nonce', helpmateScheduling.nonce);
 				}
 			}).done(function(response) {
-				timeField.html('<option value="">Select a time</option>');
+				timeField.empty().append($('<option>', { value: '', text: wp.i18n.__('Select a time', 'helpmate-ai-chatbot') }));
 				if (response.data && response.data.length > 0) {
 					response.data.forEach(function(slot) {
 						const timeLabel = formatTime(slot);
 						timeField.append('<option value="' + slot + '">' + timeLabel + '</option>');
 					});
 				} else {
-					timeField.html('<option value="">No available slots</option>');
+					timeField.empty().append($('<option>', { value: '', text: wp.i18n.__('No available slots', 'helpmate-ai-chatbot') }));
 				}
 			}).fail(function() {
-				timeField.html('<option value="">Error loading slots</option>');
-				showMessage('Failed to load available time slots. Please try again.', 'error');
+				timeField.empty().append($('<option>', { value: '', text: wp.i18n.__('Error loading slots', 'helpmate-ai-chatbot') }));
+				showMessage(wp.i18n.__('Failed to load available time slots. Please try again.', 'helpmate-ai-chatbot'), 'error');
 			}).always(function() {
 				timeField.prop('disabled', false);
 			});
@@ -273,7 +279,7 @@
 				}
 			}).done(function(response) {
 				if (response.error) {
-					const msg = response.message || 'Failed to schedule appointment.';
+					const msg = response.message || wp.i18n.__('Failed to schedule appointment.', 'helpmate-ai-chatbot');
 					if (msg.indexOf('expired') !== -1 || msg.indexOf('reservation') !== -1) {
 						clearReservation();
 						timeField.val('');
@@ -284,12 +290,12 @@
 					showMessage(msg, 'error');
 				} else {
 					clearReservation();
-					showMessage('Appointment scheduled successfully! We will contact you soon.', 'success');
+					showMessage(wp.i18n.__('Appointment scheduled successfully! We will contact you soon.', 'helpmate-ai-chatbot'), 'success');
 					form[0].reset();
-					timeField.html('<option value="">Select a time</option>');
+					timeField.empty().append($('<option>', { value: '', text: wp.i18n.__('Select a time', 'helpmate-ai-chatbot') }));
 				}
 			}).fail(function(xhr) {
-				let errorMessage = 'Failed to schedule appointment. Please try again.';
+				let errorMessage = wp.i18n.__('Failed to schedule appointment. Please try again.', 'helpmate-ai-chatbot');
 				if (xhr.responseJSON && xhr.responseJSON.message) {
 					errorMessage = xhr.responseJSON.message;
 					if (errorMessage.indexOf('expired') !== -1 || errorMessage.indexOf('reservation') !== -1) {
@@ -316,14 +322,14 @@
 				if (input.length > 0 && !input.val()) {
 					isValid = false;
 					field.addClass('error');
-					field.append('<div class="error-message">This field is required</div>');
+					field.append($('<div class="error-message"/>').text(wp.i18n.__('This field is required', 'helpmate-ai-chatbot')));
 				}
 			});
 			const emailInput = $root.find('#helpmate-scheduling-email-' + inst);
 			if (emailInput.length && emailInput.val() && !isValidEmail(emailInput.val())) {
 				isValid = false;
 				emailInput.closest('.helpmate-scheduling-field').addClass('error');
-				emailInput.closest('.helpmate-scheduling-field').append('<div class="error-message">Please enter a valid email address</div>');
+				emailInput.closest('.helpmate-scheduling-field').append($('<div class="error-message"/>').text(wp.i18n.__('Please enter a valid email address', 'helpmate-ai-chatbot')));
 			}
 			const selectedDate = dateField.val();
 			if (selectedDate) {
@@ -333,7 +339,7 @@
 				if (selected <= today) {
 					isValid = false;
 					dateField.closest('.helpmate-scheduling-field').addClass('error');
-					dateField.closest('.helpmate-scheduling-field').append('<div class="error-message">Please select a future date</div>');
+					dateField.closest('.helpmate-scheduling-field').append($('<div class="error-message"/>').text(wp.i18n.__('Please select a future date', 'helpmate-ai-chatbot')));
 				}
 			}
 			const emailValue = $root.find('#helpmate-scheduling-email-' + inst).val();
@@ -344,11 +350,11 @@
 				const phoneField = $root.find('#helpmate-scheduling-phone-' + inst).closest('.helpmate-scheduling-field');
 				if (!emailField.hasClass('hidden')) {
 					emailField.addClass('error');
-					emailField.append('<div class="error-message">Email or phone is required</div>');
+					emailField.append($('<div class="error-message"/>').text(wp.i18n.__('Email or phone is required', 'helpmate-ai-chatbot')));
 				}
 				if (!phoneField.hasClass('hidden')) {
 					phoneField.addClass('error');
-					phoneField.append('<div class="error-message">Email or phone is required</div>');
+					phoneField.append($('<div class="error-message"/>').text(wp.i18n.__('Email or phone is required', 'helpmate-ai-chatbot')));
 				}
 			}
 			return isValid;

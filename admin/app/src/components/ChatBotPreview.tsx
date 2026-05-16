@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronDown, Send, Trash2, User } from 'lucide-react';
+import { __ } from '@/lib/utils';
 import { ChangeSvgColor } from 'svg-color-tools';
 
 export default function ChatBotPreview({
@@ -156,7 +157,7 @@ export default function ChatBotPreview({
                         lineHeight: '1.2',
                       }}
                     >
-                      hi
+                      {__('hi')}
                     </div>
                     {/* <Avatar role="user" /> */}
                   </div>
@@ -168,7 +169,7 @@ export default function ChatBotPreview({
                     className="bg-[var(--primary-2)]/10 px-3 py-2 rounded-md border border-white max-w-[80%] text-neutral-800"
                     style={{ fontSize: 'var(--font-size)', lineHeight: '1.2' }}
                   >
-                    Hello! How can I assist you today?
+                    {__('Hello! How can I assist you today?')}
                   </div>
                 </div>
               </div>

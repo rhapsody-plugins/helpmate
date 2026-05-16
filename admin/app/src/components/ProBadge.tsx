@@ -5,7 +5,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import { Crown } from 'lucide-react';
 import { HelpmatePricingURL } from '@/lib/constants';
 
@@ -18,7 +18,7 @@ interface ProBadgeInputProps {
 }
 
 export function ProBadgeInput({
-  message = 'Upgrade to Pro to reply manually.',
+  message = __('Upgrade to Pro to reply manually.'),
   className,
 }: ProBadgeInputProps) {
   return (
@@ -29,7 +29,7 @@ export function ProBadgeInput({
       )}
     >
       <span className="inline-flex px-2 py-0.5 text-xs font-medium text-white bg-orange-500 rounded shrink-0">
-        Pro Only
+        {__('Pro Only')}
       </span>
       <span className="text-sm text-muted-foreground shrink min-w-0">
         {message}
@@ -40,7 +40,7 @@ export function ProBadgeInput({
         className="shrink-0"
         onClick={() => window.open(HelpmatePricingURL, '_blank')}
       >
-        Go Pro <Crown className="w-3.5 h-3.5 ml-1" />
+        {__('Go Pro')} <Crown className="w-3.5 h-3.5 ml-1" />
       </Button>
     </div>
   );
@@ -58,7 +58,7 @@ export function ProBadgeInline({ className }: ProBadgeInlineProps) {
         className
       )}
     >
-      Pro Only
+      {__('Pro Only')}
     </span>
   );
 }
@@ -73,10 +73,10 @@ interface ProBadgeProps {
 }
 
 export function ProBadge({
-  tooltipMessage = 'Increase sales significantly',
+  tooltipMessage = __('Increase sales significantly'),
   topMessage,
   className,
-  buttonText = 'Go Pro',
+  buttonText = __('Go Pro'),
   link = HelpmatePricingURL,
   messageBg = 'bg-white',
 }: ProBadgeProps) {
@@ -88,7 +88,7 @@ export function ProBadge({
       )}
     >
       <div className="px-2 py-1 mx-auto text-xs text-white bg-orange-500 rounded">
-        Pro Only
+        {__('Pro Only')}
       </div>
       {topMessage && (
         <p

@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Star } from 'lucide-react';
 import { useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 
 interface ReviewFormProps {
   onSubmit: (rating: number, message: string) => void;
@@ -49,10 +49,10 @@ export function ReviewForm({
     >
       <div className="flex-1 p-6 flex flex-col items-center justify-center">
         <h2 className="text-xl font-semibold mb-2 text-center">
-          How was your experience?
+          {__('How was your experience?')}
         </h2>
         <p className="text-sm text-muted-foreground mb-6 text-center">
-          Please rate your chat session
+          {__('Please rate your chat session')}
         </p>
 
         {/* Star Rating */}
@@ -83,7 +83,7 @@ export function ReviewForm({
         {/* Message Input */}
         <form onSubmit={handleSubmit} className="w-full max-w-sm">
           <Textarea
-            placeholder="Share your feedback (optional)"
+            placeholder={__('Share your feedback (optional)')}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             className="mb-4 min-h-[100px] resize-none"
@@ -100,7 +100,7 @@ export function ReviewForm({
                 disabled={isLoading}
                 className="flex-1"
               >
-                Cancel
+                {__('Cancel')}
               </Button>
             )}
             {onSkip && (
@@ -111,7 +111,7 @@ export function ReviewForm({
                 disabled={isLoading}
                 className="flex-1"
               >
-                Skip
+                {__('Skip')}
               </Button>
             )}
             <Button
@@ -119,7 +119,7 @@ export function ReviewForm({
               disabled={rating === 0 || isLoading}
               className="flex-1"
             >
-              {isLoading ? 'Submitting...' : 'Submit Review'}
+              {isLoading ? __('Submitting…') : __('Submit Review')}
             </Button>
           </div>
         </form>

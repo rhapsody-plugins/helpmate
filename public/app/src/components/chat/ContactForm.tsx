@@ -13,9 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useLeads } from '@/hooks/useLeads';
 import { useSettings } from '@/hooks/useSettings';
+import { __ } from '@/lib/utils';
 import type { ContactFormData } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -34,16 +35,28 @@ export function ContactForm({ messageId, onSubmit }: ContactFormProps) {
 
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const schema = z.object({
-    name: z.string().min(collectLeadSettings?.includes('name') ? 1 : 0),
-    email: z
-      .string()
-      .email()
-      .min(collectLeadSettings?.includes('email') ? 1 : 0),
-    phone: z.string().min(collectLeadSettings?.includes('phone') ? 10 : 0),
-    website: z.string().min(collectLeadSettings?.includes('website') ? 1 : 0),
-    message: z.string().min(collectLeadSettings?.includes('message') ? 1 : 0),
-  });
+  const schema = useMemo(() => {
+    const req = __('This field is required');
+    const emailInvalid = __('Please enter a valid email address');
+    const phoneShort = __('Please enter a valid phone number');
+    return z.object({
+      name: collectLeadSettings?.includes('name')
+        ? z.string().min(1, req)
+        : z.string(),
+      email: collectLeadSettings?.includes('email')
+        ? z.string().min(1, req).email(emailInvalid)
+        : z.string(),
+      phone: collectLeadSettings?.includes('phone')
+        ? z.string().min(10, phoneShort)
+        : z.string(),
+      website: collectLeadSettings?.includes('website')
+        ? z.string().min(1, req)
+        : z.string(),
+      message: collectLeadSettings?.includes('message')
+        ? z.string().min(1, req)
+        : z.string(),
+    });
+  }, [collectLeadSettings]);
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -83,10 +96,12 @@ export function ContactForm({ messageId, onSubmit }: ContactFormProps) {
     return (
       <div className="my-3 p-4 bg-green-50 border border-green-100 rounded-lg">
         <h3 className="text-green-700 font-medium mb-2">
-          Thank you for contacting us!
+          {__('Thank you for contacting us!')}
         </h3>
         <p className="text-sm text-green-600">
-          We've received your information and will get back to you shortly.
+          {__(
+            "We've received your information and will get back to you shortly."
+          )}
         </p>
       </div>
     );
@@ -102,9 +117,9 @@ export function ContactForm({ messageId, onSubmit }: ContactFormProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>{__('Name')}</FormLabel>
                   <FormControl>
-                    <Input className="bg-white" type="text" placeholder="Enter Name" {...field} />
+                    <Input className="bg-white" type="text" placeholder={__('Enter Name')} {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -116,9 +131,9 @@ export function ContactForm({ messageId, onSubmit }: ContactFormProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{__('Email')}</FormLabel>
                   <FormControl>
-                    <Input className="bg-white" type="email" placeholder="Enter Email" {...field} />
+                    <Input className="bg-white" type="email" placeholder={__('Enter Email')} {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -130,9 +145,9 @@ export function ContactForm({ messageId, onSubmit }: ContactFormProps) {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>{__('Phone')}</FormLabel>
                   <FormControl>
-                    <Input className="bg-white" type="tel" placeholder="Enter Phone" {...field} />
+                    <Input className="bg-white" type="tel" placeholder={__('Enter Phone')} {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -144,9 +159,9 @@ export function ContactForm({ messageId, onSubmit }: ContactFormProps) {
               name="website"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Website</FormLabel>
+                  <FormLabel>{__('Website')}</FormLabel>
                   <FormControl>
-                    <Input className="bg-white" type="url" placeholder="Enter Website" {...field} />
+                    <Input className="bg-white" type="url" placeholder={__('Enter Website')} {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -158,9 +173,9 @@ export function ContactForm({ messageId, onSubmit }: ContactFormProps) {
               name="message"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Message</FormLabel>
+                  <FormLabel>{__('Message')}</FormLabel>
                   <FormControl>
-                    <Textarea className="bg-white" placeholder="Enter Message" {...field} />
+                    <Textarea className="bg-white" placeholder={__('Enter Message')} {...field} />
                   </FormControl>
                 </FormItem>
               )}
@@ -171,7 +186,7 @@ export function ContactForm({ messageId, onSubmit }: ContactFormProps) {
             type="submit"
             disabled={isPending}
           >
-            {isPending ? 'Submitting...' : 'Submit'}
+            {isPending ? __('Submitting…') : __('Submit')}
           </Button>
         </Card>
       </form>

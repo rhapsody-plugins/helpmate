@@ -18,7 +18,7 @@ import { parseUTCDate, defaultLocale } from '@/pages/crm/contacts/utils';
 import { useMemo, useState } from 'react';
 import { ProBadge } from '@/components/ProBadge';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 
 export default function TabSchedules() {
   const { getProQuery } = useSettings();
@@ -45,7 +45,7 @@ export default function TabSchedules() {
   };
 
   const handleDelete = (scheduleId: number) => {
-    if (confirm('Are you sure you want to delete this schedule?')) {
+    if (confirm(__('Are you sure you want to delete this schedule?'))) {
       deleteScheduleMutation.mutate(scheduleId);
     }
   };
@@ -82,19 +82,19 @@ export default function TabSchedules() {
       case 'confirmed':
         return (
           <span className={`text-green-800 bg-green-100 ${baseClasses}`}>
-            Confirmed
+            {__('Confirmed')}
           </span>
         );
       case 'cancelled':
         return (
           <span className={`text-red-800 bg-red-100 ${baseClasses}`}>
-            Cancelled
+            {__('Cancelled')}
           </span>
         );
       default:
         return (
           <span className={`text-yellow-800 bg-yellow-100 ${baseClasses}`}>
-            Pending
+            {__('Pending')}
           </span>
         );
     }
@@ -104,12 +104,12 @@ export default function TabSchedules() {
     () => [
       {
         accessorKey: 'name',
-        header: 'Name',
+        header: __('Name'),
         cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
       },
       {
         accessorKey: 'email',
-        header: 'Email',
+        header: __('Email'),
         cell: ({ row }) => {
           const schedule = row.original;
           const hasContact = schedule.has_contact ?? false;
@@ -127,7 +127,7 @@ export default function TabSchedules() {
                   className="h-7 text-xs"
                 >
                   <UserPlus className="w-3 h-3 mr-1" />
-                  Create Contact
+                  {__('Create Contact')}
                 </Button>
               )}
             </div>
@@ -136,14 +136,14 @@ export default function TabSchedules() {
       },
       {
         accessorKey: 'phone',
-        header: 'Phone',
+        header: __('Phone'),
         cell: ({ row }) => (
           <div>{row.original.phone || <span className="text-muted-foreground">—</span>}</div>
         ),
       },
       {
         accessorKey: 'scheduled_date',
-        header: 'Date',
+        header: __('Date'),
         cell: ({ row }) => {
           try {
             return (
@@ -160,7 +160,7 @@ export default function TabSchedules() {
       },
       {
         accessorKey: 'scheduled_time',
-        header: 'Time',
+        header: __('Time'),
         cell: ({ row }) => {
           const time = row.original.scheduled_time;
           // Format time from HH:mm:ss to HH:mm
@@ -170,12 +170,12 @@ export default function TabSchedules() {
       },
       {
         accessorKey: 'status',
-        header: 'Status',
+        header: __('Status'),
         cell: ({ row }) => getStatusBadge(row.original.status),
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => {
           const schedule = row.original;
           return (
@@ -188,9 +188,9 @@ export default function TabSchedules() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="confirmed">Confirmed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="pending">{__('Pending')}</SelectItem>
+                  <SelectItem value="confirmed">{__('Confirmed')}</SelectItem>
+                  <SelectItem value="cancelled">{__('Cancelled')}</SelectItem>
                 </SelectContent>
               </Select>
               <Button
@@ -212,8 +212,10 @@ export default function TabSchedules() {
     <div className="relative space-y-6">
       {!isPro && (
         <ProBadge
-          topMessage="Manage and track all your scheduled appointments. View, update, and organize schedules with ease."
-          buttonText="Unlock Scheduling"
+          topMessage={__(
+            'Manage and track all your scheduled appointments. View, update, and organize schedules with ease.'
+          )}
+          buttonText={__('Unlock Scheduling')}
           tooltipMessage={null}
         />
       )}
@@ -224,16 +226,16 @@ export default function TabSchedules() {
       >
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="!text-lg !my-0">Schedules</CardTitle>
+            <CardTitle className="!text-lg !my-0">{__('Schedules')}</CardTitle>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="confirmed">Confirmed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="all">{__('All Statuses')}</SelectItem>
+                <SelectItem value="pending">{__('Pending')}</SelectItem>
+                <SelectItem value="confirmed">{__('Confirmed')}</SelectItem>
+                <SelectItem value="cancelled">{__('Cancelled')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -247,7 +249,7 @@ export default function TabSchedules() {
             </div>
           ) : filteredSchedules.length === 0 ? (
             <div className="py-8 text-center text-muted-foreground">
-              No schedules found
+              {__('No schedules found')}
             </div>
           ) : (
             <ReusableTable data={filteredSchedules} columns={columns} />

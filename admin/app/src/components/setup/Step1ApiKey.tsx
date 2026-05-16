@@ -18,6 +18,7 @@ import {
   HelpmatePrivacyPolicyURL,
   HelpmateTermsOfServiceURL,
 } from '@/lib/constants';
+import { __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AxiosError } from 'axios';
 import { useCallback, useRef, useState } from 'react';
@@ -270,9 +271,9 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
   return (
     <div className="space-y-6">
       <div className="mb-6 text-center">
-        <h2 className="!mb-2 !mt-0 !text-2xl !font-bold">Step 1: Activate API Key</h2>
+        <h2 className="!mb-2 !mt-0 !text-2xl !font-bold">{__('Step 1: Activate API Key')}</h2>
         <p className="text-muted-foreground !my-0">
-          Create a free API key or use an existing one to get started
+          {__('Create a free API key or use an existing one to get started')}
         </p>
       </div>
 
@@ -299,15 +300,15 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
               ></path>
             </svg>
             <span className="text-lg font-semibold">
-              Initializing Chatbot...
+              {__('Initializing Chatbot...')}
             </span>
           </div>
           <div className="w-full">
             <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
               <span>
                 {progress < 50
-                  ? 'Preparing chatbot...'
-                  : 'Finishing up...'}
+                  ? __('Preparing chatbot...')
+                  : __('Finishing up...')}
               </span>
               <span>{Math.round(progress)}%</span>
             </div>
@@ -330,7 +331,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
             className="mt-2"
             variant="outline"
           >
-            Retry
+            {__('Retry')}
           </Button>
         </div>
       )}
@@ -342,7 +343,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
             <div>
               <CardHeader className="px-0 pb-4">
                 <CardTitle className="text-xl">
-                  Get Your Free Forever API Key
+                  {__('Get Your Free Forever API Key')}
                 </CardTitle>
               </CardHeader>
               <Form {...signupForm}>
@@ -355,7 +356,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>{__('Email')}</FormLabel>
                         <FormControl>
                           <Input
                             type="email"
@@ -372,7 +373,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Password</FormLabel>
+                        <FormLabel>{__('Password')}</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
@@ -389,7 +390,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
+                        <FormLabel>{__('Confirm Password')}</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
@@ -417,32 +418,29 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                           </FormControl>
                           <div className="grid gap-1.5 leading-none">
                             <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                              I agree to the{' '}
+                              {__('I agree to the')}{' '}
                               <a
                                 href={HelpmateTermsOfServiceURL}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-blue-600 underline hover:text-blue-800"
                               >
-                                Terms of Service
+                                {__('Terms of Service')}
                               </a>{' '}
-                              and{' '}
+                              {__('and')}{' '}
                               <a
                                 href={HelpmatePrivacyPolicyURL}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-blue-600 underline hover:text-blue-800"
                               >
-                                Privacy Policy
+                                {__('Privacy Policy')}
                               </a>
                             </FormLabel>
                             <p className="text-xs text-muted-foreground !my-0">
-                              I consent to receive emails about product
-                              updates, security notices, and account
-                              information, and to allow the chatbot to
-                              securely store and use the public data I provide
-                              to deliver more accurate and personalized
-                              responses.
+                              {__(
+                                'I consent to receive emails about product updates, security notices, and account information, and to allow the chatbot to securely store and use the public data I provide to deliver more accurate and personalized responses.'
+                              )}
                             </p>
                           </div>
                         </div>
@@ -457,7 +455,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     disabled={getFreeApiKeyMutation.isPending}
                     loading={getFreeApiKeyMutation.isPending}
                   >
-                    Get Free Forever API Key
+                    {__('Get Free Forever API Key')}
                   </Button>
                 </form>
               </Form>
@@ -468,7 +466,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
           <div className="flex flex-col gap-6">
             <div>
               <CardHeader className="px-0 pb-4">
-                <CardTitle className="text-xl">Activate Your API Key</CardTitle>
+                <CardTitle className="text-xl">{__('Activate Your API Key')}</CardTitle>
               </CardHeader>
               <Form {...activateForm}>
                 <form
@@ -480,7 +478,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     name="apiKey"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>API Key</FormLabel>
+                        <FormLabel>{__('API Key')}</FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -499,17 +497,17 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     disabled={activateApiKeyMutation.isPending}
                     loading={activateApiKeyMutation.isPending}
                   >
-                    Activate API Key
+                    {__('Activate API Key')}
                   </Button>
                 </form>
               </Form>
             </div>
             <div className="pt-6 mt-6 border-t border-gray-200">
               <h3 className="mb-4 text-lg font-semibold">
-                Already have an API key?
+                {__('Already have an API key?')}
               </h3>
               <p className="mb-4 text-sm text-muted-foreground">
-                Log in to retrieve your existing API key and enter it above.
+                {__('Log in to retrieve your existing API key and enter it above.')}
               </p>
               <Button
                 className="w-full"
@@ -517,7 +515,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                 size="lg"
                 onClick={() => window.open(HelpmateLoginURL, '_blank', 'noopener,noreferrer')}
               >
-                Log In to Get API Key
+                {__('Log In to Get API Key')}
               </Button>
             </div>
           </div>

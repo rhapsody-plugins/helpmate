@@ -1,5 +1,6 @@
 import PageHeader from '@/components/PageHeader';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { __ } from '@/lib/utils';
 import { MenuItem } from '@/types';
 import { Suspense, lazy, useMemo, useState } from 'react';
 
@@ -41,9 +42,9 @@ export default function AbandonedCart() {
   return (
     <div className="relative">
       <Tabs className="gap-0" value={tab} onValueChange={setTab}>
-        <PageHeader menuItems={MENU_ITEMS} title="Abandoned Cart" />
+        <PageHeader menuItems={MENU_ITEMS} title={__('Abandoned Cart')} />
         <TabsContent value={tab} className="p-6">
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div>{__('Loading...')}</div>}>
             {tab === 'Settings' && <TabSettings />}
             {tab === 'Follow Up Emails' && <TabFollowUpEmails />}
             {tab === 'Carts' && <TabCarts />}

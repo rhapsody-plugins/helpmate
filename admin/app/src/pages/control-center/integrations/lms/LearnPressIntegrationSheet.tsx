@@ -15,6 +15,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import api from '@/lib/axios';
+import { __ } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
@@ -113,29 +114,33 @@ export default function LearnPressIntegrationSheet({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="flex flex-col w-full sm:max-w-lg overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>LearnPress LMS</SheetTitle>
+            <SheetTitle>{__('LearnPress LMS')}</SheetTitle>
           </SheetHeader>
 
           <div className="flex flex-col gap-4 p-4">
             {!learnPressPluginActive ? (
               <p className="text-sm text-muted-foreground">
-                Install and activate LearnPress to enable LMS integration.
+                {__('Install and activate LearnPress to enable LMS integration.')}
               </p>
             ) : !statusQuery.data?.active ? (
               <p className="text-sm text-muted-foreground">
-                LearnPress plugin is active but runtime is not fully loaded yet. Refresh after
-                LearnPress initializes.
+                {__(
+                  'LearnPress plugin is active but runtime is not fully loaded yet. Refresh after LearnPress initializes.'
+                )}
               </p>
             ) : (
               <>
                 <p className="text-xs text-muted-foreground">
-                  Students: {statusQuery.data.student_count ?? 0}
+                  {__('Students:')}{' '}
+                  {statusQuery.data.student_count ?? 0}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Courses: {statusQuery.data.course_count ?? 0}
+                  {__('Courses:')}{' '}
+                  {statusQuery.data.course_count ?? 0}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Lessons: {statusQuery.data.lesson_count ?? 0}
+                  {__('Lessons:')}{' '}
+                  {statusQuery.data.lesson_count ?? 0}
                 </p>
               </>
             )}
@@ -147,18 +152,19 @@ export default function LearnPressIntegrationSheet({
                 disabled={!canSync}
                 onClick={() => setSyncConfirmOpen(true)}
               >
-                Sync students to CRM
+                {__('Sync students to CRM')}
               </Button>
               <p className="text-xs text-muted-foreground">
-                One-way import from LearnPress: students are matched by email and contact profile
-                fields are overwritten with LearnPress user data.
+                {__(
+                  'One-way import from LearnPress: students are matched by email and contact profile fields are overwritten with LearnPress user data.'
+                )}
               </p>
             </div>
           </div>
 
           <SheetFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Close
+              {__('Close')}
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -167,21 +173,26 @@ export default function LearnPressIntegrationSheet({
       <Dialog open={syncConfirmOpen} onOpenChange={setSyncConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Sync LearnPress students to CRM?</DialogTitle>
+            <DialogTitle>{__('Sync LearnPress students to CRM?')}</DialogTitle>
             <DialogDescription className="space-y-2 text-left">
               <span className="block">
-                Existing CRM contacts with the <strong>same email</strong> as a LearnPress
-                student will be updated from that student profile.
+                {__('Existing CRM contacts with the ')}{' '}
+                <strong>{__('same email')}</strong>
+                {' '}
+                {__(
+                  'as a LearnPress student will be updated from that student profile.'
+                )}
               </span>
               <span className="block text-destructive">
-                This bulk update cannot be undone automatically. Export or back up CRM data if
-                unsure.
+                {__(
+                  'This bulk update cannot be undone automatically. Export or back up CRM data if unsure.'
+                )}
               </span>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={() => setSyncConfirmOpen(false)}>
-              Cancel
+              {__('Cancel')}
             </Button>
             <Button
               type="button"
@@ -192,10 +203,10 @@ export default function LearnPressIntegrationSheet({
               {syncMutation.isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin mr-2" />
-                  Syncing…
+                  {__('Syncing…')}
                 </>
               ) : (
-                'Yes, sync now'
+                __('Yes, sync now')
               )}
             </Button>
           </DialogFooter>

@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class FLHelpmatePromoBannerModule
+ * Class Helpmate_Beaver_Promo_Banner_Module
  */
-class FLHelpmatePromoBannerModule extends FLBuilderModule {
+class Helpmate_Beaver_Promo_Banner_Module extends FLBuilderModule {
 
 	/**
 	 * Constructor.
@@ -30,10 +30,10 @@ class FLHelpmatePromoBannerModule extends FLBuilderModule {
 	}
 }
 
-$promo_options = Helpmate_Beaver_Builder::get_promo_banner_select_options();
+$helpmate_beaver_promo_banner_options = Helpmate_Beaver_Builder::get_promo_banner_select_options();
 
 FLBuilder::register_module(
-	'FLHelpmatePromoBannerModule',
+	'Helpmate_Beaver_Promo_Banner_Module',
 	array(
 		'content' => array(
 			'title'    => __( 'Content', 'helpmate-ai-chatbot' ),
@@ -44,7 +44,7 @@ FLBuilder::register_module(
 						'banner_id' => array(
 							'type'    => 'select',
 							'label'   => __( 'Promo banner', 'helpmate-ai-chatbot' ),
-							'options' => $promo_options,
+							'options' => $helpmate_beaver_promo_banner_options,
 							'default' => '',
 						),
 					),

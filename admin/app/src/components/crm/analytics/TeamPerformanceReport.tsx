@@ -8,6 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { TeamMemberPerformance } from '@/types/crm-analytics';
+import { __ } from '@/lib/utils';
 import { Users } from 'lucide-react';
 
 interface TeamPerformanceReportProps {
@@ -22,7 +23,7 @@ export default function TeamPerformanceReport({
       <Card className="p-0 h-full">
         <div className="p-6 h-full flex flex-col justify-center items-center text-muted-foreground">
           <Users className="mb-2 w-8 h-8" />
-          <p className="text-sm">No team performance data available</p>
+          <p className="text-sm">{__('No team performance data available')}</p>
         </div>
       </Card>
     );
@@ -32,17 +33,17 @@ export default function TeamPerformanceReport({
     <Card className="p-0 h-full">
       <div className="p-6 h-full flex flex-col">
         <h5 className="!text-sm !font-normal !my-0 !py-0 !mb-4">
-          Team Performance
+          {__('Team Performance')}
         </h5>
         <div className="flex-1 overflow-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead className="text-right">Tasks Created</TableHead>
-                <TableHead className="text-right">Tasks Completed</TableHead>
-                <TableHead className="text-right">Tickets Resolved</TableHead>
-                <TableHead className="text-right">Contacts Created</TableHead>
+                <TableHead>{__('Member')}</TableHead>
+                <TableHead className="text-right">{__('Tasks Created')}</TableHead>
+                <TableHead className="text-right">{__('Tasks Completed')}</TableHead>
+                <TableHead className="text-right">{__('Tickets Resolved')}</TableHead>
+                <TableHead className="text-right">{__('Contacts Created')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

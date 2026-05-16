@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useMain } from '@/contexts/MainContext';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -94,10 +94,10 @@ export default function ImageSearch() {
     <PageGuard page="image-search">
       <div className="gap-0">
         <PageHeader
-        title="Product Search by Image"
+        title={__('Product Search by Image')}
         rightActions={
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Enable Module</span>
+            <span className="text-sm text-muted-foreground">{__('Enable Module')}</span>
             <Switch
               checked={isModuleEnabled}
               onCheckedChange={handleModuleToggle}
@@ -114,8 +114,8 @@ export default function ImageSearch() {
       >
         {!getProQuery.data && (
           <ProBadge
-            topMessage="“I saw it, I want it.” Let customers upload a photo and find the exact product instantly."
-            buttonText="Turn Photos into Purchases"
+            topMessage={__('“I saw it, I want it.” Let customers upload a photo and find the exact product instantly.')}
+            buttonText={__('Turn Photos into Purchases')}
             tooltipMessage={null}
           />
         )}
@@ -128,7 +128,7 @@ export default function ImageSearch() {
           <CardHeader>
             <CardTitle className="flex gap-1 items-center text-xl font-bold">
               Product Search by Image{' '}
-              <InfoTooltip message="Customers can upload an image to search for similar or exact products from your store. It’s perfect for mobile-first shoppers who use screenshots or photos to find products." />
+              <InfoTooltip message={__('Customers can upload an image to search for similar or exact products from your store. It’s perfect for mobile-first shoppers who use screenshots or photos to find products.')} />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -145,7 +145,7 @@ export default function ImageSearch() {
                       name="delete_after_search"
                       render={({ field }) => (
                         <FormItem className="flex justify-between items-center p-2 rounded-md border border-input">
-                          <FormLabel>Delete Image After Search</FormLabel>
+                          <FormLabel>{__('Delete Image After Search')}</FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}

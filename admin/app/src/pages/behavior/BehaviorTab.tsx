@@ -18,6 +18,7 @@ import { Plus, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { __ } from '@/lib/utils';
 
 const formSchema = z.object({
   welcome_message: z.array(z.string()),
@@ -96,7 +97,7 @@ export default function BehaviorTab() {
     <Card>
       <CardHeader>
         <CardTitle className="flex gap-1 items-center text-xl font-bold">
-          Behavior <InfoTooltip message="Settings for the AI Behavior." />
+          {__('Behavior')} <InfoTooltip message={__('Settings for the AI Behavior.')} />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -141,8 +142,8 @@ export default function BehaviorTab() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="!flex gap-1 items-center !my-0">
-                        Hide on Mobile
-                        <InfoTooltip message="The chatbot will be hidden on screen under 600px." />
+                        {__('Hide on Mobile')}
+                        <InfoTooltip message={__('The chatbot will be hidden on screen under 600px.')} />
                       </FormLabel>
                       <FormControl>
                         <Switch
@@ -160,14 +161,14 @@ export default function BehaviorTab() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <h3 className="!flex gap-1 items-center text-lg font-medium !my-0">
-                        Welcome Messages
-                        <InfoTooltip message="The welcome messages that will be shown to the user when they first enter the chat." />
+                        {__('Welcome Messages')}
+                        <InfoTooltip message={__('The welcome messages that will be shown to the user when they first enter the chat.')} />
                       </h3>
 
                       <div className="flex gap-2 items-center">
                         <h4 className="!flex gap-1 items-center text-lg font-medium !my-0">
-                          Sound
-                          <InfoTooltip message="Whether to play a sound when the welcome message is shown." />
+                          {__('Sound')}
+                          <InfoTooltip message={__('Whether to play a sound when the welcome message is shown.')} />
                         </h4>
                         <Switch
                           checked={form.watch('welcome_message_sound')}
@@ -223,7 +224,7 @@ export default function BehaviorTab() {
                           onClick={handleAddWelcomeMessage}
                         >
                           <Plus className="w-4 h-4" />
-                          Add
+                          {__('Add')}
                         </Button>
                       </div>
                     </div>
@@ -237,7 +238,7 @@ export default function BehaviorTab() {
                   disabled={isUpdating}
                   loading={isUpdating}
                 >
-                  {isUpdating ? 'Saving...' : 'Save'}
+                  {isUpdating ? __('Saving...') : __('Save')}
                 </Button>
               </>
             )}

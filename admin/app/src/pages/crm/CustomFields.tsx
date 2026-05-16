@@ -33,7 +33,7 @@ import {
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useCrm } from '@/hooks/useCrm';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { CustomField } from '@/types/crm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef } from '@tanstack/react-table';
@@ -58,6 +58,25 @@ const FIELD_TYPES = [
   'multi_select',
   'rich_text',
 ] as const;
+
+function customFieldTypeLabel(type: (typeof FIELD_TYPES)[number]): string {
+  const labels: Record<(typeof FIELD_TYPES)[number], string> = {
+    text: __('Text'),
+    number: __('Number'),
+    date: __('Date'),
+    textarea: __('Textarea'),
+    dropdown: __('Dropdown'),
+    checkbox: __('Checkbox'),
+    radio: __('Radio'),
+    email: __('Email'),
+    url: __('URL'),
+    phone: __('Phone'),
+    file: __('File'),
+    multi_select: __('Multi select'),
+    rich_text: __('Rich text'),
+  };
+  return labels[type] ?? type;
+}
 
 const customFieldFormSchema = z.object({
   field_label: z.string().min(1, 'Field label is required'),
@@ -226,7 +245,7 @@ export default function CustomFields() {
   const columns: ColumnDef<CustomField>[] = [
     {
       accessorKey: 'field_label',
-      header: 'Label',
+      header: __('Label'),
       cell: ({ row }) => {
         const field = row.original;
         const isDefault = isDefaultTaskField(field);
@@ -235,7 +254,7 @@ export default function CustomFields() {
             <span className="font-medium">{field.field_label}</span>
             {isDefault && (
               <Badge variant="secondary" className="text-xs">
-                Default
+                {__('Default')}
               </Badge>
             )}
           </div>
@@ -244,35 +263,35 @@ export default function CustomFields() {
     },
     {
       accessorKey: 'field_type',
-      header: 'Type',
+      header: __('Type'),
       cell: ({ row }) => (
         <Badge variant="outline">{row.original.field_type}</Badge>
       ),
     },
     {
       accessorKey: 'is_required',
-      header: 'Required',
+      header: __('Required'),
       cell: ({ row }) => {
         const isRequired =
           typeof row.original.is_required === 'string'
             ? row.original.is_required === '1'
             : Boolean(row.original.is_required);
-        return <div>{isRequired ? 'Yes' : 'No'}</div>;
+        return <div>{isRequired ? __('Yes') : __('No')}</div>;
       },
     },
     {
       accessorKey: 'entity_type',
-      header: 'Entity Type',
+      header: __('Entity Type'),
       cell: ({ row }) => <div>{row.original.entity_type}</div>,
     },
     {
       accessorKey: 'display_order',
-      header: 'Order',
+      header: __('Order'),
       cell: ({ row }) => <div>{row.original.display_order}</div>,
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: __('Actions'),
       cell: ({ row }) => {
         const field = row.original;
         const isDefault = isDefaultTaskField(field);
@@ -312,8 +331,10 @@ export default function CustomFields() {
         <div className="relative">
           {!isPro && (
             <ProBadge
-              topMessage="Create custom fields to capture and organize contact data your way."
-              buttonText="Unlock Custom Fields"
+              topMessage={__(
+                'Create custom fields to capture and organize contact data your way.'
+              )}
+              buttonText={__('Unlock Custom Fields')}
               tooltipMessage={null}
             />
           )}
@@ -339,14 +360,16 @@ export default function CustomFields() {
             )}
           >
             <PageHeader
-              title="Custom Fields"
+              title={__('Custom Fields')}
               menuItems={[
                 {
                   title: 'Contact',
+                  displayTitle: __('Contact'),
                   status: true,
                 },
                 {
                   title: 'Task',
+                  displayTitle: __('Task'),
                   status: true,
                 },
               ]}
@@ -358,15 +381,15 @@ export default function CustomFields() {
                     disabled={!isPro}
                   >
                     <Plus className="mr-2 w-4 h-4" />
-                    Add Custom Field
+                    {__('Add Custom Field')}
                   </Button>
                 <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                   <SheetContent className="sm:!max-w-2xl">
                     <SheetHeader>
                       <SheetTitle>
                         {editingField
-                          ? 'Edit Custom Field'
-                          : 'Add Custom Field'}
+                          ? __('Edit Custom Field')
+                          : __('Add Custom Field')}
                       </SheetTitle>
                     </SheetHeader>
                     <div className="overflow-y-auto flex-1 p-4 pt-6">
@@ -381,7 +404,7 @@ export default function CustomFields() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>
-                                  Field Label{' '}
+                                  {__('Field Label')}{' '}
                                   <span className="text-red-500">*</span>
                                 </FormLabel>
                                 <FormControl>
@@ -400,7 +423,7 @@ export default function CustomFields() {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>
-                                  Field Type{' '}
+                                  {__('Field Type')}{' '}
                                   <span className="text-red-500">*</span>
                                 </FormLabel>
                                 <Select
@@ -415,8 +438,7 @@ export default function CustomFields() {
                                   <SelectContent>
                                     {FIELD_TYPES.map((type) => (
                                       <SelectItem key={type} value={type}>
-                                        {type.charAt(0).toUpperCase() +
-                                          type.slice(1).replace('_', ' ')}
+                                        {customFieldTypeLabel(type)}
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
@@ -433,7 +455,7 @@ export default function CustomFields() {
                               name="field_options"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Options (one per line)</FormLabel>
+                                  <FormLabel>{__('Options (one per line)')}</FormLabel>
                                   <FormControl>
                                     <Textarea
                                       placeholder="Option 1&#10;Option 2&#10;Option 3"
@@ -470,7 +492,7 @@ export default function CustomFields() {
                                   />
                                 </FormControl>
                                 <div className="space-y-1 leading-none">
-                                  <FormLabel>Required field</FormLabel>
+                                  <FormLabel>{__('Required field')}</FormLabel>
                                 </div>
                               </FormItem>
                             )}
@@ -480,7 +502,7 @@ export default function CustomFields() {
                             name="display_order"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Display Order</FormLabel>
+                                <FormLabel>{__('Display Order')}</FormLabel>
                                 <FormControl>
                                   <Input
                                     type="number"
@@ -505,10 +527,10 @@ export default function CustomFields() {
                               variant="outline"
                               onClick={() => setIsSheetOpen(false)}
                             >
-                              Cancel
+                              {__('Cancel')}
                             </Button>
                             <Button type="submit">
-                              {editingField ? 'Update' : 'Create'}
+                              {editingField ? __('Update') : __('Create')}
                             </Button>
                           </div>
                         </form>
@@ -531,7 +553,9 @@ export default function CustomFields() {
             >
               <CardHeader>
                 <CardTitle className="!text-lg !my-0">
-                  {selectedEntityType} fields
+                  {selectedEntityType === 'Task'
+                    ? __('Task fields')
+                    : __('Contact fields')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -545,7 +569,9 @@ export default function CustomFields() {
                 ) : (
                   <div className="flex flex-col justify-center items-center py-12 text-center">
                     <p className="text-muted-foreground">
-                      No {selectedEntityType} custom fields yet
+                      {selectedEntityType === 'Task'
+                        ? __('No Task custom fields yet')
+                        : __('No Contact custom fields yet')}
                     </p>
                     <Button
                       onClick={() => handleOpenDialog()}
@@ -553,8 +579,9 @@ export default function CustomFields() {
                       className="mt-4"
                     >
                       <Plus className="mr-2 w-4 h-4" />
-                      Add Your First{' '}
-                      {selectedEntityType === 'Task' ? 'Task' : 'Contact'} Field
+                      {selectedEntityType === 'Task'
+                        ? __('Add Your First Task Field')
+                        : __('Add Your First Contact Field')}
                     </Button>
                   </div>
                 )}

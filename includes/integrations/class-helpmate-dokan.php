@@ -115,8 +115,8 @@ class Helpmate_Dokan {
 			array(
 				'fields'     => 'ID',
 				'number'     => -1,
-				'meta_key'   => 'dokan_enable_selling',
-				'meta_value' => 'yes',
+				'meta_key'   => 'dokan_enable_selling', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Dokan vendor filter; usermeta is how selling is stored; used for admin/REST vendor list, not a high-frequency front request
+				'meta_value' => 'yes', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Pairs with dokan_enable_selling; same scope as meta_key
 			)
 		);
 

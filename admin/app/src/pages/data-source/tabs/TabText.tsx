@@ -33,6 +33,7 @@ import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { useForm } from 'react-hook-form';
+import { __ } from '@/lib/utils';
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -198,7 +199,7 @@ export default function TabText() {
     () => [
       {
         accessorKey: 'title',
-        header: 'Title',
+        header: __('Title'),
         cell: ({ row }) => {
           const title = row.getValue('title') as string;
           return <div className="max-w-[150px] truncate">{title}</div>;
@@ -206,7 +207,7 @@ export default function TabText() {
       },
       {
         accessorKey: 'content',
-        header: 'Content',
+        header: __('Content'),
         cell: ({ row }) => {
           const content = row.getValue('content') as string;
           return <div className="max-w-[150px] truncate">{content}</div>;
@@ -214,7 +215,7 @@ export default function TabText() {
       },
       {
         accessorKey: 'last_updated',
-        header: 'Last Updated',
+        header: __('Last Updated'),
         cell: ({ row }) => {
           const timestamp = row.getValue('last_updated') as number;
           return format(parseUTCTimestamp(timestamp), 'PPpp', {
@@ -224,7 +225,7 @@ export default function TabText() {
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => {
           const isRemoving = removingTextId === row.original.id;
           return (
@@ -240,7 +241,7 @@ export default function TabText() {
                   setIsContentSheetOpen(true);
                 }}
               >
-                View
+                {__('View')}
               </Button>
               {canEditOrDelete ? (
                 <Button
@@ -248,19 +249,21 @@ export default function TabText() {
                   size="sm"
                   onClick={() => handleEdit(row.original.id)}
                 >
-                  Edit
+                  {__('Edit')}
                 </Button>
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-block">
                       <Button variant="outline" size="sm" disabled>
-                        Edit
+                        {__('Edit')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -272,19 +275,21 @@ export default function TabText() {
                   disabled={removeIsPending && isRemoving}
                   onClick={() => handleRemove(row.original.id)}
                 >
-                  {isRemoving ? 'Deleting...' : 'Delete'}
+                  {isRemoving ? __('Deleting...') : __('Delete')}
                 </Button>
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-block">
                       <Button variant="destructive" size="sm" disabled>
-                        Delete
+                        {__('Delete')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -307,8 +312,10 @@ export default function TabText() {
       <Card>
         <CardHeader>
           <CardTitle className="flex gap-1 items-center text-xl font-bold">
-            Create Text Source{' '}
-            <InfoTooltip message="Add a text source to your Helpmate." />
+            {__('Create Text Source')}{' '}
+            <InfoTooltip
+              message={__('Add a text source to your Helpmate.')}
+            />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -322,7 +329,7 @@ export default function TabText() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel>{__('Title')}</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter title" {...field} />
                     </FormControl>
@@ -334,7 +341,7 @@ export default function TabText() {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content</FormLabel>
+                    <FormLabel>{__('Content')}</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Enter text" {...field} />
                     </FormControl>
@@ -350,12 +357,16 @@ export default function TabText() {
                         loading={addIsPending || updateIsPending}
                         type="submit"
                       >
-                        {addIsPending || updateIsPending ? 'Saving...' : 'Save'}
+                        {addIsPending || updateIsPending
+                          ? __('Saving...')
+                          : __('Save')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               ) : (
@@ -364,7 +375,9 @@ export default function TabText() {
                   loading={addIsPending || updateIsPending}
                   type="submit"
                 >
-                  {addIsPending || updateIsPending ? 'Saving...' : 'Save'}
+                  {addIsPending || updateIsPending
+                    ? __('Saving...')
+                    : __('Save')}
                 </Button>
               )}
             </form>
@@ -375,7 +388,7 @@ export default function TabText() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl font-bold">
-              Saved Text Sources
+              {__('Saved Text Sources')}
             </CardTitle>
             <Input
               placeholder="Search saved text..."
@@ -402,14 +415,14 @@ export default function TabText() {
         <SheetContent className="sm:!max-w-2xl flex flex-col h-full gap-0">
           <SheetHeader className="mt-6">
             <SheetTitle className="text-lg font-bold !my-0">
-              Text Details
+              {__('Text Details')}
             </SheetTitle>
           </SheetHeader>
           <div className="overflow-y-auto flex-1 p-4 pt-0">
             <div className="space-y-6">
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground !mb-2 !mt-0">
-                  Title
+                  {__('Title')}
                 </h3>
                 <div className="p-4 rounded-lg bg-muted">
                   {selectedText?.title}
@@ -417,7 +430,7 @@ export default function TabText() {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground !mb-2 !mt-0">
-                  Content
+                  {__('Content')}
                 </h3>
                 <div className="p-4 whitespace-pre-wrap rounded-lg bg-muted">
                   {selectedText?.content}
@@ -429,7 +442,7 @@ export default function TabText() {
               variant="outline"
               onClick={() => setIsContentSheetOpen(false)}
             >
-              Close
+              {__('Close')}
             </Button>
           </div>
         </SheetContent>

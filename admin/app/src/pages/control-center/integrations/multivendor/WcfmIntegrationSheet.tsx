@@ -18,6 +18,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
+import { __ } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -133,31 +134,33 @@ export default function WcfmIntegrationSheet({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="flex flex-col w-full sm:max-w-lg overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>WCFM Marketplace</SheetTitle>
+            <SheetTitle>{__('WCFM Marketplace')}</SheetTitle>
           </SheetHeader>
 
           <div className="flex flex-col gap-6 p-4">
             {!wcfmPluginActive ? (
               <p className="text-sm text-muted-foreground">
-                Install and activate WCFM Marketplace to use multivendor features.
+                {__('Install and activate WCFM Marketplace to use multivendor features.')}
               </p>
             ) : !wcfmRuntimeActiveQuery.data?.active ? (
               <p className="text-sm text-muted-foreground">
-                WCFM plugin is active but the marketplace runtime is not loaded yet. Refresh after
-                WCFM finishes loading.
+                {__(
+                  'WCFM plugin is active but the marketplace runtime is not loaded yet. Refresh after WCFM finishes loading.'
+                )}
               </p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Vendors detected: {wcfmRuntimeActiveQuery.data.vendor_count ?? 0}
+                {__('Vendors detected:')}{' '}
+                {wcfmRuntimeActiveQuery.data.vendor_count ?? 0}
               </p>
             )}
 
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
-                  <Label htmlFor="wcfm-orders">Vendors on contact Orders tab</Label>
+                  <Label htmlFor="wcfm-orders">{__('Vendors on contact Orders tab')}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Show vendor summary per WooCommerce order when WCFM is active.
+                    {__('Show vendor summary per WooCommerce order when WCFM is active.')}
                   </p>
                 </div>
                 <Switch
@@ -172,9 +175,9 @@ export default function WcfmIntegrationSheet({
 
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
-                  <Label htmlFor="wcfm-training">Vendors in product training</Label>
+                  <Label htmlFor="wcfm-training">{__('Vendors in product training')}</Label>
                   <p className="text-xs text-muted-foreground">
-                    Vendor column and filter on Data source → Products.
+                    {__('Vendor column and filter on Data source → Products.')}
                   </p>
                 </div>
                 <Switch
@@ -189,9 +192,11 @@ export default function WcfmIntegrationSheet({
 
               <div className="flex items-center justify-between gap-4">
                 <div className="space-y-0.5">
-                  <Label htmlFor="wcfm-lists">Vendors on product lists</Label>
+                  <Label htmlFor="wcfm-lists">{__('Vendors on product lists')}</Label>
                   <p className="text-xs text-muted-foreground">
-                    e.g. discounted products for proactive sales and product name lookups.
+                    {__(
+                      'e.g. discounted products for proactive sales and product name lookups.'
+                    )}
                   </p>
                 </div>
                 <Switch
@@ -212,18 +217,19 @@ export default function WcfmIntegrationSheet({
                 disabled={!canSync}
                 onClick={() => setSyncConfirmOpen(true)}
               >
-                Sync vendors to CRM
+                {__('Sync vendors to CRM')}
               </Button>
               <p className="text-xs text-muted-foreground">
-                One-way import: WCFM sellers become CRM contacts. Matching email addresses are
-                overwritten with WCFM store profile data.
+                {__(
+                  'One-way import: WCFM sellers become CRM contacts. Matching email addresses are overwritten with WCFM store profile data.'
+                )}
               </p>
             </div>
           </div>
 
           <SheetFooter className="gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Close
+              {__('Close')}
             </Button>
             <Button
               type="button"
@@ -233,10 +239,10 @@ export default function WcfmIntegrationSheet({
               {updateSettingsMutation.isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin mr-2" />
-                  Saving…
+                  {__('Saving…')}
                 </>
               ) : (
-                'Save settings'
+                __('Save settings')
               )}
             </Button>
           </SheetFooter>
@@ -246,21 +252,23 @@ export default function WcfmIntegrationSheet({
       <Dialog open={syncConfirmOpen} onOpenChange={setSyncConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Sync vendors to CRM?</DialogTitle>
+            <DialogTitle>{__('Sync vendors to CRM?')}</DialogTitle>
             <DialogDescription className="space-y-2 text-left">
               <span className="block">
-                Existing CRM contacts with the <strong>same email</strong> as a WCFM vendor will be
-                updated with that vendor&apos;s profile (name, phone, address, WordPress user link).
+                {__(
+                  "Existing CRM contacts with the same email as a WCFM vendor will be updated with that vendor's profile (name, phone, address, WordPress user link)."
+                )}
               </span>
               <span className="block text-destructive">
-                This bulk update cannot be undone automatically. Export or back up CRM data if
-                unsure.
+                {__(
+                  'This bulk update cannot be undone automatically. Export or back up CRM data if unsure.'
+                )}
               </span>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={() => setSyncConfirmOpen(false)}>
-              Cancel
+              {__('Cancel')}
             </Button>
             <Button
               type="button"
@@ -271,10 +279,10 @@ export default function WcfmIntegrationSheet({
               {syncMutation.isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin mr-2" />
-                  Syncing…
+                  {__('Syncing…')}
                 </>
               ) : (
-                'Yes, sync now'
+                __('Yes, sync now')
               )}
             </Button>
           </DialogFooter>

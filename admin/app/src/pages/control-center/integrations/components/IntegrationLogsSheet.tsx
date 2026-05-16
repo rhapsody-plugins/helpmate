@@ -24,7 +24,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import api from '@/lib/axios';
-import { cn } from '@/lib/utils';
+import { cn, __, sprintf } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, ChevronRight, ScrollText } from 'lucide-react';
 import { Fragment, useEffect, useState } from 'react';
@@ -32,15 +32,17 @@ import type { IntegrationEventsResponse } from '../types';
 
 const EVENTS_PAGE_SIZE = 25;
 
-const EVENT_STATUS_OPTIONS = [
-  { value: '__all__', label: 'All statuses' },
-  { value: 'accepted', label: 'Accepted' },
-  { value: 'validated', label: 'Validated' },
-  { value: 'rejected_validation', label: 'Rejected (validation)' },
-  { value: 'processed', label: 'Processed' },
-  { value: 'failed_transient', label: 'Failed (transient)' },
-  { value: 'failed_terminal', label: 'Failed (terminal)' },
-] as const;
+function eventStatusOptions(): { value: string; label: string }[] {
+  return [
+    { value: '__all__', label: __('All statuses') },
+    { value: 'accepted', label: __('Accepted') },
+    { value: 'validated', label: __('Validated') },
+    { value: 'rejected_validation', label: __('Rejected (validation)') },
+    { value: 'processed', label: __('Processed') },
+    { value: 'failed_transient', label: __('Failed (transient)') },
+    { value: 'failed_terminal', label: __('Failed (terminal)') },
+  ];
+}
 
 function statusBadgeVariant(
   status: string
@@ -133,10 +135,16 @@ export default function IntegrationLogsSheet({
           <div className="flex-1 min-w-0 space-y-1 text-left">
             <SheetTitle className="!flex flex-row flex-wrap items-center gap-2 !text-left">
               <ScrollText className="size-5 shrink-0 text-muted-foreground" />
-              <span>{title} — Activity Log</span>
+              <span>
+                {sprintf(
+                  /* translators: %1$s: Integration title */
+                  __('%1$s — Activity Log'),
+                  __(title)
+                )}
+              </span>
             </SheetTitle>
             {description ? (
-              <SheetDescription className="!ml-7">{description}</SheetDescription>
+              <SheetDescription className="!ml-7">{__(description)}</SheetDescription>
             ) : null}
           </div>
         </SheetHeader>
@@ -144,7 +152,7 @@ export default function IntegrationLogsSheet({
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 min-w-0">
               <Label htmlFor="integration-log-status" className="shrink-0">
-                Status
+                {__('Status')}
               </Label>
               <Select
                 value={statusFilter}
@@ -157,7 +165,7 @@ export default function IntegrationLogsSheet({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {EVENT_STATUS_OPTIONS.map((opt) => (
+                  {eventStatusOptions().map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
                     </SelectItem>
@@ -167,8 +175,14 @@ export default function IntegrationLogsSheet({
             </div>
             <p className="text-xs text-muted-foreground">
               {eventsQuery.isFetching && !eventsQuery.data
-                ? 'Loading…'
-                : `${total.toLocaleString()} event${total === 1 ? '' : 's'}`}
+                ? __('Loading…')
+                : total === 1
+                  ? __('1 event')
+                  : sprintf(
+                      /* translators: %s: Event count */
+                      __('%s events'),
+                      total.toLocaleString()
+                    )}
             </p>
           </div>
         </div>
@@ -176,7 +190,7 @@ export default function IntegrationLogsSheet({
           <div className="py-4">
             {eventsQuery.isError ? (
               <p className="text-sm text-destructive">
-                Could not load events. Try again.
+                {__('Could not load events. Try again.')}
               </p>
             ) : eventsQuery.isLoading ? (
               <div className="space-y-2 animate-pulse">
@@ -186,19 +200,20 @@ export default function IntegrationLogsSheet({
               </div>
             ) : rows.length === 0 ? (
               <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-                No events recorded for this integration yet. Submit a mapped form
-                to see entries here.
+                {__(
+                  'No events recorded for this integration yet. Submit a mapped form to see entries here.'
+                )}
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-10" />
-                    <TableHead>Time</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Action</TableHead>
-                    <TableHead>Form</TableHead>
-                    <TableHead className="min-w-[140px]">Summary</TableHead>
+                    <TableHead>{__('Time')}</TableHead>
+                    <TableHead>{__('Status')}</TableHead>
+                    <TableHead>{__('Action')}</TableHead>
+                    <TableHead>{__('Form')}</TableHead>
+                    <TableHead className="min-w-[140px]">{__('Summary')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -264,7 +279,7 @@ export default function IntegrationLogsSheet({
                                 {row.error_message ? (
                                   <div>
                                     <span className="font-sans font-semibold text-foreground">
-                                      Message
+                                      {__('Message')}
                                     </span>
                                     <pre className="mt-1 whitespace-pre-wrap break-words text-muted-foreground">
                                       {row.error_message}
@@ -274,7 +289,7 @@ export default function IntegrationLogsSheet({
                                 {row.payload_hash ? (
                                   <div>
                                     <span className="font-sans font-semibold text-foreground">
-                                      Payload hash
+                                      {__('Payload hash')}
                                     </span>
                                     <p className="mt-1 break-all text-muted-foreground">
                                       {row.payload_hash}
@@ -284,7 +299,7 @@ export default function IntegrationLogsSheet({
                                 {row.dedup_key ? (
                                   <div>
                                     <span className="font-sans font-semibold text-foreground">
-                                      Dedup key
+                                      {__('Dedup key')}
                                     </span>
                                     <p className="mt-1 break-all text-muted-foreground">
                                       {row.dedup_key}
@@ -294,7 +309,7 @@ export default function IntegrationLogsSheet({
                                 {hasMeta ? (
                                   <div>
                                     <span className="font-sans font-semibold text-foreground">
-                                      Metadata
+                                      {__('Metadata')}
                                     </span>
                                     <pre className="mt-1 max-h-48 overflow-auto rounded-md border bg-background p-2 text-[11px] leading-relaxed">
                                       {JSON.stringify(row.metadata, null, 2)}
@@ -321,10 +336,15 @@ export default function IntegrationLogsSheet({
             disabled={page <= 1 || eventsQuery.isFetching}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
-            Previous
+            {__('Previous')}
           </Button>
           <span className="text-xs text-muted-foreground tabular-nums">
-            Page {page} of {Math.max(1, total_pages)}
+            {sprintf(
+              /* translators: 1: Current page, 2: Total pages */
+              __('Page %1$d of %2$d'),
+              page,
+              Math.max(1, total_pages)
+            )}
           </span>
           <Button
             type="button"
@@ -333,7 +353,7 @@ export default function IntegrationLogsSheet({
             disabled={page >= total_pages || eventsQuery.isFetching}
             onClick={() => setPage((p) => p + 1)}
           >
-            Next
+            {__('Next')}
           </Button>
         </div>
       </SheetContent>

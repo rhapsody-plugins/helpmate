@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { __, sprintf } from '@/lib/utils';
 import { Contact } from '@/types/crm';
 
 interface ContactPillsProps {
@@ -8,7 +9,9 @@ interface ContactPillsProps {
 
 export function ContactPills({ contacts, maxDisplay = 2 }: ContactPillsProps) {
   if (!contacts || contacts.length === 0) {
-    return <span className="text-muted-foreground text-sm">No contacts</span>;
+    return (
+      <span className="text-muted-foreground text-sm">{__('No contacts')}</span>
+    );
   }
 
   const displayContacts = contacts.slice(0, maxDisplay);
@@ -32,7 +35,11 @@ export function ContactPills({ contacts, maxDisplay = 2 }: ContactPillsProps) {
       ))}
       {remaining > 0 && (
         <Badge variant="secondary" className="text-xs">
-          +{remaining} more
+          {sprintf(
+            /* translators: %d: Count of additional items not shown */
+            __('+%d more'),
+            remaining
+          )}
         </Badge>
       )}
     </div>

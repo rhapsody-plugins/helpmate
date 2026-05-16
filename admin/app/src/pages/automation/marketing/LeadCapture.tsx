@@ -28,7 +28,7 @@ import {
   SocialLeadCampaign,
   useSocialChat
 } from '@/hooks/useSocialChat';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDistanceToNow } from 'date-fns';
@@ -118,42 +118,51 @@ export default function LeadCapture() {
     (c) => c.campaign_type === 'lead'
   );
 
+  const leadFieldLabel = (key: string) =>
+    ({
+      name: __('Name'),
+      email: __('Email'),
+      phone: __('Phone'),
+      website: __('Website'),
+      message: __('Message'),
+    })[key] ?? key;
+
   const columns: ColumnDef<SocialLeadCampaign>[] = [
     {
       accessorKey: 'title',
-      header: 'Title',
+      header: __('Title'),
       cell: ({ row }) => (
         <div className="font-medium">{row.original.title}</div>
       ),
     },
     {
       accessorKey: 'keywords',
-      header: 'Keyword',
+      header: __('Keyword'),
       cell: ({ row }) => (
         <div className="font-mono text-sm">{row.original.keywords}</div>
       ),
     },
     {
       accessorKey: 'platform',
-      header: 'Platform',
+      header: __('Platform'),
       cell: ({ row }) => (
         <span className="capitalize">{row.original.platform}</span>
       ),
     },
     {
       accessorKey: 'fields',
-      header: 'Collects',
+      header: __('Collects'),
       cell: ({ row }) => {
         const fields = [];
-        if (row.original.collect_email) fields.push('Email');
-        if (row.original.collect_phone) fields.push('Phone');
-        if (row.original.collect_address) fields.push('Address');
-        return <div>{fields.join(', ') || 'None'}</div>;
+        if (row.original.collect_email) fields.push(__('Email'));
+        if (row.original.collect_phone) fields.push(__('Phone'));
+        if (row.original.collect_address) fields.push(__('Address'));
+        return <div>{fields.join(', ') || __('None')}</div>;
       },
     },
     {
       accessorKey: 'created_at',
-      header: 'Created',
+      header: __('Created'),
       cell: ({ row }) =>
         formatDistanceToNow(new Date(row.original.created_at * 1000), {
           addSuffix: true,
@@ -161,7 +170,7 @@ export default function LeadCapture() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: __('Actions'),
       cell: ({ row }) => (
         <div className="flex gap-2 justify-end items-center">
           <Button
@@ -179,7 +188,13 @@ export default function LeadCapture() {
             variant="outline"
             size="sm"
             onClick={() => {
-              if (confirm('Are you sure you want to delete this automation?')) {
+              if (
+                confirm(
+                  __(
+                    'Are you sure you want to delete this automation?'
+                  )
+                )
+              ) {
                 deleteLeadCampaignMutation.mutate(row.original.id);
               }
             }}
@@ -205,7 +220,7 @@ export default function LeadCapture() {
   return (
     <PageGuard page="automation-marketing-lead-capture">
       <div className="gap-0">
-        <PageHeader title="Lead Capture" />
+        <PageHeader title={__('Lead Capture')} />
         <div className="flex flex-col gap-6 p-6">
           {/* Social */}
           <div className="relative">
@@ -219,9 +234,13 @@ export default function LeadCapture() {
                 <div className="flex justify-between items-center">
                   <div>
                     <CardTitle className="flex gap-1 items-center !text-lg">
-                      Social
+                      {__('Social')}
                       {!isPro && <ProBadgeInline />}
-                      <InfoTooltip message="Create automations with keywords. When users comment with your automation keywords on Facebook or Instagram posts, they'll receive an automated direct message with automation details and a 'Claim the Deal' button." />
+                      <InfoTooltip
+                        message={__(
+                          "Create automations with keywords. When users comment with your automation keywords on Facebook or Instagram posts, they'll receive an automated direct message with automation details and a 'Claim the Deal' button."
+                        )}
+                      />
                     </CardTitle>
                   </div>
                   <div className="flex gap-2 items-center">
@@ -233,11 +252,13 @@ export default function LeadCapture() {
                         size="sm"
                       >
                         <Plus className="w-4 h-4" />
-                        Create Automation
+                        {__('Create Automation')}
                       </Button>
                     )}
                     <Label className="text-sm">
-                      {localSettings.leads_enabled ? 'Enabled' : 'Disabled'}
+                      {localSettings.leads_enabled
+                        ? __('Enabled')
+                        : __('Disabled')}
                     </Label>
                     <Switch
                       checked={localSettings.leads_enabled}
@@ -266,8 +287,9 @@ export default function LeadCapture() {
                     ) : campaigns.length === 0 ? (
                       <div className="flex flex-col justify-center items-center py-12 text-center rounded-lg border">
                         <p className="text-muted-foreground">
-                          No automations yet. Create your first automation to start
-                          generating leads from comments.
+                          {__(
+                            'No automations yet. Create your first automation to start generating leads from comments.'
+                          )}
                         </p>
                       </div>
                     ) : (
@@ -283,8 +305,8 @@ export default function LeadCapture() {
                         <SheetHeader>
                           <SheetTitle>
                             {editingCampaign
-                              ? 'Edit Automation'
-                              : 'Create Automation'}
+                              ? __('Edit Automation')
+                              : __('Create Automation')}
                           </SheetTitle>
                         </SheetHeader>
                         <div className="overflow-y-auto flex-1 p-4 pt-6">
@@ -308,13 +330,19 @@ export default function LeadCapture() {
               <div className="flex justify-between items-center">
                 <div>
                   <CardTitle className="flex gap-1 items-center !text-lg">
-                    Website
-                    <InfoTooltip message="When enabled, the chatbot will collect lead information at the start of the conversation." />
+                    {__('Website')}
+                    <InfoTooltip
+                      message={__(
+                        'When enabled, the chatbot will collect lead information at the start of the conversation.'
+                      )}
+                    />
                   </CardTitle>
                 </div>
                 <div className="flex gap-2 items-center">
                   <Label className="text-sm">
-                    {localSettings.collect_lead ? 'Enabled' : 'Disabled'}
+                    {localSettings.collect_lead
+                      ? __('Enabled')
+                      : __('Disabled')}
                   </Label>
                   <Switch
                     checked={localSettings.collect_lead}
@@ -346,7 +374,7 @@ export default function LeadCapture() {
                         name="lead_form_fields"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Lead Form Fields</FormLabel>
+                            <FormLabel>{__('Lead Form Fields')}</FormLabel>
                             <FormControl>
                               <div className="flex flex-wrap gap-2">
                                 {[
@@ -377,7 +405,7 @@ export default function LeadCapture() {
                                     }}
                                     className="capitalize"
                                   >
-                                    {fieldName}
+                                    {leadFieldLabel(fieldName)}
                                   </Button>
                                 ))}
                               </div>
@@ -393,8 +421,8 @@ export default function LeadCapture() {
                         loading={updateSettingsMutation.isPending}
                       >
                         {updateSettingsMutation.isPending
-                          ? 'Saving...'
-                          : 'Save'}
+                          ? __('Saving...')
+                          : __('Save')}
                       </Button>
                     </form>
                   </Form>

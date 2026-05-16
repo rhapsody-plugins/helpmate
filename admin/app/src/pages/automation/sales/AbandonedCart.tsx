@@ -4,6 +4,7 @@ import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useMain } from '@/contexts/MainContext';
 import { MenuItem } from '@/types';
 import { Suspense, lazy, useMemo, useState } from 'react';
+import { __ } from '@/lib/utils';
 
 // Lazy load tab components
 const TabSettings = lazy(() =>
@@ -47,9 +48,9 @@ export default function AbandonedCart() {
     <PageGuard page={page}>
       <div className="relative">
         <Tabs className="gap-0" value={tab} onValueChange={setTab}>
-        <PageHeader menuItems={MENU_ITEMS} title="Abandoned Cart" />
+        <PageHeader menuItems={MENU_ITEMS} title={__('Abandoned Cart')} />
         <TabsContent value={tab} className="p-6">
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div>{__('Loading...')}</div>}>
             {tab === 'Settings' && <TabSettings />}
             {tab === 'Follow Up Emails' && <TabFollowUpEmails />}
             {tab === 'Carts' && <TabCarts />}

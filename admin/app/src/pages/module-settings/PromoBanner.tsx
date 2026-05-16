@@ -34,7 +34,7 @@ import { Switch } from '@/components/ui/switch';
 import { useMain } from '@/contexts/MainContext';
 import { usePromoBanner } from '@/hooks/usePromoBanner';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __, sprintf } from '@/lib/utils';
 import type { PromoBanner, PromoBannerStatus } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef } from '@tanstack/react-table';
@@ -361,11 +361,11 @@ export default function PromoBanner() {
   const columns: ColumnDef<PromoBanner>[] = [
     {
       accessorKey: 'title',
-      header: 'Title',
+      header: __('Title'),
     },
     {
       accessorKey: 'id',
-      header: 'Shortcode',
+      header: __('Shortcode'),
       cell: ({ row }) => {
         const id = row.getValue('id') as string;
         return (
@@ -380,7 +380,7 @@ export default function PromoBanner() {
     },
     {
       accessorKey: 'start_datetime',
-      header: 'Start Date',
+      header: __('Start Date'),
       cell: ({ row }) => {
         const start_datetime = row.getValue('start_datetime') as number;
         return <span>{new Date(Number(start_datetime)).toLocaleString()}</span>;
@@ -388,7 +388,7 @@ export default function PromoBanner() {
     },
     {
       accessorKey: 'end_datetime',
-      header: 'End Date',
+      header: __('End Date'),
       cell: ({ row }) => {
         const end_datetime = row.getValue('end_datetime') as number;
         return <span>{new Date(Number(end_datetime)).toLocaleString()}</span>;
@@ -396,7 +396,7 @@ export default function PromoBanner() {
     },
     {
       accessorKey: 'created_at',
-      header: 'Created At',
+      header: __('Created At'),
       cell: ({ row }) => {
         const created_at = row.getValue('created_at') as number;
         return <span>{new Date(created_at * 1000).toLocaleString()}</span>;
@@ -404,7 +404,7 @@ export default function PromoBanner() {
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: __('Status'),
       cell: ({ row }) => {
         const status = row.getValue('status') as string;
         return (
@@ -416,14 +416,14 @@ export default function PromoBanner() {
               status === 'expired' && 'bg-red-100 text-red-800'
             )}
           >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {__(status.charAt(0).toUpperCase() + status.slice(1))}
           </span>
         );
       },
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: __('Actions'),
       cell: ({ row }) => {
         const banner = row.original;
         return (
@@ -559,10 +559,10 @@ export default function PromoBanner() {
     <PageGuard page="automation-sales-promo-banner">
       <div className="gap-0">
         <PageHeader
-        title="Promo Bar"
+        title={__('Promo Bar')}
         rightActions={
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Enable Module</span>
+            <span className="text-sm text-muted-foreground">{__('Enable Module')}</span>
             <Switch
               checked={isModuleEnabled}
               onCheckedChange={handleModuleToggle}
@@ -583,7 +583,7 @@ export default function PromoBanner() {
               <div>
                 <CardTitle className="flex gap-1 items-center text-xl font-bold">
                   Promo Bar{' '}
-                  <InfoTooltip message="The promo bar allows you to display ongoing deals, free shipping offers, or announcements at the top or bottom of your site. You can drive more clicks and sales by highlighting limited-time offers or coupons." />
+                  <InfoTooltip message={__('The promo bar allows you to display ongoing deals, free shipping offers, or announcements at the top or bottom of your site. You can drive more clicks and sales by highlighting limited-time offers or coupons.')} />
                 </CardTitle>
               </div>
               <div className="flex gap-4 items-center">
@@ -595,7 +595,7 @@ export default function PromoBanner() {
                 />
                 <Button onClick={handleCreate}>
                   <Plus className="mr-2 w-4 h-4" />
-                  Create New
+                  {__('Create New')}
                 </Button>
               </div>
             </div>
@@ -632,7 +632,7 @@ export default function PromoBanner() {
         <SheetContent className="w-[800px] sm:max-w-[800px] overflow-y-auto gap-0">
           <SheetHeader>
             <SheetTitle className="!mt-6 !mb-0 !text-xl !font-bold">
-              {selectedBanner ? 'Edit Promo Bar' : 'Create New Promo Bar'}
+              {selectedBanner ? __('Edit Promo Bar') : __('Create New Promo Bar')}
             </SheetTitle>
           </SheetHeader>
           <Form {...form}>
@@ -643,7 +643,7 @@ export default function PromoBanner() {
               {/* General Section */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg font-bold">General</CardTitle>
+                  <CardTitle className="text-lg font-bold">{__('General')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -652,7 +652,7 @@ export default function PromoBanner() {
                       name="title"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Title</FormLabel>
+                          <FormLabel>{__('Title')}</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -665,7 +665,7 @@ export default function PromoBanner() {
                       name="status"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Status</FormLabel>
+                          <FormLabel>{__('Status')}</FormLabel>
                           <FormControl>
                             <Select
                               value={field.value}
@@ -675,9 +675,9 @@ export default function PromoBanner() {
                                 <SelectValue placeholder="Select a status" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="active">{__('Active')}</SelectItem>
                                 <SelectItem value="inactive">
-                                  Inactive
+                                  {__('Inactive')}
                                 </SelectItem>
                               </SelectContent>
                             </Select>
@@ -692,7 +692,7 @@ export default function PromoBanner() {
               {/* Design Section */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg font-bold">Layout</CardTitle>
+                  <CardTitle className="text-lg font-bold">{__('Layout')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -700,11 +700,11 @@ export default function PromoBanner() {
                     name="layout"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Template</FormLabel>
+                        <FormLabel>{__('Template')}</FormLabel>
                         <FormDescription className="text-sm text-muted-foreground">
-                          Select a template to automatically apply its default
-                          styles. You can customize any settings after
-                          selection.
+                          {__(
+                            'Select a template to automatically apply its default styles. You can customize any settings after selection.'
+                          )}
                         </FormDescription>
                         <FormControl>
                           <div className="space-y-4">
@@ -728,7 +728,7 @@ export default function PromoBanner() {
                                 />
                                 <div className="flex absolute inset-0 justify-center items-center rounded-md opacity-0 transition-opacity bg-white/70 hover:opacity-100">
                                   <span className="text-lg font-semibold drop-shadow-lg">
-                                    Layout 1
+                                    {__('Layout 1')}
                                   </span>
                                 </div>
                               </div>
@@ -759,12 +759,13 @@ export default function PromoBanner() {
                                 />
                                 <div className="flex absolute inset-0 justify-center items-center rounded-md opacity-0 transition-opacity bg-white/70 hover:opacity-100">
                                   <span className="text-lg font-semibold drop-shadow-lg">
-                                    Layout 2 {!getProQuery.data && '(Pro Only)'}
+                                    {__('Layout 2')}
+                                    {!getProQuery.data && ` ${__('(Pro Only)')}`}
                                   </span>
                                 </div>
                                 {!getProQuery.data && (
                                   <div className="absolute top-1 right-1 px-2 py-1 text-xs text-white bg-orange-500 rounded">
-                                    Pro Only
+                                    {__('Pro Only')}
                                   </div>
                                 )}
                               </div>
@@ -795,12 +796,13 @@ export default function PromoBanner() {
                                 />
                                 <div className="flex absolute inset-0 justify-center items-center rounded-md opacity-0 transition-opacity bg-white/70 hover:opacity-100">
                                   <span className="text-lg font-semibold drop-shadow-lg">
-                                    Layout 3 {!getProQuery.data && '(Pro Only)'}
+                                    {__('Layout 3')}
+                                    {!getProQuery.data && ` ${__('(Pro Only)')}`}
                                   </span>
                                 </div>
                                 {!getProQuery.data && (
                                   <div className="absolute top-1 right-1 px-2 py-1 text-xs text-white bg-orange-500 rounded">
-                                    Pro Only
+                                    {__('Pro Only')}
                                   </div>
                                 )}
                               </div>
@@ -821,8 +823,11 @@ export default function PromoBanner() {
                                     className="flex gap-2 items-center"
                                   >
                                     <RotateCcw className="w-4 h-4" />
-                                    Reset to {templates[field.value].name}{' '}
-                                    Defaults
+                                    {sprintf(
+                                      /* translators: %s: Template family name */
+                                      __('Reset to %s Defaults'),
+                                      templates[field.value].name
+                                    )}
                                   </Button>
                                 </div>
                               )}
@@ -838,7 +843,7 @@ export default function PromoBanner() {
                       name="background_color"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Background Color</FormLabel>
+                          <FormLabel>{__('Background Color')}</FormLabel>
                           <FormControl>
                             <Input
                               type="color"
@@ -855,7 +860,7 @@ export default function PromoBanner() {
                       name="text_color"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Text Color</FormLabel>
+                          <FormLabel>{__('Text Color')}</FormLabel>
                           <FormControl>
                             <Input
                               type="color"
@@ -872,7 +877,7 @@ export default function PromoBanner() {
                       name="button_background_color"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Button Background Color</FormLabel>
+                          <FormLabel>{__('Button Background Color')}</FormLabel>
                           <FormControl>
                             <Input
                               type="color"
@@ -889,7 +894,7 @@ export default function PromoBanner() {
                       name="button_text_color"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Button Text Color</FormLabel>
+                          <FormLabel>{__('Button Text Color')}</FormLabel>
                           <FormControl>
                             <Input
                               type="color"
@@ -906,7 +911,7 @@ export default function PromoBanner() {
                       name="countdown_background_color"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Countdown Background Color</FormLabel>
+                          <FormLabel>{__('Countdown Background Color')}</FormLabel>
                           <FormControl>
                             <Input
                               type="color"
@@ -923,7 +928,7 @@ export default function PromoBanner() {
                       name="countdown_text_color"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Countdown Text Color</FormLabel>
+                          <FormLabel>{__('Countdown Text Color')}</FormLabel>
                           <FormControl>
                             <Input
                               type="color"
@@ -940,7 +945,7 @@ export default function PromoBanner() {
                       name="close_button_color"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Close Button Color</FormLabel>
+                          <FormLabel>{__('Close Button Color')}</FormLabel>
                           <FormControl>
                             <Input
                               type="color"
@@ -959,7 +964,7 @@ export default function PromoBanner() {
                       name="text_font_size"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Text Font Size</FormLabel>
+                          <FormLabel>{__('Text Font Size')}</FormLabel>
                           <FormControl>
                             <div className="space-y-2">
                               <Slider
@@ -985,7 +990,7 @@ export default function PromoBanner() {
                       name="button_text_font_size"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Button Text Font Size</FormLabel>
+                          <FormLabel>{__('Button Text Font Size')}</FormLabel>
                           <FormControl>
                             <div className="space-y-2">
                               <Slider
@@ -1011,7 +1016,7 @@ export default function PromoBanner() {
                       name="countdown_text_font_size"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Countdown Text Font Size</FormLabel>
+                          <FormLabel>{__('Countdown Text Font Size')}</FormLabel>
                           <FormControl>
                             <div className="space-y-2">
                               <Slider
@@ -1038,7 +1043,7 @@ export default function PromoBanner() {
               {/* Content Section */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg font-bold">Content</CardTitle>
+                  <CardTitle className="text-lg font-bold">{__('Content')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -1046,7 +1051,7 @@ export default function PromoBanner() {
                     name="text"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Text</FormLabel>
+                        <FormLabel>{__('Text')}</FormLabel>
                         <FormControl>
                           <RichTextEditor
                             key={currentTemplate}
@@ -1064,7 +1069,7 @@ export default function PromoBanner() {
                       name="button_text"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Button Text</FormLabel>
+                          <FormLabel>{__('Button Text')}</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -1077,7 +1082,7 @@ export default function PromoBanner() {
                       name="button_url"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Button URL</FormLabel>
+                          <FormLabel>{__('Button URL')}</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -1092,7 +1097,7 @@ export default function PromoBanner() {
                       name="button_icon"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Button Icon</FormLabel>
+                          <FormLabel>{__('Button Icon')}</FormLabel>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
@@ -1112,7 +1117,7 @@ export default function PromoBanner() {
                                       {IconComponent && (
                                         <IconComponent className="w-4 h-4" />
                                       )}
-                                      {option.label}
+                                      {__(option.label)}
                                     </div>
                                   </SelectItem>
                                 );
@@ -1130,7 +1135,7 @@ export default function PromoBanner() {
                           name="button_icon_position"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Icon Position</FormLabel>
+                              <FormLabel>{__('Icon Position')}</FormLabel>
                               <Select
                                 value={field.value}
                                 onValueChange={field.onChange}
@@ -1139,8 +1144,8 @@ export default function PromoBanner() {
                                   <SelectValue placeholder="Select position" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="left">Left</SelectItem>
-                                  <SelectItem value="right">Right</SelectItem>
+                                  <SelectItem value="left">{__('Left')}</SelectItem>
+                                  <SelectItem value="right">{__('Right')}</SelectItem>
                                 </SelectContent>
                               </Select>
                             </FormItem>
@@ -1154,7 +1159,7 @@ export default function PromoBanner() {
                     name="open_in_new_tab"
                     render={({ field }) => (
                       <FormItem className="flex justify-between items-center p-2 rounded-md border border-input">
-                        <FormLabel>Open Link in New Tab</FormLabel>
+                        <FormLabel>{__('Open Link in New Tab')}</FormLabel>
                         <FormControl>
                           <Switch
                             checked={field.value}
@@ -1170,7 +1175,7 @@ export default function PromoBanner() {
                     name="countdown_enabled"
                     render={({ field }) => (
                       <FormItem className="flex justify-between items-center p-2 rounded-md border border-input">
-                        <FormLabel>Enable Countdown</FormLabel>
+                        <FormLabel>{__('Enable Countdown')}</FormLabel>
                         <FormControl>
                           <Switch
                             checked={field.value}
@@ -1189,7 +1194,7 @@ export default function PromoBanner() {
                           name="start_datetime"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Start Date/Time</FormLabel>
+                              <FormLabel>{__('Start Date/Time')}</FormLabel>
                               <FormControl>
                                 <Input
                                   type="datetime-local"
@@ -1206,7 +1211,7 @@ export default function PromoBanner() {
                           name="end_datetime"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>End Date/Time</FormLabel>
+                              <FormLabel>{__('End Date/Time')}</FormLabel>
                               <FormControl>
                                 <Input
                                   type="datetime-local"
@@ -1226,7 +1231,7 @@ export default function PromoBanner() {
               {/* Display Section */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg font-bold">Display</CardTitle>
+                  <CardTitle className="text-lg font-bold">{__('Display')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -1234,7 +1239,7 @@ export default function PromoBanner() {
                     name="show_on"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Show On</FormLabel>
+                        <FormLabel>{__('Show On')}</FormLabel>
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
@@ -1244,16 +1249,16 @@ export default function PromoBanner() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="everywhere">
-                              Show Everywhere
+                              {__('Show Everywhere')}
                             </SelectItem>
                             <SelectItem value="selected">
-                              Show on Selected
+                              {__('Show on Selected')}
                             </SelectItem>
                             <SelectItem value="hide_selected">
-                              Hide on Selected
+                              {__('Hide on Selected')}
                             </SelectItem>
                             <SelectItem value="shortcode">
-                              Use Only Shortcode
+                              {__('Use Only Shortcode')}
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -1268,17 +1273,23 @@ export default function PromoBanner() {
                       name="selected_pages"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Select Pages</FormLabel>
+                          <FormLabel>{__('Select Pages')}</FormLabel>
                           <FormControl>
                             {isLoadingPages ? (
-                              <div>Loading pages...</div>
+                              <div>{__('Loading pages...')}</div>
                             ) : (
                               <MultipleSelector
                                 value={field.value?.map((id) => {
                                   const page = pages.find((p) => p.id === id);
                                   return {
                                     value: String(id),
-                                    label: page?.title || `Page ${id}`,
+                                    label:
+                                      page?.title ||
+                                      sprintf(
+                                        /* translators: %s: Page ID */
+                                        __('Page %s'),
+                                        String(id)
+                                      ),
                                   };
                                 })}
                                 onChange={(options: Option[]) => {
@@ -1319,14 +1330,14 @@ export default function PromoBanner() {
                       name="shortcode"
                       render={() => (
                         <FormItem>
-                          <FormLabel>Shortcode</FormLabel>
+                          <FormLabel>{__('Shortcode')}</FormLabel>
                           <FormControl>
                             <div className="flex gap-2 items-center">
                               <Input
                                 value={
                                   selectedBanner
                                     ? `[helpmate_promo id="${selectedBanner.id}"]`
-                                    : 'Will be generated after saving'
+                                    : __('Will be generated after saving')
                                 }
                                 readOnly
                                 className="font-mono"
@@ -1341,14 +1352,15 @@ export default function PromoBanner() {
                                     );
                                   }}
                                 >
-                                  Copy
+                                  {__('Copy')}
                                 </Button>
                               )}
                             </div>
                           </FormControl>
                           <FormDescription>
-                            Use this shortcode to display the promo bar on any
-                            page or post.
+                            {__(
+                              'Use this shortcode to display the promo bar on any page or post.'
+                            )}
                           </FormDescription>
                         </FormItem>
                       )}
@@ -1360,7 +1372,7 @@ export default function PromoBanner() {
                     name="display_for"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Display For</FormLabel>
+                        <FormLabel>{__('Display For')}</FormLabel>
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
@@ -1369,12 +1381,12 @@ export default function PromoBanner() {
                             <SelectValue placeholder="Select who to display for" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="everyone">Everyone</SelectItem>
+                            <SelectItem value="everyone">{__('Everyone')}</SelectItem>
                             <SelectItem value="loggedin">
-                              Logged In Users
+                              {__('Logged In Users')}
                             </SelectItem>
                             <SelectItem value="loggedout">
-                              Logged Out Users
+                              {__('Logged Out Users')}
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -1387,7 +1399,7 @@ export default function PromoBanner() {
               {/* Customize Section */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg font-bold">Customize</CardTitle>
+                  <CardTitle className="text-lg font-bold">{__('Customize')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -1396,7 +1408,7 @@ export default function PromoBanner() {
                       name="position"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Position</FormLabel>
+                          <FormLabel>{__('Position')}</FormLabel>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
@@ -1405,8 +1417,8 @@ export default function PromoBanner() {
                               <SelectValue placeholder="Select position" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="top">Top</SelectItem>
-                              <SelectItem value="bottom">Bottom</SelectItem>
+                              <SelectItem value="top">{__('Top')}</SelectItem>
+                              <SelectItem value="bottom">{__('Bottom')}</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
@@ -1418,7 +1430,7 @@ export default function PromoBanner() {
                       name="close_button_position"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Close Button Position</FormLabel>
+                          <FormLabel>{__('Close Button Position')}</FormLabel>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
@@ -1427,8 +1439,8 @@ export default function PromoBanner() {
                               <SelectValue placeholder="Select position" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="left">Left</SelectItem>
-                              <SelectItem value="right">Right</SelectItem>
+                              <SelectItem value="left">{__('Left')}</SelectItem>
+                              <SelectItem value="right">{__('Right')}</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
@@ -1442,7 +1454,7 @@ export default function PromoBanner() {
                       name="sticky_bar"
                       render={({ field }) => (
                         <FormItem className="flex justify-between items-center p-2 rounded-md border border-input">
-                          <FormLabel>Sticky Bar</FormLabel>
+                          <FormLabel>{__('Sticky Bar')}</FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -1458,7 +1470,7 @@ export default function PromoBanner() {
                       name="display_close_button"
                       render={({ field }) => (
                         <FormItem className="flex justify-between items-center p-2 rounded-md border border-input">
-                          <FormLabel>Display Close Button</FormLabel>
+                          <FormLabel>{__('Display Close Button')}</FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -1476,7 +1488,7 @@ export default function PromoBanner() {
                       name="permanent_close"
                       render={({ field }) => (
                         <FormItem className="flex justify-between items-center p-2 rounded-md border border-input">
-                          <FormLabel>Permanent Close</FormLabel>
+                          <FormLabel>{__('Permanent Close')}</FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -1492,7 +1504,7 @@ export default function PromoBanner() {
                       name="mobile_visibility"
                       render={({ field }) => (
                         <FormItem className="flex justify-between items-center p-2 rounded-md border border-input">
-                          <FormLabel>Mobile Visibility</FormLabel>
+                          <FormLabel>{__('Mobile Visibility')}</FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -1510,7 +1522,7 @@ export default function PromoBanner() {
                       name="autohide"
                       render={({ field }) => (
                         <FormItem className="flex justify-between items-center p-2 rounded-md border border-input">
-                          <FormLabel>Auto Hide</FormLabel>
+                          <FormLabel>{__('Auto Hide')}</FormLabel>
                           <FormControl>
                             <Switch
                               checked={field.value}
@@ -1528,7 +1540,7 @@ export default function PromoBanner() {
                       name="initial_delay"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Initial Delay (seconds)</FormLabel>
+                          <FormLabel>{__('Initial Delay (seconds)')}</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -1546,7 +1558,7 @@ export default function PromoBanner() {
                         name="hide_after"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Hide After (seconds)</FormLabel>
+                            <FormLabel>{__('Hide After (seconds)')}</FormLabel>
                             <FormControl>
                               <Input type="number" {...field} />
                             </FormControl>
@@ -1559,7 +1571,7 @@ export default function PromoBanner() {
               </Card>
 
               <Button type="submit" disabled={isUpdating} loading={isUpdating}>
-                {isUpdating ? 'Saving...' : 'Save'}
+                {isUpdating ? __('Saving...') : __('Save')}
               </Button>
             </form>
           </Form>

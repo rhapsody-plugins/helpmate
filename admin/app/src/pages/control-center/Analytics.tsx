@@ -23,6 +23,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 import { TeamMember, useTeam } from '@/hooks/useTeam';
 import { useReviews } from '@/hooks/useReviews';
 import { CrmAnalyticsData, DateFilter } from '@/types/crm-analytics';
+import { __ } from '@/lib/utils';
 import {
   ArrowDown,
   ArrowUp,
@@ -167,7 +168,7 @@ const MetricCard = ({
 
 const chartConfig = {
   revenue: {
-    label: 'Revenue',
+    label: __('Revenue'),
     color: 'hsl(var(--chart-1))',
   },
 } satisfies ChartConfig;
@@ -242,7 +243,7 @@ function OverviewTab({
     <div className="space-y-6">
       {/* Key Metrics Overview */}
       <div>
-        <h4 className="!text-sm !font-bold !my-0 !py-0 !mb-4">Overview</h4>
+        <h4 className="!text-sm !font-bold !my-0 !py-0 !mb-4">{__('Overview')}</h4>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {isLoading ? (
             <>
@@ -254,7 +255,7 @@ function OverviewTab({
           ) : (
             <>
               <StatCard
-                title="Total Revenue"
+                title={__('Total Revenue')}
                 value={chatbotData?.revenue?.total || 0}
                 change={chatbotData?.revenue?.comparison?.revenue_change || 0}
                 icon={CircleDollarSign}
@@ -263,7 +264,7 @@ function OverviewTab({
                 formatValue={(v) => `$${v.toFixed(2)}`}
               />
               <StatCard
-                title="Total Messages"
+                title={__('Total Messages')}
                 value={
                   (socialData?.total_messages_inbound || 0) +
                   (socialData?.total_messages_outbound || 0)
@@ -274,7 +275,7 @@ function OverviewTab({
                 bgColor="bg-blue-50"
               />
               <StatCard
-                title="Total Contacts"
+                title={__('Total Contacts')}
                 value={crmData?.contacts?.total || 0}
                 change={crmData?.contacts?.comparison?.created_change || 0}
                 icon={Users}
@@ -282,7 +283,7 @@ function OverviewTab({
                 bgColor="bg-purple-50"
               />
               <StatCard
-                title="Total Orders"
+                title={__('Total Orders')}
                 value={chatbotData?.orders?.total_orders || 0}
                 change={chatbotData?.orders?.comparison?.orders_change || 0}
                 icon={TrendingUp}
@@ -290,16 +291,16 @@ function OverviewTab({
                 bgColor="bg-orange-50"
               />
               <StatCard
-                title="Average Rating"
+                title={__('Average Rating')}
                 value={reviewData?.average_rating || 0}
                 change={0}
                 icon={Star}
                 iconColor="text-yellow-500"
                 bgColor="bg-yellow-50"
-                formatValue={(v) => v > 0 ? `${v.toFixed(1)}/5` : 'N/A'}
+                formatValue={(v) => (v > 0 ? `${v.toFixed(1)}/5` : __('N/A'))}
               />
               <StatCard
-                title="Total Reviews"
+                title={__('Total Reviews')}
                 value={reviewData?.total_reviews || 0}
                 change={0}
                 icon={MessageSquare}
@@ -313,7 +314,7 @@ function OverviewTab({
 
       {/* Reviews Section */}
       <div>
-        <h4 className="!text-sm !font-bold !my-0 !py-0 !mb-4">Reviews</h4>
+        <h4 className="!text-sm !font-bold !my-0 !py-0 !mb-4">{__('Reviews')}</h4>
         {reviewsLoading ? (
           <Card className="p-0 h-full">
             <div className="p-6 h-full">
@@ -368,7 +369,7 @@ function OverviewTab({
         ) : (
           <Card className="p-0 h-full">
             <div className="p-6 h-full text-center text-muted-foreground">
-              No reviews found for this period
+              {__('No reviews found for this period')}
             </div>
           </Card>
         )}
@@ -377,7 +378,7 @@ function OverviewTab({
       {/* Revenue Chart */}
       <div>
         <h4 className="!text-sm !font-bold !my-0 !py-0 !mb-4">
-          Revenue Overview
+          {__('Revenue Overview')}
         </h4>
         {isLoading ? (
           <Card className="p-0 h-full">
@@ -390,7 +391,7 @@ function OverviewTab({
           <Card className="p-0 h-full">
             <div className="p-6 h-full">
               <h5 className="!text-sm !font-normal !my-0 !py-0 mb-4">
-                Total Revenue
+                {__('Total Revenue')}
               </h5>
               <div className="h-64">
                 {chartData.length > 0 ? (
@@ -473,7 +474,7 @@ function OverviewTab({
                 ) : (
                   <div className="flex flex-col justify-center items-center h-full text-muted-foreground">
                     <BarChart3 className="mb-2 w-8 h-8" />
-                    <p className="text-sm">No revenue data available</p>
+                    <p className="text-sm">{__('No revenue data available')}</p>
                   </div>
                 )}
               </div>
@@ -485,7 +486,7 @@ function OverviewTab({
       {/* Additional Metrics */}
       <div>
         <h4 className="!text-sm !font-bold !my-0 !py-0 !mb-4">
-          Performance Metrics
+          {__('Performance Metrics')}
         </h4>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {isLoading ? (
@@ -500,26 +501,35 @@ function OverviewTab({
               <MetricCard
                 value={chatbotData?.orders?.conversion_rate?.toFixed(2) || '0.00'}
                 change={chatbotData?.orders?.comparison?.conversion_change || 0}
-                subtitle="Conversion Rate (%)"
+                subtitle={
+                  /* translators: (%) is a literal percent sign for the rate label */
+                  __('Conversion Rate (%)')
+                }
               />
               <MetricCard
                 value={chatbotData?.statistics?.avg_messages_per_session || 0}
                 change={
                   chatbotData?.statistics?.comparison?.avg_messages_change || 0
                 }
-                subtitle="Avg Messages/Session"
+                subtitle={__('Avg Messages/Session')}
               />
               <MetricCard
                 value={socialData?.handoff_rate?.toFixed(2) || '0.00'}
                 change={0}
-                subtitle="Handoff Rate (%)"
+                subtitle={
+                  /* translators: (%) is a literal percent sign for the rate label */
+                  __('Handoff Rate (%)')
+                }
               />
               <MetricCard
                 value={crmData?.tasks?.completion_rate?.toFixed(2) || '0.00'}
                 change={
                   crmData?.tasks?.comparison?.completion_rate_change || 0
                 }
-                subtitle="Task Completion Rate (%)"
+                subtitle={
+                  /* translators: (%) is a literal percent sign for the rate label */
+                  __('Task Completion Rate (%)')
+                }
               />
             </>
           )}
@@ -558,7 +568,7 @@ function BySourceTab({
       {/* Chatbot Analytics Section */}
       <div>
         <h4 className="!text-lg !font-bold !my-0 !py-0 !mb-4">
-          Chatbot Analytics
+          {__('Chatbot Analytics')}
         </h4>
         <div className="space-y-4">
           {/* Orders & Conversion Metrics */}
@@ -566,24 +576,24 @@ function BySourceTab({
             <MetricCard
               value={chatbotData?.orders?.total_orders || 0}
               change={chatbotData?.orders?.comparison?.orders_change || 0}
-              subtitle="Total Orders"
+              subtitle={__('Total Orders')}
             />
             <MetricCard
               value={chatbotData?.orders?.total_chat_sessions || 0}
               change={chatbotData?.orders?.comparison?.sessions_change || 0}
-              subtitle="Chat Sessions"
+              subtitle={__('Chat Sessions')}
             />
             <MetricCard
               value={`${chatbotData?.orders?.conversion_rate?.toFixed(2) || '0.00'}%`}
               change={chatbotData?.orders?.comparison?.conversion_change || 0}
-              subtitle="Conversion Rate"
+              subtitle={__('Conversion Rate')}
             />
           </div>
 
           {/* Sales & Revenue Metrics */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             <StatCard
-              title="Total Revenue"
+              title={__('Total Revenue')}
               value={chatbotData?.revenue?.total || 0}
               change={chatbotData?.revenue?.comparison?.revenue_change || 0}
               icon={CircleDollarSign}
@@ -592,7 +602,7 @@ function BySourceTab({
               formatValue={(v) => `$${v.toFixed(2)}`}
             />
             <StatCard
-              title="ROI"
+              title={__('ROI')}
               value={chatbotData?.sales?.roi || 0}
               change={chatbotData?.sales?.comparison?.roi_change || 0}
               icon={CircleDollarSign}
@@ -601,7 +611,7 @@ function BySourceTab({
               suffix="%"
             />
             <StatCard
-              title="AOV"
+              title={__('AOV')}
               value={chatbotData?.sales?.aov || 0}
               change={chatbotData?.sales?.comparison?.aov_change || 0}
               icon={HandCoins}
@@ -616,7 +626,7 @@ function BySourceTab({
             <Card className="p-0">
               <div className="p-6">
                 <h5 className="!text-sm !font-semibold !my-0 !py-0 mb-4">
-                  Revenue Over Time
+                  {__('Revenue Over Time')}
                 </h5>
                 <div className="h-64">
                   <ChartContainer config={chartConfig}>
@@ -687,26 +697,26 @@ function BySourceTab({
             <MetricCard
               value={chatbotData?.statistics?.total_tickets || 0}
               change={chatbotData?.statistics?.comparison?.tickets_change || 0}
-              subtitle="Total Tickets"
+              subtitle={__('Total Tickets')}
             />
             <MetricCard
               value={chatbotData?.statistics?.total_leads || 0}
               change={chatbotData?.statistics?.comparison?.leads_change || 0}
-              subtitle="Total Leads"
+              subtitle={__('Total Leads')}
             />
             <MetricCard
               value={chatbotData?.statistics?.avg_messages_per_session || 0}
               change={
                 chatbotData?.statistics?.comparison?.avg_messages_change || 0
               }
-              subtitle="Avg Messages/Session"
+              subtitle={__('Avg Messages/Session')}
             />
             <MetricCard
               value={chatbotData?.statistics?.avg_resolution_time || 0}
               change={
                 chatbotData?.statistics?.comparison?.resolution_time_change || 0
               }
-              subtitle="Avg Resolution Time (h)"
+              subtitle={__('Avg Resolution Time (h)')}
             />
           </div>
         </div>
@@ -715,7 +725,7 @@ function BySourceTab({
       {/* Social & Live Chat Analytics Section */}
       <div>
         <h4 className="!text-lg !font-bold !my-0 !py-0 !mb-4">
-          Social & Live Chat Analytics
+          {__('Social & Live Chat Analytics')}
         </h4>
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -728,12 +738,12 @@ function BySourceTab({
             <Card className="p-0 h-full">
               <div className="p-6">
                 <h5 className="!text-sm !font-normal !my-0 !py-0 mb-4">
-                  Messages
+                  {__('Messages')}
                 </h5>
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Inbound Messages
+                      {__('Inbound Messages')}
                     </p>
                     <p className="text-2xl font-semibold">
                       {socialData?.total_messages_inbound || 0}
@@ -742,7 +752,7 @@ function BySourceTab({
                   <Separator />
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Outbound Messages
+                      {__('Outbound Messages')}
                     </p>
                     <p className="text-2xl font-semibold">
                       {socialData?.total_messages_outbound || 0}
@@ -750,7 +760,7 @@ function BySourceTab({
                   </div>
                   <Separator />
                   <div>
-                    <p className="text-sm text-muted-foreground">Total</p>
+                    <p className="text-sm text-muted-foreground">{__('Total')}</p>
                     <p className="text-2xl font-semibold">
                       {(socialData?.total_messages_inbound || 0) +
                         (socialData?.total_messages_outbound || 0)}
@@ -762,11 +772,11 @@ function BySourceTab({
             <Card className="p-0 h-full">
               <div className="p-6">
                 <h5 className="!text-sm !font-normal !my-0 !py-0 mb-4">
-                  Response Types
+                  {__('Response Types')}
                 </h5>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm text-muted-foreground">AI Responses</p>
+                    <p className="text-sm text-muted-foreground">{__('AI Responses')}</p>
                     <p className="text-2xl font-semibold">
                       {socialData?.ai_responses || 0}
                     </p>
@@ -774,7 +784,7 @@ function BySourceTab({
                   <Separator />
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Human Responses
+                      {__('Human Responses')}
                     </p>
                     <p className="text-2xl font-semibold">
                       {socialData?.human_responses || 0}
@@ -786,25 +796,25 @@ function BySourceTab({
             <Card className="p-0 h-full">
               <div className="p-6">
                 <h5 className="!text-sm !font-normal !my-0 !py-0 mb-4">
-                  Conversations
+                  {__('Conversations')}
                 </h5>
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm text-muted-foreground">Total</p>
+                    <p className="text-sm text-muted-foreground">{__('Total')}</p>
                     <p className="text-2xl font-semibold">
                       {socialData?.total_conversations || 0}
                     </p>
                   </div>
                   <Separator />
                   <div>
-                    <p className="text-sm text-muted-foreground">Handoffs</p>
+                    <p className="text-sm text-muted-foreground">{__('Handoffs')}</p>
                     <p className="text-2xl font-semibold">
                       {socialData?.handoff_conversations || 0}
                     </p>
                   </div>
                   <Separator />
                   <div>
-                    <p className="text-sm text-muted-foreground">Handoff Rate</p>
+                    <p className="text-sm text-muted-foreground">{__('Handoff Rate')}</p>
                     <p className="text-2xl font-semibold">
                       {socialData?.handoff_rate?.toFixed(2) || '0.00'}%
                     </p>
@@ -819,7 +829,7 @@ function BySourceTab({
       {/* CRM Analytics Section */}
       <div>
         <h4 className="!text-lg !font-bold !my-0 !py-0 !mb-4">
-          CRM Analytics
+          {__('CRM Analytics')}
         </h4>
         {isLoading ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -886,7 +896,7 @@ function ByTeamTab({
       <div>
         <div className="flex justify-between items-center mb-4">
           <h4 className="!text-sm !font-bold !my-0 !py-0">
-            Filter by Team Member
+            {__('Filter by Team Member')}
           </h4>
           <Select
             value={selectedUserId?.toString() || 'all'}
@@ -898,13 +908,13 @@ function ByTeamTab({
               <SelectValue placeholder="Select team member" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Teams</SelectItem>
+              <SelectItem value="all">{__('All Teams')}</SelectItem>
               {teamMembers.map((member) => (
                 <SelectItem
                   key={member.user_id}
                   value={member.user_id.toString()}
                 >
-                  {member.user?.display_name || member.user?.email || 'Unknown'}
+                  {member.user?.display_name || member.user?.email || __('Unknown')}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -912,8 +922,10 @@ function ByTeamTab({
         </div>
         <p className="mb-4 text-sm text-muted-foreground">
           {selectedUserId
-            ? `Showing analytics for selected team member. Orders, Revenue, and some social metrics remain system-wide.`
-            : `Showing system-wide analytics for all teams.`}
+            ? __(
+              'Showing analytics for selected team member. Orders, Revenue, and some social metrics remain system-wide.'
+            )
+            : __('Showing system-wide analytics for all teams.')}
         </p>
       </div>
 
@@ -993,7 +1005,7 @@ export default function Analytics() {
         <PageHeader title="Analytics" />
         <div className="p-6">
           <div className="flex gap-2 justify-between items-center mb-6">
-            <h1 className="!text-2xl !font-bold !my-0 !py-0">Analytics</h1>
+            <h1 className="!text-2xl !font-bold !my-0 !py-0">{__('Analytics')}</h1>
             <div className="flex gap-2 items-center">
               <Select
                 value={dateFilter}
@@ -1003,11 +1015,11 @@ export default function Analytics() {
                   <SelectValue placeholder="Select a date" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="yesterday">Yesterday</SelectItem>
-                  <SelectItem value="last_week">Last Week</SelectItem>
-                  <SelectItem value="last_month">Last Month</SelectItem>
-                  <SelectItem value="last_year">Last Year</SelectItem>
+                  <SelectItem value="today">{__('Today')}</SelectItem>
+                  <SelectItem value="yesterday">{__('Yesterday')}</SelectItem>
+                  <SelectItem value="last_week">{__('Last Week')}</SelectItem>
+                  <SelectItem value="last_month">{__('Last Month')}</SelectItem>
+                  <SelectItem value="last_year">{__('Last Year')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1015,9 +1027,9 @@ export default function Analytics() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="by-source">By Source</TabsTrigger>
-              {isAdmin && <TabsTrigger value="by-team">By Team</TabsTrigger>}
+              <TabsTrigger value="overview">{__('Overview')}</TabsTrigger>
+              <TabsTrigger value="by-source">{__('By Source')}</TabsTrigger>
+              {isAdmin && <TabsTrigger value="by-team">{__('By Team')}</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="overview" className="mt-6">

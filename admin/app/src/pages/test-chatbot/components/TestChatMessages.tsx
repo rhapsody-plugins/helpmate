@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { TestMessage } from './TestChatWidget';
 import { TestMessageBubble } from './TestMessageBubble';
 import { Loader2 } from 'lucide-react';
+import { __ } from '@/lib/utils';
 
 interface TestChatMessagesProps {
   messages: TestMessage[];
@@ -30,8 +31,8 @@ export function TestChatMessages({
       {messages.length === 0 ? (
         <div className="flex items-center justify-center h-full min-h-[400px]">
           <div className="text-center text-gray-500">
-            <p className="text-base">Send a message to start testing</p>
-            <p className="mt-2 text-sm">All conversations are marked as debug sessions</p>
+            <p className="text-base">{__('Send a message to start testing')}</p>
+            <p className="mt-2 text-sm">{__('All conversations are marked as debug sessions')}</p>
           </div>
         </div>
       ) : (
@@ -50,7 +51,7 @@ export function TestChatMessages({
           {isLoading && (
             <div className="flex gap-2 items-center text-gray-600">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">AI is thinking...</span>
+              <span className="text-sm">{__('AI is thinking...')}</span>
             </div>
           )}
         </>

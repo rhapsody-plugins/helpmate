@@ -1,5 +1,6 @@
 import { usePermissions } from '@/hooks/usePermissions';
 import { PageType } from '@/contexts/MainContext';
+import { __, sprintf } from '@/lib/utils';
 import Unauthorized from './Unauthorized';
 import Loading from './Loading';
 
@@ -28,7 +29,11 @@ export default function PageGuard({
       <Unauthorized
         message={
           customMessage ||
-          `Only ${requiredRole} role users can access this page.`
+          sprintf(
+            /* translators: %s: Required WordPress role slug */
+            __('Only %s role users can access this page.'),
+            requiredRole
+          )
         }
       />
     );
@@ -39,7 +44,7 @@ export default function PageGuard({
     return (
       <Unauthorized
         message={
-          customMessage || "You don't have permission to access this page."
+          customMessage || __("You don't have permission to access this page.")
         }
       />
     );

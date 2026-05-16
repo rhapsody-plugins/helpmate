@@ -11,6 +11,7 @@ import api from '@/lib/axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { __, sprintf } from '@/lib/utils';
 import { toast } from 'sonner';
 
 type SyncSummary = {
@@ -78,18 +79,25 @@ export default function CommerceCustomerSyncButton({
     <>
       <div className={compact ? '' : 'border-t pt-4 mt-4 space-y-2'}>
         <Button type="button" variant="secondary" onClick={() => setConfirmOpen(true)}>
-          Sync customers to CRM
+          {__('Sync customers to CRM')}
         </Button>
       </div>
       {!compact && (
         <div className="space-y-2">
           <p className="text-xs text-muted-foreground">
-            One-way import from {providerLabel}: customers are matched by email and CRM contact
-            fields are overwritten from {providerLabel} data.
+            {sprintf(
+              /* translators: 1: Commerce provider name, 2: Commerce provider name */
+              __(
+                'One-way import from %1$s: customers are matched by email and CRM contact fields are overwritten from %2$s data.'
+              ),
+              __(providerLabel),
+              __(providerLabel)
+            )}
           </p>
           <p className="text-xs text-muted-foreground">
-            If you run sync from another commerce provider later, that latest sync wins for matching
-            emails.
+            {__(
+              'If you run sync from another commerce provider later, that latest sync wins for matching emails.'
+            )}
           </p>
         </div>
       )}
@@ -97,25 +105,32 @@ export default function CommerceCustomerSyncButton({
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Sync customers to CRM?</DialogTitle>
+            <DialogTitle>{__('Sync customers to CRM?')}</DialogTitle>
             <DialogDescription className="space-y-2 text-left">
               <span className="block">
-                Existing CRM contacts with the <strong>same email</strong> as a {providerLabel}{' '}
-                customer will be updated from that customer profile.
+                {sprintf(
+                  /* translators: %1$s: Commerce provider name */
+                  __(
+                    'Existing CRM contacts with the same email as a %1$s customer will be updated from that customer profile.'
+                  ),
+                  __(providerLabel)
+                )}
               </span>
               <span className="block">
-                If you sync from different commerce providers, the most recent sync overwrites the
-                same-email contact fields.
+                {__(
+                  'If you sync from different commerce providers, the most recent sync overwrites the same-email contact fields.'
+                )}
               </span>
               <span className="block text-destructive">
-                This bulk update cannot be undone automatically. Export or back up CRM data if
-                unsure.
+                {__(
+                  'This bulk update cannot be undone automatically. Export or back up CRM data if unsure.'
+                )}
               </span>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
             <Button type="button" variant="outline" onClick={() => setConfirmOpen(false)}>
-              Cancel
+              {__('Cancel')}
             </Button>
             <Button
               type="button"
@@ -126,10 +141,10 @@ export default function CommerceCustomerSyncButton({
               {syncMutation.isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin mr-2" />
-                  Syncing…
+                  {__('Syncing…')}
                 </>
               ) : (
-                'Yes, sync now'
+                __('Yes, sync now')
               )}
             </Button>
           </DialogFooter>

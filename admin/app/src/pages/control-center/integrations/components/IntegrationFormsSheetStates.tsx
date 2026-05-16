@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { __ } from '@/lib/utils';
 import { ClipboardList, Loader2 } from 'lucide-react';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { IntegrationFormsResponse } from '../types';
@@ -22,7 +23,7 @@ export default function IntegrationFormsSheetStates({
     return (
       <div className="flex flex-1 min-h-[min(320px,55vh)] flex-col items-center justify-center gap-3 px-4">
         <Loader2 className="h-9 w-9 animate-spin text-primary" aria-hidden />
-        <p className="text-sm text-muted-foreground">Loading forms…</p>
+        <p className="text-sm text-muted-foreground">{__('Loading forms…')}</p>
       </div>
     );
   }
@@ -31,7 +32,9 @@ export default function IntegrationFormsSheetStates({
     return (
       <div className="flex flex-1 min-h-[min(240px,45vh)] flex-col items-center justify-center gap-2 px-4 text-center">
         <p className="text-sm text-destructive max-w-sm">
-          Could not load forms. Try closing and reopening this panel.
+          {__(
+            'Could not load forms. Try closing and reopening this panel.'
+          )}
         </p>
       </div>
     );
@@ -42,7 +45,7 @@ export default function IntegrationFormsSheetStates({
     return (
       <div className="flex flex-1 min-h-[min(240px,45vh)] flex-col items-center justify-center gap-2 px-4 text-center">
         <p className="text-sm text-muted-foreground max-w-sm">
-          {notInstalledText}
+          {__(notInstalledText)}
         </p>
       </div>
     );
@@ -56,14 +59,14 @@ export default function IntegrationFormsSheetStates({
           <ClipboardList className="h-10 w-10 text-muted-foreground" strokeWidth={1.5} />
         </div>
         <div className="space-y-2 max-w-sm">
-          <p className="!text-base !font-semibold text-foreground">No forms yet</p>
+          <p className="!text-base !font-semibold text-foreground">{__('No forms yet')}</p>
           <p className="!text-sm !text-muted-foreground !leading-relaxed">
-            {emptySupportingText}
+            {__(emptySupportingText)}
           </p>
         </div>
         <Button asChild>
           <a className="!text-white" href={createFormUrl}>
-            {primaryCtaText}
+            {__(primaryCtaText)}
           </a>
         </Button>
       </div>

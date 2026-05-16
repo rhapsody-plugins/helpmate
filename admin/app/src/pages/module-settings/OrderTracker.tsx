@@ -16,7 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { useMain } from '@/contexts/MainContext';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -94,10 +94,10 @@ export default function WooCommerce() {
     <PageGuard page="order-tracker">
       <div className="gap-0">
         <PageHeader
-        title="Order Tracker"
+        title={__('Order Tracker')}
         rightActions={
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Enable Module</span>
+            <span className="text-sm text-muted-foreground">{__('Enable Module')}</span>
             <Switch
               checked={isModuleEnabled}
               onCheckedChange={handleModuleToggle}
@@ -114,8 +114,8 @@ export default function WooCommerce() {
       >
         {!getProQuery.data && (
           <ProBadge
-            topMessage="Give them answers before they ask. Real-time order tracking reduces refunds and raises trust."
-            buttonText="Make Shipping Transparent"
+            topMessage={__('Give them answers before they ask. Real-time order tracking reduces refunds and raises trust.')}
+            buttonText={__('Make Shipping Transparent')}
             tooltipMessage={null}
           />
         )}
@@ -128,7 +128,7 @@ export default function WooCommerce() {
           <CardHeader>
             <CardTitle className="flex gap-1 items-center text-xl font-bold">
               Order Tracker{' '}
-              <InfoTooltip message="Customers can track their orders in real-time using email, phone number, or order ID, right from the chat window. It reduces customer anxiety and the feature enhances transparency, which helps build trust and loyalty." />
+              <InfoTooltip message={__('Customers can track their orders in real-time using email, phone number, or order ID, right from the chat window. It reduces customer anxiety and the feature enhances transparency, which helps build trust and loyalty.')} />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -161,7 +161,7 @@ export default function WooCommerce() {
                       name="order_tracker_email_required"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Required Field</FormLabel>
+                          <FormLabel>{__('Required Field')}</FormLabel>
                           <FormControl>
                             <RadioGroup
                               onValueChange={(value) => {
@@ -191,7 +191,7 @@ export default function WooCommerce() {
                                   id="email-required"
                                 />
                                 <label htmlFor="email-required">
-                                  Email Required
+                                  {__('Email Required')}
                                 </label>
                               </div>
                               <div className="flex items-center space-x-2">
@@ -200,7 +200,7 @@ export default function WooCommerce() {
                                   id="phone-required"
                                 />
                                 <label htmlFor="phone-required">
-                                  Phone Required
+                                  {__('Phone Required')}
                                 </label>
                               </div>
                               <div className="flex items-center space-x-2">
@@ -209,9 +209,9 @@ export default function WooCommerce() {
                                   id="none-required"
                                 />
                                 <label htmlFor="none-required">
-                                  Order ID Only
+                                  {__('Order ID Only')}
                                 </label>
-                                <InfoTooltip message="Only collect order ID. No email or phone verification. Anyone with the order ID can view status." />
+                                <InfoTooltip message={__('Only collect order ID. No email or phone verification. Anyone with the order ID can view status.')} />
                               </div>
                             </RadioGroup>
                           </FormControl>
@@ -224,7 +224,7 @@ export default function WooCommerce() {
                       disabled={isUpdating}
                       loading={isUpdating}
                     >
-                      {isUpdating ? 'Saving...' : 'Save'}
+                      {isUpdating ? __('Saving...') : __('Save')}
                     </Button>
                   </>
                 )}

@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ContactsAnalytics } from '@/types/crm-analytics';
+import { __ } from '@/lib/utils';
 import { Users, Mail } from 'lucide-react';
 
 interface ContactsReportProps {
@@ -25,14 +26,14 @@ export default function ContactsReport({ data }: ContactsReportProps) {
       <div className="flex flex-col gap-2 justify-between p-6 h-full">
         <div className="flex gap-3 justify-between items-center">
           <div className="flex flex-col justify-center h-full">
-            <h5 className="!text-sm !font-normal !my-0 !py-0">Total Contacts</h5>
+            <h5 className="!text-sm !font-normal !my-0 !py-0">{__('Total Contacts')}</h5>
             <span className="!text-2xl !font-semibold">{data.total}</span>
           </div>
           <Users size={30} strokeWidth={1.5} className="text-blue-500" />
         </div>
         <Separator />
         <div className="flex flex-col gap-1">
-          <h5 className="!text-sm !font-normal !my-0 !py-0">Contacts Created</h5>
+          <h5 className="!text-sm !font-normal !my-0 !py-0">{__('Contacts Created')}</h5>
           <div className="flex gap-1 justify-between items-center">
             <span className="!text-2xl !font-semibold">{data.created}</span>
             <Badge variant={getBadgeVariant(data.comparison.created_change)}>
@@ -42,7 +43,7 @@ export default function ContactsReport({ data }: ContactsReportProps) {
         </div>
         <Separator />
         <div className="flex flex-col gap-1">
-          <h5 className="!text-sm !font-normal !my-0 !py-0">Contacts Updated</h5>
+          <h5 className="!text-sm !font-normal !my-0 !py-0">{__('Contacts Updated')}</h5>
           <div className="flex gap-1 justify-between items-center">
             <span className="!text-2xl !font-semibold">{data.updated}</span>
             <Badge variant={getBadgeVariant(data.comparison.updated_change)}>
@@ -55,7 +56,7 @@ export default function ContactsReport({ data }: ContactsReportProps) {
             <Separator />
             <div className="flex gap-2 justify-between items-center">
               <div className="flex flex-col gap-1">
-                <h5 className="!text-sm !font-normal !my-0 !py-0">Emails Sent</h5>
+                <h5 className="!text-sm !font-normal !my-0 !py-0">{__('Emails Sent')}</h5>
                 <span className="!text-xl !font-semibold">{data.emails_sent}</span>
               </div>
               <Mail size={24} strokeWidth={1.5} className="text-blue-500 opacity-60" />

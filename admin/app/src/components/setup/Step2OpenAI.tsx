@@ -16,7 +16,7 @@ import {
   OpenAIApiKeysURL,
   OpenAIBillingURL,
 } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -69,10 +69,10 @@ export default function Step2OpenAI({ onComplete, onSkip }: Step2OpenAIProps) {
     <div className="space-y-6">
       <div className="mb-6 text-center">
         <h2 className="!mb-2 !mt-0 !text-2xl !font-bold">
-          Step 2: Add Your OpenAI API Key (Optional)
+          {__('Step 2: Add Your OpenAI API Key (Optional)')}
         </h2>
         <p className="text-muted-foreground !my-0">
-          You can add your own OpenAI API key for additional credits
+          {__('You can add your own OpenAI API key for additional credits')}
         </p>
       </div>
 
@@ -85,8 +85,8 @@ export default function Step2OpenAI({ onComplete, onSkip }: Step2OpenAIProps) {
             <div className="relative">
               {!isPro && (
                 <ProBadge
-                  topMessage="Unlimited Chat Usage (via Your OpenAI API Key)"
-                  buttonText="Enable Unlimited Chats"
+                  topMessage={__('Unlimited Chat Usage (via Your OpenAI API Key)')}
+                  buttonText={__('Enable Unlimited Chats')}
                   tooltipMessage={null}
                 />
               )}
@@ -99,40 +99,44 @@ export default function Step2OpenAI({ onComplete, onSkip }: Step2OpenAIProps) {
                   <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 space-y-2 text-sm text-blue-800">
                     <p className="!text-base">
-                      <strong>Note:</strong> You'll still get free credits even
-                      if you don't add your OpenAI API key. This step is
-                      completely optional.
+                      <strong>{__('Note:')}</strong>{' '}
+                      {__(
+                        "You'll still get free credits even if you don't add your OpenAI API key. This step is completely optional."
+                      )}
                     </p>
                     <p className="!text-base">
-                      <strong>Get your API key:</strong>{' '}
+                      <strong>{__('Get your API key:')}</strong>{' '}
                       <a
                         href={OpenAIApiKeysURL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-700 underline hover:no-underline"
                       >
-                        OpenAI API keys
+                        {__('OpenAI API keys')}
                       </a>
-                      {' '}— sign in at platform.openai.com → API keys →
-                      Create new secret key.
+                      {__(
+                        ' — sign in at platform.openai.com → API keys → Create new secret key.'
+                      )}
                     </p>
                     <p className="!text-base">
-                      <strong>Add credit/balance:</strong> You must add credit
-                      in your OpenAI account for the API to work without
-                      issues:{' '}
+                      <strong>{__('Add credit/balance:')}</strong>{' '}
+                      {__(
+                        'You must add credit in your OpenAI account for the API to work without issues:'
+                      )}{' '}
                       <a
                         href={OpenAIBillingURL}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-700 underline hover:no-underline"
                       >
-                        Billing
+                        {__('Billing')}
                       </a>
                       .
                     </p>
                     <p className="!text-base">
-                      This uses the OpenAI API (pay-as-you-go), not a ChatGPT
-                      Plus subscription.
+                      {__(
+                        'This uses the OpenAI API (pay-as-you-go), not a ChatGPT Plus subscription.'
+                      )}
                     </p>
                   </div>
                 </div>
@@ -141,7 +145,7 @@ export default function Step2OpenAI({ onComplete, onSkip }: Step2OpenAIProps) {
                   name="openAiKey"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>OpenAI API Key</FormLabel>
+                      <FormLabel>{__('OpenAI API Key')}</FormLabel>
                       <FormControl>
                         <Input
                           type="password"
@@ -152,7 +156,7 @@ export default function Step2OpenAI({ onComplete, onSkip }: Step2OpenAIProps) {
                       </FormControl>
                       <FormMessage />
                       <p className="text-xs text-muted-foreground">
-                        Your key will be encrypted and stored securely
+                        {__('Your key will be encrypted and stored securely')}
                       </p>
                     </FormItem>
                   )}
@@ -168,7 +172,7 @@ export default function Step2OpenAI({ onComplete, onSkip }: Step2OpenAIProps) {
                 className="flex-1"
                 disabled={isSaving}
               >
-                Skip This Step
+                {__('Skip This Step')}
               </Button>
               <Button
                 type="submit"
@@ -176,7 +180,7 @@ export default function Step2OpenAI({ onComplete, onSkip }: Step2OpenAIProps) {
                 disabled={isSaving || !isPro}
                 loading={isSaving}
               >
-                Save & Continue
+                {__('Save & Continue')}
               </Button>
             </div>
           </form>

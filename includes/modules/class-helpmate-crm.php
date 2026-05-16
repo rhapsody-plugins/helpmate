@@ -1974,7 +1974,7 @@ class Helpmate_CRM
         $remaining = count($lines) - count($slice);
         if ($remaining > 0) {
             $parts[] = sprintf(
-                /* translators: %d: number of additional order line items not shown */
+                /* translators: %d: Count of additional items not shown */
                 __('+%d more', 'helpmate-ai-chatbot'),
                 $remaining
             );

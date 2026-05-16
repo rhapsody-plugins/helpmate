@@ -9,35 +9,35 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$helpmate = Helpmate_Beaver_Builder::instance()->get_helpmate();
-$builder  = class_exists( 'FLBuilderModel' ) && FLBuilderModel::is_builder_active();
+$helpmate                   = Helpmate_Beaver_Builder::instance()->get_helpmate();
+$helpmate_bb_builder_active = class_exists( 'FLBuilderModel' ) && FLBuilderModel::is_builder_active();
 
 if ( ! $helpmate || ! $helpmate->get_plugin_public() ) {
 	return;
 }
 
-$suffix = isset( $module->node ) ? (string) $module->node : 'bb';
-$suffix = preg_replace( '/[^a-zA-Z0-9_-]/', '', $suffix );
-if ( $suffix === '' ) {
-	$suffix = 'bb';
+$helpmate_dom_id_suffix = isset( $module->node ) ? (string) $module->node : 'bb';
+$helpmate_dom_id_suffix = preg_replace( '/[^a-zA-Z0-9_-]/', '', $helpmate_dom_id_suffix );
+if ( $helpmate_dom_id_suffix === '' ) {
+	$helpmate_dom_id_suffix = 'bb';
 }
 
-$heading = isset( $settings->heading_text ) ? trim( (string) $settings->heading_text ) : '';
-$align   = isset( $settings->text_align ) ? (string) $settings->text_align : '';
-if ( ! in_array( $align, array( 'left', 'center', 'right' ), true ) ) {
-	$align = '';
+$helpmate_heading_text = isset( $settings->heading_text ) ? trim( (string) $settings->heading_text ) : '';
+$helpmate_text_align   = isset( $settings->text_align ) ? (string) $settings->text_align : '';
+if ( ! in_array( $helpmate_text_align, array( 'left', 'center', 'right' ), true ) ) {
+	$helpmate_text_align = '';
 }
 
-$html = $helpmate->get_plugin_public()->get_scheduling_form_html(
+$helpmate_scheduling_html = $helpmate->get_plugin_public()->get_scheduling_form_html(
 	array(
-		'instance_suffix' => $suffix,
-		'heading_text'    => $heading,
-		'text_align'      => $align,
+		'instance_suffix' => $helpmate_dom_id_suffix,
+		'heading_text'    => $helpmate_heading_text,
+		'text_align'      => $helpmate_text_align,
 	)
 );
 
-if ( $html === '' ) {
-	if ( $builder ) {
+if ( $helpmate_scheduling_html === '' ) {
+	if ( $helpmate_bb_builder_active ) {
 		echo '<div class="fl-module-msg fl-module-msg-info">';
 		echo esc_html__( 'Smart Schedules is disabled or unavailable. Enable it in Helpmate settings.', 'helpmate-ai-chatbot' );
 		echo '</div>';
@@ -46,4 +46,4 @@ if ( $html === '' ) {
 }
 
 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Markup from trusted plugin template
-echo $html;
+echo $helpmate_scheduling_html;

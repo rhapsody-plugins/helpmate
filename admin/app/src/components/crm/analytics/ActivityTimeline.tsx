@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { ActivityItem } from '@/types/crm-analytics';
+import { __, sprintf } from '@/lib/utils';
 import {
   CheckCircle2,
   MessageSquare,
@@ -30,15 +31,15 @@ const getActivityIcon = (type: ActivityItem['type']) => {
 const getActivityLabel = (type: ActivityItem['type']) => {
   switch (type) {
     case 'task_created':
-      return 'Task created';
+      return __('Task created');
     case 'ticket_created':
-      return 'Ticket created';
+      return __('Ticket created');
     case 'contact_created':
-      return 'Contact created';
+      return __('Contact created');
     case 'lead_created':
-      return 'Lead created';
+      return __('Lead created');
     default:
-      return 'Activity';
+      return __('Activity');
   }
 };
 
@@ -50,10 +51,25 @@ const formatTimestamp = (timestamp: number) => {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffMins < 1) return __('Just now');
+  if (diffMins < 60)
+    return sprintf(
+      /* translators: %d: Minutes since activity */
+      __('%dm ago'),
+      diffMins
+    );
+  if (diffHours < 24)
+    return sprintf(
+      /* translators: %d: Hours since activity */
+      __('%dh ago'),
+      diffHours
+    );
+  if (diffDays < 7)
+    return sprintf(
+      /* translators: %d: Days since activity */
+      __('%dd ago'),
+      diffDays
+    );
   return date.toLocaleDateString();
 };
 
@@ -63,7 +79,7 @@ export default function ActivityTimeline({ data }: ActivityTimelineProps) {
       <Card className="p-0 h-full">
         <div className="p-6 h-full flex flex-col justify-center items-center text-muted-foreground">
           <Clock className="mb-2 w-8 h-8" />
-          <p className="text-sm">No activity data available</p>
+          <p className="text-sm">{__('No activity data available')}</p>
         </div>
       </Card>
     );
@@ -73,7 +89,7 @@ export default function ActivityTimeline({ data }: ActivityTimelineProps) {
     <Card className="p-0 h-full">
       <div className="p-6 h-full flex flex-col">
         <h5 className="!text-sm !font-normal !my-0 !py-0 !mb-4">
-          Recent Activity
+          {__('Recent Activity')}
         </h5>
         <div className="flex-1 overflow-auto">
           <div className="flex flex-col gap-3">

@@ -110,15 +110,9 @@ register_deactivation_hook(__FILE__, 'deactivate_helpmate');
 require plugin_dir_path(__FILE__) . 'includes/class-helpmate.php';
 
 /**
- * Set the script translations for the plugin.
- *
- * @since    1.0.0
+ * Script translations are attached in admin/public enqueue functions — wp_set_script_translations()
+ * requires the script handle to already be registered (WP_Scripts::set_translations returns false on init).
  */
-function helpmate_set_script_translations()
-{
-	wp_set_script_translations(HELPMATE_BASENAME, 'helpmate-ai-chatbot', plugin_dir_path(__FILE__) . 'languages');
-}
-add_action('init', 'helpmate_set_script_translations');
 
 /**
  * Begins execution of the plugin.

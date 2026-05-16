@@ -30,6 +30,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { formatDistanceToNow } from 'date-fns';
+import { __, sprintf } from '@/lib/utils';
 
 export const campaignFormSchema = z
   .object({
@@ -196,9 +197,11 @@ function PostSelectionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="!max-w-4xl max-h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Select Post</DialogTitle>
+          <DialogTitle>{__('Select Post')}</DialogTitle>
           <DialogDescription>
-            Choose a post to trigger the automation only on comments from that post.
+            {__(
+              'Choose a post to trigger the automation only on comments from that post.'
+            )}
           </DialogDescription>
         </DialogHeader>
         <div className="overflow-y-auto flex-1">
@@ -209,7 +212,13 @@ function PostSelectionDialog({
           ) : allPosts.length === 0 ? (
             <div className="p-4 rounded-md border bg-muted/50">
               <p className="text-sm text-muted-foreground">
-                No posts found. Make sure your {platform === 'facebook' ? 'Facebook' : 'Instagram'} account has posts.
+                {sprintf(
+                  /* translators: %s: Social network name (e.g. Facebook) */
+                  __(
+                    'No posts found. Make sure your %s account has posts.'
+                  ),
+                  platform === 'facebook' ? __('Facebook') : __('Instagram')
+                )}
               </p>
             </div>
           ) : (
@@ -236,7 +245,7 @@ function PostSelectionDialog({
                         {isPostUnavailable(post) ? (
                           <>
                             <Lock className="mb-2 w-8 h-8 text-muted-foreground" />
-                            <p className="px-2 text-xs text-center text-muted-foreground">Content not available</p>
+                            <p className="px-2 text-xs text-center text-muted-foreground">{__('Content not available')}</p>
                           </>
                         ) : (
                           <MessageSquare className="w-8 h-8 text-muted-foreground" />
@@ -245,8 +254,10 @@ function PostSelectionDialog({
                     )}
                     <p className="mb-2 text-sm line-clamp-2">
                       {isPostUnavailable(post)
-                        ? 'This content is not available. It may have been deleted or is only visible to a limited audience.'
-                        : (post.message || post.caption || 'No message')}
+                        ? __(
+                            'This content is not available. It may have been deleted or is only visible to a limited audience.'
+                          )
+                        : (post.message || post.caption || __('No message'))}
                     </p>
                     {(post.timestamp || post.created_time) && (
                       <p className="text-xs text-muted-foreground">
@@ -282,10 +293,10 @@ function PostSelectionDialog({
         </div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {__('Cancel')}
           </Button>
           <Button type="button" onClick={handleConfirm} disabled={!tempSelectedPostId}>
-            Select
+            {__('Select')}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -374,7 +385,13 @@ function PostScopeSelector({ form, platform }: PostScopeSelectorProps) {
       {!accountId ? (
         <div className="p-4 rounded-md border bg-muted/50">
           <p className="text-sm text-muted-foreground">
-            No {platform === 'facebook' ? 'Facebook' : 'Instagram'} account connected. Please connect an account first to select posts.
+            {sprintf(
+              /* translators: %s: Social network name (e.g. Facebook) */
+              __(
+                'No %s account connected. Please connect an account first to select posts.'
+              ),
+              platform === 'facebook' ? __('Facebook') : __('Instagram')
+            )}
           </p>
         </div>
       ) : postsQuery.isLoading ? (
@@ -387,13 +404,19 @@ function PostScopeSelector({ form, platform }: PostScopeSelectorProps) {
           name="post_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Select Post</FormLabel>
+              <FormLabel>{__('Select Post')}</FormLabel>
               <FormControl>
                 <div className="space-y-4">
                   {displayedPosts.length === 0 ? (
                     <div className="p-4 rounded-md border bg-muted/50">
                       <p className="text-sm text-muted-foreground">
-                        No posts found. Make sure your {platform === 'facebook' ? 'Facebook' : 'Instagram'} account has posts.
+                        {sprintf(
+                          /* translators: %s: Social network name (e.g. Facebook) */
+                          __(
+                            'No posts found. Make sure your %s account has posts.'
+                          ),
+                          platform === 'facebook' ? __('Facebook') : __('Instagram')
+                        )}
                       </p>
                     </div>
                   ) : (
@@ -421,7 +444,7 @@ function PostScopeSelector({ form, platform }: PostScopeSelectorProps) {
                                       {isPostUnavailable(post) ? (
                                         <>
                                           <Lock className="mb-1 w-6 h-6 text-muted-foreground" />
-                                          <p className="px-2 text-xs text-center text-muted-foreground">Content not available</p>
+                                          <p className="px-2 text-xs text-center text-muted-foreground">{__('Content not available')}</p>
                                         </>
                                       ) : (
                                         <MessageSquare className="w-8 h-8 text-muted-foreground" />
@@ -430,8 +453,10 @@ function PostScopeSelector({ form, platform }: PostScopeSelectorProps) {
                                   )}
                                   <p className="mb-2 text-sm line-clamp-2">
                                     {isPostUnavailable(post)
-                                      ? 'This content is not available. It may have been deleted or is only visible to a limited audience.'
-                                      : (post.message || post.caption || 'No message')}
+                                      ? __(
+                                          'This content is not available. It may have been deleted or is only visible to a limited audience.'
+                                        )
+                                      : (post.message || post.caption || __('No message'))}
                                   </p>
                                   {(post.timestamp || post.created_time) && (
                                     <p className="text-xs text-muted-foreground">
@@ -463,7 +488,7 @@ function PostScopeSelector({ form, platform }: PostScopeSelectorProps) {
                               onClick={() => setDialogOpen(true)}
                               className="w-full"
                             >
-                            Show More Posts
+                            {__('Show More Posts')}
                         </Button>
                       )}
                     </>
@@ -472,7 +497,9 @@ function PostScopeSelector({ form, platform }: PostScopeSelectorProps) {
               </FormControl>
               <FormMessage />
               <p className="text-xs text-muted-foreground">
-                Select a specific post to trigger the automation only on comments from that post.
+                {__(
+                  'Select a specific post to trigger the automation only on comments from that post.'
+                )}
               </p>
               <PostSelectionDialog
                 open={dialogOpen}
@@ -623,10 +650,12 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
     return (
       <div className="flex flex-col justify-center items-center py-12 text-center">
         <p className="mb-4 text-muted-foreground">
-          Please connect a Facebook or Instagram account first to create automations.
+          {__(
+            'Please connect a Facebook or Instagram account first to create automations.'
+          )}
         </p>
         <Button type="button" variant="outline" onClick={onClose}>
-          Close
+          {__('Close')}
         </Button>
       </div>
     );
@@ -640,7 +669,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Automation Title</FormLabel>
+              <FormLabel>{__('Automation Title')}</FormLabel>
               <FormControl>
                 <Input placeholder="Summer Sale 2024" {...field} />
               </FormControl>
@@ -654,7 +683,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{__('Description')}</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Get 50% off on all products this summer!"
@@ -671,7 +700,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
           name="platform"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Platform</FormLabel>
+              <FormLabel>{__('Platform')}</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -681,20 +710,20 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
                   {hasFacebook && (
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="facebook" id="platform-facebook" />
-                      <label htmlFor="platform-facebook">Facebook</label>
+                      <label htmlFor="platform-facebook">{__('Facebook')}</label>
                     </div>
                   )}
                   {hasInstagram && (
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="instagram" id="platform-instagram" />
-                      <label htmlFor="platform-instagram">Instagram</label>
+                      <label htmlFor="platform-instagram">{__('Instagram')}</label>
                     </div>
                   )}
                 </RadioGroup>
               </FormControl>
               <FormMessage />
               <p className="text-xs text-muted-foreground">
-                Select which platform this automation will work on.
+                {__('Select which platform this automation will work on.')}
               </p>
             </FormItem>
           )}
@@ -711,7 +740,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
             name="campaign_type"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Automation Type</FormLabel>
+                <FormLabel>{__('Automation Type')}</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -720,11 +749,11 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="lead" id="campaign-type-lead" />
-                      <label htmlFor="campaign-type-lead">Lead</label>
+                      <label htmlFor="campaign-type-lead">{__('Lead')}</label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="custom_message" id="campaign-type-custom" />
-                      <label htmlFor="campaign-type-custom">Custom Message</label>
+                      <label htmlFor="campaign-type-custom">{__('Custom Message')}</label>
                     </div>
                   </RadioGroup>
                 </FormControl>
@@ -739,7 +768,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
           name="keywords"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Keywords</FormLabel>
+              <FormLabel>{__('Keywords')}</FormLabel>
               <FormControl>
                 <Input
                   placeholder="sale, deal, discount"
@@ -748,7 +777,9 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
               </FormControl>
               <FormMessage />
               <p className="text-xs text-muted-foreground">
-                Enter keywords separated by commas. Automation triggers if ANY keyword is found (e.g., "sale, deal, discount").
+                {__(
+                  'Enter keywords separated by commas. Automation triggers if ANY keyword is found (e.g., "sale, deal, discount").'
+                )}
               </p>
             </FormItem>
           )}
@@ -757,9 +788,9 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
         {activeCampaignType === 'lead' && (
           <>
             <div className="space-y-4">
-              <FormLabel>Collect Information</FormLabel>
+              <FormLabel>{__('Collect Information')}</FormLabel>
               <p className="text-sm text-muted-foreground">
-                Select at least one field to collect from users:
+                {__('Select at least one field to collect from users:')}
               </p>
 
               <FormField
@@ -774,7 +805,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{__('Email')}</FormLabel>
                     </div>
                   </FormItem>
                 )}
@@ -792,7 +823,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>Phone</FormLabel>
+                      <FormLabel>{__('Phone')}</FormLabel>
                     </div>
                   </FormItem>
                 )}
@@ -810,7 +841,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel>Address</FormLabel>
+                      <FormLabel>{__('Address')}</FormLabel>
                     </div>
                   </FormItem>
                 )}
@@ -823,7 +854,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
               name="url"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Resource Link</FormLabel>
+                  <FormLabel>{__('Resource Link')}</FormLabel>
                   <FormControl>
                     <Input
                       type="url"
@@ -833,8 +864,9 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
                   </FormControl>
                   <FormMessage />
                   <p className="text-xs text-muted-foreground">
-                    This link will be sent to users after they complete the
-                    information collection.
+                    {__(
+                      'This link will be sent to users after they complete the information collection.'
+                    )}
                   </p>
                 </FormItem>
               )}
@@ -848,7 +880,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
             name="custom_message"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Custom Message</FormLabel>
+                <FormLabel>{__('Custom Message')}</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Enter the message to send via DM..."
@@ -857,7 +889,9 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
                 </FormControl>
                 <FormMessage />
                 <p className="text-xs text-muted-foreground">
-                  This message will be sent directly to the user via DM when the keyword is detected.
+                  {__(
+                    'This message will be sent directly to the user via DM when the keyword is detected.'
+                  )}
                 </p>
               </FormItem>
             )}
@@ -869,7 +903,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
           name="comment_reply"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Comment Reply (Optional)</FormLabel>
+              <FormLabel>{__('Comment Reply (Optional)')}</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Reply to the comment before sending DM. Leave empty to skip comment reply."
@@ -878,7 +912,9 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
               </FormControl>
               <FormMessage />
               <p className="text-xs text-muted-foreground">
-                Optional: Reply to the comment before sending DM. Leave empty to skip comment reply.
+                {__(
+                  'Optional: Reply to the comment before sending DM. Leave empty to skip comment reply.'
+                )}
               </p>
             </FormItem>
           )}
@@ -886,7 +922,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
 
         <div className="flex gap-2 justify-end">
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {__('Cancel')}
           </Button>
           <Button
             type="submit"
@@ -895,7 +931,7 @@ export function CampaignForm({ campaign, campaignType, onClose }: CampaignFormPr
               updateLeadCampaignMutation.isPending
             }
           >
-            {isEditing ? 'Update' : 'Create'} Automation
+            {isEditing ? __('Update Automation') : __('Create Automation')}
           </Button>
         </div>
       </form>

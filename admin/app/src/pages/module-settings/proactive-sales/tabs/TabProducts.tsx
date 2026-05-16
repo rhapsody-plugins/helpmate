@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { useDataSource } from '@/hooks/useDataSource';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { DiscountedProduct } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { useQuery } from '@tanstack/react-query';
@@ -221,7 +221,7 @@ export default function TabProducts() {
     () => [
       {
         accessorKey: 'image_url',
-        header: 'Image',
+        header: __('Image'),
         cell: ({ row }) => (
           <DiscountedProductThumbnail
             name={row.original.name}
@@ -231,11 +231,11 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'name',
-        header: 'Name',
+        header: __('Name'),
       },
       {
         accessorKey: 'regular_price',
-        header: 'Regular Price',
+        header: __('Regular Price'),
         cell: ({ row }) => (
           <span
             className="text-sm font-medium"
@@ -245,7 +245,7 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'sale_price',
-        header: 'Sale Price',
+        header: __('Sale Price'),
         cell: ({ row }) => (
           <span
             className="text-sm font-medium"
@@ -255,7 +255,7 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'discount_percentage',
-        header: 'Discount Percentage',
+        header: __('Discount Percentage'),
         cell: ({ row }) => (
           <span className="text-sm font-medium">
             {row.original.discount_percentage}%
@@ -264,7 +264,7 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'stock_status',
-        header: 'Stock Status',
+        header: __('Stock Status'),
         cell: ({ row }) => (
           <Badge
             variant={
@@ -275,8 +275,8 @@ export default function TabProducts() {
             color={row.original.stock_status === 'instock' ? 'green' : 'red'}
           >
             {row.original.stock_status === 'instock'
-              ? 'In Stock'
-              : 'Out of Stock'}
+              ? __('In Stock')
+              : __('Out of Stock')}
           </Badge>
         ),
       },
@@ -287,7 +287,7 @@ export default function TabProducts() {
   const columns = useMemo<ColumnDef<DiscountedProduct>[]>(() => {
     const vendorCol: ColumnDef<DiscountedProduct> = {
       id: 'vendor_store',
-      header: 'Vendor',
+      header: __('Vendor'),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {row.original.vendor_store_name?.trim()
@@ -299,10 +299,10 @@ export default function TabProducts() {
     const tail: ColumnDef<DiscountedProduct>[] = [
       {
         accessorKey: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => (
           <Button size="sm" onClick={() => handleAdd(row.original.id)}>
-            Add
+            {__('Add')}
           </Button>
         ),
       },
@@ -316,7 +316,7 @@ export default function TabProducts() {
   const savedColumns = useMemo<ColumnDef<DiscountedProduct>[]>(() => {
     const vendorCol: ColumnDef<DiscountedProduct> = {
       id: 'vendor_store_saved',
-      header: 'Vendor',
+      header: __('Vendor'),
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {row.original.vendor_store_name?.trim()
@@ -328,14 +328,14 @@ export default function TabProducts() {
     const tail: ColumnDef<DiscountedProduct>[] = [
       {
         accessorKey: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => (
           <Button
             size="sm"
             variant="destructive"
             onClick={() => handleRemove(row.original.id)}
           >
-            Remove
+            {__('Remove')}
           </Button>
         ),
       },
@@ -356,8 +356,10 @@ export default function TabProducts() {
       <div className="relative">
         {!getProQuery.data && (
           <ProBadge
-            topMessage="It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
-            buttonText="Boost Sales Conversations"
+          topMessage={__(
+            "It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
+          )}
+          buttonText={__('Boost Sales Conversations')}
             tooltipMessage={null}
           />
         )}
@@ -371,8 +373,8 @@ export default function TabProducts() {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="flex gap-1 items-center text-xl font-bold">
-                  Discounted Products
-                  <InfoTooltip message="Add discounted products for proactive sales." />
+                  {__('Discounted Products')}
+                  <InfoTooltip message={__('Add discounted products for proactive sales.')} />
                 </CardTitle>
               </div>
               <Input
@@ -406,8 +408,10 @@ export default function TabProducts() {
       <div className="relative">
         {!getProQuery.data && (
           <ProBadge
-            topMessage="It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
-            buttonText="Boost Sales Conversations"
+          topMessage={__(
+            "It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
+          )}
+          buttonText={__('Boost Sales Conversations')}
             tooltipMessage={null}
           />
         )}
@@ -420,7 +424,7 @@ export default function TabProducts() {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle className="text-xl font-bold">
-                Saved for Proactive Sales
+                {__('Saved for Proactive Sales')}
               </CardTitle>
               <Input
                 placeholder="Search saved products..."

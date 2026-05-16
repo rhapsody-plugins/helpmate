@@ -21,14 +21,12 @@ import {
   SocialLeadCampaign,
   useSocialChat,
 } from '@/hooks/useSocialChat';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { Icon } from '@iconify/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatDistanceToNow } from 'date-fns';
 import { Check, Facebook, Instagram, Link2, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-
-const WHATSAPP_CONNECT_INFO = `<strong>Before you connect</strong><br/><br/>• After clicking Connect, you'll be redirected to a new screen where a popup window will open to complete the connection. Some browsers (e.g., Microsoft Edge) block popups by default. If the connection does not complete, allow popups for this site in your browser settings and try again.<br/><br/>• If the phone number you want to connect is already registered with WhatsApp or WhatsApp Business on another device or app, you must remove it from that app first. A phone number can only be linked to one WhatsApp account at a time.`;
 
 export default function AutoResponses() {
   const { setPage } = useMain();
@@ -168,33 +166,39 @@ export default function AutoResponses() {
     (c) => c.campaign_type === 'custom_message'
   );
 
+  const whatsappConnectInfo = __(
+    `<strong>Before you connect</strong><br/><br/>• After clicking Connect, you'll be redirected to a new screen where a popup window will open to complete the connection. Some browsers (e.g., Microsoft Edge) block popups by default. If the connection does not complete, allow popups for this site in your browser settings and try again.<br/><br/>• If the phone number you want to connect is already registered with WhatsApp or WhatsApp Business on another device or app, you must remove it from that app first. A phone number can only be linked to one WhatsApp account at a time.`
+  );
+
   const columns: ColumnDef<SocialLeadCampaign>[] = [
     {
       accessorKey: 'title',
-      header: 'Title',
+      header: __('Title'),
       cell: ({ row }) => (
         <div className="font-medium">{row.original.title}</div>
       ),
     },
     {
       accessorKey: 'keywords',
-      header: 'Keyword',
+      header: __('Keyword'),
       cell: ({ row }) => (
         <div className="font-mono text-sm">{row.original.keywords}</div>
       ),
     },
     {
       accessorKey: 'platform',
-      header: 'Platform',
+      header: __('Platform'),
       cell: ({ row }) => (
         <div className="capitalize">
-          {row.original.platform === 'facebook' ? 'Facebook' : 'Instagram'}
+          {row.original.platform === 'facebook'
+            ? __('Facebook')
+            : __('Instagram')}
         </div>
       ),
     },
     {
       accessorKey: 'created_at',
-      header: 'Created',
+      header: __('Created'),
       cell: ({ row }) =>
         formatDistanceToNow(new Date(row.original.created_at * 1000), {
           addSuffix: true,
@@ -202,7 +206,7 @@ export default function AutoResponses() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: __('Actions'),
       cell: ({ row }) => (
         <div className="flex gap-2 justify-end items-center">
           <Button
@@ -220,7 +224,13 @@ export default function AutoResponses() {
             variant="outline"
             size="sm"
             onClick={() => {
-              if (confirm('Are you sure you want to delete this automation?')) {
+              if (
+                confirm(
+                  __(
+                    'Are you sure you want to delete this automation?'
+                  )
+                )
+              ) {
                 deleteLeadCampaignMutation.mutate(row.original.id);
               }
             }}
@@ -236,14 +246,16 @@ export default function AutoResponses() {
   return (
     <PageGuard page="automation-support-auto-responses">
       <div className="gap-0">
-        <PageHeader title="Auto DM and Comments" />
+        <PageHeader title={__('Auto DM and Comments')} />
         <div className="flex flex-col gap-6 p-6">
           {/* Social Chat Platforms */}
           <div className="relative">
             {!isPro && (
               <ProBadge
-                topMessage="Connect Facebook, Instagram, and WhatsApp to manage all your social conversations in one place."
-                buttonText="Unlock Social Connections"
+                topMessage={__(
+                  'Connect Facebook, Instagram, and WhatsApp to manage all your social conversations in one place.'
+                )}
+                buttonText={__('Unlock Social Connections')}
                 tooltipMessage={null}
               />
             )}
@@ -258,8 +270,12 @@ export default function AutoResponses() {
                   <div>
                     <CardTitle className="flex gap-1 items-center !text-lg">
                       <Link2 className="w-5 h-5" />
-                      Social Chat Platforms
-                      <InfoTooltip message="Connect Facebook, Instagram, and WhatsApp to manage all your social conversations in one place. Enable AI-powered auto-replies for each platform." />
+                      {__('Social Chat Platforms')}
+                      <InfoTooltip
+                        message={__(
+                          'Connect Facebook, Instagram, and WhatsApp to manage all your social conversations in one place. Enable AI-powered auto-replies for each platform.'
+                        )}
+                      />
                     </CardTitle>
                   </div>
                   <Button
@@ -267,7 +283,7 @@ export default function AutoResponses() {
                     size="sm"
                     onClick={() => setPage('social-chat')}
                   >
-                    Manage Accounts
+                    {__('Manage Accounts')}
                   </Button>
                 </div>
               </CardHeader>
@@ -277,7 +293,7 @@ export default function AutoResponses() {
                     <div className="flex gap-2 items-center">
                       <Loader2 className="w-6 h-6 animate-spin text-primary" />
                       <p className="text-sm text-muted-foreground">
-                        Saving settings...
+                        {__('Saving settings...')}
                       </p>
                     </div>
                   </div>
@@ -296,13 +312,13 @@ export default function AutoResponses() {
                         )}
                       </div>
                       <div className="flex-1">
-                        <div className="font-medium">Facebook</div>
+                        <div className="font-medium">{__('Facebook')}</div>
                         <div className="text-sm text-muted-foreground">
                           {hasFacebookPage
                             ? accounts.find(
                               (acc) => acc.platform === 'messenger'
-                            )?.page_name || 'Connected'
-                            : 'Connect your Facebook Page'}
+                            )?.page_name || __('Connected')
+                            : __('Connect your Facebook Page')}
                         </div>
                       </div>
                     </div>
@@ -321,13 +337,13 @@ export default function AutoResponses() {
                           {connectFacebookPageMutation.isPending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
-                            'Connect'
+                            __('Connect')
                           )}
                         </Button>
                       ) : (
                         <>
                           <div className="flex gap-2 items-center">
-                            <Label className="text-sm">AI DM</Label>
+                            <Label className="text-sm">{__('AI DM')}</Label>
                             <Switch
                               checked={
                                 localSettings.platforms.messenger.auto_reply
@@ -350,7 +366,7 @@ export default function AutoResponses() {
                             />
                           </div>
                           <div className="flex gap-2 items-center">
-                            <Label className="text-sm">AI Comment</Label>
+                            <Label className="text-sm">{__('AI Comment')}</Label>
                             <Switch
                               checked={
                                 localSettings.platforms.messenger.comment_auto_reply
@@ -389,13 +405,15 @@ export default function AutoResponses() {
                         )}
                       </div>
                       <div className="flex-1">
-                        <div className="font-medium">Instagram</div>
+                        <div className="font-medium">{__('Instagram')}</div>
                         <div className="text-sm text-muted-foreground">
                           {hasInstagram
                             ? accounts.find(
                               (acc) => acc.platform === 'instagram'
-                            )?.page_name || 'Connected'
-                            : 'Connect your Instagram Business account'}
+                            )?.page_name || __('Connected')
+                            : __(
+                                'Connect your Instagram Business account'
+                              )}
                         </div>
                       </div>
                     </div>
@@ -414,13 +432,13 @@ export default function AutoResponses() {
                           {connectInstagramMutation.isPending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                           ) : (
-                            'Connect'
+                            __('Connect')
                           )}
                         </Button>
                       ) : (
                         <>
                           <div className="flex gap-2 items-center">
-                            <Label className="text-sm">AI DM</Label>
+                            <Label className="text-sm">{__('AI DM')}</Label>
                             <Switch
                               checked={
                                 localSettings.platforms.instagram_dm.auto_reply
@@ -443,7 +461,7 @@ export default function AutoResponses() {
                             />
                           </div>
                           <div className="flex gap-2 items-center">
-                            <Label className="text-sm">AI Comment</Label>
+                            <Label className="text-sm">{__('AI Comment')}</Label>
                             <Switch
                               checked={
                                 localSettings.platforms.instagram_dm.comment_auto_reply
@@ -485,20 +503,22 @@ export default function AutoResponses() {
                         )}
                       </div>
                       <div className="flex-1">
-                        <div className="font-medium">WhatsApp</div>
+                        <div className="font-medium">{__('WhatsApp')}</div>
                         <div className="text-sm text-muted-foreground">
                           {hasWhatsApp
                             ? accounts.find(
                               (acc) => acc.platform === 'whatsapp'
-                            )?.page_name || 'Connected'
-                            : 'Connect your WhatsApp Business account'}
+                            )?.page_name || __('Connected')
+                            : __(
+                                'Connect your WhatsApp Business account'
+                              )}
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-3 items-center">
                       {!hasWhatsApp ? (
                         <>
-                          <InfoTooltip message={WHATSAPP_CONNECT_INFO} />
+                          <InfoTooltip message={whatsappConnectInfo} />
                           <Button
                             variant="outline"
                             size="sm"
@@ -512,13 +532,13 @@ export default function AutoResponses() {
                             {connectWhatsAppMutation.isPending ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
-                              'Connect'
+                              __('Connect')
                             )}
                           </Button>
                         </>
                       ) : (
                         <div className="flex gap-2 items-center">
-                          <Label className="text-sm">AI DM</Label>
+                          <Label className="text-sm">{__('AI DM')}</Label>
                           <Switch
                             checked={
                               localSettings.platforms.whatsapp.auto_reply
@@ -554,15 +574,15 @@ export default function AutoResponses() {
                         />
                       </div>
                       <div className="flex-1">
-                        <div className="font-medium">TikTok</div>
+                        <div className="font-medium">{__('TikTok')}</div>
                         <div className="text-sm text-muted-foreground">
-                          Connect your TikTok Business account
+                          {__('Connect your TikTok Business account')}
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-3 items-center">
                       <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-muted text-muted-foreground">
-                        Coming Soon
+                        {__('Coming Soon')}
                       </span>
                     </div>
                   </div>
@@ -583,9 +603,13 @@ export default function AutoResponses() {
                 <div className="flex justify-between items-center">
                   <div>
                     <CardTitle className="flex gap-1 items-center !text-lg">
-                      DM for Comments
+                      {__('DM for Comments')}
                       {!isPro && <ProBadgeInline />}
-                      <InfoTooltip message="Create automations with keywords. When users comment with your automation keywords on Facebook or Instagram posts, they'll receive an automated direct message with your custom message." />
+                      <InfoTooltip
+                        message={__(
+                          "Create automations with keywords. When users comment with your automation keywords on Facebook or Instagram posts, they'll receive an automated direct message with your custom message."
+                        )}
+                      />
                     </CardTitle>
                   </div>
                   <div className="flex gap-2 items-center">
@@ -597,13 +621,13 @@ export default function AutoResponses() {
                         size="sm"
                       >
                         <Plus className="w-4 h-4" />
-                        Create Automation
+                        {__('Create Automation')}
                       </Button>
                     )}
                     <Label className="text-sm">
                       {localSettings.platforms.comments.enabled
-                        ? 'Enabled'
-                        : 'Disabled'}
+                        ? __('Enabled')
+                        : __('Disabled')}
                     </Label>
                     <Switch
                       checked={localSettings.platforms.comments.enabled}
@@ -638,8 +662,9 @@ export default function AutoResponses() {
                     ) : campaigns.length === 0 ? (
                       <div className="flex flex-col justify-center items-center py-12 text-center rounded-lg border">
                         <p className="text-muted-foreground">
-                          No automations yet. Create your first automation to start
-                          sending custom messages from comments.
+                          {__(
+                            'No automations yet. Create your first automation to start sending custom messages from comments.'
+                          )}
                         </p>
                       </div>
                     ) : (
@@ -655,8 +680,8 @@ export default function AutoResponses() {
                         <SheetHeader>
                           <SheetTitle>
                             {editingCampaign
-                              ? 'Edit Automation'
-                              : 'Create Automation'}
+                              ? __('Edit Automation')
+                              : __('Create Automation')}
                           </SheetTitle>
                         </SheetHeader>
                         <div className="overflow-y-auto flex-1 p-4 pt-6">

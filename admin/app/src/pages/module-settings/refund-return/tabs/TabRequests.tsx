@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/sheet';
 import useRefundReturn from '@/hooks/useRefundReturn';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __, sprintf } from '@/lib/utils';
 import { RefundReturnType } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { Eye } from 'lucide-react';
@@ -80,19 +80,19 @@ export default function TabRequests() {
   const columns: ColumnDef<RefundReturnType>[] = [
     {
       accessorKey: 'order_id',
-      header: 'Order ID',
+      header: __('Order ID'),
     },
     {
       accessorKey: 'customer_name',
-      header: 'Customer Name',
+      header: __('Customer Name'),
     },
     {
       accessorKey: 'customer_email',
-      header: 'Customer Email',
+      header: __('Customer Email'),
     },
     {
       accessorKey: 'type',
-      header: 'Type',
+      header: __('Type'),
       cell: ({ row }) => {
         const type = row.getValue('type') as string;
         return (
@@ -111,7 +111,7 @@ export default function TabRequests() {
     },
     {
       accessorKey: 'reason',
-      header: 'Reason',
+      header: __('Reason'),
       cell: ({ row }) => {
         const reason = row.getValue('reason') as string;
         return <div className="max-w-[100px] truncate">{reason}</div>;
@@ -119,7 +119,7 @@ export default function TabRequests() {
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: __('Status'),
       cell: ({ row }) => {
         const status = row.getValue('status') as string;
         return (
@@ -138,7 +138,7 @@ export default function TabRequests() {
     },
     {
       accessorKey: 'created_at',
-      header: 'Created At',
+      header: __('Created At'),
       cell: ({ row }) => {
         const created_at = row.getValue('created_at') as number;
         return <span>{new Date(created_at * 1000).toLocaleString()}</span>;
@@ -146,7 +146,7 @@ export default function TabRequests() {
     },
     {
       accessorKey: 'updated_at',
-      header: 'Updated At',
+      header: __('Updated At'),
       cell: ({ row }) => {
         const updated_at = row.getValue('updated_at') as number;
         return <span>{new Date(updated_at * 1000).toLocaleString()}</span>;
@@ -154,7 +154,7 @@ export default function TabRequests() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: __('Actions'),
       cell: ({ row }) => {
         const refund = row.original;
         return (
@@ -179,8 +179,10 @@ export default function TabRequests() {
     <div className="relative">
       {!getProQuery.data && (
         <ProBadge
-          topMessage="It's not just a refund. It's your reputation. Offer seamless return experiences and build trust."
-          buttonText="Build Loyalty with Ease"
+          topMessage={__(
+            "It's not just a refund. It's your reputation. Offer seamless return experiences and build trust."
+          )}
+          buttonText={__('Build Loyalty with Ease')}
           tooltipMessage={null}
         />
       )}
@@ -193,9 +195,9 @@ export default function TabRequests() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="flex gap-2 items-center text-xl font-bold">
-                Refund & Return Requests
-                <InfoTooltip message="Manage customer refund and return requests." />
+                <CardTitle className="flex gap-2 items-center text-xl font-bold">
+                {__('Refund & Return Requests')}
+                <InfoTooltip message={__('Manage customer refund and return requests.')} />
               </CardTitle>
             </div>
           </div>
@@ -238,29 +240,29 @@ export default function TabRequests() {
         <SheetContent className="gap-0">
           <SheetHeader className="mt-6">
             <SheetTitle className="!text-xl !font-bold !my-0">
-              Refund & Return Details
+              {__('Refund & Return Details')}
             </SheetTitle>
             <SheetDescription className="!text-sm !my-0">
-              View and manage refund/return request details
+              {__('View and manage refund/return request details')}
             </SheetDescription>
           </SheetHeader>
           <div className="p-4 pt-0 space-y-6">
             {selectedRefund && (
               <>
                 <div className="space-y-2">
-                  <h3 className="font-medium !my-0">Type</h3>
+                  <h3 className="font-medium !my-0">{__('Type')}</h3>
                   <p className="text-sm text-muted-foreground">
                     {selectedRefund.type.charAt(0).toUpperCase() + selectedRefund.type.slice(1)}
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-medium !my-0">Reason</h3>
+                  <h3 className="font-medium !my-0">{__('Reason')}</h3>
                   <p className="text-sm text-muted-foreground">
                     {selectedRefund.reason}
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-medium !my-0 !mb-2">Status</h3>
+                  <h3 className="font-medium !my-0 !mb-2">{__('Status')}</h3>
                   <Select
                     value={selectedRefund.status}
                     onValueChange={handleStatusChange}
@@ -269,28 +271,44 @@ export default function TabRequests() {
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="approved">Approved</SelectItem>
-                      <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectItem value="pending">{__('Pending')}</SelectItem>
+                      <SelectItem value="approved">{__('Approved')}</SelectItem>
+                      <SelectItem value="rejected">{__('Rejected')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-medium !my-0">Customer Details</h3>
+                  <h3 className="font-medium !my-0">{__('Customer Details')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Name: {selectedRefund.customer_name}
+                    {sprintf(
+                      /* translators: %s: Customer name */
+                      __('Name: %s'),
+                      selectedRefund.customer_name
+                    )}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Email: {selectedRefund.customer_email}
+                    {sprintf(
+                      /* translators: %s: Customer email */
+                      __('Email: %s'),
+                      selectedRefund.customer_email
+                    )}
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <h3 className="font-medium !my-0">Order Details</h3>
+                  <h3 className="font-medium !my-0">{__('Order Details')}</h3>
                   <p className="text-sm text-muted-foreground">
-                    Order ID: {selectedRefund.order_id}
+                    {sprintf(
+                      /* translators: %s: Order ID */
+                      __('Order ID: %s'),
+                      String(selectedRefund.order_id)
+                    )}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Amount: ${selectedRefund.amount}
+                    {sprintf(
+                      /* translators: %s: Refund amount */
+                      __('Amount: $%s'),
+                      String(selectedRefund.amount)
+                    )}
                   </p>
                 </div>
               </>

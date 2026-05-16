@@ -1,3 +1,4 @@
+import { __ } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 
 interface FormattedContentProps {
@@ -18,7 +19,7 @@ export function FormattedContent({
     >
       <ReactMarkdown>{content}</ReactMarkdown>
       {imageUrl && (
-        <img src={imageUrl} alt="Uploaded image" className="w-full h-auto" />
+        <img src={imageUrl} alt={__('Uploaded image')} className="w-full h-auto" />
       )}
     </div>
   );

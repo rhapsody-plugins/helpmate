@@ -6,6 +6,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
+import { __ } from '@/lib/utils';
 import { ContactNote } from '@/types/crm';
 import { useEffect, useState } from 'react';
 
@@ -42,7 +43,9 @@ export function NoteEditSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:!max-w-lg flex flex-col h-full gap-0 overflow-hidden">
         <SheetHeader className="pb-4 mt-6 border-b">
-          <SheetTitle className="text-lg font-bold !my-0">Edit Note</SheetTitle>
+          <SheetTitle className="text-lg font-bold !my-0">
+            {__('Edit Note')}
+          </SheetTitle>
         </SheetHeader>
         <div className="overflow-y-auto flex-1 p-4 pt-6 space-y-4">
           <Textarea
@@ -57,10 +60,10 @@ export function NoteEditSheet({
               onClick={() => onOpenChange(false)}
               disabled={isSaving}
             >
-              Cancel
+              {__('Cancel')}
             </Button>
             <Button onClick={handleSave} disabled={isSaving || !content.trim()}>
-              {isSaving ? 'Saving...' : 'Save'}
+              {isSaving ? __('Saving...') : __('Save')}
             </Button>
           </div>
         </div>

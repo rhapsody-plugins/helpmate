@@ -25,7 +25,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+import { __, cn, sprintf } from '@/lib/utils';
 
 interface ReusableTableProps<TData> {
   columns: ColumnDef<TData>[];
@@ -112,7 +112,7 @@ export function ReusableTable<TData>({
                   }}
                   aria-label="Select all"
                 />
-                <span className="text-sm">Select All</span>
+                <span className="text-sm">{__('Select All')}</span>
               </Label>
             ),
             cell: ({ row }) => (
@@ -196,7 +196,11 @@ export function ReusableTable<TData>({
         table.getSelectedRowModel().rows.length > 0 && (
           <div className="flex justify-between items-center pb-2">
             <div className="text-sm text-muted-foreground">
-              {table.getSelectedRowModel().rows.length} row(s) selected
+              {sprintf(
+                /* translators: %d: Number of selected rows */
+                __('%d row(s) selected'),
+                table.getSelectedRowModel().rows.length
+              )}
             </div>
             <div className="flex gap-2 items-center">{selectionActions}</div>
           </div>
@@ -278,7 +282,7 @@ export function ReusableTable<TData>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                {__('No results.')}
               </TableCell>
             </TableRow>
           )}
@@ -289,7 +293,11 @@ export function ReusableTable<TData>({
         table.getSelectedRowModel().rows.length > 0 && (
           <div className="flex justify-between items-center pt-4">
             <div className="text-sm text-muted-foreground">
-              {table.getSelectedRowModel().rows.length} row(s) selected
+              {sprintf(
+                /* translators: %d: Number of selected rows */
+                __('%d row(s) selected'),
+                table.getSelectedRowModel().rows.length
+              )}
             </div>
             <div className="flex gap-2 items-center">{selectionActions}</div>
           </div>
@@ -303,7 +311,7 @@ export function ReusableTable<TData>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage() || loading}
           >
-            Previous
+            {__('Previous')}
           </Button>
           <Button
             variant="outline"
@@ -312,7 +320,7 @@ export function ReusableTable<TData>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage() || loading}
           >
-            Next
+            {__('Next')}
           </Button>
         </div>
       )}

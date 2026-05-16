@@ -24,7 +24,7 @@ import {
   SocialConversationStarters,
   useSocialChat,
 } from '@/hooks/useSocialChat';
-import { cn } from '@/lib/utils';
+import { cn, __, sprintf } from '@/lib/utils';
 import { Icon } from '@iconify/react';
 import { toast } from 'sonner';
 import {
@@ -490,14 +490,14 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
 
   const pageTitle =
     platform === 'facebook'
-      ? 'Facebook'
+      ? __('Facebook')
       : platform === 'instagram'
-        ? 'Instagram'
+        ? __('Instagram')
         : platform === 'whatsapp'
-          ? 'WhatsApp'
+          ? __('WhatsApp')
           : platform === 'tiktok'
-            ? 'TikTok'
-            : 'Social Chat Settings';
+            ? __('TikTok')
+            : __('Social Chat Settings');
 
   // TikTok: minimal "Coming soon" view only
   if (platform === 'tiktok') {
@@ -516,13 +516,13 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                     />
                   </div>
                   <div className="text-center">
-                    <div className="font-medium">TikTok</div>
+                    <div className="font-medium">{__('TikTok')}</div>
                     <div className="mt-1 text-sm text-muted-foreground">
-                      Connect your TikTok Business account
+                      {__('Connect your TikTok Business account')}
                     </div>
                   </div>
                   <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-muted text-muted-foreground">
-                    Coming Soon
+                    {__('Coming Soon')}
                   </span>
                 </div>
               </CardContent>
@@ -543,8 +543,10 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
           <div className="relative">
             {!isPro && (
               <ProBadge
-                topMessage="Connect Facebook, Instagram, and WhatsApp to manage all your social conversations in one place."
-                buttonText="Unlock Social Connections"
+                topMessage={__(
+                  'Connect Facebook, Instagram, and WhatsApp to manage all your social conversations in one place.'
+                )}
+                buttonText={__('Unlock Social Connections')}
                 tooltipMessage={null}
               />
             )}
@@ -560,7 +562,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                     <div className="flex gap-2 items-center">
                       <Loader2 className="w-6 h-6 animate-spin text-primary" />
                       <p className="text-sm text-muted-foreground">
-                        Saving settings...
+                        {__('Saving settings...')}
                       </p>
                     </div>
                   </div>
@@ -576,9 +578,9 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                               <Facebook className="w-6 h-6 text-white" />
                             </div>
                             <div className="text-center">
-                              <div className="font-medium">Facebook</div>
+                              <div className="font-medium">{__('Facebook')}</div>
                               <div className="mt-1 text-sm text-muted-foreground">
-                                Connect your Facebook Page
+                                {__('Connect your Facebook Page')}
                               </div>
                             </div>
                             <Button
@@ -596,7 +598,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                               ) : (
                                 <Facebook className="mr-2 w-4 h-4" />
                               )}
-                              Connect
+                              {__('Connect')}
                             </Button>
                           </div>
                         ) : (
@@ -607,11 +609,11 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                   <Facebook className="w-5 h-5 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="font-medium">Facebook</div>
+                                  <div className="font-medium">{__('Facebook')}</div>
                                   <div className="text-sm text-muted-foreground">
                                     {accounts.find(
                                       (acc) => acc.platform === 'messenger'
-                                    )?.page_name || 'Connected'}
+                                    )?.page_name || __('Connected')}
                                   </div>
                                 </div>
                               </div>
@@ -645,8 +647,8 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                     <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                                   )}
                                   {localSettings.platforms.messenger.enabled
-                                    ? 'Disable Facebook'
-                                    : 'Enable Facebook'}
+                                    ? __('Disable Facebook')
+                                    : __('Enable Facebook')}
                                 </Button>
                                 {accounts
                                   .filter((acc) => acc.platform === 'messenger')
@@ -670,7 +672,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                             <div className="flex justify-between items-center pt-4 border-t">
                               <div className="flex gap-2 items-center">
                                 <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                                <Label className="text-sm">Quick Messages</Label>
+                                <Label className="text-sm">{__('Quick Messages')}</Label>
                               </div>
                               <Switch
                                 checked={localSettings.platforms.messenger.conversation_starters_enabled}
@@ -695,7 +697,9 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                             {localSettings.platforms.messenger.conversation_starters_enabled && (
                               <div className="flex gap-3 flex-col">
                                 <p className="text-sm text-muted-foreground">
-                                  Users will see these options when starting a conversation (max 4, 20 characters each)
+                                  {__(
+                                    'Users will see these options when starting a conversation (max 4, 20 characters each)'
+                                  )}
                                 </p>
                                 <div className="space-y-2">
                                   {conversationStartersInput.messenger.map(
@@ -751,7 +755,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                               }
                                             >
                                               <ExternalLink className="w-4 h-4" />
-                                              Visit Page
+                                              {__('Visit Page')}
                                             </Button>
                                           )}
                                         {!starter.is_default && (
@@ -789,7 +793,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                       className="w-full"
                                     >
                                       <Plus className="w-4 h-4" />
-                                      Add Starter
+                                      {__('Add Starter')}
                                     </Button>
                                   )}
                                 </div>
@@ -803,7 +807,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                   {updateConversationStartersMutation.isPending && (
                                     <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                                   )}
-                                  Save Starters
+                                  {__('Save Starters')}
                                 </Button>
                               </div>
                             )}
@@ -820,9 +824,11 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                               <Instagram className="w-6 h-6 text-white" />
                             </div>
                             <div className="text-center">
-                              <div className="font-medium">Instagram</div>
+                              <div className="font-medium">{__('Instagram')}</div>
                               <div className="mt-1 text-sm text-muted-foreground">
-                                Connect your Instagram Business account
+                                {__(
+                                  'Connect your Instagram Business account'
+                                )}
                               </div>
                             </div>
                             <Button
@@ -840,7 +846,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                               ) : (
                                 <Instagram className="mr-2 w-4 h-4" />
                               )}
-                              Connect
+                              {__('Connect')}
                             </Button>
                           </div>
                         ) : (
@@ -851,11 +857,11 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                   <Instagram className="w-5 h-5 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="font-medium">Instagram</div>
+                                  <div className="font-medium">{__('Instagram')}</div>
                                   <div className="text-sm text-muted-foreground">
                                     {accounts.find(
                                       (acc) => acc.platform === 'instagram'
-                                    )?.page_name || 'Connected'}
+                                    )?.page_name || __('Connected')}
                                   </div>
                                 </div>
                               </div>
@@ -889,8 +895,8 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                     <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                                   )}
                                   {localSettings.platforms.instagram_dm.enabled
-                                    ? 'Disable Instagram'
-                                    : 'Enable Instagram'}
+                                    ? __('Disable Instagram')
+                                    : __('Enable Instagram')}
                                 </Button>
                                 {accounts
                                   .filter((acc) => acc.platform === 'instagram')
@@ -914,7 +920,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                             <div className="flex justify-between items-center pt-4 border-t">
                               <div className="flex gap-2 items-center">
                                 <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                                <Label className="text-sm">Quick Messages</Label>
+                                <Label className="text-sm">{__('Quick Messages')}</Label>
                               </div>
                               <Switch
                                 checked={localSettings.platforms.instagram_dm.conversation_starters_enabled}
@@ -939,7 +945,9 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                             {localSettings.platforms.instagram_dm.conversation_starters_enabled && (
                               <div className="flex gap-3 flex-col">
                                 <p className="text-sm text-muted-foreground">
-                                  Users will see these options when starting a conversation (max 4, 20 characters each). Only visible in the Instagram mobile app, not on instagram.com.
+                                  {__(
+                                    'Users will see these options when starting a conversation (max 4, 20 characters each). Only visible in the Instagram mobile app, not on instagram.com.'
+                                  )}
                                 </p>
                                 <div className="space-y-2">
                                   {conversationStartersInput.instagram_dm.map(
@@ -995,7 +1003,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                               }
                                             >
                                               <ExternalLink className="w-4 h-4" />
-                                              Visit Page
+                                              {__('Visit Page')}
                                             </Button>
                                           )}
                                         {!starter.is_default && (
@@ -1033,7 +1041,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                       className="w-full"
                                     >
                                       <Plus className="w-4 h-4" />
-                                      Add Starter
+                                      {__('Add Starter')}
                                     </Button>
                                   )}
                                 </div>
@@ -1047,7 +1055,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                   {updateConversationStartersMutation.isPending && (
                                     <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                                   )}
-                                  Save Starters
+                                  {__('Save Starters')}
                                 </Button>
                               </div>
                             )}
@@ -1068,10 +1076,12 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                 />
                               </div>
                               <div className="text-center">
-                                <div className="font-medium">WhatsApp</div>
-                                <div className="mt-1 text-sm text-muted-foreground">
-                                  Connect your WhatsApp Business account
-                                </div>
+                                <div className="font-medium">{__('WhatsApp')}</div>
+                              <div className="mt-1 text-sm text-muted-foreground">
+                                {__(
+                                  'Connect your WhatsApp Business account'
+                                )}
+                              </div>
                               </div>
                               <Button
                                 onClick={handleConnectWhatsApp}
@@ -1091,24 +1101,28 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                     className="mr-2 w-4 h-4"
                                   />
                                 )}
-                                Connect
+                                {__('Connect')}
                               </Button>
                             </div>
                             <div className="pt-4 border-t space-y-3">
                               <h4 className="text-sm font-medium text-foreground !mb-2">
-                                Before you connect
+                                {__('Before you connect')}
                               </h4>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div className="flex gap-3 p-3 rounded-lg border bg-muted/40">
                                   <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                                   <p className="text-sm text-muted-foreground">
-                                    After clicking Connect, you'll be redirected to a new screen where a popup window will open to complete the connection. Some browsers (e.g., Microsoft Edge) block popups by default. If the connection does not complete, allow popups for this site in your browser settings and try again.
+                                    {__(
+                                      "After clicking Connect, you'll be redirected to a new screen where a popup window will open to complete the connection. Some browsers (e.g., Microsoft Edge) block popups by default. If the connection does not complete, allow popups for this site in your browser settings and try again."
+                                    )}
                                   </p>
                                 </div>
                                 <div className="flex gap-3 p-3 rounded-lg border bg-muted/40">
                                   <Smartphone className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                                   <p className="text-sm text-muted-foreground">
-                                    If the phone number you want to connect is already registered with WhatsApp or WhatsApp Business on another device or app, you must remove it from that app first. A phone number can only be linked to one WhatsApp account at a time.
+                                    {__(
+                                      'If the phone number you want to connect is already registered with WhatsApp or WhatsApp Business on another device or app, you must remove it from that app first. A phone number can only be linked to one WhatsApp account at a time.'
+                                    )}
                                   </p>
                                 </div>
                               </div>
@@ -1125,11 +1139,11 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                   />
                                 </div>
                                 <div className="flex-1">
-                                  <div className="font-medium">WhatsApp</div>
+                                  <div className="font-medium">{__('WhatsApp')}</div>
                                   <div className="text-sm text-muted-foreground">
                                     {accounts.find(
                                       (acc) => acc.platform === 'whatsapp'
-                                    )?.page_name || 'Connected'}
+                                    )?.page_name || __('Connected')}
                                   </div>
                                 </div>
                               </div>
@@ -1163,8 +1177,8 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                     <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                                   )}
                                   {localSettings.platforms.whatsapp.enabled
-                                    ? 'Disable WhatsApp'
-                                    : 'Enable WhatsApp'}
+                                    ? __('Disable WhatsApp')
+                                    : __('Enable WhatsApp')}
                                 </Button>
                                 {accounts
                                   .filter((acc) => acc.platform === 'whatsapp')
@@ -1188,7 +1202,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                             <div className="flex justify-between items-center pt-4 border-t">
                               <div className="flex gap-2 items-center">
                                 <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                                <Label className="text-sm">Quick Messages</Label>
+                                <Label className="text-sm">{__('Quick Messages')}</Label>
                               </div>
                               <Switch
                                 checked={localSettings.platforms.whatsapp.conversation_starters_enabled}
@@ -1213,7 +1227,9 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                             {localSettings.platforms.whatsapp.conversation_starters_enabled && (
                               <div className="flex gap-3 flex-col">
                                 <p className="text-sm text-muted-foreground">
-                                  Up to 3 quick reply buttons shown below each AI response when customers message you. Unlike Messenger/Instagram, these appear as tappable buttons with your AI reply rather than before the user types.
+                                  {__(
+                                    'Up to 3 quick reply buttons shown below each AI response when customers message you. Unlike Messenger/Instagram, these appear as tappable buttons with your AI reply rather than before the user types.'
+                                  )}
                                 </p>
                                 <div className="space-y-2">
                                   {conversationStartersInput.whatsapp.map(
@@ -1269,7 +1285,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                               }
                                             >
                                               <ExternalLink className="w-4 h-4" />
-                                              Visit Page
+                                              {__('Visit Page')}
                                             </Button>
                                           )}
                                         {!starter.is_default && (
@@ -1307,7 +1323,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                       className="w-full"
                                     >
                                       <Plus className="w-4 h-4" />
-                                      Add Starter
+                                      {__('Add Starter')}
                                     </Button>
                                   )}
                                 </div>
@@ -1321,7 +1337,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                                   {updateConversationStartersMutation.isPending && (
                                     <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                                   )}
-                                  Save Starters
+                                  {__('Save Starters')}
                                 </Button>
                               </div>
                             )}
@@ -1339,13 +1355,13 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                           />
                         </div>
                         <div className="text-center">
-                          <div className="font-medium">TikTok</div>
+                          <div className="font-medium">{__('TikTok')}</div>
                           <div className="mt-1 text-sm text-muted-foreground">
-                            Connect your TikTok Business account
+                            {__('Connect your TikTok Business account')}
                           </div>
                         </div>
                         <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-muted text-muted-foreground">
-                          Coming Soon
+                          {__('Coming Soon')}
                         </span>
                       </div>
                     )}
@@ -1360,9 +1376,15 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
         <Dialog open={showPageSelector} onOpenChange={setShowPageSelector}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Select a Page to Connect</DialogTitle>
+              <DialogTitle>{__('Select a Page to Connect')}</DialogTitle>
               <DialogDescription>
-                Please select one {selectedPlatform === 'instagram' ? 'Instagram account' : 'Facebook Page'} to connect. You can only connect one {selectedPlatform === 'instagram' ? 'Instagram account' : 'page'} per platform at a time.
+                {selectedPlatform === 'instagram'
+                  ? __(
+                      'Please select one Instagram account to connect. You can only connect one Instagram account per platform at a time.'
+                    )
+                  : __(
+                      'Please select one Facebook Page to connect. You can only connect one page per platform at a time.'
+                    )}
               </DialogDescription>
             </DialogHeader>
             {pendingPagesQuery.isLoading ? (
@@ -1373,12 +1395,13 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
               <div className="py-8 text-center text-destructive">
                 {pendingPagesQuery.error instanceof Error
                   ? pendingPagesQuery.error.message
-                  : 'Failed to load pages. Please try connecting again.'}
+                  : __('Failed to load pages. Please try connecting again.')}
               </div>
             ) : pendingPages.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground">
-                No pages found. Make sure you have admin access to at least one
-                Facebook Page.
+                {__(
+                  'No pages found. Make sure you have admin access to at least one Facebook Page.'
+                )}
               </div>
             ) : (
               <RadioGroup value={selectedPage} onValueChange={setSelectedPage}>
@@ -1418,7 +1441,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                   setSelectedPlatform('facebook');
                 }}
               >
-                Cancel
+                {__('Cancel')}
               </Button>
               <Button
                 onClick={handleConnectPages}
@@ -1429,7 +1452,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                 {connectPagesMutation.isPending && (
                   <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                 )}
-                Connect Page
+                {__('Connect Page')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1442,10 +1465,11 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Delete Connected Account</DialogTitle>
+              <DialogTitle>{__('Delete Connected Account')}</DialogTitle>
               <DialogDescription>
-                This action cannot be undone. All data related to this account
-                will be permanently removed from Helpmate.
+                {__(
+                  'This action cannot be undone. All data related to this account will be permanently removed from Helpmate.'
+                )}
               </DialogDescription>
             </DialogHeader>
             {deleteConfirmDialog.account && (
@@ -1474,13 +1498,13 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                 </div>
                 <div className="p-4 mt-4 rounded-lg border bg-destructive/10 border-destructive/20">
                   <p className="mb-2 text-sm font-medium text-destructive">
-                    Warning: This will delete:
+                    {__('Warning: This will delete:')}
                   </p>
                   <ul className="space-y-1 text-sm list-disc list-inside text-muted-foreground">
-                    <li>All conversations for this account</li>
-                    <li>All messages in those conversations</li>
-                    <li>The account connection from Helpmate</li>
-                    <li>Webhook subscriptions will be removed from Meta app</li>
+                    <li>{__('All conversations for this account')}</li>
+                    <li>{__('All messages in those conversations')}</li>
+                    <li>{__('The account connection from Helpmate')}</li>
+                    <li>{__('Webhook subscriptions will be removed from Meta app')}</li>
                   </ul>
                 </div>
               </div>
@@ -1491,7 +1515,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                 onClick={handleDeleteCancel}
                 disabled={disconnectAccountMutation.isPending}
               >
-                Cancel
+                {__('Cancel')}
               </Button>
               <Button
                 variant="destructive"
@@ -1501,7 +1525,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                 {disconnectAccountMutation.isPending && (
                   <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                 )}
-                Confirm Delete
+                {__('Confirm Delete')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1514,12 +1538,13 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
         >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Feature not available on localhost</DialogTitle>
+              <DialogTitle>{__('Feature not available on localhost')}</DialogTitle>
             </DialogHeader>
             <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
               <p className="text-sm text-yellow-800 !my-0">
-                ⚠️ Social platform connections are not available on localhost.
-                Please deploy to a live server to connect social platforms.
+                {__(
+                  '⚠️ Social platform connections are not available on localhost. Please deploy to a live server to connect social platforms.'
+                )}
               </p>
             </div>
             <DialogFooter>
@@ -1527,7 +1552,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                 variant="outline"
                 onClick={() => setShowLocalhostWarning(false)}
               >
-                Close
+                {__('Close')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -1547,26 +1572,42 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
             {whatsappRegisterDialog?.success ? (
               <>
                 <DialogHeader>
-                  <DialogTitle>WhatsApp registered with META Cloud API</DialogTitle>
+                  <DialogTitle>
+                    {__('WhatsApp registered with META Cloud API')}
+                  </DialogTitle>
                   <DialogDescription>
-                    Your number is now registered with WhatsApp Business Cloud
-                    API.
+                    {__(
+                      'Your number is now registered with WhatsApp Business Cloud API.'
+                    )}
                     {whatsappRegisterDialog.pins?.length ? (
                       <>
                         {' '}
-                        You have {whatsappRegisterDialog.pins.length} number(s).{' '}
+                        {sprintf(
+                          /* translators: %d: Number of registered phone numbers */
+                          __('You have %d number(s).'),
+                          whatsappRegisterDialog.pins.length
+                        )}{' '}
                         {whatsappRegisterDialog.pins.length === 1
-                          ? `PIN: ${whatsappRegisterDialog.pins[0]}`
-                          : `PINs: ${whatsappRegisterDialog.pins.join(', ')}`}
-                        . Save them securely.
+                          ? sprintf(
+                              /* translators: %s: WhatsApp PIN code */
+                              __('PIN: %s'),
+                              whatsappRegisterDialog.pins[0]
+                            )
+                          : sprintf(
+                              /* translators: %s: Comma-separated PIN codes */
+                              __('PINs: %s'),
+                              whatsappRegisterDialog.pins.join(', ')
+                            )}
+                        {__(' Save them securely.')}
                       </>
                     ) : whatsappRegisterDialog.pin ? (
                       <>
                         {' '}
-                        Your two-step verification PIN is:{' '}
-                        <strong>{whatsappRegisterDialog.pin}</strong>. Save this
-                        PIN securely—you will need it if you ever need to
-                        re-register or recover your account.
+                        {__('Your two-step verification PIN is:')}{' '}
+                        <strong>{whatsappRegisterDialog.pin}</strong>
+                        {__(
+                          '. Save this PIN securely—you will need it if you ever need to re-register or recover your account.'
+                        )}
                       </>
                     ) : null}
                   </DialogDescription>
@@ -1598,7 +1639,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                       setWhatsappRegisterDialog(null);
                     }}
                   >
-                    Close
+                    {__('Close')}
                   </Button>
                 </DialogFooter>
               </>
@@ -1607,10 +1648,11 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                 whatsappRegisterDialog?.wrongPinMessage) ? (
               <>
                 <DialogHeader>
-                  <DialogTitle>Enter your existing PIN</DialogTitle>
+                  <DialogTitle>{__('Enter your existing PIN')}</DialogTitle>
                   <DialogDescription>
-                    This number already has two-step verification. Enter your
-                    existing 6-digit PIN to register with Cloud API.
+                    {__(
+                      'This number already has two-step verification. Enter your existing 6-digit PIN to register with Cloud API.'
+                    )}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-2">
@@ -1620,7 +1662,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                     </p>
                   )}
                   <div>
-                    <Label htmlFor="retry-pin">6-digit PIN</Label>
+                    <Label htmlFor="retry-pin">{__('6-digit PIN')}</Label>
                     <Input
                       id="retry-pin"
                       type="text"
@@ -1647,7 +1689,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                       setRetryPinInput('');
                     }}
                   >
-                    Cancel
+                    {__('Cancel')}
                   </Button>
                   <Button
                     onClick={handleRegisterRetry}
@@ -1658,14 +1700,14 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                     {registerRetryMutation.isPending && (
                       <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                     )}
-                    Try again
+                    {__('Try again')}
                   </Button>
                 </DialogFooter>
               </>
             ) : whatsappRegisterDialog?.errorCode === 'EXPIRED' ? (
               <>
                 <DialogHeader>
-                  <DialogTitle>Session expired</DialogTitle>
+                  <DialogTitle>{__('Session expired')}</DialogTitle>
                   <DialogDescription>
                     {whatsappRegisterDialog.errorMessage}
                   </DialogDescription>
@@ -1676,21 +1718,21 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                       setWhatsappRegisterDialog(null);
                     }}
                   >
-                    Close
+                    {__('Close')}
                   </Button>
                 </DialogFooter>
               </>
             ) : (
               <>
                 <DialogHeader>
-                  <DialogTitle>WhatsApp registration issue</DialogTitle>
+                  <DialogTitle>{__('WhatsApp registration issue')}</DialogTitle>
                   <DialogDescription>
                     {getWhatsAppRegisterErrorMessage(
                       whatsappRegisterDialog?.errorCode,
                       whatsappRegisterDialog?.errorMessage
                     ) ||
                       whatsappRegisterDialog?.errorMessage ||
-                      'Registration failed. Please try again later.'}
+                      __('Registration failed. Please try again later.')}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="text-sm">
@@ -1701,7 +1743,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                     className="text-primary hover:underline inline-flex items-center gap-1"
                   >
                     <ExternalLink className="w-3 h-3" />
-                    Meta WhatsApp registration docs
+                    {__('Meta WhatsApp registration docs')}
                   </a>
                 </div>
                 <DialogFooter>
@@ -1710,7 +1752,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
                       setWhatsappRegisterDialog(null);
                     }}
                   >
-                    Close
+                    {__('Close')}
                   </Button>
                 </DialogFooter>
               </>

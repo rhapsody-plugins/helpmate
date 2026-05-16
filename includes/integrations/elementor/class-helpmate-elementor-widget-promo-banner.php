@@ -87,8 +87,8 @@ class Helpmate_Elementor_Widget_Promo_Banner extends \Elementor\Widget_Base {
 		foreach ( $banners as $row ) {
 			$id    = (int) $row['id'];
 			$title = isset( $row['title'] ) ? $row['title'] : '';
-			/* translators: 1: Banner title, 2: Banner database ID */
 			$options[ (string) $id ] = sprintf(
+				/* translators: 1: Banner title, 2: Banner database ID */
 				esc_html__( '%1$s (ID %2$d)', 'helpmate-ai-chatbot' ),
 				$title !== '' ? esc_html( $title ) : esc_html__( '(No title)', 'helpmate-ai-chatbot' ),
 				$id
@@ -229,10 +229,10 @@ class Helpmate_Elementor_Widget_Promo_Banner extends \Elementor\Widget_Base {
 	private function get_active_banners_for_control() {
 		global $wpdb;
 		$table = esc_sql( $wpdb->prefix . 'helpmate_promo_banners' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name escaped; admin/editor only
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Elementor control options; caching not used
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, title FROM {$table} WHERE status = %s ORDER BY created_at DESC",
+				"SELECT id, title FROM {$table} WHERE status = %s ORDER BY created_at DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses esc_sql and wpdb->prefix
 				'active'
 			),
 			ARRAY_A

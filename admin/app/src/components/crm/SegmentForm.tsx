@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useCrm } from '@/hooks/useCrm';
+import { __ } from '@/lib/utils';
 import { Segment } from '@/types/crm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
@@ -167,7 +168,7 @@ export default function SegmentForm({ segment, onClose }: SegmentFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Segment Name</FormLabel>
+              <FormLabel>{__('Segment Name')}</FormLabel>
               <FormControl>
                 <Input {...field} placeholder="e.g., Active Customers" />
               </FormControl>
@@ -183,7 +184,7 @@ export default function SegmentForm({ segment, onClose }: SegmentFormProps) {
 
         <div className="flex gap-2 justify-end pt-4 border-t">
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {__('Cancel')}
           </Button>
           <Button
             type="submit"
@@ -192,7 +193,7 @@ export default function SegmentForm({ segment, onClose }: SegmentFormProps) {
               updateSegmentMutation.isPending
             }
           >
-            {segment ? 'Update' : 'Create'} Segment
+            {segment ? __('Update Segment') : __('Create Segment')}
           </Button>
         </div>
       </form>

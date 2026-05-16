@@ -27,6 +27,7 @@ import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
+import { __ } from '@/lib/utils';
 import { resolveCommerceIntegration } from '@/pages/control-center/integrations/commerce/resolve-commerce';
 import type { CommerceIntegrationConfig } from '@/pages/control-center/integrations/commerce/types';
 import { MenuItem } from '@/types';
@@ -54,7 +55,7 @@ const TabProducts = lazy(() => import('@/pages/data-source/tabs/TabProducts'));
 const TabQnA = lazy(() => import('@/pages/data-source/tabs/TabQnA'));
 const TabFile = lazy(() => import('@/pages/data-source/tabs/TabFile'));
 
-const TRAINING_ARTICLE = `
+const TRAINING_ARTICLE = __(`
 ## Why Training Data Makes or Breaks Your Chatbot
 
 Your customer has three browser tabs open, comparing your product to competitors. They want to buy from you, but a small, nagging question holds them back: **"What's the return policy if this doesn't fit?"** They can't find the answer instantly. Decision fatigue sets in. They close the tab. You just lost a sale.
@@ -168,7 +169,7 @@ You will immediately see fewer support tickets and give your customers the confi
 ---
 
 *For more detailed guides, visit the [Helpmate Documentation](https://rhapsodyplugins.com/docs/train-the-right-data-to-make-helpmate-ai-chatbot-useful/)*
-`;
+`);
 
 const formSchema = z.object({
   title: z.string(),
@@ -217,7 +218,7 @@ function RightActions({
         return (
           <div key={i} className="min-w-[80px]">
             <span className="flex gap-1 items-center text-xs leading-none">
-              Trained Sources:{' '}
+              {__('Trained Sources:')}{' '}
               {isUnlimited ? `${spent}/∞` : `${spent}/${total}`}
               <button
                 className="p-0.5 text-gray-400 hover:text-primary-600 disabled:opacity-50"
@@ -314,11 +315,16 @@ export function DataSourceContent() {
   const { isPending: updateIsPending, mutate: updateMutate } =
     updateSourceMutation;
 
-  const form = useForm<FormData>({
-    defaultValues: {
-      title: 'General context of the website',
+  const formDefaultValues = useMemo<FormData>(
+    () => ({
+      title: __('General context of the website'),
       content: '',
-    },
+    }),
+    []
+  );
+
+  const form = useForm<FormData>({
+    defaultValues: formDefaultValues,
     resolver: zodResolver(formSchema),
   });
 
@@ -394,16 +400,7 @@ export function DataSourceContent() {
 
   // Handle tab change with validation
   const handleTabChange = (newTab: string) => {
-    // Allow "Start Here" tab always
-    if (newTab === 'Start Here') {
-      setTab(newTab);
-      return;
-    }
-
-    // Only allow other tabs if general content exists
-    if (hasGeneralContent) {
-      setTab(newTab);
-    }
+    setTab(newTab);
   };
 
   // Handle opening edit sheet and fetching data
@@ -418,14 +415,14 @@ export function DataSourceContent() {
           });
         } else {
           form.reset({
-            title: 'General context of the website',
+            title: __('General context of the website'),
             content: '',
           });
         }
       },
       onError: () => {
         form.reset({
-          title: 'General context of the website',
+          title: __('General context of the website'),
           content: '',
         });
       },
@@ -483,7 +480,7 @@ export function DataSourceContent() {
       <Tabs className="gap-0" value={tab} onValueChange={handleTabChange}>
         <PageHeader
           menuItems={MENU_ITEMS}
-          title="Knowledge Base"
+          title={__('Knowledge Base')}
           rightActions={
             <div className="flex gap-2 items-center">
               <RightActions
@@ -500,7 +497,7 @@ export function DataSourceContent() {
                   size="sm"
                 >
                   <SquarePen className="mr-2 w-4 h-4" strokeWidth={1.5} />
-                  Edit Website Overview
+                  {__('Edit Website Overview')}
                 </Button>
               ) : (
                 <Tooltip>
@@ -513,12 +510,14 @@ export function DataSourceContent() {
                         disabled
                       >
                         <SquarePen className="mr-2 w-4 h-4" strokeWidth={1.5} />
-                        Edit Website Overview
+                        {__('Edit Website Overview')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -538,8 +537,10 @@ export function DataSourceContent() {
       </Tabs>
 
       <FloatingBar
-        title="How to get 96% accurate answers with Helpmate AI Chatbot."
-        buttonText="Learn More"
+        title={__(
+          'How to get 96% accurate answers with Helpmate AI Chatbot.'
+        )}
+        buttonText={__('Learn More')}
         articleContent={
           <div className="max-w-none !prose !prose-sm [&_ul]:!list-disc [&_ol]:!list-decimal [&>ul]:!list-disc [&>ol]:!list-decimal [&_ul]:!ml-3 [&_hr]:!my-4">
             <ReactMarkdown>{TRAINING_ARTICLE}</ReactMarkdown>
@@ -552,7 +553,7 @@ export function DataSourceContent() {
         <SheetContent className="sm:!max-w-2xl flex flex-col h-full gap-0">
           <SheetHeader className="mt-6">
             <SheetTitle className="text-lg font-bold !my-0">
-              Edit Website Overview
+              {__('Edit Website Overview')}
             </SheetTitle>
           </SheetHeader>
           <div className="overflow-y-auto flex-1 p-4">
@@ -566,7 +567,7 @@ export function DataSourceContent() {
                   name="content"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Content</FormLabel>
+                      <FormLabel>{__('Content')}</FormLabel>
                       <FormControl>
                         <RichTextEditor
                           content={field.value}
@@ -583,14 +584,16 @@ export function DataSourceContent() {
                     type="button"
                     onClick={() => setIsEditSheetOpen(false)}
                   >
-                    Cancel
+                    {__('Cancel')}
                   </Button>
                   <Button
                     disabled={addIsPending || updateIsPending}
                     loading={addIsPending || updateIsPending}
                     type="submit"
                   >
-                    {addIsPending || updateIsPending ? 'Saving...' : 'Save'}
+                    {addIsPending || updateIsPending
+                      ? __('Saving...')
+                      : __('Save')}
                   </Button>
                 </div>
               </form>

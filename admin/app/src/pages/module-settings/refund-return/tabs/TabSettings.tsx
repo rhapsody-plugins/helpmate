@@ -29,7 +29,7 @@ import { useMain } from '@/contexts/MainContext';
 import { useCrm } from '@/hooks/useCrm';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/api';
-import { cn } from '@/lib/utils';
+import { cn, __, sprintf } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Plus, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -85,7 +85,7 @@ function ReasonForm({
           name="reason"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Reason</FormLabel>
+              <FormLabel>{__('Reason')}</FormLabel>
               <FormControl>
                 <Input placeholder="Enter reason" {...field} />
               </FormControl>
@@ -93,9 +93,9 @@ function ReasonForm({
           )}
         />
         <div className="flex gap-2">
-          <Button type="submit">{isEditing ? 'Update' : 'Add'}</Button>
+          <Button type="submit">{isEditing ? __('Update') : __('Add')}</Button>
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {__('Cancel')}
           </Button>
         </div>
       </form>
@@ -370,7 +370,7 @@ export default function TabSettings() {
             )}
             {reason === 'Other' && (
               <span className="px-2 py-1 text-xs rounded text-muted-foreground bg-muted">
-                Protected
+                {__('Protected')}
               </span>
             )}
           </div>
@@ -383,8 +383,10 @@ export default function TabSettings() {
     <div className="relative">
       {!getProQuery.data && (
         <ProBadge
-          topMessage="It's not just a refund. It's your reputation. Offer seamless return experiences and build trust."
-          buttonText="Build Loyalty with Ease"
+          topMessage={__(
+            "It's not just a refund. It's your reputation. Offer seamless return experiences and build trust."
+          )}
+          buttonText={__('Build Loyalty with Ease')}
           tooltipMessage={null}
         />
       )}
@@ -398,7 +400,7 @@ export default function TabSettings() {
           <div className="flex justify-between items-center">
             <CardTitle className="flex gap-1 items-center text-xl font-bold">
               Refund & Return Settings{' '}
-              <InfoTooltip message="This tool lets users initiate refund or return requests directly through chat. Makes your store more trustworthy by offering an easy and transparent return experience." />
+              <InfoTooltip message={__('This tool lets users initiate refund or return requests directly through chat. Makes your store more trustworthy by offering an easy and transparent return experience.')} />
             </CardTitle>
             {!isLoadingTemplates && (() => {
               const missingTemplate = emailTemplates?.find(
@@ -413,7 +415,7 @@ export default function TabSettings() {
                   onClick={handleRecreateTemplate}
                   disabled={isRecreatingTemplate}
                 >
-                  {isRecreatingTemplate ? 'Creating...' : 'Recreate Missing Template'}
+                  {isRecreatingTemplate ? __('Creating...') : __('Recreate Missing Template')}
                 </Button>
               ) : null;
             })()}
@@ -426,7 +428,11 @@ export default function TabSettings() {
               : 'Refund/Return Request Update';
             return missingTemplate ? (
               <div className="p-2 mt-2 text-sm text-yellow-600 bg-yellow-50 rounded">
-                Missing default template: {missingTemplate}
+                {sprintf(
+                  /* translators: %s: Missing template name */
+                  __('Missing default template: %s'),
+                  missingTemplate
+                )}
               </div>
             ) : null;
           })()}
@@ -476,8 +482,8 @@ export default function TabSettings() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="flex gap-1 items-center">
-                            Email Template
-                            <InfoTooltip message="Select an email template from CRM. Available variables: {customer_name}, {order_number}, {return_refund_type}, {return_refund_status}, {return_refund_reason}, {return_refund_amount}, {return_refund_items}, {shop_name}, {status}, {order_id}" />
+                            {__('Email Template')}
+                            <InfoTooltip message={__('Select an email template from CRM. Available variables: {customer_name}, {order_number}, {return_refund_type}, {return_refund_status}, {return_refund_reason}, {return_refund_amount}, {return_refund_items}, {shop_name}, {status}, {order_id}')} />
                           </FormLabel>
                           <div className="flex gap-2">
                             <Select
@@ -493,7 +499,7 @@ export default function TabSettings() {
                                 />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="none">{__('None')}</SelectItem>
                                 {emailTemplates?.map((template) => (
                                   <SelectItem
                                     key={template.id}
@@ -510,7 +516,7 @@ export default function TabSettings() {
                               onClick={() => setPage('crm-emails')}
                             >
                               <Plus className="mr-2 w-4 h-4" />
-                              Create Template
+                              {__('Create Template')}
                             </Button>
                           </div>
                         </FormItem>
@@ -522,7 +528,7 @@ export default function TabSettings() {
                       name="policy_url"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Policy URL</FormLabel>
+                          <FormLabel>{__('Policy URL')}</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Enter policy URL"
@@ -538,11 +544,12 @@ export default function TabSettings() {
                     <div className="flex justify-between items-center">
                       <div>
                         <h3 className="text-lg font-semibold">
-                          Refund/Return Reasons
+                          {__('Refund/Return Reasons')}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          Manage the list of reasons customers can select
-                          for refund/return requests.
+                          {__(
+                            'Manage the list of reasons customers can select for refund/return requests.'
+                          )}
                         </p>
                       </div>
                       <Button
@@ -555,7 +562,7 @@ export default function TabSettings() {
                         }}
                       >
                         <Plus className="mr-2 w-4 h-4" />
-                        Add Reason
+                        {__('Add Reason')}
                       </Button>
                     </div>
 
@@ -573,7 +580,7 @@ export default function TabSettings() {
                     disabled={isUpdating}
                     loading={isUpdating}
                   >
-                    {isUpdating ? 'Saving...' : 'Save'}
+                    {isUpdating ? __('Saving...') : __('Save')}
                   </Button>
                 </>
               )}
@@ -586,7 +593,7 @@ export default function TabSettings() {
         <SheetContent className="sm:!max-w-4xl">
           <SheetHeader className="mt-10">
             <SheetTitle className="!my-0">
-              {isEditingReason ? 'Edit Reason' : 'New Reason'}
+              {isEditingReason ? __('Edit Reason') : __('New Reason')}
             </SheetTitle>
           </SheetHeader>
           <div className="p-4 pt-0">

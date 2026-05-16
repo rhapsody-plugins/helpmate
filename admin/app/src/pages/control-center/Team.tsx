@@ -27,14 +27,24 @@ import { ColumnDef } from '@tanstack/react-table';
 import { formatDistanceToNow } from 'date-fns';
 import { Crown, Edit, Plus, Search, Trash2, UserCog } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { __ } from '@/lib/utils';
 
-const ROLE_LABELS: Record<string, string> = {
-  admin: 'Admin',
-  manager: 'Manager',
-  live_chat_agent: 'Live Chat Agent',
-  salesperson: 'Salesperson',
-  marketer: 'Marketer',
-};
+function getRoleLabel(role: string): string {
+  switch (role) {
+    case 'admin':
+      return __('Admin');
+    case 'manager':
+      return __('Manager');
+    case 'live_chat_agent':
+      return __('Live Chat Agent');
+    case 'salesperson':
+      return __('Salesperson');
+    case 'marketer':
+      return __('Marketer');
+    default:
+      return role;
+  }
+}
 
 const ROLE_COLORS: Record<string, string> = {
   admin: 'bg-red-100 text-red-800',
@@ -106,7 +116,7 @@ export default function Team() {
   };
 
   const handleDelete = async (user_id: number) => {
-    if (!confirm('Are you sure you want to remove this team member?')) {
+    if (!confirm(__('Are you sure you want to remove this team member?'))) {
       return;
     }
     removeTeamMemberMutation.mutate(user_id);
@@ -125,11 +135,11 @@ export default function Team() {
   const columns: ColumnDef<TeamMember>[] = [
     {
       accessorKey: 'user',
-      header: 'User',
+      header: __('User'),
       cell: ({ row }) => {
         const user = row.original.user;
         if (!user) {
-          return <span className="text-gray-400">User not found</span>;
+          return <span className="text-gray-400">{__('User not found')}</span>;
         }
         return (
           <div>
@@ -141,7 +151,7 @@ export default function Team() {
     },
     {
       accessorKey: 'roles',
-      header: 'Roles',
+      header: __('Roles'),
       cell: ({ row }) => {
         const roles = row.original.roles || [];
         return (
@@ -151,7 +161,7 @@ export default function Team() {
                 key={role}
                 className={ROLE_COLORS[role] || 'bg-gray-100 text-gray-800'}
               >
-                {ROLE_LABELS[role] || role}
+                {getRoleLabel(role)}
               </Badge>
             ))}
           </div>
@@ -160,7 +170,7 @@ export default function Team() {
     },
     {
       accessorKey: 'updated_at',
-      header: 'Last Updated',
+      header: __('Last Updated'),
       cell: ({ row }) => {
         const timestamp = row.original.updated_at * 1000; // Convert to milliseconds
         return (
@@ -172,7 +182,7 @@ export default function Team() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: __('Actions'),
       cell: ({ row }) => {
         const member = row.original;
         return (
@@ -199,13 +209,13 @@ export default function Team() {
     },
   ];
 
-  const availableRoles = Object.keys(ROLE_LABELS);
+  const availableRoles = ['admin', 'manager', 'live_chat_agent', 'salesperson', 'marketer'];
 
   return (
     <PageGuard page="control-center-team">
       <div className="gap-0">
         <PageHeader
-          title="Team Management"
+          title={__('Team Management')}
           rightActions={
             <TooltipProvider>
               <Tooltip>
@@ -218,7 +228,7 @@ export default function Team() {
                         size="sm"
                       >
                         <Crown className="w-4 h-4" />
-                        Upgrade to Pro
+                        {__('Upgrade to Pro')}
                       </Button>
                     </div>
                   ) : (
@@ -228,13 +238,13 @@ export default function Team() {
                       disabled={isAddDisabled}
                     >
                       <Plus className="w-4 h-4" />
-                      Add Team Member
+                      {__('Add Team Member')}
                     </Button>
                   )}
                 </TooltipTrigger>
                 {isAddDisabled && (
                   <TooltipContent>
-                    <p>Upgrade to Pro to Add More Team Members</p>
+                    <p>{__('Upgrade to Pro to Add More Team Members')}</p>
                   </TooltipContent>
                 )}
               </Tooltip>
@@ -245,7 +255,7 @@ export default function Team() {
         <div className="overflow-auto flex-1 p-6">
           <Card>
             <CardHeader>
-              <CardTitle className="!text-lg !my-0">Team</CardTitle>
+              <CardTitle className="!text-lg !my-0">{__('Team')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -267,10 +277,10 @@ export default function Team() {
                       <SelectValue placeholder="All Roles" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Roles</SelectItem>
+                      <SelectItem value="all">{__('All Roles')}</SelectItem>
                       {availableRoles.map((role) => (
                         <SelectItem key={role} value={role}>
-                          {ROLE_LABELS[role]}
+                          {getRoleLabel(role)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -282,16 +292,16 @@ export default function Team() {
                   <Loading />
                 ) : teamMembersQuery.isError ? (
                   <div className="py-12 text-center text-red-500">
-                    Failed to load team members
+                    {__('Failed to load team members')}
                   </div>
                 ) : !filteredTeamMembers || filteredTeamMembers.length === 0 ? (
                   <div className="py-12 text-center">
                     <UserCog className="mx-auto mb-4 w-12 h-12 text-gray-400" />
                     <h3 className="mb-2 text-lg font-semibold text-gray-900">
-                      No team members
+                      {__('No team members')}
                     </h3>
                     <p className="mb-4 text-gray-500">
-                      Get started by adding your first team member.
+                      {__('Get started by adding your first team member.')}
                     </p>
                     <TooltipProvider>
                       <Tooltip>
@@ -305,19 +315,19 @@ export default function Team() {
                                 className="w-full"
                               >
                                 <Plus className="w-4 h-4" />
-                                Upgrade to Pro
+                                {__('Upgrade to Pro')}
                               </Button>
                             </div>
                           ) : (
                             <Button onClick={handleAddNew} disabled={isAddDisabled}>
                               <Plus className="w-4 h-4" />
-                              Add Team Member
+                              {__('Add Team Member')}
                             </Button>
                           )}
                         </TooltipTrigger>
                         {isAddDisabled && (
                           <TooltipContent>
-                            <p>Upgrade to Pro to Add More Team Members</p>
+                            <p>{__('Upgrade to Pro to Add More Team Members')}</p>
                           </TooltipContent>
                         )}
                       </Tooltip>

@@ -10,9 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Class FLHelpmateSchedulingModule
+ * Class Helpmate_Beaver_Scheduling_Module
  */
-class FLHelpmateSchedulingModule extends FLBuilderModule {
+class Helpmate_Beaver_Scheduling_Module extends FLBuilderModule {
 
 	/**
 	 * Constructor.
@@ -31,7 +31,7 @@ class FLHelpmateSchedulingModule extends FLBuilderModule {
 }
 
 FLBuilder::register_module(
-	'FLHelpmateSchedulingModule',
+	'Helpmate_Beaver_Scheduling_Module',
 	array(
 		'general' => array(
 			'title'    => __( 'Content', 'helpmate-ai-chatbot' ),

@@ -139,10 +139,8 @@ class Helpmate_Blocks {
 		if ( ! is_admin() ) {
 			return;
 		}
-		$post_id = 0;
-		if ( isset( $_GET['post'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only for localization
-			$post_id = (int) $_GET['post'];
-		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Optional ?post= for editor localization only; not POST/form handling; value sanitized with absint.
+		$post_id = isset( $_GET['post'] ) ? absint( wp_unslash( $_GET['post'] ) ) : 0;
 
 		$sched = WP_Block_Type_Registry::get_instance()->get_registered( Helpmate_Elementor_Utils::BLOCK_SCHEDULING );
 		if ( $sched && $sched->editor_script ) {
@@ -182,10 +180,10 @@ class Helpmate_Blocks {
 	public static function get_active_banners_for_editor() {
 		global $wpdb;
 		$table = esc_sql( $wpdb->prefix . 'helpmate_promo_banners' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name escaped; editor only
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Block editor banner list; caching not used
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, title FROM {$table} WHERE status = %s ORDER BY created_at DESC",
+				"SELECT id, title FROM {$table} WHERE status = %s ORDER BY created_at DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses esc_sql and wpdb->prefix
 				'active'
 			),
 			ARRAY_A

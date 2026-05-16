@@ -19,6 +19,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
+import { __, sprintf } from '@/lib/utils';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -159,32 +160,39 @@ export default function MembersIntegrationSheet({
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent className="flex flex-col w-full sm:max-w-lg overflow-y-auto">
           <SheetHeader>
-            <SheetTitle>Members</SheetTitle>
+            <SheetTitle>{__('Members')}</SheetTitle>
           </SheetHeader>
 
           <div className="flex flex-col gap-4 p-4">
             {!membersPluginActive ? (
               <p className="text-sm text-muted-foreground">
-                Install and activate Members to enable this integration.
+                {__('Install and activate Members to enable this integration.')}
               </p>
             ) : !statusQuery.data?.active ? (
               <p className="text-sm text-muted-foreground">
-                Members is active but runtime is not fully loaded yet. Refresh after it initializes.
+                {__(
+                  'Members is active but runtime is not fully loaded yet. Refresh after it initializes.'
+                )}
               </p>
             ) : (
               <>
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">
-                    Detected members (v1: total WP users): {statusQuery.data.member_count ?? 0}
+                    {sprintf(
+                      /* translators: %s: Total WordPress user count */
+                      __('Detected members (v1: total WP users): %s'),
+                      String(statusQuery.data.member_count ?? 0)
+                    )}
                   </p>
                   <div className="flex items-center justify-between rounded-md border p-3">
                     <div className="space-y-1">
                       <Label htmlFor="members-integration-enabled">
-                        Enable Members integration events
+                        {__('Enable Members integration events')}
                       </Label>
                       <p className="text-xs text-muted-foreground">
-                        When enabled, Helpmate records Members lifecycle events and syncs role data
-                        to CRM.
+                        {__(
+                          'When enabled, Helpmate records Members lifecycle events and syncs role data to CRM.'
+                        )}
                       </p>
                     </div>
                     <Switch
@@ -198,11 +206,11 @@ export default function MembersIntegrationSheet({
 
                 <div className="border-t pt-4 space-y-3">
                   <div className="space-y-2">
-                    <Label>Manual sync controls</Label>
+                    <Label>{__('Manual sync controls')}</Label>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <Label htmlFor="members-sync-limit" className="text-xs">
-                          Limit
+                          {__('Limit')}
                         </Label>
                         <Input
                           id="members-sync-limit"
@@ -215,7 +223,7 @@ export default function MembersIntegrationSheet({
                       </div>
                       <div className="space-y-1">
                         <Label htmlFor="members-sync-offset" className="text-xs">
-                          Offset
+                          {__('Offset')}
                         </Label>
                         <Input
                           id="members-sync-offset"
@@ -233,25 +241,39 @@ export default function MembersIntegrationSheet({
                     disabled={!canSync}
                     onClick={() => setSyncConfirmOpen(true)}
                   >
-                    Sync members to CRM
+                    {__('Sync members to CRM')}
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    One-way import from Members. Contacts are matched by email and member profile
-                    fields may be overwritten by Members values.
+                    {__(
+                      'One-way import from Members. Contacts are matched by email and member profile fields may be overwritten by Members values.'
+                    )}
                   </p>
                 </div>
 
                 {lastSummary ? (
                   <div className="rounded-md border p-3 space-y-1 text-xs text-muted-foreground">
-                    <p>Last sync:</p>
+                    <p>{__('Last sync:')}</p>
                     <p>
-                      Processed {lastSummary.processed} | Created {lastSummary.created} | Updated{' '}
-                      {lastSummary.updated} | Skipped (no email) {lastSummary.skipped_no_email}
+                      {sprintf(
+                        /* translators: 1: Processed count, 2: Created count, 3: Updated count, 4: Skipped count */
+                        __(
+                          'Processed %1$d | Created %2$d | Updated %3$d | Skipped (no email) %4$d'
+                        ),
+                        lastSummary.processed,
+                        lastSummary.created,
+                        lastSummary.updated,
+                        lastSummary.skipped_no_email
+                      )}
                     </p>
                     {lastSummary.errors?.length ? (
                       <p className="text-destructive">
-                        Errors: {lastSummary.errors.length} (last:{' '}
-                        {lastSummary.errors[lastSummary.errors.length - 1]?.message ?? 'Unknown'})
+                        {sprintf(
+                          /* translators: 1: Error count, 2: Last error message */
+                          __('Errors: %1$d (last: %2$s)'),
+                          lastSummary.errors.length,
+                          lastSummary.errors[lastSummary.errors.length - 1]?.message ??
+                            __('Unknown')
+                        )}
                       </p>
                     ) : null}
                   </div>
@@ -262,7 +284,7 @@ export default function MembersIntegrationSheet({
 
           <SheetFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Close
+              {__('Close')}
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -271,21 +293,23 @@ export default function MembersIntegrationSheet({
       <Dialog open={syncConfirmOpen} onOpenChange={setSyncConfirmOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Sync Members users to CRM?</DialogTitle>
+            <DialogTitle>{__('Sync Members users to CRM?')}</DialogTitle>
             <DialogDescription className="space-y-2 text-left">
               <span className="block">
-                Existing CRM contacts with the <strong>same email</strong> as a Members user can be
-                updated from that profile.
+                {__(
+                  'Existing CRM contacts with the same email as a Members user can be updated from that profile.'
+                )}
               </span>
               <span className="block text-destructive">
-                This bulk update cannot be undone automatically. Export or back up CRM data first if
-                unsure.
+                {__(
+                  'This bulk update cannot be undone automatically. Export or back up CRM data first if unsure.'
+                )}
               </span>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={() => setSyncConfirmOpen(false)}>
-              Cancel
+              {__('Cancel')}
             </Button>
             <Button
               type="button"
@@ -296,10 +320,10 @@ export default function MembersIntegrationSheet({
               {syncMutation.isPending ? (
                 <>
                   <Loader2 className="size-4 animate-spin mr-2" />
-                  Syncing...
+                  {__('Syncing...')}
                 </>
               ) : (
-                'Yes, sync now'
+                __('Yes, sync now')
               )}
             </Button>
           </DialogFooter>

@@ -34,6 +34,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { __ } from '@/lib/utils';
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -150,7 +151,7 @@ export default function TabUrl() {
     () => [
       {
         accessorKey: 'title',
-        header: 'Title',
+        header: __('Title'),
         cell: ({ row }) => {
           const title = row.getValue('title') as string;
           return (
@@ -162,7 +163,7 @@ export default function TabUrl() {
       },
       {
         accessorKey: 'metadata',
-        header: 'URL',
+        header: __('URL'),
         cell: ({ row }) => {
           const metadata = row.getValue('metadata') as string;
           const parsedMetadata = JSON.parse(metadata);
@@ -175,7 +176,7 @@ export default function TabUrl() {
       },
       {
         accessorKey: 'content',
-        header: 'Content',
+        header: __('Content'),
         cell: ({ row }) => {
           const content = row.getValue('content') as string;
           return (
@@ -187,7 +188,7 @@ export default function TabUrl() {
       },
       {
         accessorKey: 'last_updated',
-        header: 'Last Updated',
+        header: __('Last Updated'),
         cell: ({ row }) => {
           const timestamp = row.getValue('last_updated') as number;
           return format(parseUTCTimestamp(timestamp), 'PPpp', {
@@ -197,7 +198,7 @@ export default function TabUrl() {
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => {
           const isRemoving = removingUrlId === row.original.id;
           return (
@@ -210,7 +211,7 @@ export default function TabUrl() {
                   setIsContentSheetOpen(true);
                 }}
               >
-                View
+                {__('View')}
               </Button>
               {canEditOrDelete ? (
                 <Button
@@ -220,19 +221,21 @@ export default function TabUrl() {
                   disabled={removeIsPending && isRemoving}
                   onClick={() => handleRemove(row.original.id)}
                 >
-                  {isRemoving ? 'Deleting...' : 'Delete'}
+                  {isRemoving ? __('Deleting...') : __('Delete')}
                 </Button>
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-block">
                       <Button variant="destructive" size="sm" disabled>
-                        Delete
+                        {__('Delete')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -255,8 +258,10 @@ export default function TabUrl() {
       <Card>
         <CardHeader>
           <CardTitle className="flex gap-1 items-center text-xl font-bold">
-            Create URL Source{' '}
-            <InfoTooltip message="Add a URL source to your Helpmate." />
+            {__('Create URL Source')}{' '}
+            <InfoTooltip
+              message={__('Add a URL source to your Helpmate.')}
+            />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -270,7 +275,7 @@ export default function TabUrl() {
                 name="url"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>URL</FormLabel>
+                    <FormLabel>{__('URL')}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -282,7 +287,7 @@ export default function TabUrl() {
                 loading={addIsPending || isLoading}
                 type="submit"
               >
-                {addIsPending || isLoading ? 'Saving...' : 'Save'}
+                {addIsPending || isLoading ? __('Saving...') : __('Save')}
               </Button>
             </form>
           </Form>
@@ -293,7 +298,7 @@ export default function TabUrl() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl font-bold">
-              Saved URL Sources
+              {__('Saved URL Sources')}
             </CardTitle>
             <Input
               placeholder="Search saved URLs..."
@@ -320,7 +325,7 @@ export default function TabUrl() {
         <SheetContent className="sm:!max-w-2xl flex flex-col h-full gap-0">
           <SheetHeader className="mt-6">
             <SheetTitle className="text-lg font-bold !my-0">
-              URL Content
+              {__('URL Content')}
             </SheetTitle>
           </SheetHeader>
           <div className="overflow-y-auto flex-1 p-4 pt-0">
@@ -332,7 +337,7 @@ export default function TabUrl() {
               variant="outline"
               onClick={() => setIsContentSheetOpen(false)}
             >
-              Close
+              {__('Close')}
             </Button>
           </div>
         </SheetContent>

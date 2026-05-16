@@ -36,7 +36,7 @@ import {
   useMarkReadByEntity,
   useNotificationsList,
 } from '@/hooks/useNotifications';
-import { cn } from '@/lib/utils';
+import { __, cn, sprintf } from '@/lib/utils';
 import { ContactCreateSheet } from '@/pages/crm/contacts/components/ContactCreateSheet';
 import { Lead } from '@/types';
 import { Pencil, UserPlus } from 'lucide-react';
@@ -44,7 +44,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 const formatSource = (source: string | undefined): string => {
   if (!source) return '';
-  if (source === 'facebook_messenger') return 'Facebook';
+  if (source === 'facebook_messenger') return __('Facebook');
   return source.replace(/_/g, ' ');
 };
 
@@ -270,7 +270,11 @@ export default function Leads() {
                 <div>
                   <CardTitle>{selectedLead.name}</CardTitle>
                   <CardDescription>
-                    Created on {formatDateTime(selectedLead.timestamp)}
+                    {sprintf(
+                      /* translators: %s: Created datetime */
+                      __('Created on %s'),
+                      formatDateTime(selectedLead.timestamp)
+                    )}
                   </CardDescription>
                 </div>
                 {selectedLead.source && (
@@ -283,7 +287,7 @@ export default function Leads() {
                 {selectedLead.contact_id ? (
                   <div className="space-y-2">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="font-medium">Contact</div>
+                      <div className="font-medium">{__('Contact')}</div>
                       <div className="flex flex-wrap gap-2 items-center min-w-0">
                         {linkedContact ? (
                           <span className="min-w-0 truncate">
@@ -299,7 +303,7 @@ export default function Leads() {
                             size="sm"
                             onClick={handleViewContact}
                           >
-                            View Contact
+                            {__('View Contact')}
                           </Button>
                           <Popover open={contactPopoverOpen} onOpenChange={setContactPopoverOpen}>
                             <Tooltip>
@@ -314,7 +318,7 @@ export default function Leads() {
                                   </Button>
                                 </PopoverTrigger>
                               </TooltipTrigger>
-                              <TooltipContent>Change Contact</TooltipContent>
+                              <TooltipContent>{__('Change Contact')}</TooltipContent>
                             </Tooltip>
                             <PopoverContent className="p-0 w-72" align="end">
                             <Command>
@@ -323,7 +327,7 @@ export default function Leads() {
                                 value={contactSearch}
                                 onValueChange={setContactSearch}
                               />
-                              <CommandEmpty>No contacts found.</CommandEmpty>
+                              <CommandEmpty>{__('No contacts found.')}</CommandEmpty>
                               <CommandGroup className="overflow-y-auto max-h-64">
                                 {contacts
                                   .filter((c) => c.id !== selectedLead.contact_id)
@@ -350,7 +354,7 @@ export default function Leads() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <div className="font-medium">Contact</div>
+                    <div className="font-medium">{__('Contact')}</div>
                     <Button
                       onClick={handleCreateContact}
                       disabled={createContactFromLead.isPending}
@@ -358,12 +362,12 @@ export default function Leads() {
                     >
                       <UserPlus className="mr-2 w-4 h-4" />
                       {createContactFromLead.isPending
-                        ? 'Creating Contact...'
-                        : 'Create Contact from Lead'}
+                        ? __('Creating Contact...')
+                        : __('Create Contact from Lead')}
                     </Button>
                     {!selectedLead.metadata?.email && (
                       <p className="text-sm text-muted-foreground">
-                        Email will be required when creating the contact
+                        {__('Email will be required when creating the contact')}
                       </p>
                     )}
                   </div>
@@ -383,7 +387,7 @@ export default function Leads() {
         </div>
       ) : (
         <div className="py-12 text-center text-muted-foreground">
-          No leads available.
+          {__('No leads available.')}
         </div>
       )}
     </div>
@@ -392,12 +396,12 @@ export default function Leads() {
   return (
     <PageGuard page="crm-leads">
       <div className="flex flex-col gap-0">
-        <PageHeader title="Leads" />
+        <PageHeader title={__('Leads')} />
 
         <div className="p-6">
           <ActivityLayout
-            title="Leads"
-            description="View and manage customer leads."
+            title={__('Leads')}
+            description={__('View and manage customer leads.')}
             isRefreshing={isRefreshing}
             onRefresh={handleRefresh}
             sidebarContent={sidebarContent}

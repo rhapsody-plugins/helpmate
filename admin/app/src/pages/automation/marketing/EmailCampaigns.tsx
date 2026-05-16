@@ -2,6 +2,7 @@ import PageGuard from '@/components/PageGuard';
 import PageHeader from '@/components/PageHeader';
 import TabCampaigns from '@/pages/crm/Emails/tabs/TabCampaigns';
 import { Button } from '@/components/ui/button';
+import { __ } from '@/lib/utils';
 import { useSettings } from '@/hooks/useSettings';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
@@ -15,7 +16,7 @@ export default function EmailCampaigns() {
     <PageGuard page="automation-marketing-email-campaigns">
       <div className="gap-0">
         <PageHeader
-          title="Email Campaigns"
+          title={__('Email Campaigns')}
           rightActions={
             <Button
               size="sm"
@@ -23,7 +24,7 @@ export default function EmailCampaigns() {
               onClick={() => setFormOpen(true)}
             >
               <Plus className="mr-2 w-4 h-4" />
-              Create Campaign
+              {__('Create Campaign')}
             </Button>
           }
         />

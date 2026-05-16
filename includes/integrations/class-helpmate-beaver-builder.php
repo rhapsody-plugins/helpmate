@@ -90,10 +90,10 @@ final class Helpmate_Beaver_Builder {
 	public static function get_promo_banner_select_options() {
 		global $wpdb;
 		$table = esc_sql( $wpdb->prefix . 'helpmate_promo_banners' );
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name escaped; builder UI only
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Builder settings UI; caching not used
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT id, title FROM {$table} WHERE status = %s ORDER BY created_at DESC",
+				"SELECT id, title FROM {$table} WHERE status = %s ORDER BY created_at DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses esc_sql and wpdb->prefix
 				'active'
 			),
 			ARRAY_A
@@ -105,8 +105,8 @@ final class Helpmate_Beaver_Builder {
 		foreach ( $rows as $row ) {
 			$id    = (int) $row['id'];
 			$title = isset( $row['title'] ) ? (string) $row['title'] : '';
-			/* translators: 1: Banner title, 2: Banner database ID */
 			$options[ (string) $id ] = sprintf(
+				/* translators: 1: Banner title, 2: Banner database ID */
 				esc_html__( '%1$s (ID %2$d)', 'helpmate-ai-chatbot' ),
 				$title !== '' ? esc_html( $title ) : esc_html__( '(No title)', 'helpmate-ai-chatbot' ),
 				$id

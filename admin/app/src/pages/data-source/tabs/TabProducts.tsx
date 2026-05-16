@@ -33,6 +33,7 @@ import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { toast } from 'sonner';
+import { __ } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 
 export default function TabProducts() {
@@ -59,6 +60,7 @@ export default function TabProducts() {
 
   const {
     getPostsMutation,
+    getPostTypesQuery,
     getSourcesMutation,
     removeSourceMutation,
     addSourceMutation,
@@ -77,6 +79,10 @@ export default function TabProducts() {
     removeSourceMutation;
   const { mutate: getPostsMutate, isPending: getPostsIsPending } =
     getPostsMutation;
+  const availablePostTypeNames = useMemo(
+    () => (getPostTypesQuery.data ?? []).map((postType) => postType.name),
+    [getPostTypesQuery.data]
+  );
   const { data: bulkJobsData, refetch: refetchBulkJobs } = getBulkJobsQuery;
   const { mutate: cancelBulkJobMutate } = cancelBulkJobMutation;
   const { mutate: deleteBulkJobMutate } = deleteBulkJobMutation;
@@ -88,12 +94,28 @@ export default function TabProducts() {
     },
     refetchOnWindowFocus: false,
   });
-  const productPostType =
+  const configuredProductPostType =
     commerceConfigQuery.data?.selected_provider === 'easy_digital_downloads'
       ? 'download'
       : commerceConfigQuery.data?.selected_provider === 'surecart'
         ? 'sc_product'
         : 'product';
+  const productPostType = useMemo(() => {
+    if (availablePostTypeNames.length === 0) {
+      return null;
+    }
+
+    if (availablePostTypeNames.includes(configuredProductPostType)) {
+      return configuredProductPostType;
+    }
+
+    const fallbackPostTypes = ['product', 'download', 'sc_product'];
+    const fallbackMatch = fallbackPostTypes.find((postTypeName) =>
+      availablePostTypeNames.includes(postTypeName)
+    );
+
+    return fallbackMatch ?? null;
+  }, [availablePostTypeNames, configuredProductPostType]);
 
   const dokanCheckQuery = useQuery<
     { installed?: boolean; active?: boolean },
@@ -217,6 +239,11 @@ export default function TabProducts() {
   }, [products]);
 
   const fetchProducts = useCallback(() => {
+    if (!productPostType) {
+      setProducts([]);
+      return;
+    }
+
     getPostsMutate(productPostType, {
       onSuccess: (data) => {
         if (!data) return;
@@ -542,7 +569,7 @@ export default function TabProducts() {
   const columns = useMemo<ColumnDef<WordPressPost>[]>(() => {
     const vendorColumn: ColumnDef<WordPressPost> = {
       id: 'vendor',
-      header: 'Vendor',
+      header: __('Vendor'),
       cell: ({ row }) => {
         const aid = row.original.author_id ?? 0;
         const name =
@@ -554,7 +581,7 @@ export default function TabProducts() {
     const cols: ColumnDef<WordPressPost>[] = [
       {
         accessorKey: 'image',
-        header: 'Image',
+        header: __('Image'),
         cell: ({ row }) => {
           const { metadata } = row.original;
           const { featured_image } = metadata as { featured_image: string };
@@ -565,13 +592,13 @@ export default function TabProducts() {
               className="w-10 h-10 rounded"
             />
           ) : (
-            'No Image'
+            __('No Image')
           );
         },
       },
       {
         accessorKey: 'title',
-        header: 'Title',
+        header: __('Title'),
         cell: ({ row }) => {
           const { title, content } = row.original;
           const titleText = typeof title === 'string' ? title : title.rendered;
@@ -580,7 +607,7 @@ export default function TabProducts() {
             <div className="flex gap-1 items-center max-w-[200px] truncate">
               {titleText}
               {isDynamic && (
-                <span className="text-xs text-muted-foreground">(Dynamic)</span>
+                <span className="text-xs text-muted-foreground">{__('(Dynamic)')}</span>
               )}
             </div>
           );
@@ -588,15 +615,15 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'type',
-        header: 'Type',
+        header: __('Type'),
       },
       {
         accessorKey: 'status',
-        header: 'Status',
+        header: __('Status'),
       },
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: __('Date'),
       },
     ];
     if (showVendorColumn) {
@@ -605,11 +632,11 @@ export default function TabProducts() {
     cols.push(
       {
         accessorKey: 'author',
-        header: 'Author',
+        header: __('Author'),
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => {
           const isAdding = addingProductId === row.original.id;
           return (
@@ -620,7 +647,7 @@ export default function TabProducts() {
                 disabled={addIsPending && !isAdding}
                 onClick={() => handleAdd(row.original.id)}
               >
-                {isAdding ? 'Training...' : 'Train'}
+                {isAdding ? __('Training...') : __('Train')}
               </Button>
             </div>
           );
@@ -639,7 +666,7 @@ export default function TabProducts() {
   const savedColumns = useMemo<ColumnDef<DataSource>[]>(() => {
     const vendorSavedColumn: ColumnDef<DataSource> = {
       id: 'vendor_saved',
-      header: 'Vendor',
+      header: __('Vendor'),
       cell: ({ row }) => {
         const parsedMetadata = JSON.parse(
           row.original.metadata as unknown as string
@@ -655,7 +682,7 @@ export default function TabProducts() {
     const cols: ColumnDef<DataSource>[] = [
       {
         accessorKey: 'title',
-        header: 'Title',
+        header: __('Title'),
         cell: ({ row }) => {
           const { title, content } = row.original;
           const isDynamic = isDynamicContent(content || '');
@@ -663,7 +690,7 @@ export default function TabProducts() {
             <div className="flex gap-1 items-center">
               {title}
               {isDynamic && (
-                <span className="text-xs text-muted-foreground">(Dynamic)</span>
+                <span className="text-xs text-muted-foreground">{__('(Dynamic)')}</span>
               )}
             </div>
           );
@@ -671,7 +698,7 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'metadata.post_id',
-        header: 'Product ID',
+        header: __('Product ID'),
         cell: ({ row }) => {
           const { metadata } = row.original;
           const parsedMetadata = JSON.parse(metadata as unknown as string);
@@ -692,7 +719,7 @@ export default function TabProducts() {
     cols.push(
       {
         accessorKey: 'last_updated',
-        header: 'Last Updated',
+        header: __('Last Updated'),
         cell: ({ row }) => {
           const timestamp = row.getValue('last_updated') as number;
           return format(parseUTCTimestamp(timestamp), 'PPpp', {
@@ -702,7 +729,7 @@ export default function TabProducts() {
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => {
           const { metadata } = row.original;
           const parsedMetadata = JSON.parse(metadata as unknown as string);
@@ -714,7 +741,7 @@ export default function TabProducts() {
                 size="sm"
                 onClick={() => handleContentDisplay(row.original.id)}
               >
-                See Trained Data
+                {__('See Trained Data')}
               </Button>
               {canEditOrDelete ? (
                 <Button
@@ -724,19 +751,21 @@ export default function TabProducts() {
                   disabled={removeIsPending && isRemoving}
                   onClick={() => handleRemove(parsedMetadata.post_id)}
                 >
-                  {isRemoving ? 'Deleting...' : 'Delete'}
+                  {isRemoving ? __('Deleting...') : __('Delete')}
                 </Button>
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-block">
                       <Button variant="destructive" size="sm" disabled>
-                        Delete
+                        {__('Delete')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -771,10 +800,11 @@ export default function TabProducts() {
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="flex gap-1 items-center text-xl font-bold">
-                Products{' '}
+                {__('Products')}{' '}
                 <InfoTooltip
-                  message="Train your product data to Chatbot for better
-                product recommendations and support"
+                  message={__(
+                    'Train your product data to Chatbot for better product recommendations and support'
+                  )}
                 />
               </CardTitle>
             </div>
@@ -782,14 +812,14 @@ export default function TabProducts() {
               {showVendorColumn ? (
                 <div className="flex items-center gap-2">
                   <Label htmlFor="vendor-filter-products" className="sr-only">
-                    Vendor
+                    {__('Vendor')}
                   </Label>
                   <Select value={vendorFilter} onValueChange={setVendorFilter}>
                     <SelectTrigger id="vendor-filter-products" className="w-[200px]">
                       <SelectValue placeholder="All vendors" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All vendors</SelectItem>
+                      <SelectItem value="all">{__('All vendors')}</SelectItem>
                       {(multivendorVendorsQuery.data ?? []).map((v) => (
                         <SelectItem key={v.id} value={String(v.id)}>
                           {v.store_name}
@@ -830,7 +860,7 @@ export default function TabProducts() {
                     setSelectedRows([]);
                   }}
                 >
-                  {addIsPending ? 'Training...' : 'Train Selected'}
+                  {addIsPending ? __('Training...') : __('Train Selected')}
                 </Button>
               </>
             }
@@ -842,7 +872,7 @@ export default function TabProducts() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl font-bold">
-              Trained Product Sources
+              {__('Trained Product Sources')}
             </CardTitle>
             <Input
               placeholder="Search saved products..."
@@ -879,19 +909,21 @@ export default function TabProducts() {
                     setSelectedRowsSaved([]);
                   }}
                 >
-                  {removeIsPending ? 'Deleting...' : 'Delete Selected'}
+                  {removeIsPending ? __('Deleting...') : __('Delete Selected')}
                 </Button>
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-block">
                       <Button size="sm" variant="destructive" disabled>
-                        Delete Selected
+                        {__('Delete Selected')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               )

@@ -310,7 +310,7 @@ class Helpmate_Elementor_Utils {
 		$pt_placeholders = implode( ',', array_fill( 0, count( $embed_types ), '%s' ) );
 		$shortcode_pattern = '%[helpmate_scheduling]%';
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Cached; post types are safe slugs; rebuilt on save_post / BB save
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Cached; post types are safe slugs; IN() uses dynamic placeholders; spread merge args confuse static count
 		$shortcode_ids = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT ID FROM {$wpdb->posts}
@@ -360,7 +360,7 @@ class Helpmate_Elementor_Utils {
 				...array_merge( $embed_types, array( '_fl_builder_data', $beaver_like ) )
 			)
 		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		$index = array(
 			'shortcode_ids' => array_map( 'intval', (array) $shortcode_ids ),
@@ -401,14 +401,18 @@ class Helpmate_Elementor_Utils {
 		global $wpdb;
 		$placeholders = implode( ',', array_fill( 0, count( $all_ids ), '%d' ) );
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- IDs are integers; placeholders built safely
-		$sql = "SELECT ID FROM {$wpdb->posts}
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- IDs are integers; dynamic IN(); spread IDs confuse static placeholder count
+		$post_id = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts}
 			WHERE post_status = 'publish'
 			AND ID IN ($placeholders)
 			ORDER BY post_date DESC
-			LIMIT 1";
-		$post_id = (int) $wpdb->get_var( $wpdb->prepare( $sql, ...$all_ids ) );
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			LIMIT 1",
+				...$all_ids
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		wp_cache_set( self::CACHE_LANDING_KEY, $post_id, self::CACHE_GROUP, HOUR_IN_SECONDS );
 

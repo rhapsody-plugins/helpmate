@@ -1,7 +1,13 @@
 import api from '@/lib/axios';
+import { __ } from '@/lib/utils';
 import { AiResponse } from '@/types';
 import { useMutation } from '@tanstack/react-query';
 import { clearStoredMessages } from '@/utils/message-storage';
+
+const getParseErrorMessage = () =>
+  __(
+    'Sorry, I encountered an error processing your request. Please try again or contact support if the issue persists.'
+  );
 
 export const useAi = () => {
   const getResponseMutation = useMutation<
@@ -41,7 +47,7 @@ export const useAi = () => {
             console.error('Failed to parse reply:', error);
             reply = {
               type: 'text',
-              text: 'Sorry, I encountered an error processing your request. Please try again or contact support if the issue persists.',
+              text: getParseErrorMessage(),
             };
           }
         }
@@ -57,7 +63,7 @@ export const useAi = () => {
           error: true,
           reply: {
             type: 'text',
-            text: 'Sorry, I encountered an error processing your request. Please try again or contact support if the issue persists.',
+            text: getParseErrorMessage(),
           },
         };
       }

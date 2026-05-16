@@ -1,3 +1,4 @@
+import { __ } from '@/lib/utils';
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import Step1ApiKey from '@/components/setup/Step1ApiKey';
@@ -95,7 +96,7 @@ export default function SetupWidget({
                   currentStep >= 1 ? 'text-gray-900' : 'text-gray-500'
                 }`}
               >
-                API Key Setup
+                {__('API Key Setup')}
               </p>
             </div>
 
@@ -119,7 +120,7 @@ export default function SetupWidget({
                   currentStep >= 2 ? 'text-gray-900' : 'text-gray-500'
                 }`}
               >
-                OpenAI Key (Optional)
+                {__('OpenAI Key (Optional)')}
               </p>
             </div>
 
@@ -143,7 +144,7 @@ export default function SetupWidget({
                   currentStep >= 3 ? 'text-gray-900' : 'text-gray-500'
                 }`}
               >
-                Data Training (Optional)
+                {__('Data Training (Optional)')}
               </p>
             </div>
           </div>

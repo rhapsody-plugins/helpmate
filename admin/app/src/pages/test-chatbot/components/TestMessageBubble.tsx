@@ -1,6 +1,6 @@
 import { TestMessage } from './TestChatWidget';
 import { FileText, Pencil } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, __, sprintf } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -150,42 +150,50 @@ export function TestMessageBubble({
             <div>
               <p className="!mt-0 text-sm">{message.content}</p>
               <div className="text-xs opacity-75">
-                [Product carousel would be displayed here in live chat]
+                {__(
+                  '[Product carousel would be displayed here in live chat]'
+                )}
               </div>
             </div>
           ) : message.type === 'coupon' && message.data ? (
             <div>
               <p className="!mt-0 text-sm">{message.content}</p>
               <div className="text-xs opacity-75">
-                [Coupon would be displayed here in live chat]
+                {__('[Coupon would be displayed here in live chat]')}
               </div>
             </div>
           ) : message.type === 'order-tracker' && message.data ? (
             <div>
               <p className="!mt-0 text-sm">{message.content}</p>
               <div className="text-xs opacity-75">
-                [Order tracker would be displayed here in live chat]
+                {__('[Order tracker would be displayed here in live chat]')}
               </div>
             </div>
           ) : message.type === 'refund-return' && message.data ? (
             <div>
               <p className="!mt-0 text-sm">{message.content}</p>
               <div className="text-xs opacity-75">
-                [Refund/return form would be displayed here in live chat]
+                {__(
+                  '[Refund/return form would be displayed here in live chat]'
+                )}
               </div>
             </div>
           ) : message.type === 'ticket' && message.data ? (
             <div>
               <p className="!mt-0 text-sm">{message.content}</p>
               <div className="text-xs opacity-75">
-                [Ticket form would be displayed here in live chat]
+                {__('[Ticket form would be displayed here in live chat]')}
               </div>
             </div>
           ) : (
             <div>
               <p className="!mt-0 text-sm ">{message.content}</p>
               <div className="text-xs opacity-75">
-                [{message.type} would be displayed here in live chat]
+                {sprintf(
+                  /* translators: %1$s: Message type label */
+                  __('[%1$s would be displayed here in live chat]'),
+                  message.type
+                )}
               </div>
             </div>
           )}
@@ -206,17 +214,21 @@ export function TestMessageBubble({
                           onClick={() => setIsEditing(true)}
                         >
                           <Pencil className="!w-2.5 !h-2.5" />
-                          Edit Response
+                          {__('Edit Response')}
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
                         <p className="!p-0 !m-0">
-                          If you think the answer is wrong or needs improvement,
-                          you can edit the response. It'll be saved in the
-                          knowledge base as Q&A.
+                          {__(
+                            "If you think the answer is wrong or needs improvement, you can edit the response. It'll be saved in the knowledge base as Q&A."
+                          )}
                           <br />
-                          <small><strong>Note:</strong> Don't edit response for
-                          products or posts information. Use "Train Chatbot" menu for those.</small>
+                          <small>
+                            <strong>{__('Note:')}</strong>{' '}
+                            {__(
+                              'Don\'t edit response for products or posts information. Use "Train Chatbot" menu for those.'
+                            )}
+                          </small>
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -224,7 +236,7 @@ export function TestMessageBubble({
                   <SheetContent>
                     <SheetHeader className="pb-0">
                       <SheetTitle className="!my-0 !mt-6">
-                        Edit Response
+                        {__('Edit Response')}
                       </SheetTitle>
                     </SheetHeader>
                     <div className="p-4 pt-0">
@@ -233,7 +245,7 @@ export function TestMessageBubble({
                           <div className="flex flex-col gap-4">
                             <div className="flex flex-col gap-2 font-medium">
                               <span className="text-muted-foreground">
-                                User's Message:
+                                {__("User's Message:")}
                               </span>
                               <span className="text-sm font-normal">
                                 {messages[messageIndex - 1]?.content}
@@ -244,7 +256,7 @@ export function TestMessageBubble({
                               name="content"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Response</FormLabel>
+                                  <FormLabel>{__('Response')}</FormLabel>
                                   <FormControl>
                                     <Textarea {...field} />
                                   </FormControl>
@@ -252,13 +264,13 @@ export function TestMessageBubble({
                               )}
                             />
                             <div className="flex gap-2">
-                              <Button type="submit">Save</Button>
+                              <Button type="submit">{__('Save')}</Button>
                               <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => setIsEditing(false)}
                               >
-                                Cancel
+                                {__('Cancel')}
                               </Button>
                             </div>
                           </div>
@@ -276,18 +288,19 @@ export function TestMessageBubble({
                       className="flex gap-2 items-center text-xs text-gray-800 hover:text-gray-900 !p-0 !m-0 h-auto"
                     >
                       <FileText className="!w-2.5 !h-2.5" />
-                      See Knowledge Base Used
+                      {__('See Knowledge Base Used')}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="!max-w-3xl max-h-[80vh]">
                     <DialogHeader className="text-left">
                       <DialogTitle className="!flex gap-2 !items-center !m-0 !p-0">
                         <FileText className="w-5 h-5 text-primary" />
-                        Knowledge Base Sources Used
+                        {__('Knowledge Base Sources Used')}
                       </DialogTitle>
                       <DialogDescription className="!m-0 !p-0">
-                        This is the context retrieved from your knowledge base
-                        that was used to generate the AI response.
+                        {__(
+                          'This is the context retrieved from your knowledge base that was used to generate the AI response.'
+                        )}
                       </DialogDescription>
                     </DialogHeader>
                     <div className="max-h-[60vh] w-full overflow-y-auto rounded-md border">
@@ -298,9 +311,9 @@ export function TestMessageBubble({
                           </div>
                         ) : (
                           <div className="text-sm italic text-gray-500">
-                            No knowledge base context was used for this
-                            response. The AI may have answered without needing
-                            to search your knowledge base.
+                            {__(
+                              'No knowledge base context was used for this response. The AI may have answered without needing to search your knowledge base.'
+                            )}
                           </div>
                         )}
                       </div>
@@ -314,7 +327,7 @@ export function TestMessageBubble({
           {/* Show edited version if exists */}
           {!isUser && message?.metadata?.edited === true && (
             <div className="pt-2 mt-2 border-t border-gray-300">
-              <div className="mb-1 text-xs text-gray-500">Edited version:</div>
+              <div className="mb-1 text-xs text-gray-500">{__('Edited version:')}</div>
               <div className="text-sm text-gray-700">
                 <ReactMarkdown>{message.metadata.edited_text}</ReactMarkdown>
               </div>

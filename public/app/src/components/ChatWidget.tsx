@@ -21,7 +21,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useAi } from '@/hooks/useAi';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import type { ChatMessage } from '@/types';
 import { isWithinBusinessHours } from '@/utils/businessHours';
 import {
@@ -842,7 +842,7 @@ export default function ChatBot() {
                         onClick={() => setShowAppointmentDialog(true)}
                         className="w-full text-white bg-primary hover:bg-primary/90"
                       >
-                        {settings.smart_scheduling?.buttonText || 'Get Appointments'}
+                        {settings.smart_scheduling?.buttonText || __('Get appointments')}
                       </Button>
                     </div>
                   )}
@@ -891,9 +891,11 @@ export default function ChatBot() {
       <Dialog open={showEndChatConfirm} onOpenChange={setShowEndChatConfirm}>
         <DialogContent className="sm:max-w-md" showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle>End this chat?</DialogTitle>
+            <DialogTitle>{__('End this chat?')}</DialogTitle>
             <DialogDescription>
-              You'll be asked to rate your experience.
+              {__(
+                "You'll be asked to rate your experience."
+              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -901,10 +903,10 @@ export default function ChatBot() {
               variant="outline"
               onClick={() => setShowEndChatConfirm(false)}
             >
-              Cancel
+              {__('Cancel')}
             </Button>
             <Button variant="destructive" onClick={() => handleConfirmDelete()}>
-              End chat
+              {__('End chat')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -914,7 +916,7 @@ export default function ChatBot() {
       <Dialog open={showAppointmentDialog} onOpenChange={setShowAppointmentDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Schedule an Appointment</DialogTitle>
+            <DialogTitle>{__('Schedule an appointment')}</DialogTitle>
           </DialogHeader>
           <AppointmentForm />
         </DialogContent>

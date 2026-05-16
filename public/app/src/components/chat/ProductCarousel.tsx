@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { __ } from '@/lib/utils';
 import type { Product } from '@/types';
 
 const PRODUCT_PLACEHOLDER =
@@ -32,7 +33,7 @@ export function ProductCarousel({ data }: { data: Product[] }) {
   return (
     <div className="my-2 w-full">
       <div className="flex justify-between items-center mb-2">
-        <h3 className="!text-sm !font-medium">Products</h3>
+        <h3 className="!text-sm !font-medium">{__('Products')}</h3>
         <div className="flex space-x-1">
           <Button
             variant="outline"
@@ -103,7 +104,7 @@ export function ProductCarousel({ data }: { data: Product[] }) {
                 window.open(product.permalink, '_blank');
               }}
             >
-              View Details
+              {__('View details')}
             </Button>
           </div>
         ))}

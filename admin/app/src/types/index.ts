@@ -30,7 +30,10 @@ export interface DocumentInput {
 }
 
 export interface MenuItem {
+  /** Used as Tabs value and React key — keep stable (English machine keys). */
   title: string;
+  /** Shown on the tab trigger when set — wrap with gettext for translation. */
+  displayTitle?: string;
   icon?: React.ReactNode;
   status: boolean;
   onClick?: () => void;

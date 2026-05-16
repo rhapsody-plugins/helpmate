@@ -2,6 +2,7 @@ import Loading from '@/components/Loading';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCrm } from '@/hooks/useCrm';
+import { __, sprintf } from '@/lib/utils';
 import { ExternalLink } from 'lucide-react';
 
 interface LearnPressTabProps {
@@ -20,7 +21,7 @@ export function LearnPressTab({ contactId }: LearnPressTabProps) {
   if (!data) {
     return (
       <p className="text-sm text-muted-foreground">
-        No LearnPress data available for this contact.
+        {__('No LearnPress data available for this contact.')}
       </p>
     );
   }
@@ -28,7 +29,7 @@ export function LearnPressTab({ contactId }: LearnPressTabProps) {
   if (!data.active) {
     return (
       <p className="text-sm text-muted-foreground">
-        LearnPress integration is not active on this site.
+        {__('LearnPress integration is not active on this site.')}
       </p>
     );
   }
@@ -40,18 +41,45 @@ export function LearnPressTab({ contactId }: LearnPressTabProps) {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="!text-lg !my-0">LearnPress Progress (Live)</CardTitle>
+          <CardTitle className="!text-lg !my-0">
+            {__('LearnPress Progress (Live)')}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            This tab reads live LearnPress data. You do not need to run sync to see latest course
-            progress here.
+            {__(
+              'This tab reads live LearnPress data. You do not need to run sync to see latest course progress here.'
+            )}
           </p>
           <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">Enrolled courses: {live.counts.enrolled_courses}</Badge>
-            <Badge variant="outline">Completed courses: {live.counts.completed_courses}</Badge>
-            <Badge variant="outline">In progress courses: {live.counts.in_progress_courses}</Badge>
-            <Badge variant="outline">Completed lessons: {live.counts.completed_lessons}</Badge>
+            <Badge variant="outline">
+              {sprintf(
+                /* translators: %d: Enrolled course count */
+                __('Enrolled courses: %d'),
+                live.counts.enrolled_courses
+              )}
+            </Badge>
+            <Badge variant="outline">
+              {sprintf(
+                /* translators: %d: Completed course count */
+                __('Completed courses: %d'),
+                live.counts.completed_courses
+              )}
+            </Badge>
+            <Badge variant="outline">
+              {sprintf(
+                /* translators: %d: In-progress course count */
+                __('In progress courses: %d'),
+                live.counts.in_progress_courses
+              )}
+            </Badge>
+            <Badge variant="outline">
+              {sprintf(
+                /* translators: %d: Completed lesson count */
+                __('Completed lessons: %d'),
+                live.counts.completed_lessons
+              )}
+            </Badge>
           </div>
           {live.enrolled_courses.length > 0 ? (
             <ul className="text-sm list-disc pl-5 space-y-1">
@@ -71,28 +99,48 @@ export function LearnPressTab({ contactId }: LearnPressTabProps) {
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">No enrolled courses found.</p>
+            <p className="text-sm text-muted-foreground">
+              {__('No enrolled courses found.')}
+            </p>
           )}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="!text-lg !my-0">CRM Segment Snapshot</CardTitle>
+          <CardTitle className="!text-lg !my-0">
+            {__('CRM Segment Snapshot')}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            Last synced: {data.last_synced_at || 'Never'}
+            {sprintf(
+              /* translators: %s: Last sync datetime */
+              __('Last synced: %s'),
+              data.last_synced_at || __('Never')
+            )}
           </p>
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">
-              Snapshot enrolled: {snapshot.counts.enrolled_courses}
+              {sprintf(
+                /* translators: %d: Snapshot enrolled course count */
+                __('Snapshot enrolled: %d'),
+                snapshot.counts.enrolled_courses
+              )}
             </Badge>
             <Badge variant="secondary">
-              Snapshot completed courses: {snapshot.counts.completed_courses}
+              {sprintf(
+                /* translators: %d: Snapshot completed course count */
+                __('Snapshot completed courses: %d'),
+                snapshot.counts.completed_courses
+              )}
             </Badge>
             <Badge variant="secondary">
-              Snapshot completed lessons: {snapshot.counts.completed_lessons}
+              {sprintf(
+                /* translators: %d: Snapshot completed lesson count */
+                __('Snapshot completed lessons: %d'),
+                snapshot.counts.completed_lessons
+              )}
             </Badge>
           </div>
         </CardContent>
@@ -100,4 +148,3 @@ export function LearnPressTab({ contactId }: LearnPressTabProps) {
     </div>
   );
 }
-

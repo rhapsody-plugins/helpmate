@@ -414,7 +414,7 @@ class Helpmate
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
-	 * Load the dependencies, define the locale, and set the hooks for the admin area and
+	 * Load the dependencies and set the hooks for the admin area and
 	 * the public-facing side of the site.
 	 *
 	 * @since    1.0.0
@@ -429,7 +429,6 @@ class Helpmate
 		$this->plugin_name = 'helpmate';
 
 		$this->load_dependencies();
-		$this->set_locale();
 
 		$this->database = new Helpmate_Database();
 		$this->settings = new Helpmate_Settings;
@@ -538,7 +537,6 @@ class Helpmate
 	 * Include the following files that make up the plugin:
 	 *
 	 * - Helpmate_Loader. Orchestrates the hooks of the plugin.
-	 * - Helpmate_i18n. Defines internationalization functionality.
 	 * - Helpmate_Admin. Defines all hooks for the admin area.
 	 * - Helpmate_Public. Defines all hooks for the public side of the site.
 	 * - Helpmate_Database. Defines the database functionality.
@@ -563,7 +561,6 @@ class Helpmate
 	{
 		$required_files = array(
 			'includes/class-helpmate-loader.php',
-			'includes/class-helpmate-i18n.php',
 			'admin/class-helpmate-admin.php',
 			'public/class-helpmate-public.php',
 			'includes/class-helpmate-database.php',
@@ -637,22 +634,6 @@ class Helpmate
 		}
 
 		$this->loader = new Helpmate_Loader();
-	}
-
-	/**
-	 * Define the locale for this plugin for internationalization.
-	 *
-	 * Uses the Helpmate_i18n class in order to set the domain and to register the hook
-	 * with WordPress.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function set_locale()
-	{
-		$plugin_i18n = new Helpmate_i18n();
-
-		$this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
 	}
 
 	/**

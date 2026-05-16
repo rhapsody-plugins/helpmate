@@ -9,11 +9,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$helpmate = Helpmate_Beaver_Builder::instance()->get_helpmate();
-$builder  = class_exists( 'FLBuilderModel' ) && FLBuilderModel::is_builder_active();
+$helpmate                   = Helpmate_Beaver_Builder::instance()->get_helpmate();
+$helpmate_bb_builder_active = class_exists( 'FLBuilderModel' ) && FLBuilderModel::is_builder_active();
 
 if ( ! $helpmate ) {
-	if ( $builder ) {
+	if ( $helpmate_bb_builder_active ) {
 		echo '<div class="fl-module-msg fl-module-msg-info">';
 		echo esc_html__( 'Helpmate is not available.', 'helpmate-ai-chatbot' );
 		echo '</div>';
@@ -21,9 +21,9 @@ if ( ! $helpmate ) {
 	return;
 }
 
-$promo = $helpmate->get_promo_banner();
-if ( ! $promo || ! $promo->is_enabled() ) {
-	if ( $builder ) {
+$helpmate_promo = $helpmate->get_promo_banner();
+if ( ! $helpmate_promo || ! $helpmate_promo->is_enabled() ) {
+	if ( $helpmate_bb_builder_active ) {
 		echo '<div class="fl-module-msg fl-module-msg-warning">';
 		echo esc_html__( 'Promo Bar is disabled in Helpmate module settings.', 'helpmate-ai-chatbot' );
 		echo '</div>';
@@ -31,9 +31,9 @@ if ( ! $promo || ! $promo->is_enabled() ) {
 	return;
 }
 
-$banner_id = isset( $settings->banner_id ) ? (int) $settings->banner_id : 0;
-if ( $banner_id <= 0 ) {
-	if ( $builder ) {
+$helpmate_banner_id = isset( $settings->banner_id ) ? (int) $settings->banner_id : 0;
+if ( $helpmate_banner_id <= 0 ) {
+	if ( $helpmate_bb_builder_active ) {
 		echo '<div class="fl-module-msg fl-module-msg-info">';
 		echo esc_html__( 'Select a promo banner.', 'helpmate-ai-chatbot' );
 		echo '</div>';
@@ -42,18 +42,18 @@ if ( $banner_id <= 0 ) {
 }
 
 global $wpdb;
-// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-$banner = $wpdb->get_row(
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Module output; row load; caching not appropriate
+$helpmate_banner = $wpdb->get_row(
 	$wpdb->prepare(
-		"SELECT * FROM {$wpdb->prefix}helpmate_promo_banners WHERE id = %d AND status = %s",
-		$banner_id,
+		"SELECT * FROM {$wpdb->prefix}helpmate_promo_banners WHERE id = %d AND status = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses wpdb->prefix
+		$helpmate_banner_id,
 		'active'
 	),
 	ARRAY_A
 );
 
-if ( ! $banner ) {
-	if ( $builder ) {
+if ( ! $helpmate_banner ) {
+	if ( $helpmate_bb_builder_active ) {
 		echo '<div class="fl-module-msg fl-module-msg-warning">';
 		echo esc_html__( 'This banner was not found or is inactive.', 'helpmate-ai-chatbot' );
 		echo '</div>';
@@ -61,12 +61,12 @@ if ( ! $banner ) {
 	return;
 }
 
-$banner['metadata'] = json_decode( $banner['metadata'], true );
-if ( ! is_array( $banner['metadata'] ) ) {
-	$banner['metadata'] = array();
+$helpmate_banner['metadata'] = json_decode( $helpmate_banner['metadata'], true );
+if ( ! is_array( $helpmate_banner['metadata'] ) ) {
+	$helpmate_banner['metadata'] = array();
 }
 
-$settings_arr = array(
+$helpmate_override_settings = array(
 	'override_background_color'           => isset( $settings->override_background_color ) ? $settings->override_background_color : '',
 	'override_text_color'                 => isset( $settings->override_text_color ) ? $settings->override_text_color : '',
 	'override_text_font_size'             => isset( $settings->override_text_font_size ) ? $settings->override_text_font_size : '',
@@ -77,18 +77,18 @@ $settings_arr = array(
 	'override_countdown_text_color'       => isset( $settings->override_countdown_text_color ) ? $settings->override_countdown_text_color : '',
 );
 
-$overrides = class_exists( 'Helpmate_Elementor_Utils' )
-	? Helpmate_Elementor_Utils::build_promo_metadata_overrides( $settings_arr )
+$helpmate_metadata_overrides = class_exists( 'Helpmate_Elementor_Utils' )
+	? Helpmate_Elementor_Utils::build_promo_metadata_overrides( $helpmate_override_settings )
 	: array();
 
-$suffix = isset( $module->node ) ? (string) $module->node : 'bb';
-$suffix = preg_replace( '/[^a-zA-Z0-9_-]/', '', $suffix );
+$helpmate_dom_id_suffix = isset( $module->node ) ? (string) $module->node : 'bb';
+$helpmate_dom_id_suffix = preg_replace( '/[^a-zA-Z0-9_-]/', '', $helpmate_dom_id_suffix );
 
-$promo->enqueue_assets();
-$promo->render_promo_banner(
-	$banner,
+$helpmate_promo->enqueue_assets();
+$helpmate_promo->render_promo_banner(
+	$helpmate_banner,
 	array(
-		'metadata_overrides' => $overrides,
-		'dom_id_suffix'      => $suffix,
+		'metadata_overrides' => $helpmate_metadata_overrides,
+		'dom_id_suffix'      => $helpmate_dom_id_suffix,
 	)
 );

@@ -317,8 +317,8 @@ class Helpmate_LearnPress {
 		if ( $exists !== $table ) {
 			return array();
 		}
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix
-		$rows = $wpdb->get_col( "SELECT DISTINCT user_id FROM {$table} WHERE user_id > 0 AND item_type IN ('lp_course', 'lp_lesson')" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- No user input; item_type tokens are fixed; table is esc_sql(wpdb->prefix)
+		$rows = $wpdb->get_col( 'SELECT DISTINCT user_id FROM ' . $table . " WHERE user_id > 0 AND item_type IN ('lp_course', 'lp_lesson')" );
 		if ( ! is_array( $rows ) ) {
 			return array();
 		}
@@ -384,17 +384,27 @@ class Helpmate_LearnPress {
 			return array();
 		}
 
-		$where = 'user_id = %d AND item_type = %s';
-		$params = array( $user_id, $item_type );
 		if ( ! empty( $statuses ) ) {
 			$placeholders = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
-			$where       .= " AND status IN ({$placeholders})";
-			$params       = array_merge( $params, $statuses );
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- LearnPress progress lookup; not cacheable; table/IN from esc_sql + counts; spread merge
+			$rows = $wpdb->get_col(
+				$wpdb->prepare(
+					'SELECT DISTINCT item_id FROM ' . $table . ' WHERE user_id = %d AND item_type = %s AND status IN (' . $placeholders . ') AND item_id > 0',
+					...array_merge( array( $user_id, $item_type ), $statuses )
+				)
+			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		} else {
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- LearnPress progress lookup; not cacheable; table from esc_sql(wpdb->prefix)
+			$rows = $wpdb->get_col(
+				$wpdb->prepare(
+					'SELECT DISTINCT item_id FROM ' . $table . ' WHERE user_id = %d AND item_type = %s AND item_id > 0',
+					$user_id,
+					$item_type
+				)
+			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 		}
-
-		$query = "SELECT DISTINCT item_id FROM {$table} WHERE {$where} AND item_id > 0";
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix
-		$rows = $wpdb->get_col( $wpdb->prepare( $query, ...$params ) );
 		if ( ! is_array( $rows ) ) {
 			return array();
 		}
