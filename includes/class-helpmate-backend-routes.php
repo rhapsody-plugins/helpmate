@@ -313,6 +313,53 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
 
+        register_rest_route('helpmate/v1', '/localhost-sources', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $is_localhost = helpmate_is_localhost_site();
+                $status = $this->helpmate->get_api()->get_localhost_migration_status();
+                $sources = $this->helpmate->get_api()->get_localhost_sources();
+                return new WP_REST_Response([
+                    'is_localhost_site' => $is_localhost,
+                    'migration_status' => $status,
+                    'install_id' => $this->helpmate->get_api()->get_install_id(),
+                    'target_domain' => helpmate_get_site_domain(),
+                    'has_qdrant_general' => $this->helpmate->get_tools()->has_qdrant_general_document(),
+                    'data' => $sources,
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/promote-localhost', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                $target_domain = sanitize_text_field($request->get_param('target_domain'));
+                $install_ids = $request->get_param('install_ids');
+                $force_merge = (bool) $request->get_param('force_merge');
+                $result = $this->helpmate->get_api()->promote_localhost($target_domain, $install_ids, $force_merge);
+                if (!empty($result['error'])) {
+                    $http_status = isset($result['http_status']) ? (int) $result['http_status'] : 400;
+                    if ($http_status < 400 || $http_status > 599) {
+                        $http_status = 400;
+                    }
+                    return new WP_REST_Response($result, $http_status);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/localhost-migration-status', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                $status = sanitize_text_field($request->get_param('status'));
+                $this->helpmate->get_api()->set_localhost_migration_status($status);
+                return new WP_REST_Response(['success' => true], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
         register_rest_route('helpmate/v1', '/deactivate-feedback', array(
             'methods' => 'POST',
             'callback' => function ($request) {
@@ -2740,6 +2787,80 @@ class Helpmate_Backend_Routes
                 return new WP_REST_Response(array('error' => true, 'message' => 'Invalid action'), 400);
             },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        /* --------------------------------------- */
+        /*              Admin Hub Tools            */
+        /* --------------------------------------- */
+        $tools_permission = function () {
+            return Helpmate_Tools::current_user_can_run_tools();
+        };
+
+        register_rest_route('helpmate/v1', '/tools/reset-database', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                $body = json_decode($request->get_body(), true);
+                if (($body['confirmation'] ?? '') !== 'RESET') {
+                    return new WP_REST_Response(array(
+                        'error' => true,
+                        'message' => __('Type RESET to confirm database reset.', 'helpmate-ai-chatbot'),
+                    ), 400);
+                }
+                $result = $this->helpmate->get_tools()->reset_database_and_settings();
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(array('error' => true, 'message' => $result->get_error_message()), 400);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => $tools_permission,
+        ));
+
+        register_rest_route('helpmate/v1', '/tools/reset-default-email-templates', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $result = $this->helpmate->get_tools()->reset_default_email_templates();
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(array('error' => true, 'message' => $result->get_error_message()), 400);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => $tools_permission,
+        ));
+
+        register_rest_route('helpmate/v1', '/tools/documents/qdrant-preview', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $result = $this->helpmate->get_tools()->preview_qdrant_documents_sync();
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(array('error' => true, 'message' => $result->get_error_message()), 400);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => $tools_permission,
+        ));
+
+        register_rest_route('helpmate/v1', '/tools/documents/backfill-qdrant', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $result = $this->helpmate->get_tools()->backfill_qdrant_from_mysql();
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(array('error' => true, 'message' => $result->get_error_message()), 400);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => $tools_permission,
+        ));
+
+        register_rest_route('helpmate/v1', '/tools/documents/sync-from-qdrant', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $result = $this->helpmate->get_tools()->sync_documents_from_qdrant();
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(array('error' => true, 'message' => $result->get_error_message()), 400);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => $tools_permission,
         ));
 
         // Toggle human handoff (supports both numeric IDs and website virtual IDs)

@@ -94,6 +94,71 @@ class Helpmate_Document_Handler
     }
 
     /**
+     * Insert a document restored from Qdrant sync.
+     *
+     * @param string     $title
+     * @param string     $content
+     * @param string     $vector Qdrant document_id UUID.
+     * @param string     $documentType
+     * @param array|null $metadata
+     * @param int|null   $lastUpdated Unix timestamp.
+     * @return bool
+     */
+    public function insert_synced_document(
+        string $title,
+        string $content,
+        string $vector,
+        string $documentType = 'general',
+        ?array $metadata = null,
+        ?int $lastUpdated = null
+    ): bool {
+        global $wpdb;
+        $table = $wpdb->prefix . 'helpmate_documents';
+
+        $data = array(
+            'document_type' => $documentType,
+            'title' => $title,
+            'content' => $content,
+            'vector' => $vector,
+            'last_updated' => $lastUpdated ?? time(),
+            'metadata' => json_encode($metadata ?? array()),
+        );
+
+        $format = array('%s', '%s', '%s', '%s', '%d', '%s');
+
+        return $wpdb->insert($table, $data, $format) !== false; // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    }
+
+    /**
+     * Build embedding prompt with Helpmate sync fields.
+     *
+     * @param string     $title
+     * @param string     $content
+     * @param string     $documentType
+     * @param array|null $metadata
+     * @param string|null $vectorId For updates.
+     * @return array
+     */
+    private function build_embedding_prompt(
+        string $title,
+        string $content,
+        string $documentType,
+        ?array $metadata = null,
+        ?string $vectorId = null
+    ): array {
+        $prompt = array(
+            'title' => $title,
+            'content' => $content,
+            'document_type' => $documentType,
+            'plugin_metadata' => $metadata ?? array(),
+        );
+        if ($vectorId !== null) {
+            $prompt['id'] = $vectorId;
+        }
+        return $prompt;
+    }
+
+    /**
      * Update a document in the database.
      *
      * @since 1.0.0
@@ -219,7 +284,11 @@ class Helpmate_Document_Handler
             try {
                 // Always use data_source feature_slug for all document types
                 $feature_slug = 'data_source';
-                $vector = $this->chat->handle_embedding(['title' => $title, 'content' => $content], 'create', $feature_slug);
+                $vector = $this->chat->handle_embedding(
+                    $this->build_embedding_prompt($title, $content, $documentType, $metadata),
+                    'create',
+                    $feature_slug
+                );
             } catch (Exception $e) {
                 $results[] = false;
                 return new WP_REST_Response([
@@ -316,7 +385,11 @@ class Helpmate_Document_Handler
             try {
                 // Always use data_source feature_slug for all document types
                 $feature_slug = 'data_source';
-                $vector = $this->chat->handle_embedding(['title' => $title, 'content' => $content], 'create', $feature_slug);
+                $vector = $this->chat->handle_embedding(
+                    $this->build_embedding_prompt($title, $content, $documentType, $metadata),
+                    'create',
+                    $feature_slug
+                );
             } catch (Exception $e) {
                 $failed++;
                 $errors[] = [
@@ -412,7 +485,11 @@ class Helpmate_Document_Handler
         try {
             // Always use data_source feature_slug for all document types
             $feature_slug = 'data_source';
-            $vector = $this->chat->handle_embedding(['id' => $vector_id, 'title' => $title, 'content' => $content], 'update', $feature_slug);
+            $vector = $this->chat->handle_embedding(
+                $this->build_embedding_prompt($title, $content, $document_type ?: 'general', $metadata, $vector_id),
+                'update',
+                $feature_slug
+            );
 
             // error_log('Vector: ' . print_r($vector, true));
 

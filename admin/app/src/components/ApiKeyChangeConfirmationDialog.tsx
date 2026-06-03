@@ -50,11 +50,8 @@ export function ApiKeyChangeConfirmationDialog({
           </DialogTitle>
           <div className="!py-0 !my-0 text-left">
             <p className="mt-2 text-slate-600 dark:text-slate-300">
-              {__('Your trained data is')}{' '}
-              <span className="font-semibold">{__('bound to your current api key')}</span>.
-              {' '}
               {__(
-                'Changing your api key will require you to delete all your trained data and train them again.'
+                'Changing your API key will replace the local knowledge base on this site with documents stored in the cloud for the new license.'
               )}
             </p>
 
@@ -65,16 +62,16 @@ export function ApiKeyChangeConfirmationDialog({
                 </h4>
                 <ul className="!pl-6 mt-3 space-y-3 !list-disc text-slate-700 dark:text-slate-200">
                   <li>
-                    <span className="font-semibold">{__('All trained data will be lost')}</span>{' '}
-                    — {__('Your chatbot will lose all the knowledge it has learned from your training data.')}
+                    <span className="font-semibold">{__('Local trained data is replaced')}</span>{' '}
+                    — {__('Documents in this WordPress site are cleared and re-imported from the cloud for the new license.')}
                   </li>
                   <li>
-                    <span className="font-semibold">{__("You'll need to retrain everything")}</span>{' '}
-                    — {__("You'll have to upload and train all your data again from scratch.")}
+                    <span className="font-semibold">{__('Previous license data stays in the cloud')}</span>{' '}
+                    — {__('Vectors for your old API key remain on the server; only this site switches to the new license catalog.')}
                   </li>
                   <li>
-                    <span className="font-semibold">{__('Temporary service interruption')}</span>{' '}
-                    — {__('Your chatbot may not work properly until you retrain your data.')}
+                    <span className="font-semibold">{__('Empty catalog possible')}</span>{' '}
+                    — {__('If the new license has no documents in the cloud for this site, your knowledge base here will be empty until you train again.')}
                   </li>
                 </ul>
               </section>

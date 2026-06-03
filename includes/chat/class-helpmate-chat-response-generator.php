@@ -69,7 +69,7 @@ class Helpmate_Chat_Response_Generator
     {
 
         $website_title = get_bloginfo('name');
-        $website_url = get_bloginfo('url');
+        $website_url = helpmate_get_site_url();
         $api_key = $this->helpmate->get_api()->get_key();
         $validation_key = $this->helpmate->get_api()->get_validation_key();
         $tone = $this->helpmate->get_settings()->get_setting('ai')['tone'];

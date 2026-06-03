@@ -575,7 +575,16 @@ class Helpmate_Background_Processor
             // Generate embedding
             // Always use data_source feature_slug for all document types
             $feature_slug = 'data_source';
-            $vector = $this->chat->handle_embedding(['title' => $title, 'content' => $content], 'create', $feature_slug);
+            $vector = $this->chat->handle_embedding(
+                array(
+                    'title' => $title,
+                    'content' => $content,
+                    'document_type' => $document_type,
+                    'plugin_metadata' => $metadata,
+                ),
+                'create',
+                $feature_slug
+            );
 
             if (empty($vector) || !isset($vector['data']) || !isset($vector['data']['id'])) {
                 return [

@@ -256,7 +256,7 @@ class Helpmate_Chat_Helpers
      */
     public function quick_train_homepage()
     {
-        $url = get_site_url();
+        $url = helpmate_get_runtime_site_url();
 
         if (empty($url)) {
             return new WP_REST_Response([
@@ -761,7 +761,9 @@ class Helpmate_Chat_Helpers
                 "signature" => $signature,
                 "embedding_type" => $type,
                 "feature_slug" => $feature_slug,
-                "wordpress_url" => get_bloginfo('url'),
+                "wordpress_url" => helpmate_get_site_url(),
+                "install_id" => $this->helpmate->get_api()->get_install_id(),
+                "site_origin" => helpmate_get_site_url(),
             ];
 
             // Only add user OpenAI key if it exists

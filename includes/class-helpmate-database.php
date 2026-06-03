@@ -1128,6 +1128,20 @@ class Helpmate_Database
      * @since 1.0.0
      * @access private
      */
+    /**
+     * Delete all settings and re-insert factory defaults (admin tools reset).
+     *
+     * @since 1.0.0
+     */
+    public function reset_settings_to_defaults()
+    {
+        global $wpdb;
+        $table = esc_sql($wpdb->prefix . 'helpmate_settings');
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Admin reset
+        $wpdb->query("DELETE FROM {$table}");
+        $this->seed_all_default_settings();
+    }
+
     private function initialize_default_module_settings()
     {
         global $wpdb;
@@ -1139,8 +1153,54 @@ class Helpmate_Database
             // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         );
 
-        // Define all default settings
-        $default_settings = [
+        $default_settings = $this->get_default_settings_map();
+
+        // Insert only missing settings
+        foreach ($default_settings as $key => $value) {
+            if (!in_array($key, $existing_settings, true)) {
+                $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $wpdb->prefix . 'helpmate_settings',
+                    [
+                        'setting_key' => $key,
+                        'setting_value' => json_encode($value),
+                        'last_updated' => time()
+                    ],
+                    ['%s', '%s', '%d']
+                );
+            }
+        }
+    }
+
+    /**
+     * Insert all factory default settings (used after full settings wipe).
+     *
+     * @since 1.0.0
+     */
+    private function seed_all_default_settings()
+    {
+        global $wpdb;
+        $default_settings = $this->get_default_settings_map();
+        foreach ($default_settings as $key => $value) {
+            $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prefix . 'helpmate_settings',
+                [
+                    'setting_key' => $key,
+                    'setting_value' => json_encode($value),
+                    'last_updated' => time()
+                ],
+                ['%s', '%s', '%d']
+            );
+        }
+    }
+
+    /**
+     * Factory default settings map.
+     *
+     * @return array<string, mixed>
+     */
+    private function get_default_settings_map()
+    {
+        return [
             'modules' => HELPMATE_MODULE_DEFAULT_SETTINGS,
             'api' => [
                 'api_key' => '',
@@ -1275,21 +1335,6 @@ class Helpmate_Database
             ],
             'helpmate_crm_custom_statuses' => []
         ];
-
-        // Insert only missing settings
-        foreach ($default_settings as $key => $value) {
-            if (!in_array($key, $existing_settings)) {
-                $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                    $wpdb->prefix . 'helpmate_settings',
-                    [
-                        'setting_key' => $key,
-                        'setting_value' => json_encode($value),
-                        'last_updated' => time()
-                    ],
-                    ['%s', '%s', '%d']
-                );
-            }
-        }
     }
 
     /**

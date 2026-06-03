@@ -98,6 +98,15 @@ class Helpmate
 	private $document_handler;
 
 	/**
+	 * Admin maintenance tools.
+	 *
+	 * @since 1.0.0
+	 * @access private
+	 * @var Helpmate_Tools $tools
+	 */
+	private $tools;
+
+	/**
 	 * The backend routes instance.
 	 *
 	 * @since    1.0.0
@@ -454,6 +463,7 @@ class Helpmate
 		$this->tutor = new Helpmate_Tutor($this);
 		$this->lifterlms = new Helpmate_LifterLMS($this);
 		$this->crm = new Helpmate_CRM($this);
+		$this->tools = new Helpmate_Tools($this);
 		$this->crm_order_metabox = new Helpmate_Crm_Order_Metabox($this->crm);
 		$this->team = new Helpmate_Team($this);
 		$this->notifications = new Helpmate_Notifications($this);
@@ -569,6 +579,7 @@ class Helpmate
 			'includes/class-helpmate-dashboard.php',
 			'includes/class-helpmate-analytics.php',
 			'includes/class-helpmate-document-handler.php',
+			'includes/class-helpmate-tools.php',
 			'includes/class-helpmate-backend-routes.php',
 			'includes/class-helpmate-frontend-routes.php',
 			'includes/chat/class-helpmate-chat.php',
@@ -715,6 +726,17 @@ class Helpmate
 	public function get_document_handler()
 	{
 		return $this->document_handler;
+	}
+
+	/**
+	 * Get the admin tools instance.
+	 *
+	 * @since 1.0.0
+	 * @return Helpmate_Tools
+	 */
+	public function get_tools()
+	{
+		return $this->tools;
 	}
 
 	/**

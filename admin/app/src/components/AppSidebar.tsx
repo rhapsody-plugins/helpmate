@@ -76,7 +76,8 @@ import {
   TextCursorInput,
   TicketPercent,
   UserRoundSearch,
-  UserSearch
+  UserSearch,
+  Wrench
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChangeSvgColor } from 'svg-color-tools';
@@ -124,6 +125,7 @@ const PAGE_TO_SECTION: Record<PageType, SectionId> = {
   'control-center-dashboard': 'dashboard',
   'control-center-analytics': 'control-center',
   'control-center-settings': 'control-center',
+  'control-center-tools': 'control-center',
   'control-center-integrations': 'control-center',
   'manage-api': 'control-center',
   setup: 'control-center',
@@ -469,6 +471,11 @@ export function AppSidebar() {
         label: __('Integrations'),
         page: 'control-center-integrations',
         icon: <Plug className="w-4 h-4" strokeWidth={1.5} />,
+      },
+      {
+        label: __('Tools'),
+        page: 'control-center-tools',
+        icon: <Wrench className="w-4 h-4" strokeWidth={1.5} />,
       }
     );
     return items;
@@ -750,6 +757,7 @@ export function AppSidebar() {
       if (item.page === 'control-center-analytics') return canAccess('analytics');
       if (item.page === 'control-center-settings') return hasRole('admin');
       if (item.page === 'control-center-integrations') return hasRole('admin');
+      if (item.page === 'control-center-tools') return hasRole('admin');
       if (item.page === 'control-center-team') return canAccess('team_management');
       if (item.page === 'manage-api') return hasRole('admin');
       return true;

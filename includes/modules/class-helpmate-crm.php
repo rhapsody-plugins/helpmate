@@ -2780,6 +2780,118 @@ class Helpmate_CRM
      * @param    int    $template_id    The template ID.
      * @return   bool|WP_Error          Whether the deletion was successful, or WP_Error if default template.
      */
+    /**
+     * Reset all default email templates and force re-wire module settings.
+     *
+     * @since 1.0.0
+     * @param bool $force_rewire
+     * @return array|WP_Error
+     */
+    public function reset_default_email_templates(bool $force_rewire = true)
+    {
+        global $wpdb;
+        $table = esc_sql($wpdb->prefix . 'helpmate_crm_email_templates');
+
+        $orphan_count = 0;
+        $default_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            "SELECT id FROM {$table} WHERE is_default = 1" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe
+        );
+        if (!empty($default_ids)) {
+            $ids_list = implode(',', array_map('intval', $default_ids));
+            $campaigns_table = esc_sql($wpdb->prefix . 'helpmate_crm_campaigns');
+            $recurring_table = esc_sql($wpdb->prefix . 'helpmate_crm_recurring_campaigns');
+            $steps_table = esc_sql($wpdb->prefix . 'helpmate_crm_email_sequence_steps');
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names safe; IDs are intval
+            $orphan_count += (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$campaigns_table} WHERE template_id IN ({$ids_list})"
+            );
+            $orphan_count += (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$recurring_table} WHERE template_id IN ({$ids_list})"
+            );
+            $orphan_count += (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$steps_table} WHERE template_id IN ({$ids_list})"
+            );
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix; update/delete doesn't require caching
+        $wpdb->query("DELETE FROM {$table} WHERE is_default = 1");
+
+        $followup_templates = $this->create_default_abandoned_cart_followup_templates();
+        $refund_template_id = $this->create_default_refund_return_template();
+        $abandoned_cart_template_id = $this->create_default_abandoned_cart_template();
+        $schedule_templates = $this->create_default_smart_schedule_templates();
+
+        if ($force_rewire) {
+            $helpmate = $GLOBALS['helpmate'];
+            $settings = $helpmate->get_settings();
+
+            if ($abandoned_cart_template_id) {
+                $abandoned_cart_settings = $settings->get_setting('abandoned_cart') ?: array();
+                $abandoned_cart_settings['selected_email_template'] = $abandoned_cart_template_id;
+                if (!empty($followup_templates)) {
+                    $abandoned_cart_settings['follow_up_emails'] = array(
+                        array(
+                            'id' => 1,
+                            'delay' => 3,
+                            'delayUnit' => 'hours',
+                            'template_id' => $followup_templates['first'] ?? null,
+                            'enabled' => false,
+                        ),
+                        array(
+                            'id' => 2,
+                            'delay' => 1,
+                            'delayUnit' => 'days',
+                            'template_id' => $followup_templates['second'] ?? null,
+                            'enabled' => false,
+                        ),
+                        array(
+                            'id' => 3,
+                            'delay' => 3,
+                            'delayUnit' => 'days',
+                            'template_id' => $followup_templates['third'] ?? null,
+                            'enabled' => false,
+                        ),
+                    );
+                }
+                $settings->set_setting('abandoned_cart', $abandoned_cart_settings);
+            }
+
+            if ($refund_template_id) {
+                $refund_settings = $settings->get_setting('refund_return') ?: array();
+                $refund_settings['selected_email_template'] = $refund_template_id;
+                $settings->set_setting('refund_return', $refund_settings);
+            }
+
+            if (
+                !empty($schedule_templates)
+                && $helpmate->is_helpmate_pro_active()
+                && $helpmate->get_product_slug() !== 'helpmate-free'
+            ) {
+                $smart_settings = $settings->get_setting('smart_schedules') ?: array();
+                if (!isset($smart_settings['emailTemplates']) || !is_array($smart_settings['emailTemplates'])) {
+                    $smart_settings['emailTemplates'] = array();
+                }
+                if (!empty($schedule_templates['pending'])) {
+                    $smart_settings['emailTemplates']['pending'] = $schedule_templates['pending'];
+                }
+                if (!empty($schedule_templates['confirmed'])) {
+                    $smart_settings['emailTemplates']['confirmed'] = $schedule_templates['confirmed'];
+                }
+                if (!empty($schedule_templates['cancelled'])) {
+                    $smart_settings['emailTemplates']['cancelled'] = $schedule_templates['cancelled'];
+                }
+                $settings->set_setting('smart_schedules', $smart_settings);
+            }
+        }
+
+        return array(
+            'success' => true,
+            'message' => __('Default email templates have been reset.', 'helpmate-ai-chatbot'),
+            'orphaned_campaign_references' => $orphan_count,
+        );
+    }
+
     public function delete_email_template(int $template_id)
     {
         global $wpdb;

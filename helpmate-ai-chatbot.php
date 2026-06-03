@@ -16,12 +16,12 @@
  * Plugin Name:       Helpmate – Support Automation, AI Chatbot, Live Chat, Social Automation, Booking & CRM Solution
  * Plugin URI:        https://rhapsodyplugins.com/helpmate
  * Description:       Reduce 97% of support queries and 70% of workload with AI Chatbot, Live Chat, CRM, Booking and WhatsApp automation.
- * Version:           2.0.2
+ * Version:           2.1.0
  * Author:            Rhapsody Plugins
  * Author URI:        https://rhapsodyplugins.com/
  * Requires at least: 5.0
  * Tested up to:      6.9
- * Stable tag:        2.0.1
+ * Stable tag:        2.1.0
  * Requires PHP:      7.4
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
@@ -37,7 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('HELPMATE_VERSION', '2.0.2');
+define('HELPMATE_VERSION', '2.1.0');
 
 /**
  * Plugin constants
@@ -46,6 +46,10 @@ define('HELPMATE_DIR', plugin_dir_path(__FILE__));
 define('HELPMATE_URL', plugin_dir_url(__FILE__));
 define('HELPMATE_BASENAME', plugin_basename(__FILE__));
 define('HELPMATE_FEATURES', ['ai_response', 'data_source']);
+
+if ( ! defined( 'HELPMATE_BAKED_SITE_URL' ) ) {
+	define( 'HELPMATE_BAKED_SITE_URL', '' );
+}
 
 /**
  * Module constants
@@ -103,11 +107,13 @@ function deactivate_helpmate()
 register_activation_hook(__FILE__, 'activate_helpmate');
 register_deactivation_hook(__FILE__, 'deactivate_helpmate');
 
+require plugin_dir_path( __FILE__ ) . 'includes/helpmate-url.php';
+
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path(__FILE__) . 'includes/class-helpmate.php';
+require plugin_dir_path( __FILE__ ) . 'includes/class-helpmate.php';
 
 /**
  * Script translations are attached in admin/public enqueue functions — wp_set_script_translations()

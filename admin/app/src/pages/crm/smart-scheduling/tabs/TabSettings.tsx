@@ -93,7 +93,10 @@ export default function TabSettings() {
     },
   };
 
-  const currentSettings = localSettings || settings || defaultSettings;
+  const currentSettings: SmartSchedulingSettings = {
+    ...defaultSettings,
+    ...(localSettings ?? settings ?? {}),
+  };
 
   useEffect(() => {
     getSettings();
@@ -101,7 +104,7 @@ export default function TabSettings() {
 
   useEffect(() => {
     if (settings) {
-      setLocalSettings(settings);
+      setLocalSettings({ ...defaultSettings, ...settings });
       // Create default templates if they don't exist
       if (emailTemplates && emailTemplates.length > 0) {
         const existingTemplates = emailTemplates;
@@ -595,7 +598,7 @@ export default function TabSettings() {
                 <div className="space-y-2">
                   <Label>Time Slot Duration (minutes)</Label>
                   <Select
-                    value={currentSettings.timeSlotDuration.toString()}
+                    value={(currentSettings.timeSlotDuration ?? 30).toString()}
                     onValueChange={handleTimeSlotDurationChange}
                   >
                     <SelectTrigger className="w-48">

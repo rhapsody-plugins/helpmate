@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Input } from '@/components/ui/input';
-import { useApi } from '@/hooks/useApi';
+import { ApiKeyActivationResponse, useApi } from '@/hooks/useApi';
 import { useSettings } from '@/hooks/useSettings';
 import {
   HelpmateLoginURL,
@@ -16,7 +16,7 @@ import {
   OpenAIApiKeysURL,
   OpenAIBillingURL,
 } from '@/lib/constants';
-import { __, cn } from '@/lib/utils';
+import { __, cn, sprintf } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -167,18 +167,36 @@ export default function ManageApi() {
   // Get first credit type for the circular progress (or fallback)
   const mainCredit = apiKeyData?.local_credits;
 
+  const handleActivateSuccess = (data: ApiKeyActivationResponse) => {
+    const documents = data.documents;
+    if (!documents) {
+      return;
+    }
+    if (documents.imported > 0) {
+      toast.success(
+        sprintf(__('%d documents synced from your license.'), documents.imported)
+      );
+    } else if (documents.action === 'synced_all' && !documents.error) {
+      toast.info(
+        __(
+          'API key changed. No trained documents were found for this license in the cloud.'
+        )
+      );
+    }
+  };
+
   const handleApiKeyChange = () => {
     if (apiKeyData?.api_key) {
       // Show confirmation dialog for existing api key
       setShowConfirmationDialog(true);
     } else {
       // Direct activation for new api key
-      activateApiKey(apiKey);
+      activateApiKey(apiKey, { onSuccess: handleActivateSuccess });
     }
   };
 
   const handleConfirmApiKeyChange = () => {
-    activateApiKey(apiKey);
+    activateApiKey(apiKey, { onSuccess: handleActivateSuccess });
   };
 
   const handleSaveOpenAiKey = () => {

@@ -463,9 +463,6 @@
             "All statuses": [
                 "\u09b8\u09ac \u09b8\u09cd\u099f\u09cd\u09af\u09be\u099f\u09be\u09b8"
             ],
-            "All trained data will be lost": [
-                "\u09b8\u09ae\u09b8\u09cd\u09a4 \u09aa\u09cd\u09b0\u09b6\u09bf\u0995\u09cd\u09b7\u09bf\u09a4 \u09a1\u09c7\u099f\u09be \u09b9\u09be\u09b0\u09bf\u09af\u09bc\u09c7 \u09af\u09be\u09ac\u09c7"
-            ],
             "All users": [
                 "\u09b8\u09ae\u09b8\u09cd\u09a4 \u09ac\u09cd\u09af\u09ac\u09b9\u09be\u09b0\u0995\u09be\u09b0\u09c0"
             ],
@@ -720,9 +717,6 @@
             ],
             "Change Contact": [
                 "\u09aa\u09b0\u09bf\u099a\u09bf\u09a4\u09bf \u09aa\u09b0\u09bf\u09ac\u09b0\u09cd\u09a4\u09a8 \u0995\u09b0\u09c1\u09a8"
-            ],
-            "Changing your api key will require you to delete all your trained data and train them again.": [
-                "\u0986\u09aa\u09a8\u09be\u09b0 api \u0995\u09c0 \u09aa\u09b0\u09bf\u09ac\u09b0\u09cd\u09a4\u09a8 \u0995\u09b0\u09be\u09b0 \u099c\u09a8\u09cd\u09af \u0986\u09aa\u09a8\u09be\u0995\u09c7 \u0986\u09aa\u09a8\u09be\u09b0 \u09b8\u09ae\u09b8\u09cd\u09a4 \u09aa\u09cd\u09b0\u09b6\u09bf\u0995\u09cd\u09b7\u09bf\u09a4 \u09a1\u09c7\u099f\u09be \u09ae\u09c1\u099b\u09c7 \u09ab\u09c7\u09b2\u09a4\u09c7 \u09b9\u09ac\u09c7 \u098f\u09ac\u0982 \u09a4\u09be\u09a6\u09c7\u09b0 \u0986\u09ac\u09be\u09b0 \u09aa\u09cd\u09b0\u09b6\u09bf\u0995\u09cd\u09b7\u09a3 \u09a6\u09bf\u09a4\u09c7 \u09b9\u09ac\u09c7\u0964"
             ],
             "Channels": [
                 "\u099a\u09cd\u09af\u09be\u09a8\u09c7\u09b2"
@@ -3103,9 +3097,6 @@
             "Template 3": [
                 "\u099f\u09c7\u09ae\u09aa\u09cd\u09b2\u09c7\u099f 3"
             ],
-            "Temporary service interruption": [
-                "\u09b8\u09be\u09ae\u09af\u09bc\u09bf\u0995 \u09aa\u09b0\u09bf\u09b7\u09c7\u09ac\u09be \u09ac\u09be\u09a7\u09be"
-            ],
             "Terms of Service": [
                 "\u09aa\u09b0\u09bf\u09b7\u09c7\u09ac\u09be\u09b0 \u09b6\u09b0\u09cd\u09a4\u09be\u09ac\u09b2\u09c0"
             ],
@@ -3616,26 +3607,14 @@
             "You paid for the click. Don't lose the cart. Recover sales automatically.": [
                 "\u0986\u09aa\u09a8\u09bf \u0995\u09cd\u09b2\u09bf\u0995\u09c7\u09b0 \u099c\u09a8\u09cd\u09af \u0985\u09b0\u09cd\u09a5 \u09aa\u09cd\u09b0\u09a6\u09be\u09a8 \u0995\u09b0\u09c7\u099b\u09c7\u09a8\u0964 \u0995\u09be\u09b0\u09cd\u099f \u09b9\u09be\u09b0\u09be\u09ac\u09c7\u09a8 \u09a8\u09be\u0964 \u09b8\u09cd\u09ac\u09af\u09bc\u0982\u0995\u09cd\u09b0\u09bf\u09af\u09bc\u09ad\u09be\u09ac\u09c7 \u09ac\u09bf\u0995\u09cd\u09b0\u09af\u09bc \u09aa\u09c1\u09a8\u09b0\u09c1\u09a6\u09cd\u09a7\u09be\u09b0 \u0995\u09b0\u09c1\u09a8\u0964"
             ],
-            "You'll have to upload and train all your data again from scratch.": [
-                "\u0986\u09aa\u09a8\u09be\u0995\u09c7 \u0986\u09ac\u09be\u09b0 \u09b8\u09cd\u0995\u09cd\u09b0\u09cd\u09af\u09be\u099a \u09a5\u09c7\u0995\u09c7 \u0986\u09aa\u09a8\u09be\u09b0 \u09b8\u09ae\u09b8\u09cd\u09a4 \u09a1\u09c7\u099f\u09be \u0986\u09aa\u09b2\u09cb\u09a1 \u098f\u09ac\u0982 \u09aa\u09cd\u09b0\u09b6\u09bf\u0995\u09cd\u09b7\u09a3 \u09a6\u09bf\u09a4\u09c7 \u09b9\u09ac\u09c7\u0964"
-            ],
-            "You'll need to retrain everything": [
-                "\u0986\u09aa\u09a8\u09be\u0995\u09c7 \u09b8\u09ac\u0995\u09bf\u099b\u09c1 \u09aa\u09c1\u09a8\u09b0\u09be\u09af\u09bc \u09aa\u09cd\u09b0\u09b6\u09bf\u0995\u09cd\u09b7\u09a3 \u09a6\u09bf\u09a4\u09c7 \u09b9\u09ac\u09c7"
-            ],
             "You'll still get free credits even if you don't add your OpenAI API key. This step is completely optional.": [
                 "\u0986\u09aa\u09a8\u09bf \u0986\u09aa\u09a8\u09be\u09b0 OpenAI API \u0995\u09c0 \u09af\u09cb\u0997 \u09a8\u09be \u0995\u09b0\u09b2\u09c7\u0993 \u0986\u09aa\u09a8\u09bf \u09ac\u09bf\u09a8\u09be\u09ae\u09c2\u09b2\u09cd\u09af\u09c7 \u0995\u09cd\u09b0\u09c7\u09a1\u09bf\u099f \u09aa\u09be\u09ac\u09c7\u09a8\u0964 \u098f\u0987 \u09a7\u09be\u09aa\u099f\u09bf \u09b8\u09ae\u09cd\u09aa\u09c2\u09b0\u09cd\u09a3 \u0990\u099a\u09cd\u099b\u09bf\u0995\u0964"
             ],
             "Your chatbot keeps working without any interruption.": [
                 "\u0986\u09aa\u09a8\u09be\u09b0 \u099a\u09cd\u09af\u09be\u099f\u09ac\u099f \u0995\u09cb\u09a8\u09cb \u09ac\u09be\u09a7\u09be \u099b\u09be\u09a1\u09bc\u09be\u0987 \u0995\u09be\u099c \u0995\u09b0\u09a4\u09c7 \u09a5\u09be\u0995\u09c7\u0964"
             ],
-            "Your chatbot may not work properly until you retrain your data.": [
-                "\u0986\u09aa\u09a8\u09bf \u0986\u09aa\u09a8\u09be\u09b0 \u09a1\u09c7\u099f\u09be \u09aa\u09c1\u09a8\u09b0\u09be\u09af\u09bc \u09aa\u09cd\u09b0\u09b6\u09bf\u0995\u09cd\u09b7\u09a3 \u09a8\u09be \u09a6\u09c7\u0993\u09af\u09bc\u09be \u09aa\u09b0\u09cd\u09af\u09a8\u09cd\u09a4 \u0986\u09aa\u09a8\u09be\u09b0 \u099a\u09cd\u09af\u09be\u099f\u09ac\u099f \u09b8\u09a0\u09bf\u0995\u09ad\u09be\u09ac\u09c7 \u0995\u09be\u099c \u09a8\u09be\u0993 \u0995\u09b0\u09a4\u09c7 \u09aa\u09be\u09b0\u09c7\u0964"
-            ],
             "Your chatbot retains all its knowledge and continues working seamlessly.": [
                 "\u0986\u09aa\u09a8\u09be\u09b0 \u099a\u09cd\u09af\u09be\u099f\u09ac\u099f \u09a4\u09be\u09b0 \u09b8\u09ae\u09b8\u09cd\u09a4 \u099c\u09cd\u099e\u09be\u09a8 \u09a7\u09b0\u09c7 \u09b0\u09be\u0996\u09c7 \u098f\u09ac\u0982 \u09a8\u09bf\u09b0\u09cd\u09ac\u09bf\u0998\u09cd\u09a8\u09c7 \u0995\u09be\u099c \u099a\u09be\u09b2\u09bf\u09af\u09bc\u09c7 \u09af\u09be\u09af\u09bc\u0964"
-            ],
-            "Your chatbot will lose all the knowledge it has learned from your training data.": [
-                "\u0986\u09aa\u09a8\u09be\u09b0 \u099a\u09cd\u09af\u09be\u099f\u09ac\u099f \u0986\u09aa\u09a8\u09be\u09b0 \u09aa\u09cd\u09b0\u09b6\u09bf\u0995\u09cd\u09b7\u09a3\u09c7\u09b0 \u09a1\u09c7\u099f\u09be \u09a5\u09c7\u0995\u09c7 \u09b6\u09c7\u0996\u09be \u09b8\u09ae\u09b8\u09cd\u09a4 \u099c\u09cd\u099e\u09be\u09a8 \u09b9\u09be\u09b0\u09be\u09ac\u09c7\u0964"
             ],
             "Your key will be encrypted and stored securely": [
                 "\u0986\u09aa\u09a8\u09be\u09b0 \u0995\u09c0 \u098f\u09a8\u0995\u09cd\u09b0\u09bf\u09aa\u09cd\u099f \u0995\u09b0\u09be \u09b9\u09ac\u09c7 \u098f\u09ac\u0982 \u09a8\u09bf\u09b0\u09be\u09aa\u09a6\u09c7 \u09b8\u0982\u09b0\u0995\u09cd\u09b7\u09a3 \u0995\u09b0\u09be \u09b9\u09ac\u09c7"
@@ -3645,9 +3624,6 @@
             ],
             "Your number is now registered with WhatsApp Business Cloud API.": [
                 "\u0986\u09aa\u09a8\u09be\u09b0 \u09a8\u09ae\u09cd\u09ac\u09b0\u099f\u09bf \u098f\u0996\u09a8 WhatsApp \u09ac\u09bf\u099c\u09a8\u09c7\u09b8 \u0995\u09cd\u09b2\u09be\u0989\u09a1 API-\u098f\u09b0 \u09b8\u09be\u09a5\u09c7 \u09a8\u09bf\u09ac\u09a8\u09cd\u09a7\u09bf\u09a4\u0964"
-            ],
-            "Your trained data is": [
-                "\u0986\u09aa\u09a8\u09be\u09b0 \u09aa\u09cd\u09b0\u09b6\u09bf\u0995\u09cd\u09b7\u09bf\u09a4 \u09a4\u09a5\u09cd\u09af"
             ],
             "Your two-step verification PIN is:": [
                 "\u0986\u09aa\u09a8\u09be\u09b0 \u09a6\u09cd\u09ac\u09bf-\u09aa\u09a6\u0995\u09cd\u09b7\u09c7\u09aa \u09af\u09be\u099a\u09be\u0987\u0995\u09b0\u09a3 \u09aa\u09bf\u09a8 \u09b9\u09b2:"
@@ -3678,9 +3654,6 @@
             ],
             "as a LearnPress student will be updated from that student profile.": [
                 "LearnPress \u099b\u09be\u09a4\u09cd\u09b0 \u09b9\u09bf\u09b8\u09be\u09ac\u09c7 \u09b8\u09c7\u0987 \u099b\u09be\u09a4\u09cd\u09b0 \u09aa\u09cd\u09b0\u09cb\u09ab\u09be\u0987\u09b2 \u09a5\u09c7\u0995\u09c7 \u0986\u09aa\u09a1\u09c7\u099f \u0995\u09b0\u09be \u09b9\u09ac\u09c7\u0964"
-            ],
-            "bound to your current api key": [
-                "\u0986\u09aa\u09a8\u09be\u09b0 \u09ac\u09b0\u09cd\u09a4\u09ae\u09be\u09a8 api \u0995\u09c0 \u098f\u09b0 \u09b8\u09be\u09a5\u09c7 \u0986\u09ac\u09a6\u09cd\u09a7"
             ],
             "e.g. discounted products for proactive sales and product name lookups.": [
                 "\u09af\u09c7\u09ae\u09a8 \u09b8\u0995\u09cd\u09b0\u09bf\u09af\u09bc \u09ac\u09bf\u0995\u09cd\u09b0\u09af\u09bc \u098f\u09ac\u0982 \u09aa\u09a3\u09cd\u09af\u09c7\u09b0 \u09a8\u09be\u09ae \u09b8\u09a8\u09cd\u09a7\u09be\u09a8\u09c7\u09b0 \u099c\u09a8\u09cd\u09af \u099b\u09be\u09a1\u09bc\u09af\u09c1\u0995\u09cd\u09a4 \u09aa\u09a3\u09cd\u09af\u0964"
@@ -3912,6 +3885,291 @@
             ],
             "reviewed": [
                 "\u09aa\u09b0\u09cd\u09af\u09be\u09b2\u09cb\u099a\u09a8\u09be \u0995\u09b0\u09be \u09b9\u09af\u09bc\u09c7\u099b\u09c7"
+            ],
+            "%d campaign or sequence step(s) still reference deleted default template IDs.": [
+                ""
+            ],
+            "%d document(s) are missing full sync metadata and may import as general type with reconstructed content.": [
+                ""
+            ],
+            "API key and integration settings stored in Helpmate": [
+                ""
+            ],
+            "All conversations, tickets, CRM data, and tasks": [
+                ""
+            ],
+            "Built-in templates will be recreated. Custom templates are not deleted.": [
+                ""
+            ],
+            "Campaigns or sequences that referenced old default template IDs may need their template re-selected.": [
+                ""
+            ],
+            "Confirm reset": [
+                ""
+            ],
+            "Confirm sync": [
+                ""
+            ],
+            "Confirmation": [
+                ""
+            ],
+            "Connected social accounts (you must reconnect channels)": [
+                ""
+            ],
+            "Danger zone": [
+                ""
+            ],
+            "Deletes and recreates only built-in CRM email templates, then re-wires abandoned cart, refund & return, and smart scheduling defaults. Custom templates are kept.": [
+                ""
+            ],
+            "Maintenance actions for Helpmate data. These operations cannot be undone easily.": [
+                ""
+            ],
+            "Preview sync": [
+                ""
+            ],
+            "Reset all Helpmate data": [
+                ""
+            ],
+            "Reset all Helpmate data?": [
+                ""
+            ],
+            "Reset default email templates": [
+                ""
+            ],
+            "Reset default email templates?": [
+                ""
+            ],
+            "Reset default templates": [
+                ""
+            ],
+            "Reset everything": [
+                ""
+            ],
+            "This will permanently remove:": [
+                ""
+            ],
+            "Tools": [
+                ""
+            ],
+            "Type RESET below to confirm. This action cannot be undone.": [
+                ""
+            ],
+            "Webhook verify token is regenerated \u2014 update Meta app webhooks after reconnecting": [
+                ""
+            ],
+            "%d documents synced from your license.": [
+                ""
+            ],
+            "Empty catalog possible": [
+                ""
+            ],
+            "Importing your trained documents...": [
+                ""
+            ],
+            "Local trained data is replaced": [
+                ""
+            ],
+            "Restoring knowledge base...": [
+                ""
+            ],
+            "Vectors for your old API key remain on the server; only this site switches to the new license catalog.": [
+                ""
+            ],
+            "Could not update migration status.": [
+                ""
+            ],
+            "Importing knowledge base...": [
+                ""
+            ],
+            "Initializing chatbot...": [
+                ""
+            ],
+            "Site domain is not configured. Cannot migrate.": [
+                ""
+            ],
+            "Skip for now": [
+                ""
+            ],
+            "your site": [
+                ""
+            ],
+            "%d documents updated in the cloud": [
+                ""
+            ],
+            "%d%%": [
+                ""
+            ],
+            "API key changed. No trained documents were found for this license in the cloud.": [
+                ""
+            ],
+            "An API key is required to preview or sync from the cloud.": [
+                ""
+            ],
+            "Backfill cloud metadata": [
+                ""
+            ],
+            "Backfill complete: %1$d updated, %2$d skipped.": [
+                ""
+            ],
+            "Backfill recommended": [
+                ""
+            ],
+            "Changing your API key will replace the local knowledge base on this site with documents stored in the cloud for the new license.": [
+                ""
+            ],
+            "Cloud": [
+                ""
+            ],
+            "Cloud metadata readiness": [
+                ""
+            ],
+            "Document count mismatch": [
+                ""
+            ],
+            "Documents in this WordPress site are cleared and re-imported from the cloud for the new license.": [
+                ""
+            ],
+            "Full metadata": [
+                ""
+            ],
+            "Helpmate cloud": [
+                ""
+            ],
+            "If the new license has no documents in the cloud for this site, your knowledge base here will be empty until you train again.": [
+                ""
+            ],
+            "Keeps install ID and version options. Run \u201cSync from cloud\u201d afterward to restore the admin knowledge base if needed.": [
+                ""
+            ],
+            "Legacy": [
+                ""
+            ],
+            "Local knowledge base": [
+                ""
+            ],
+            "Missing metadata": [
+                ""
+            ],
+            "No documents in cloud": [
+                ""
+            ],
+            "Previous license data stays in the cloud": [
+                ""
+            ],
+            "Ready to sync": [
+                ""
+            ],
+            "Rebuilds the local knowledge base table from documents stored in your Helpmate cloud. Chat RAG is not affected; only admin KB data in WordPress is replaced.": [
+                ""
+            ],
+            "Sync from cloud": [
+                ""
+            ],
+            "Sync from cloud?": [
+                ""
+            ],
+            "Sync knowledge base from cloud": [
+                ""
+            ],
+            "Sync preview": [
+                ""
+            ],
+            "Sync-ready": [
+                ""
+            ],
+            "The local knowledge base table will be emptied and rebuilt from the cloud. Your cloud-stored documents are not changed.": [
+                ""
+            ],
+            "This site": [
+                ""
+            ],
+            "This site has %1$d document(s) but the cloud has %2$d. Sync will align the local table to the cloud.": [
+                ""
+            ],
+            "Truncates all Helpmate database tables and resets plugin settings to factory defaults. Cloud-stored documents are not deleted.": [
+                ""
+            ],
+            "%1$d saved copies \u2022 %2$d items total": [
+                ""
+            ],
+            "%d items saved from your computer": [
+                ""
+            ],
+            "%d trained items": [
+                ""
+            ],
+            "1 item saved from your computer": [
+                ""
+            ],
+            "1 trained item": [
+                ""
+            ],
+            "Bring test-site knowledge to %s": [
+                ""
+            ],
+            "Copy finished but no items were moved. Importing any existing site data.": [
+                ""
+            ],
+            "Copy to this site": [
+                ""
+            ],
+            "Copying your saved knowledge to this site...": [
+                ""
+            ],
+            "Deselect all": [
+                ""
+            ],
+            "Import saved data": [
+                ""
+            ],
+            "Includes": [
+                ""
+            ],
+            "Last saved %s": [
+                ""
+            ],
+            "Local test site": [
+                ""
+            ],
+            "Merge and copy": [
+                ""
+            ],
+            "No items were moved for the selected sites.": [
+                ""
+            ],
+            "No saved test-site data found.": [
+                ""
+            ],
+            "Saved %1$s \u2013 %2$s": [
+                ""
+            ],
+            "Saved since %s": [
+                ""
+            ],
+            "Select all": [
+                ""
+            ],
+            "Select at least one saved copy to continue.": [
+                ""
+            ],
+            "Site domain is missing. Copying is unavailable until the site URL is configured.": [
+                ""
+            ],
+            "Test address: %s": [
+                ""
+            ],
+            "This site already has knowledge saved. Click copy again to merge.": [
+                ""
+            ],
+            "This site already has knowledge saved. Copy again to merge \u2014 duplicate pages are skipped automatically.": [
+                ""
+            ],
+            "Unknown local site": [
+                ""
+            ],
+            "We found knowledge you saved while testing on your computer. Choose what to copy to this live site.": [
+                ""
             ]
         }
     }

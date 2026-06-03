@@ -43,6 +43,7 @@ export type PageType =
   | 'control-center-dashboard'
   | 'control-center-analytics'
   | 'control-center-settings'
+  | 'control-center-tools'
   | 'control-center-integrations'
   | 'manage-api'
   | 'setup'
@@ -100,6 +101,7 @@ const pageToTabMap: Record<PageType, { tab: string; subtab?: string }> = {
   'control-center-dashboard': { tab: 'control-center', subtab: 'dashboard' },
   'control-center-analytics': { tab: 'control-center', subtab: 'analytics' },
   'control-center-settings': { tab: 'control-center', subtab: 'settings' },
+  'control-center-tools': { tab: 'control-center', subtab: 'tools' },
   'control-center-integrations': { tab: 'control-center', subtab: 'integrations' },
   'manage-api': { tab: 'control-center', subtab: 'manage-api' },
   setup: { tab: 'setup' },
@@ -184,6 +186,7 @@ const tabToPageMap: Record<string, Record<string, PageType>> = {
     dashboard: 'control-center-dashboard',
     analytics: 'control-center-analytics',
     settings: 'control-center-settings',
+    tools: 'control-center-tools',
     integrations: 'control-center-integrations',
     team: 'control-center-team',
     'manage-api': 'manage-api',

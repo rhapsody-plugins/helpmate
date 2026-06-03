@@ -5,14 +5,61 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Check if environment parameter is provided
+# Parse arguments: <environment> [--domain|-d <url>]
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <environment>"
+    echo "Usage: $0 <environment> [--domain <url>]"
     echo "Example: $0 staging"
+    echo "Example: $0 production --domain https://example.com"
     exit 1
 fi
 
-ENVIRONMENT=$1
+ENVIRONMENT=""
+BUILD_SITE_URL=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --domain|-d)
+            if [ -z "${2:-}" ]; then
+                echo "Error: --domain requires a URL argument"
+                exit 1
+            fi
+            BUILD_SITE_URL="$2"
+            shift 2
+            ;;
+        staging|production|local)
+            if [ -n "$ENVIRONMENT" ]; then
+                echo "Error: environment specified more than once"
+                exit 1
+            fi
+            ENVIRONMENT="$1"
+            shift
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            echo "Usage: $0 <environment> [--domain <url>]"
+            exit 1
+            ;;
+    esac
+done
+
+if [ -z "$ENVIRONMENT" ]; then
+    echo "Error: environment is required (staging, production, or local)"
+    echo "Usage: $0 <environment> [--domain <url>]"
+    exit 1
+fi
+
+if [ -n "$BUILD_SITE_URL" ]; then
+    case "$BUILD_SITE_URL" in
+        http://*|https://*) ;;
+        *)
+            echo "Error: --domain must be a full URL with http:// or https:// scheme"
+            echo "Got: $BUILD_SITE_URL"
+            exit 1
+            ;;
+    esac
+    BUILD_SITE_URL="${BUILD_SITE_URL%/}"
+fi
+
 WP_CONFIG="${SCRIPT_DIR}/../../../wp-config.php"
 
 # Clean up on exit: remove copy folders; restore VITE_ENVIRONMENT for dev
@@ -51,16 +98,28 @@ export API_SERVER_URL
 
 echo "Building for environment: $ENVIRONMENT"
 echo "Api server URL: $API_SERVER_URL"
+if [ -n "$BUILD_SITE_URL" ]; then
+    echo "Baked site URL: $BUILD_SITE_URL"
+fi
 
 # Get plugin version from helpmate-ai-chatbot.php
 PLUGIN_VERSION=$(grep "HELPMATE_VERSION" "$(dirname "$0")/helpmate-ai-chatbot.php" | sed -E "s/.*HELPMATE_VERSION', *'([^']+)'.*/\1/")
 
-# Set zip name based on environment
+# Set zip name based on environment (and optional baked domain)
 if [ "$ENVIRONMENT" = "production" ]; then
     ZIP_NAME="helpmate-$PLUGIN_VERSION.zip"
 else
     ZIP_NAME="helpmate-$PLUGIN_VERSION-$ENVIRONMENT.zip"
 fi
+
+if [ -n "$BUILD_SITE_URL" ]; then
+    BUILD_DOMAIN_SLUG="${BUILD_SITE_URL#*://}"
+    BUILD_DOMAIN_SLUG="${BUILD_DOMAIN_SLUG%%/*}"
+    BUILD_DOMAIN_SLUG="${BUILD_DOMAIN_SLUG%%:*}"
+    ZIP_NAME="${ZIP_NAME%.zip}-$BUILD_DOMAIN_SLUG.zip"
+fi
+
+echo "Zip file: $ZIP_NAME"
 
 # Build first (validates code compiles), then typecheck, then copy (including dist)
 echo "Building admin app (source)..."
@@ -116,6 +175,12 @@ cd ../helpmate-build
 API_SED="${API_SERVER_URL//\\/\\\\}"
 API_SED="${API_SED//&/\\&}"
 sed "${SED_INPLACE[@]}" "s|WP_HELPMATE_API_SERVER|'${API_SED}'|g" includes/class-helpmate-api.php
+
+if [ -n "$BUILD_SITE_URL" ]; then
+    SITE_SED="${BUILD_SITE_URL//\\/\\\\}"
+    SITE_SED="${SITE_SED//&/\\&}"
+    sed "${SED_INPLACE[@]}" "s|HELPMATE_BAKED_SITE_URL', ''|HELPMATE_BAKED_SITE_URL', '${SITE_SED}'|g" helpmate-ai-chatbot.php
+fi
 
 # Remove development-related code from display files
 echo "Removing development code from display files..."

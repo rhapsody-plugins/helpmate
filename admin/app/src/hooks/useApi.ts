@@ -1,5 +1,5 @@
 import api from '@/lib/axios';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 
@@ -15,7 +15,43 @@ interface ApiKeyData {
   customer_id: string;
 }
 
+export interface ApiKeyDocumentsResult {
+  action: 'synced_all' | 'none';
+  imported: number;
+  skipped_quick_train: boolean;
+  error?: string;
+}
+
+export interface ApiKeyActivationResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  documents?: ApiKeyDocumentsResult;
+}
+
+function invalidateAfterDocumentSync(
+  queryClient: ReturnType<typeof useQueryClient>,
+  documents?: ApiKeyDocumentsResult
+) {
+  if (documents?.action !== 'synced_all') {
+    return;
+  }
+  void queryClient.invalidateQueries({ queryKey: ['dashboard-checklist'] });
+  void queryClient.invalidateQueries({ queryKey: ['tools', 'qdrant-preview'] });
+  void queryClient.invalidateQueries({ queryKey: ['api-key'] });
+}
+
+function invalidateAfterApiKeySaved(
+  queryClient: ReturnType<typeof useQueryClient>,
+  documents?: ApiKeyDocumentsResult
+) {
+  void queryClient.invalidateQueries({ queryKey: ['localhost-migration-sources'] });
+  invalidateAfterDocumentSync(queryClient, documents);
+}
+
 export function useApi() {
+  const queryClient = useQueryClient();
+
   const apiKeyQuery = useQuery<ApiKeyData, Error>({
     queryKey: ['api-key'],
     queryFn: async () => {
@@ -31,7 +67,7 @@ export function useApi() {
 
   const getFreeApiKeyMutation = useMutation({
     mutationFn: async ({ email, password }: { email: string; password: string }) => {
-      const response = await api.post('/get-free-api-key', {
+      const response = await api.post<ApiKeyActivationResponse>('/get-free-api-key', {
         email,
         password,
       });
@@ -41,26 +77,36 @@ export function useApi() {
       }
       apiKeyQuery.refetch();
       toast.success(response.data.message);
-      return response.data.message;
+      invalidateAfterApiKeySaved(queryClient, response.data.documents);
+      if (response.data.documents?.error) {
+        toast.error(response.data.documents.error);
+      }
+      return response.data;
     },
   });
 
   const activateApiKeyMutation = useMutation({
     mutationFn: async (apiKey: string) => {
-      const response = await api.post('/activate-api-key', {
+      const response = await api.post<ApiKeyActivationResponse>('/activate-api-key', {
         api_key: apiKey,
       });
       if (response.data.success) {
         toast.success(response.data.message);
         apiKeyQuery.refetch();
+        invalidateAfterApiKeySaved(queryClient, response.data.documents);
+        if (response.data.documents?.error) {
+          toast.error(response.data.documents.error);
+        }
         return response.data;
-      } else {
-        toast.error(response.data.error);
       }
+      toast.error(response.data.error);
+      throw new Error(response.data.error || 'Failed to activate api key');
     },
     onError: (error: unknown) => {
       if (error instanceof AxiosError) {
         toast.error(error.response?.data.error);
+      } else if (error instanceof Error && error.message) {
+        toast.error(error.message);
       } else {
         toast.error('An error occurred while activating the api key');
       }
