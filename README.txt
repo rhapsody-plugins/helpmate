@@ -11,6 +11,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Reduce 97% of support queries and 70% of workload with AI Chatbot, Live Chat, CRM, Booking and WhatsApp automation.
 
 == Description ==
+
 = Reduce up to 97% of repetitive support questions and 70% of multichannel workload using one powerful WordPress plugin that unifies AI Chatbot, Live Chat, CRM, Appointments, Booking, and automation for Facebook, Instagram, and WhatsApp, along with lead capture and sales automation. =
 
 **[Helpmate – Live, Social & AI Chat with Built-in CRM](https://helpmate.chat/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user)**
@@ -38,7 +39,7 @@ https://www.youtube.com/watch?v=koFRmV9h5CQ
 --Promo Bar(1 Template)
 --Sales Notifications(1 Template)
 
-- **Inbox**
+- **Unified Inbox**
 --All Conversations(Partial)
 --Chatbot(200 Chat Credits)
 --Tickets
@@ -48,6 +49,25 @@ https://www.youtube.com/watch?v=koFRmV9h5CQ
 --Notes
 --Order Management
 --Leads (Chat Widget Leads)
+
+- **Integration**
+-- WooCommerce(Default)
+-- Easy Digital Downloads
+-- SureCart
+-- LearnPress
+-- TutorLMS
+-- LifterLMS
+-- Ultimate Member
+-- Members
+-- User Registration & Membership
+-- Elementor
+-- Gutenberg Blocks
+-- Beaver Builder
+-- Contact Form 7
+-- Forminator
+-- Ninja Forms
+-- WPForms
+-- Formidable Forms
 
 - **Admin Hub**
 --Teams & Roles
@@ -72,26 +92,28 @@ All Free Features + Below
 --Email Sequences
 --Abandoned Cart Recovery
 
-- **Inbox**
+- **Unified Inbox**
 --All Conversations
 --Chatbot, Unlimited Chat Credits With Own API Key
 --Live Chat
 --Social Messages
 --Comments on Social Media
 
-- **Channels**
+- **Communication Channels**
 --Facebook Messages
 --Facebook Comments
 --Instagram Messages
 --Instagram Comments
 --WhatsApp
 --Live Chat
---Contacts(Unlimited)
---Appointments & Bookings
---Segments
---Custom Fields
---Tasks
---Email Templates
+
+- **CRM**
+-- Leads (Social & Chat Widget)
+-- Appointments & Bookings
+-- Segments
+-- Custom Fields
+-- Tasks
+-- Emails Templates
 
 ---
 
@@ -101,135 +123,203 @@ All Free Features + Below
 
 Here’s a straightforward look at what Helpmate can do for your WordPress business.
 
-= ⚙ Support Automation System =
-Helpmate is a support automation plugin for WordPress designed to automate repetitive customer support tasks and reduce manual workload. The support automation system helps businesses manage conversations, automate responses, and improve efficiency inside the WordPress dashboard.
+= 🤖 AI Chatbot for WordPress & WooCommerce =
 
-Helpmate is built for automation:
+Deliver instant customer support with an AI chatbot built specifically for WordPress and WooCommerce. Helpmate uses your knowledge base to answer customer questions about products, orders, shipping, refunds, returns, and store policies. Instead of forcing customers to wait for support agents, the AI chatbot provides accurate answers 24/7, helping you improve customer satisfaction while reducing support workload.
 
-* Support automation workflows
-* Auto DM and auto comment replies
-* Email campaigns
-* Email sequences
-* Lead capture automation
-* Coupon delivery automation
-* Proactive sales automation
-* Abandoned cart recovery automation
-* Sales notification popups
-* Promo bar announcements
+The AI chatbot can guide shoppers through their buying journey, recommend products, answer pre-sales questions, and provide post-purchase support from a single chat window.
 
-Automation helps increase engagement, leads and sales without manual effort.
+== Helpmate AI ==
 
----
+* AI chatbot powered by your website content and knowledge base
+* Answer customer questions instantly, 24/7
+* Reduce support workload with automated responses
+* Provide accurate product, order, and policy information
+* Improve customer experience with conversational AI
 
-= 🤖 AI Chatbot for WordPress =
-Helpmate includes an AI chatbot for WordPress that automatically responds to customer inquiries and support questions. This WordPress chatbot uses knowledge base training and customizable behavior settings to deliver accurate responses.
+== Knowledge Base ==
 
-Helpmate AI chatbot helps automate customer support and engagement:
-
-* AI chatbot trained with knowledge base
-* Custom chatbot tone and language
-* Test chatbot before going live
-* Behavior and appearance controls
-* Product search by image
-* Order status tracking
-* Refund and return in chat window
-
-This AI chatbot reduces manual support work and improves response speed.
+* Train your AI chatbot using your website content
+* Create a self-service customer support experience
+* Deliver faster and more accurate answers
+* Continuously improve chatbot performance
 
 ---
 
-= 💬 Live Chat & Omnichannel Inbox =
-Helpmate provides a live chat plugin for WordPress with a centralized omnichannel inbox. The live chat system allows businesses to manage all conversations from one dashboard.
+= ⚡ Marketing Automation & Customer Support Automation =
 
-Helpmate includes a complete live chat and messaging system:
+Automate repetitive tasks and create personalized customer journeys without complex workflows. Helpmate helps store owners save time by handling common support and marketing activities automatically.
 
-* Live chat for WordPress
+From abandoned cart recovery and coupon delivery to proactive sales messages and email sequences, the automation tools help convert more visitors into customers while reducing manual work.
+
+Customers can track orders, request refunds, search products by image, and receive promotional offers directly through chat conversations.
+
+* Test chatbot responses before going live
+* Customize chatbot appearance and behavior
+* Display promotional offers with Promo Bar
+* Show real-time sales notifications
+* Automate Facebook and Instagram messages and comments
+* Automate order status tracking requests
+* Let customers search products by image
+* Handle refund and return requests inside chat
+* Send automated email campaigns
+* Capture leads automatically
+* Deliver coupons through chat conversations
+* Trigger proactive sales messages
+* Create automated email sequences
+* Recover abandoned carts with automated follow-ups
+
+---
+
+= 💬 Live Chat for Real-Time Customer Engagement =
+
+Connect with visitors instantly through a built-in live chat system. Whether customers need product recommendations, order assistance, or support, your team can respond in real time from a unified inbox.
+
+The live chat system works alongside the AI chatbot, allowing businesses to automate common questions while enabling human agents to handle more complex conversations. This hybrid approach helps improve response times and customer experiences.
+
+== Features Include: ==
+
+* Real-time communication with website visitors
+* Seamlessly switch between AI chatbot and human agents
+* Improve response times and customer satisfaction
+* Convert more visitors into customers
+
+---
+
+= 📥Unified Inbox for All Customer Conversations =
+
+Stop switching between multiple platforms. Helpmate centralizes customer communication into a single inbox where teams can manage every conversation.
+
+View AI chatbot interactions, live chat messages, support tickets, Facebook messages, Instagram messages, WhatsApp conversations, and social media comments from one place.
+
+This unified communication hub helps support teams stay organized, respond faster, and provide consistent customer experiences across all channels.
+
+== Features Include: ==
+
+* View all conversations in one place
 * AI chatbot conversations
 * Support tickets
-* Social messages from Facebook, Instagram and WhatsApp
-* Comments management
-* Archived conversations
-* All conversations in one inbox
-
-This live chat plugin centralizes customer support and messaging.
+* Live chat for WordPress websites
+* Facebook and Instagram messages
+* Social media comments
 
 ---
 
-= 📱 Channels Supported =
-Helpmate supports multiple communication channels to unify customer support automation.
+= 👥 CRM for WordPress & WooCommerce =
 
-Connect multiple channels:
+Build stronger customer relationships with a built-in CRM designed for WordPress businesses. Helpmate stores customer information, communication history, orders, appointments, and support interactions in a centralized customer profile.
 
-* Facebook Messenger
+The CRM helps businesses track leads, manage customer data, organize tasks, and create customer segments for personalized communication.
+
+Whether leads come from social media, website chat widgets, or support conversations, the CRM keeps all customer information connected and accessible.
+
+== CRM Features ==
+
+* Centralized customer contact management
+* Unlimited contacts
+* Customer notes and activity tracking
+* WooCommerce order management
+* Lead management from live chat and social channels
+* Appointment and booking records
+* Customer segmentation
+* Custom fields for customer data
+* Task management for teams
+* Email templates for faster communication
+* Customer profiles and history
+* Lead qualification and organization
+
+= 🌐 Multi-Channel Customer Communication =
+
+Reach customers wherever they prefer to communicate. Helpmate supports multiple communication channels so businesses can manage customer interactions from a single platform.
+
+Supported channels include website live chat, Facebook Messenger, Instagram messaging, WhatsApp, social media comments, and more.
+
+== Supported Channels ==
+
+* Facebook Messages
 * Facebook Comments
-* Instagram DM
+* Instagram Messages
 * Instagram Comments
 * WhatsApp
-* Live Chat widget
-
-Manage all communication inside WordPress.
+* Website Live Chat
 
 ---
 
-= 🧠 Built-in CRM for WordPress =
-Helpmate includes a built-in CRM for WordPress that helps manage contacts, leads, and customer data directly inside the WordPress admin panel.
+= 📅 Appointments & Bookings Management =
 
-Helpmate includes a full CRM system:
+Manage appointments and bookings directly inside WordPress. Allow customers to request consultations, schedule meetings, or book services while keeping appointment records connected to your CRM.
 
-* Contacts management
-* Notes and activity logs
-* Order management
-* Leads from social and chat widget
-* Appointments and bookings
-* Segments
-* Custom fields
-* Tasks
-* Email templates
+By combining appointments with customer profiles, support history, and order information, businesses gain a complete view of every customer interaction.
 
-This CRM helps organize customers, leads, appointments and support data in one place.
+This makes it easier to follow up with prospects, nurture leads, and provide personalized service throughout the customer journey.
+
+== Appointment Management ==
+
+* Accept appointment and booking requests
+* Track scheduled meetings and consultations
+* Manage customer appointments from one dashboard
+* Store appointment history within CRM records
+* Improve customer engagement and follow-up
 
 ---
 
-= 📅 Appointments & Booking System =
-Helpmate includes an appointments and booking system for WordPress that integrates with live chat, CRM, and automation tools.
+= 🔌Powerful Integrations for Growing Businesses =
 
-Helpmate supports appointments and booking management:
+Helpmate integrates with leading WordPress plugins and platforms, helping businesses connect customer support, sales, marketing, and CRM workflows.
 
-* Create appointments
-* Manage bookings
-* Automate reminders
-* Sync with CRM contacts
+== eCommerce ==
 
-The appointment booking system works alongside AI chatbot and support automation to streamline scheduling and customer communication.
+* WooCommerce(Default)
+* Easy Digital Downloads
+* SureCart
+
+== Page Builders ==
+
+* Elementor
+* Gutenberg Blocks
+* Beaver Builder
+
+== Form Builders ==
+
+* Contact Form 7
+* Forminator
+* Ninja Forms
+* WPForms
+* Formidable Forms
+
+== LMS Platforms ==
+
+* LearnPress
+* Tutor LMS
+* LifterLMS
+
+== Membership Platforms ==
+
+* Ultimate Member
+* Members
+* User Registration & Membership
 
 ---
 
 = 🏢 Admin Hub & Team Management =
-Helpmate includes an admin hub for managing support automation, AI chatbot, live chat, CRM, and booking features from one dashboard.
 
-Admin features:
-* Teams and roles
-* Analytics dashboard
-* Manage modules
+Manage your entire customer support operation from a centralized admin hub. Control team permissions, manage API keys, monitor performance, and analyze customer engagement through built-in analytics.
 
-Control support automation, AI chatbot, CRM and live chat from one admin hub.
+The admin hub helps teams collaborate efficiently while maintaining visibility across customer support, live chat, automation, CRM, and appointments.
+
+== Feature Includes ==
+
+* Teams and roles management
+* API key management
+* Performance analytics
+* Customer support insights
+* Team collaboration tools
 
 ---
 
 = 🚀 Why Choose Helpmate? =
 
-* Support automation for WordPress
-* AI chatbot with knowledge base
-* Live chat and Facebook, Instagram, WhatsApp messaging
-* Built-in CRM
-* Email campaigns
-* Email sequences
-* Appointments and booking system
-* Lead capture and sales automation
-* Abandoned cart recovery
-* Omnichannel inbox
-
-One plugin. Complete support automation system.
+Helpmate combines an AI chatbot, marketing automation, live chat, CRM, appointments, and omnichannel customer communication into one powerful WordPress plugin. Whether you run a WooCommerce store, membership website, online course platform, or service business, Helpmate helps you automate support, capture leads, manage customer relationships, and grow revenue from a single dashboard.
 
 ---
 
@@ -388,7 +478,43 @@ For full details, please review our policies below:
 
 == Version Update Logs ==
 
-= 2.0.2 - 2025-03-11 =
+= 2.1.0 - 2026-06-16 =
+
+- Added: New Integrations page to connect and manage all supported plugins from one place.
+- Added: Integrations section in the admin sidebar with its own menu icon for quicker access.
+- Added: See which supported plugins are installed, and install or activate them without leaving Helpmate.
+- Added: Page builder connections for Elementor, Gutenberg Blocks, and Beaver Builder.
+- Added: Contact Form 7 integration — map forms to Helpmate actions like lead capture and ticket creation.
+- Added: Contact Form 7 integration — order status lookup, refund requests, and appointment booking from form submissions. (Pro)
+- Added: Forminator, Ninja Forms, WPForms, and Formidable Forms integrations with the same actions (lead capture and tickets free; order status, refunds, and appointments Pro).
+- Added: Order status cards shown on the front end after successful form submissions when order lookup is enabled. (Pro)
+- Added: Integration event logs so you can review form submission activity without storing raw form data.
+- Added: Easy Digital Downloads and SureCart as store integrations alongside WooCommerce.
+- Added: Choose your active store when more than one commerce plugin is installed.
+- Added: Sync existing store customers into CRM contacts for WooCommerce, Easy Digital Downloads, and SureCart.
+- Added: Dokan multivendor integration — sync vendors to CRM and show vendor details on products, orders, and abandoned carts.
+- Added: WCFM Marketplace integration — sync vendors to CRM and show vendor details on products and orders.
+- Added: Choose Dokan or WCFM when both multivendor plugins are installed.
+- Added: LearnPress, Tutor LMS, and LifterLMS integrations — sync students to CRM and view course and lesson progress on contact profiles.
+- Added: Ultimate Member, Members, and User Registration & Membership integrations — sync members to CRM with roles, account status, and profile details.
+- Added: Unread indicators on the Leads list so new leads are easier to spot.
+- Added: Admin dashboard, chat widget, appointment scheduling, and block editor text now support WordPress translations and follow your site language when installed.
+- Added: Setup wizard step to bring chatbot training data from your local test site when you move to a live website.
+- Update: Commerce settings and store connections are now managed from the Integrations page.
+- Update: CRM orders and abandoned carts now support Easy Digital Downloads and SureCart.
+- Update: Product training now captures richer product details for WooCommerce, Easy Digital Downloads, and SureCart.
+- Update: Data source Products tab follows your selected store integration.
+- Update: Use LMS data in contact segments for smarter audience filtering. (Pro)
+- Update: Use membership data in contact segments. (Pro)
+- Update: Setup wizard loads pages, posts, and products faster when choosing what to train.
+- Update: Leads are marked as read when you open them.
+- Update: Clearer guidance when mapping form fields to Helpmate actions.
+- Update: Chat widget automatically uses the current product on product pages for proactive sales.
+- Update: Visitors see a friendly message instead of a blank reply when a chat feature is temporarily unavailable.
+- Fixed: Chat review form no longer reappears after you skip or submit it.
+- Fixed: End chat flow is smoother and less likely to show duplicate review prompts.
+
+= 2.0.2 - 2026-03-11 =
 
 - Added: Top bar shows "Chat Credits: Unlimited" with infinity icon when own OpenAI API key is set.
 - Added: Users can delete their own OpenAI API key from Manage API page.
@@ -397,7 +523,7 @@ For full details, please review our policies below:
 - Added: Sync Credits button now visible for all users on Manage API page (previously Pro only).
 - Update: Improved readability of OpenAI key info box text on Setup Step 2.
 
-= 2.0.1 - 2025-02-27 =
+= 2.0.1 - 2026-02-27 =
 
 - Fixed: Auto focus on the chat input while chat widget is closed issue.
 - Fixed: Sales notifications close icon not clickable on some devices.
@@ -529,7 +655,43 @@ For full details, please review our policies below:
 
 == Changelog ==
 
-= 2.0.2 - 2025-03-11 =
+= 2.1.0 - 2026-06-16 =
+
+- Added: New Integrations page to connect and manage all supported plugins from one place.
+- Added: Integrations section in the admin sidebar with its own menu icon for quicker access.
+- Added: See which supported plugins are installed, and install or activate them without leaving Helpmate.
+- Added: Page builder connections for Elementor, Gutenberg Blocks, and Beaver Builder.
+- Added: Contact Form 7 integration — map forms to Helpmate actions like lead capture and ticket creation.
+- Added: Contact Form 7 integration — order status lookup, refund requests, and appointment booking from form submissions. (Pro)
+- Added: Forminator, Ninja Forms, WPForms, and Formidable Forms integrations with the same actions (lead capture and tickets free; order status, refunds, and appointments Pro).
+- Added: Order status cards shown on the front end after successful form submissions when order lookup is enabled. (Pro)
+- Added: Integration event logs so you can review form submission activity without storing raw form data.
+- Added: Easy Digital Downloads and SureCart as store integrations alongside WooCommerce.
+- Added: Choose your active store when more than one commerce plugin is installed.
+- Added: Sync existing store customers into CRM contacts for WooCommerce, Easy Digital Downloads, and SureCart.
+- Added: Dokan multivendor integration — sync vendors to CRM and show vendor details on products, orders, and abandoned carts.
+- Added: WCFM Marketplace integration — sync vendors to CRM and show vendor details on products and orders.
+- Added: Choose Dokan or WCFM when both multivendor plugins are installed.
+- Added: LearnPress, Tutor LMS, and LifterLMS integrations — sync students to CRM and view course and lesson progress on contact profiles.
+- Added: Ultimate Member, Members, and User Registration & Membership integrations — sync members to CRM with roles, account status, and profile details.
+- Added: Unread indicators on the Leads list so new leads are easier to spot.
+- Added: Admin dashboard, chat widget, appointment scheduling, and block editor text now support WordPress translations and follow your site language when installed.
+- Added: Setup wizard step to bring chatbot training data from your local test site when you move to a live website.
+- Update: Commerce settings and store connections are now managed from the Integrations page.
+- Update: CRM orders and abandoned carts now support Easy Digital Downloads and SureCart.
+- Update: Product training now captures richer product details for WooCommerce, Easy Digital Downloads, and SureCart.
+- Update: Data source Products tab follows your selected store integration.
+- Update: Use LMS data in contact segments for smarter audience filtering. (Pro)
+- Update: Use membership data in contact segments. (Pro)
+- Update: Setup wizard loads pages, posts, and products faster when choosing what to train.
+- Update: Leads are marked as read when you open them.
+- Update: Clearer guidance when mapping form fields to Helpmate actions.
+- Update: Chat widget automatically uses the current product on product pages for proactive sales.
+- Update: Visitors see a friendly message instead of a blank reply when a chat feature is temporarily unavailable.
+- Fixed: Chat review form no longer reappears after you skip or submit it.
+- Fixed: End chat flow is smoother and less likely to show duplicate review prompts.
+
+= 2.0.2 - 2026-03-11 =
 
 - Added: Top bar shows "Chat Credits: Unlimited" with infinity icon when own OpenAI API key is set.
 - Added: Users can delete their own OpenAI API key from Manage API page.
@@ -538,7 +700,7 @@ For full details, please review our policies below:
 - Added: Sync Credits button now visible for all users on Manage API page (previously Pro only).
 - Update: Improved readability of OpenAI key info box text on Setup Step 2.
 
-= 2.0.1 - 2025-02-27 =
+= 2.0.1 - 2026-02-27 =
 
 - Fixed: Auto focus on the chat input while chat widget is closed issue.
 - Fixed: Sales notifications close icon not clickable on some devices.
