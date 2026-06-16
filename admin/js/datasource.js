@@ -1,4 +1,6 @@
 jQuery(function($) {
+    var i18n = window.helpmateDatasource || {};
+
     $(document).on('click', '.datasource-action', function(e) {
         e.preventDefault();
 
@@ -8,6 +10,10 @@ jQuery(function($) {
         const nonce = $button.data('nonce');
 
         const originalText = $button.text();
+        const addKbText = i18n.addKbText || 'Add to Knowledge Base';
+        const removeKbText = i18n.removeKbText || 'Remove from Knowledge Base';
+        const errorText = i18n.errorText || 'An error occurred';
+        const requestErrorText = i18n.requestErrorText || 'An error occurred while processing your request';
 
         $.ajax({
             url: ajaxurl,
@@ -28,18 +34,18 @@ jQuery(function($) {
             success: function(response) {
                 if (response.success) {
                     const newAction = action === 'add' ? 'remove' : 'add';
-                    const newText = action === 'add' ? 'Remove from Knowledge Base' : 'Add to Knowledge Base';
+                    const newText = action === 'add' ? removeKbText : addKbText;
                     $button
                         .data('action', newAction)
                         .text(newText)
                         .prop('disabled', false);
                 } else {
-                    alert(response.data && response.data.message ? response.data.message : 'An error occurred');
+                    alert(response.data && response.data.message ? response.data.message : errorText);
                     $button.prop('disabled', false);
                 }
             },
             error: function() {
-                alert('An error occurred while processing your request');
+                alert(requestErrorText);
                 $button.prop('disabled', false);
             }
         });

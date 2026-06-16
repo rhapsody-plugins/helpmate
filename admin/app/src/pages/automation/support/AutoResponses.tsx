@@ -281,7 +281,7 @@ export default function AutoResponses() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setPage('social-chat')}
+                    onClick={() => setPage('social-chat-facebook')}
                   >
                     {__('Manage Accounts')}
                   </Button>

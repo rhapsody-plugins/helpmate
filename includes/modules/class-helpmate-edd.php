@@ -269,19 +269,104 @@ class Helpmate_EDD
 
     private function format_download_details(int $post_id): array
     {
-        $summary = $this->format_download_summary($post_id);
-        if (!$summary) {
-            return [];
+        $block = $this->get_training_download_block($post_id);
+        return $block ?? array();
+    }
+
+    /**
+     * Build EDD download block for training metadata and get_product_info.
+     *
+     * @param int $post_id Download post ID.
+     * @return array<string, mixed>|null
+     */
+    public function get_training_download_block(int $post_id): ?array
+    {
+        if (get_post_type($post_id) !== 'download') {
+            return null;
         }
 
-        return array_merge($summary, [
-            'sku' => get_post_meta($post_id, '_sku', true),
+        $summary = $this->format_download_summary($post_id);
+        if (!$summary) {
+            return null;
+        }
+
+        $pricing = $this->get_download_pricing($post_id);
+        $categories = wp_get_post_terms($post_id, 'download_category', array('fields' => 'names'));
+        $tags = wp_get_post_terms($post_id, 'download_tag', array('fields' => 'names'));
+
+        $block = array_merge($summary, array(
+            'sku' => (string) get_post_meta($post_id, '_sku', true),
             'description' => (string) get_post_field('post_content', $post_id),
             'short_description' => (string) get_post_field('post_excerpt', $post_id),
-            'categories' => wp_get_post_terms($post_id, 'download_category', ['fields' => 'names']),
-            'tags' => wp_get_post_terms($post_id, 'download_tag', ['fields' => 'names']),
+            'categories' => is_wp_error($categories) ? array() : $categories,
+            'tags' => is_wp_error($tags) ? array() : $tags,
             'type' => 'download',
-        ]);
+            'price' => $pricing['regular'],
+            'price_html' => $this->format_edd_price($pricing['regular']),
+        ));
+
+        return Helpmate_Product_Variant_Normalizer::apply_to_block($block, $this->get_download_variant_data($post_id));
+    }
+
+    /**
+     * Normalized variant rows for EDD variable pricing.
+     *
+     * @param int $post_id Download post ID.
+     * @return array{has_variants:bool,variants:array<int,array<string,mixed>>,price_range:array<string,string>|null}
+     */
+    public function get_download_variant_data(int $post_id): array
+    {
+        if (!function_exists('edd_has_variable_prices') || !edd_has_variable_prices($post_id)) {
+            return array(
+                'has_variants' => false,
+                'variants' => array(),
+                'price_range' => null,
+            );
+        }
+
+        $price_options = function_exists('edd_get_variable_prices') ? edd_get_variable_prices($post_id) : array();
+        if (empty($price_options) || !is_array($price_options)) {
+            return array(
+                'has_variants' => false,
+                'variants' => array(),
+                'price_range' => null,
+            );
+        }
+
+        $variants = array();
+        $amounts = array();
+        foreach ($price_options as $price_id => $price_row) {
+            if (!is_array($price_row)) {
+                continue;
+            }
+            $amount = isset($price_row['amount']) ? (float) $price_row['amount'] : 0.0;
+            $amounts[] = $amount;
+            $variants[] = Helpmate_Product_Variant_Normalizer::row(array(
+                'id' => $price_id,
+                'label' => (string) ($price_row['name'] ?? ''),
+                'sku' => '',
+                'price' => $this->format_edd_price($amount),
+                'regular_price' => (string) $amount,
+                'sale_price' => (string) $amount,
+                'stock_status' => 'in_stock',
+                'stock_quantity' => null,
+                'in_stock' => true,
+                'attributes' => array(),
+                'image' => '',
+            ));
+        }
+
+        $min = !empty($amounts) ? min($amounts) : 0;
+        $max = !empty($amounts) ? max($amounts) : 0;
+
+        return array(
+            'has_variants' => count($variants) > 1,
+            'variants' => $variants,
+            'price_range' => array(
+                'min' => $this->format_edd_price((float) $min),
+                'max' => $this->format_edd_price((float) $max),
+            ),
+        );
     }
 
     /**

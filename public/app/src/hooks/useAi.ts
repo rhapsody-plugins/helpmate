@@ -103,6 +103,23 @@ export const useAi = () => {
         rating,
         message: message || '',
       });
+      if (res.data?.error) {
+        throw new Error(res.data.message || 'Failed to submit review');
+      }
+      return res.data;
+    },
+  });
+
+  const dismissReviewMutation = useMutation<
+    { error: boolean; message: string },
+    Error,
+    { session_id: string }
+  >({
+    mutationFn: async ({ session_id }) => {
+      const res = await api.post('/chat/review/dismiss', { session_id });
+      if (res.data?.error) {
+        throw new Error(res.data.message || 'Failed to dismiss review');
+      }
       return res.data;
     },
   });
@@ -112,5 +129,6 @@ export const useAi = () => {
     updateChatMetadataMutation,
     endChatMutation,
     submitReviewMutation,
+    dismissReviewMutation,
   };
 };

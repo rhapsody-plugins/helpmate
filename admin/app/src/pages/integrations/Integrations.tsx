@@ -21,30 +21,30 @@ import { toast } from 'sonner';
 import {
   isPersistedCommerceProvider,
   resolveCommerceIntegration,
-} from './integrations/commerce/resolve-commerce';
-import CommerceCustomerSyncButton from './integrations/commerce/CommerceCustomerSyncButton';
+} from './commerce/resolve-commerce';
+import CommerceCustomerSyncButton from './commerce/CommerceCustomerSyncButton';
 import type {
   CommerceIntegrationConfig,
   CommerceProviderId,
-} from './integrations/commerce/types';
-import IntegrationCard from './integrations/components/IntegrationCard';
-import IntegrationConfigSheet from './integrations/components/IntegrationConfigSheet';
-import IntegrationLogsSheet from './integrations/components/IntegrationLogsSheet';
-import DokanIntegrationSheet from './integrations/multivendor/DokanIntegrationSheet';
-import WcfmIntegrationSheet from './integrations/multivendor/WcfmIntegrationSheet';
-import LearnPressIntegrationSheet from './integrations/lms/LearnPressIntegrationSheet';
-import TutorIntegrationSheet from './integrations/lms/TutorIntegrationSheet';
-import LifterLmsIntegrationSheet from './integrations/lms/LifterLmsIntegrationSheet';
-import UltimateMemberIntegrationSheet from './integrations/membership/UltimateMemberIntegrationSheet';
-import MembersIntegrationSheet from './integrations/membership/MembersIntegrationSheet';
-import UserRegistrationIntegrationSheet from './integrations/membership/UserRegistrationIntegrationSheet';
-import { useIntegrationConfig } from './integrations/hooks/useIntegrationConfig';
-import { INTEGRATION_REGISTRY } from './integrations/registry';
+} from './commerce/types';
+import IntegrationCard from './components/IntegrationCard';
+import IntegrationConfigSheet from './components/IntegrationConfigSheet';
+import IntegrationLogsSheet from './components/IntegrationLogsSheet';
+import DokanIntegrationSheet from './multivendor/DokanIntegrationSheet';
+import WcfmIntegrationSheet from './multivendor/WcfmIntegrationSheet';
+import LearnPressIntegrationSheet from './lms/LearnPressIntegrationSheet';
+import TutorIntegrationSheet from './lms/TutorIntegrationSheet';
+import LifterLmsIntegrationSheet from './lms/LifterLmsIntegrationSheet';
+import UltimateMemberIntegrationSheet from './membership/UltimateMemberIntegrationSheet';
+import MembersIntegrationSheet from './membership/MembersIntegrationSheet';
+import UserRegistrationIntegrationSheet from './membership/UserRegistrationIntegrationSheet';
+import { useIntegrationConfig } from './hooks/useIntegrationConfig';
+import { INTEGRATION_REGISTRY } from './registry';
 import type {
   IntegrationPluginOverviewEntry,
   IntegrationPluginOverviewResponse,
   IntegrationRegistryItem,
-} from './integrations/types';
+} from './types';
 
 const COMMERCE_PROVIDER_LABELS: Record<CommerceProviderId, string> = {
   woocommerce: __('WooCommerce'),
@@ -82,6 +82,9 @@ const PAGE_BUILDERS = [
     ),
   },
 ] as const;
+
+const INTEGRATION_CARD_GRID_CLASS =
+  'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3';
 
 function emptySheetState(): Record<IntegrationRegistryItem['id'], boolean> {
   return Object.fromEntries(
@@ -429,9 +432,15 @@ export default function Integrations() {
   const blockEditorUrl = `${window.location.origin}/wp-admin/post-new.php`;
 
   return (
-    <PageGuard page="control-center-integrations" requiredRole="admin">
+    <PageGuard
+      page="integrations"
+      requiredRoles={['admin', 'manager']}
+      customMessage={__(
+        'Only administrators and managers can access this page.'
+      )}
+    >
       <div className="gap-0">
-        <PageHeader title={__('Integrations')} />
+        <PageHeader title={__('Integrations')} disableTrigger={true} />
         {pagePending ? (
           <div className="flex min-h-[min(70vh,32rem)] flex-col items-center justify-center p-8">
             <Loading />
@@ -555,6 +564,7 @@ export default function Integrations() {
                   </div>
                 )}
 
+                <div className={INTEGRATION_CARD_GRID_CLASS}>
                 <IntegrationCard
                   title={__('WooCommerce')}
                   description={__(
@@ -587,7 +597,6 @@ export default function Integrations() {
                 />
 
                 <IntegrationCard
-                  className="mt-4"
                   title={__('Easy Digital Downloads')}
                   description={__(
                     'Digital products and order workflows used by Helpmate when EDD is the selected commerce platform.'
@@ -625,7 +634,6 @@ export default function Integrations() {
                 />
 
                 <IntegrationCard
-                  className="mt-4"
                   title={__('SureCart')}
                   description={__(
                     'Products and checkout workflows used by Helpmate when SureCart is the selected commerce platform.'
@@ -655,10 +663,12 @@ export default function Integrations() {
                   actionsDisabled={anyPluginActionPending}
                   onLogs={() => setSurecartLogsOpen(true)}
                 />
+                </div>
               </TabsContent>
 
               <TabsContent value="lms" className="mt-6">
                 <h2 className="!text-lg !font-semibold !mb-3">{__('LMS')}</h2>
+                <div className={INTEGRATION_CARD_GRID_CLASS}>
                 <IntegrationCard
                   title={__('LearnPress')}
                   description={__(
@@ -694,7 +704,6 @@ export default function Integrations() {
                   }
                 />
                 <IntegrationCard
-                  className="mt-4"
                   title={__('Tutor LMS')}
                   description={__(
                     'Sync Tutor LMS students into CRM and use lesson/course progress data in contact details and segmentation.'
@@ -729,7 +738,6 @@ export default function Integrations() {
                   }
                 />
                 <IntegrationCard
-                  className="mt-4"
                   title={__('LifterLMS')}
                   description={__(
                     'Sync LifterLMS students into CRM and use lesson/course progress data in contact details and segmentation.'
@@ -763,6 +771,7 @@ export default function Integrations() {
                       : undefined
                   }
                 />
+                </div>
               </TabsContent>
 
               <TabsContent value="membership" className="mt-6">
@@ -772,6 +781,7 @@ export default function Integrations() {
                     'Connect member profile/account events to CRM sync and integration logs. Ultimate Member focuses account/profile lifecycle, Members focuses roles/capabilities, and User Registration focuses registration/profile flows.'
                   )}
                 </p>
+                <div className={INTEGRATION_CARD_GRID_CLASS}>
                 <IntegrationCard
                   title={__('Ultimate Member')}
                   description={__(
@@ -812,7 +822,6 @@ export default function Integrations() {
                   }
                 />
                 <IntegrationCard
-                  className="mt-4"
                   title={__('Members')}
                   description={__(
                     'Sync members to CRM, track role lifecycle events, and review Members integration logs.'
@@ -842,7 +851,6 @@ export default function Integrations() {
                   }
                 />
                 <IntegrationCard
-                  className="mt-4"
                   title={__('User Registration & Membership')}
                   description={__(
                     'Sync members to CRM, track registration/profile lifecycle events, and review User Registration integration logs.'
@@ -881,6 +889,7 @@ export default function Integrations() {
                       : undefined
                   }
                 />
+                </div>
               </TabsContent>
 
               <TabsContent value="multivendor" className="mt-6">
@@ -943,6 +952,7 @@ export default function Integrations() {
                     )}
                   </p>
                 ) : null}
+                <div className={INTEGRATION_CARD_GRID_CLASS}>
                 <IntegrationCard
                   title={__('Dokan')}
                   description={__(
@@ -979,7 +989,6 @@ export default function Integrations() {
                 />
 
                 <IntegrationCard
-                  className="mt-4"
                   title={__('WCFM Marketplace')}
                   description={__(
                     'Optional vendor display in CRM, product training, and proactive sales. Sync WCFM sellers to CRM contacts on demand.'
@@ -1013,11 +1022,13 @@ export default function Integrations() {
                       : undefined
                   }
                 />
+                </div>
               </TabsContent>
 
               <TabsContent value="forms" className="mt-6">
                 <h2 className="!text-lg !font-semibold !mb-3">{__('Forms')}</h2>
-                {groupedFormIntegrations.map((entry, index) => {
+                <div className={INTEGRATION_CARD_GRID_CLASS}>
+                {groupedFormIntegrations.map((entry) => {
                   const p = pluginEntry(plugins, entry.id);
                   return (
                     <IntegrationCard
@@ -1047,15 +1058,16 @@ export default function Integrations() {
                       onLogs={() =>
                         setLogsOpenById((prev) => ({ ...prev, [entry.id]: true }))
                       }
-                      className={index > 0 ? 'mt-4' : undefined}
                     />
                   );
                 })}
+                </div>
               </TabsContent>
 
               <TabsContent value="page_builders" className="mt-6">
                 <h2 className="!text-lg !font-semibold !mb-3">{__('Page builders')}</h2>
-                {PAGE_BUILDERS.map((pb, index) => {
+                <div className={INTEGRATION_CARD_GRID_CLASS}>
+                {PAGE_BUILDERS.map((pb) => {
                   const p = pluginEntry(plugins, pb.overviewKey);
                   return (
                     <IntegrationCard
@@ -1086,10 +1098,10 @@ export default function Integrations() {
                           }
                           : undefined
                       }
-                      className={index > 0 ? 'mt-4' : undefined}
                     />
                   );
                 })}
+                </div>
               </TabsContent>
             </Tabs>
           </div>

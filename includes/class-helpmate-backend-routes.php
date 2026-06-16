@@ -3993,9 +3993,9 @@ class Helpmate_Backend_Routes
                     'whatsapp' => []
                 ];
 
-                // Get smart schedules settings for default appointment starter
+                // Get smart schedules settings for default appointment starter (requires Pro plugin active)
                 $smart_scheduling = $this->helpmate->get_settings()->get_setting('smart_schedules') ?? [];
-                $smart_scheduling_enabled = !empty($smart_scheduling['enabled']);
+                $smart_scheduling_enabled = !empty($smart_scheduling['enabled']) && $this->helpmate->is_pro_available();
                 $smart_scheduling_button_text = $smart_scheduling['buttonText'] ?? 'Get Appointment';
 
                 // Find page with scheduling shortcode or Elementor widget.
@@ -6046,8 +6046,18 @@ class Helpmate_Backend_Routes
         $query = new WP_Query($args);
 
         $posts = [];
+        $product_payload = new Helpmate_Product_Training_Payload($this->helpmate);
+        $commerce_post_types = array('product', 'download', 'sc_product');
 
         foreach ($query->posts as $post) {
+            if (in_array($post->post_type, $commerce_post_types, true)) {
+                $entry = $product_payload->build_post_list_entry($post);
+                if ($entry) {
+                    $posts[] = $entry;
+                }
+                continue;
+            }
+
             $metadata = [
                 'featured_image' => get_the_post_thumbnail_url($post->ID, 'full'),
                 'excerpt' => get_the_excerpt($post),
@@ -6057,166 +6067,13 @@ class Helpmate_Backend_Routes
                 'tags' => wp_get_post_terms($post->ID, 'post_tag', ['fields' => 'names']),
             ];
 
-            // Add WooCommerce product data if post type is product
-            if ($post->post_type === 'product') {
-                $product = wc_get_product($post->ID);
-                if ($product) {
-                    // Get all product meta
-                    $product_meta = get_post_meta($post->ID);
-
-                    // Get product attributes
-                    $attributes = [];
-                    $product_attributes = $product->get_attributes();
-                    foreach ($product_attributes as $attribute) {
-                        $attributes[$attribute->get_name()] = [
-                            'name' => $attribute->get_name(),
-                            'options' => $attribute->get_options(),
-                            'visible' => $attribute->get_visible(),
-                            'variation' => $attribute->get_variation(),
-                        ];
-                    }
-
-                    // Get product gallery images
-                    $gallery_ids = $product->get_gallery_image_ids();
-                    $gallery_images = [];
-                    foreach ($gallery_ids as $gallery_id) {
-                        $gallery_images[] = wp_get_attachment_url($gallery_id);
-                    }
-
-                    // Get product tags
-                    $product_tags = wp_get_post_terms($post->ID, 'product_tag', ['fields' => 'names']);
-
-                    // Get product categories with full data
-                    $product_categories = wp_get_post_terms($post->ID, 'product_cat', ['fields' => 'all']);
-                    $categories_data = [];
-                    foreach ($product_categories as $category) {
-                        $categories_data[] = [
-                            'id' => $category->term_id,
-                            'name' => $category->name,
-                            'slug' => $category->slug,
-                            'description' => $category->description,
-                        ];
-                    }
-
-                    $metadata['product'] = [
-                        // Basic product info
-                        'name' => $product->get_name(),
-                        'description' => $product->get_description(),
-                        'short_description' => $product->get_short_description(),
-                        'sku' => $product->get_sku(),
-                        'type' => $product->get_type(),
-
-                        // Pricing
-                        'price' => $product->get_price(),
-                        'regular_price' => $product->get_regular_price(),
-                        'sale_price' => $product->get_sale_price(),
-                        'price_html' => $product->get_price_html(),
-
-                        // Stock
-                        'stock_status' => $product->get_stock_status(),
-                        'stock_quantity' => $product->get_stock_quantity(),
-                        'manage_stock' => $product->get_manage_stock(),
-                        'backorders' => $product->get_backorders(),
-
-                        // Status flags
-                        'is_on_sale' => $product->is_on_sale(),
-                        'is_featured' => $product->is_featured(),
-                        'is_visible' => $product->is_visible(),
-                        'is_purchasable' => $product->is_purchasable(),
-                        'is_in_stock' => $product->is_in_stock(),
-                        'is_virtual' => $product->is_virtual(),
-                        'is_downloadable' => $product->is_downloadable(),
-
-                        // Ratings
-                        'rating_count' => $product->get_rating_count(),
-                        'average_rating' => $product->get_average_rating(),
-
-                        // Categories and tags
-                        'categories' => $categories_data,
-                        'tags' => $product_tags,
-
-                        // Attributes
-                        'attributes' => $attributes,
-
-                        // Images
-                        'gallery_images' => $gallery_images,
-
-                        // Dimensions and weight
-                        'weight' => $product->get_weight(),
-                        'dimensions' => [
-                            'length' => $product->get_length(),
-                            'width' => $product->get_width(),
-                            'height' => $product->get_height(),
-                        ],
-
-                        // Shipping
-                        'shipping_class' => $product->get_shipping_class(),
-                        'shipping_class_id' => $product->get_shipping_class_id(),
-
-                        // Sales
-                        'total_sales' => $product->get_total_sales(),
-                        'date_on_sale_from' => $product->get_date_on_sale_from(),
-                        'date_on_sale_to' => $product->get_date_on_sale_to(),
-
-                        // All product meta
-                        'meta' => $product_meta,
-
-                        // Additional WooCommerce data
-                        'cross_sell_ids' => $product->get_cross_sell_ids(),
-                        'upsell_ids' => $product->get_upsell_ids(),
-                        'related_ids' => wc_get_related_products($product->get_id()),
-                        'downloads' => $product->get_downloads(),
-                        'download_limit' => $product->get_download_limit(),
-                        'download_expiry' => $product->get_download_expiry(),
-                    ];
-                }
-            }
-
-            // Add EDD download data if post type is download
-            if ($post->post_type === 'download' && function_exists('edd_get_download_price')) {
-                $price = (float) edd_get_download_price($post->ID);
-                $metadata['download'] = [
-                    'name' => get_the_title($post->ID),
-                    'price' => $price,
-                    'price_html' => function_exists('edd_currency_filter') ? edd_currency_filter(edd_format_amount($price)) : (string) $price,
-                    'is_on_sale' => false,
-                    'categories' => wp_get_post_terms($post->ID, 'download_category', ['fields' => 'names']),
-                    'tags' => wp_get_post_terms($post->ID, 'download_tag', ['fields' => 'names']),
-                ];
-            }
-
-            // SureCart synced product posts
-            if ($post->post_type === 'sc_product' && method_exists($this->helpmate, 'get_surecart')) {
-                $sc_info = $this->helpmate->get_surecart()->get_product_info((int) $post->ID);
-                if (!empty($sc_info)) {
-                    $metadata['surecart_product'] = $sc_info;
-                }
-            }
-
-            // For products, use product name and description as title and content
-            if ($post->post_type === 'product' && isset($metadata['product'])) {
-                $title = $metadata['product']['name'];
-                $content = $metadata['product']['description'] ?: $post->post_content;
-            } elseif ($post->post_type === 'download' && isset($metadata['download'])) {
-                $title = $metadata['download']['name'];
-                $content = $post->post_content;
-            } elseif ($post->post_type === 'sc_product' && !empty($metadata['surecart_product']['name'])) {
-                $title = $metadata['surecart_product']['name'];
-                $content = !empty($metadata['surecart_product']['description'])
-                    ? $metadata['surecart_product']['description']
-                    : $post->post_content;
-            } else {
-                $title = get_the_title($post);
-                $content = $post->post_content;
-            }
-
             $posts[] = [
                 'id' => $post->ID,
-                'title' => $title,
+                'title' => get_the_title($post),
                 'type' => $post->post_type,
                 'status' => $post->post_status,
                 'date' => $post->post_date,
-                'content' => $content,
+                'content' => $post->post_content,
                 'author' => get_the_author_meta('display_name', $post->post_author),
                 'author_id' => (int) $post->post_author,
                 'metadata' => $metadata,

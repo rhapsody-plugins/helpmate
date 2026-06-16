@@ -196,27 +196,312 @@ class Helpmate_SureCart
 
 	private function format_product_details(int $post_id): array
 	{
+		$block = $this->get_training_product_block($post_id);
+		return $block ?? array();
+	}
+
+	/**
+	 * Build SureCart product block for training metadata and get_product_info.
+	 *
+	 * @param int $post_id sc_product post ID.
+	 * @return array<string, mixed>|null
+	 */
+	public function get_training_product_block(int $post_id): ?array
+	{
+		if (get_post_type($post_id) !== 'sc_product') {
+			return null;
+		}
+
 		$summary = $this->format_product_summary($post_id);
 		if (!$summary) {
-			return [];
+			return null;
 		}
 
 		$product = $this->get_product_meta_object($post_id);
 		$pricing = $this->extract_product_pricing($product);
 
-		return array_merge($summary, [
+		$block = array_merge($summary, array(
 			'sku' => (string) get_post_meta($post_id, '_sku', true),
 			'description' => (string) get_post_field('post_content', $post_id),
 			'short_description' => (string) get_post_field('post_excerpt', $post_id),
-			'categories' => [],
-			'tags' => [],
+			'categories' => array(),
+			'tags' => array(),
 			'type' => 'surecart_product',
 			'is_in_stock' => !empty($product->in_stock),
 			'average_rating' => (float) ($product->average_rating ?? 0),
 			'rating_count' => (int) ($product->total_reviews ?? 0),
 			'regular_price_raw' => $pricing['regular_raw'],
 			'sale_price_raw' => $pricing['sale_raw'],
-		]);
+		));
+
+		return Helpmate_Product_Variant_Normalizer::apply_to_block($block, $this->get_product_variant_data($post_id));
+	}
+
+	/**
+	 * Normalized variant rows for SureCart variants and multi-price products.
+	 *
+	 * @param int $post_id sc_product post ID.
+	 * @return array{has_variants:bool,variants:array<int,array<string,mixed>>,price_range:array<string,string>|null}
+	 */
+	public function get_product_variant_data(int $post_id): array
+	{
+		$sc_product = function_exists('sc_get_product') ? sc_get_product($post_id) : null;
+		if ($sc_product) {
+			return $this->get_variant_data_from_surecart_model($sc_product);
+		}
+
+		return $this->get_variant_data_from_meta_object($this->get_product_meta_object($post_id));
+	}
+
+	/**
+	 * @param object $product SureCart Product model or decoded meta object.
+	 * @return array{has_variants:bool,variants:array<int,array<string,mixed>>,price_range:array<string,string>|null}
+	 */
+	private function get_variant_data_from_surecart_model($product): array
+	{
+		$variants = array();
+		$amounts = array();
+
+		$variant_list = array();
+		if (isset($product->variants) && is_object($product->variants) && !empty($product->variants->data)) {
+			$variant_list = $product->variants->data;
+		} elseif (isset($product->variants->data)) {
+			$variant_list = $product->variants->data;
+		}
+
+		if (is_array($variant_list) && !empty($variant_list)) {
+			foreach ($variant_list as $variant) {
+				$row = $this->map_surecart_variant_row($variant);
+				if ($row) {
+					$variants[] = $row;
+					$amount = $this->surecart_amount_to_float($variant->amount ?? 0);
+					if ($amount > 0) {
+						$amounts[] = $amount;
+					}
+				}
+			}
+		}
+
+		if (empty($variants) && method_exists($product, 'getWithSortedPrices')) {
+			$sorted = $product->getWithSortedPrices();
+			$prices = isset($sorted->prices->data) ? $sorted->prices->data : array();
+			foreach ($prices as $price) {
+				if (!empty($price->archived)) {
+					continue;
+				}
+				$row = $this->map_surecart_price_row($price);
+				if ($row) {
+					$variants[] = $row;
+					$amount = $this->surecart_amount_to_float($price->amount ?? 0);
+					if ($amount > 0) {
+						$amounts[] = $amount;
+					}
+				}
+			}
+		} elseif (empty($variants) && !empty($product->active_prices) && is_array($product->active_prices)) {
+			foreach ($product->active_prices as $price) {
+				$row = $this->map_surecart_price_row($price);
+				if ($row) {
+					$variants[] = $row;
+					$amount = $this->surecart_amount_to_float($price->amount ?? 0);
+					if ($amount > 0) {
+						$amounts[] = $amount;
+					}
+				}
+			}
+		}
+
+		return $this->build_variant_result($variants, $amounts, $product);
+	}
+
+	/**
+	 * @param object $product Decoded post meta product object.
+	 * @return array{has_variants:bool,variants:array<int,array<string,mixed>>,price_range:array<string,string>|null}
+	 */
+	private function get_variant_data_from_meta_object(object $product): array
+	{
+		$variants = array();
+		$amounts = array();
+
+		$variant_data = null;
+		if (isset($product->variants) && is_object($product->variants) && isset($product->variants->data)) {
+			$variant_data = $product->variants->data;
+		} elseif (isset($product->variants) && is_array($product->variants)) {
+			$variant_data = $product->variants;
+		}
+
+		if (is_array($variant_data)) {
+			foreach ($variant_data as $variant) {
+				$variant_obj = is_array($variant) ? (object) $variant : $variant;
+				$row = $this->map_surecart_variant_row($variant_obj);
+				if ($row) {
+					$variants[] = $row;
+					$amount = $this->surecart_amount_to_float($variant_obj->amount ?? 0);
+					if ($amount > 0) {
+						$amounts[] = $amount;
+					}
+				}
+			}
+		}
+
+		$prices_data = null;
+		if (isset($product->prices) && is_object($product->prices) && isset($product->prices->data)) {
+			$prices_data = $product->prices->data;
+		}
+
+		if (empty($variants) && is_array($prices_data)) {
+			foreach ($prices_data as $price) {
+				$price_obj = is_array($price) ? (object) $price : $price;
+				if (!empty($price_obj->archived)) {
+					continue;
+				}
+				$row = $this->map_surecart_price_row($price_obj);
+				if ($row) {
+					$variants[] = $row;
+					$amount = $this->surecart_amount_to_float($price_obj->amount ?? 0);
+					if ($amount > 0) {
+						$amounts[] = $amount;
+					}
+				}
+			}
+		}
+
+		return $this->build_variant_result($variants, $amounts, $product);
+	}
+
+	/**
+	 * @param array<int, array<string, mixed>> $variants Normalized rows.
+	 * @param array<int, float>                $amounts  Numeric amounts for range.
+	 * @param object                           $product  Product model or meta.
+	 * @return array{has_variants:bool,variants:array<int,array<string,mixed>>,price_range:array<string,string>|null}
+	 */
+	private function build_variant_result(array $variants, array $amounts, object $product): array
+	{
+		if (count($variants) <= 1 && empty($amounts)) {
+			return array(
+				'has_variants' => false,
+				'variants' => array(),
+				'price_range' => null,
+			);
+		}
+
+		$currency = 'USD';
+		if (isset($product->initial_price) && is_object($product->initial_price) && !empty($product->initial_price->currency)) {
+			$currency = (string) $product->initial_price->currency;
+		} elseif (isset($product->metrics->currency)) {
+			$currency = (string) $product->metrics->currency;
+		}
+		$symbol = $this->currency_symbol($currency);
+
+		$price_range = null;
+		if (!empty($amounts)) {
+			$min = min($amounts);
+			$max = max($amounts);
+			$price_range = array(
+				'min' => $symbol . number_format($min, 2, '.', ''),
+				'max' => $symbol . number_format($max, 2, '.', ''),
+			);
+		}
+
+		return array(
+			'has_variants' => count($variants) > 1,
+			'variants' => $variants,
+			'price_range' => $price_range,
+		);
+	}
+
+	/**
+	 * @param mixed $variant SureCart variant object.
+	 * @return array<string, mixed>|null
+	 */
+	private function map_surecart_variant_row($variant): ?array
+	{
+		if (!is_object($variant)) {
+			return null;
+		}
+
+		$label_parts = array_filter(array(
+			isset($variant->option_1) ? (string) $variant->option_1 : '',
+			isset($variant->option_2) ? (string) $variant->option_2 : '',
+			isset($variant->option_3) ? (string) $variant->option_3 : '',
+		));
+		$label = !empty($label_parts) ? implode(' / ', $label_parts) : (string) ($variant->id ?? '');
+
+		$amount = $this->surecart_amount_to_float($variant->amount ?? 0);
+		$currency = (string) ($variant->currency ?? 'USD');
+		$symbol = $this->currency_symbol($currency);
+		$display = !empty($variant->display_amount)
+			? (string) $variant->display_amount
+			: ($amount > 0 ? $symbol . number_format($amount, 2, '.', '') : '');
+
+		$in_stock = true;
+		if (isset($variant->available_stock)) {
+			$in_stock = (int) $variant->available_stock > 0 || (string) $variant->available_stock === 'unlimited';
+		} elseif (isset($variant->in_stock)) {
+			$in_stock = !empty($variant->in_stock);
+		}
+
+		return Helpmate_Product_Variant_Normalizer::row(array(
+			'id' => (string) ($variant->id ?? ''),
+			'label' => $label,
+			'sku' => (string) ($variant->sku ?? ''),
+			'price' => $display,
+			'regular_price' => (string) $amount,
+			'sale_price' => (string) $amount,
+			'stock_status' => $in_stock ? 'in_stock' : 'out_of_stock',
+			'stock_quantity' => isset($variant->available_stock) && is_numeric($variant->available_stock)
+				? (int) $variant->available_stock
+				: null,
+			'in_stock' => $in_stock,
+			'attributes' => array(),
+			'image' => '',
+		));
+	}
+
+	/**
+	 * @param mixed $price SureCart price object.
+	 * @return array<string, mixed>|null
+	 */
+	private function map_surecart_price_row($price): ?array
+	{
+		if (!is_object($price)) {
+			return null;
+		}
+
+		$amount = $this->surecart_amount_to_float($price->amount ?? 0);
+		$currency = (string) ($price->currency ?? 'USD');
+		$symbol = $this->currency_symbol($currency);
+		$display = $amount > 0 ? $symbol . number_format($amount, 2, '.', '') : '';
+		$label = (string) ($price->name ?? $price->id ?? '');
+
+		return Helpmate_Product_Variant_Normalizer::row(array(
+			'id' => (string) ($price->id ?? ''),
+			'label' => $label,
+			'sku' => '',
+			'price' => $display,
+			'regular_price' => (string) $amount,
+			'sale_price' => (string) $amount,
+			'stock_status' => 'in_stock',
+			'stock_quantity' => null,
+			'in_stock' => true,
+			'attributes' => array(),
+			'image' => '',
+		));
+	}
+
+	/**
+	 * Convert SureCart amount (cents) to float dollars.
+	 *
+	 * @param mixed $amount Raw amount.
+	 * @return float
+	 */
+	private function surecart_amount_to_float($amount): float
+	{
+		$value = (float) $amount;
+		if ($value <= 0) {
+			return 0.0;
+		}
+		return $value / 100;
 	}
 
 	private function get_product_meta_object(int $post_id): object

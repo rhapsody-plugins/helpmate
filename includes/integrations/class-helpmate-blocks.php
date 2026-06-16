@@ -144,7 +144,7 @@ class Helpmate_Blocks {
 
 		$sched = WP_Block_Type_Registry::get_instance()->get_registered( Helpmate_Elementor_Utils::BLOCK_SCHEDULING );
 		if ( $sched && $sched->editor_script ) {
-			wp_set_script_translations( $sched->editor_script, 'helpmate-ai-chatbot', HELPMATE_DIR . 'languages' );
+			wp_set_script_translations( $sched->editor_script, 'helpmate-ai-chatbot' );
 			wp_localize_script(
 				$sched->editor_script,
 				'helpmateSchedulingBlock',
@@ -159,7 +159,7 @@ class Helpmate_Blocks {
 
 		$promo = WP_Block_Type_Registry::get_instance()->get_registered( Helpmate_Elementor_Utils::BLOCK_PROMO_BANNER );
 		if ( $promo && $promo->editor_script ) {
-			wp_set_script_translations( $promo->editor_script, 'helpmate-ai-chatbot', HELPMATE_DIR . 'languages' );
+			wp_set_script_translations( $promo->editor_script, 'helpmate-ai-chatbot' );
 			$enabled = self::$helpmate && self::$helpmate->get_promo_banner() && self::$helpmate->get_promo_banner()->is_enabled();
 			wp_localize_script(
 				$promo->editor_script,

@@ -227,19 +227,19 @@ export function ChatInput({
       {isChatOpen && !hasStartedConversation && (
         <QuickOptions onOptionClick={handleQuickOptionClick} />
       )}
-      {productId && (
+      {product && (
         <div className="flex relative gap-2 items-center mb-3 w-full">
           <img
-            src={product?.image}
-            alt={product?.name}
+            src={product.image}
+            alt={product.name}
             className="w-10 h-10 rounded-full"
           />
           <div className="flex flex-col">
-            <h3 className="!text-sm !font-medium">{product?.name}</h3>
+            <h3 className="!text-sm !font-medium">{product.name}</h3>
             <div
               className="text-sm text-gray-500"
               dangerouslySetInnerHTML={{
-                __html: product?.price ?? '',
+                __html: product.price ?? '',
               }}
             />
           </div>

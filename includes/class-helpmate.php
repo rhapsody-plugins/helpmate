@@ -603,6 +603,8 @@ class Helpmate
 			'includes/class-helpmate-permissions.php',
 			'includes/social/class-helpmate-social-message-processor.php',
 			'includes/class-helpmate-background-processor.php',
+			'includes/class-helpmate-product-variant-normalizer.php',
+			'includes/class-helpmate-product-training-payload.php',
 			'includes/class-helpmate-job-tracker.php',
 			'includes/commerce/interface-commerce-provider-adapter.php',
 			'includes/commerce/class-helpmate-commerce-woocommerce-adapter.php',
@@ -610,6 +612,7 @@ class Helpmate
 			'includes/commerce/class-helpmate-commerce-surecart-adapter.php',
 			'includes/commerce/class-helpmate-commerce-adapter-registry.php',
 			'includes/integrations/class-helpmate-integration-events.php',
+			'includes/integrations/class-helpmate-form-integration-ui.php',
 			'includes/integrations/class-helpmate-cf7-integration.php',
 			'includes/integrations/class-helpmate-forminator-integration.php',
 			'includes/integrations/class-helpmate-wpforms-integration.php',
@@ -1410,6 +1413,56 @@ class Helpmate
 	public function is_helpmate_pro_active()
 	{
 		return is_plugin_active('helpmate-pro/helpmate-pro.php');
+	}
+
+	/**
+	 * Whether Pro license and Helpmate Pro plugin are both active.
+	 *
+	 * @since 1.0.0
+	 * @return bool
+	 */
+	public function is_pro_available()
+	{
+		return $this->get_product_slug() !== 'helpmate-free' && $this->is_helpmate_pro_active();
+	}
+
+	/**
+	 * Pro license is active but the Helpmate Pro plugin is not activated.
+	 *
+	 * @since 1.0.0
+	 * @return bool
+	 */
+	public function is_pro_license_plugin_mismatch()
+	{
+		return $this->get_product_slug() !== 'helpmate-free' && ! $this->is_helpmate_pro_active();
+	}
+
+	/**
+	 * Customer-facing message when a Pro tool cannot run (license/plugin mismatch).
+	 *
+	 * @since 1.0.0
+	 * @return string
+	 */
+	public function get_pro_tool_customer_unavailable_message()
+	{
+		return __(
+			'We\'re sorry — this feature isn\'t available right now due to a technical issue on our site. Please try again later or contact us directly.',
+			'helpmate-ai-chatbot'
+		);
+	}
+
+	/**
+	 * Admin-facing message when Pro license is active but the Pro plugin is inactive.
+	 *
+	 * @since 1.0.0
+	 * @return string
+	 */
+	public function get_pro_plugin_inactive_admin_message()
+	{
+		return __(
+			'Helpmate Pro license is active, but the Helpmate Pro plugin is not activated. Activate it under Plugins.',
+			'helpmate-ai-chatbot'
+		);
 	}
 
 	/**

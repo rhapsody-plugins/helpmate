@@ -255,6 +255,11 @@ export interface OrderDetails {
   shippingAddress: string;
   trackingNumber?: string;
   estimatedDelivery?: string;
+  fulfillmentStatus?: string;
+  shippingStatus?: string;
+  orderTotal?: string;
+  currency?: string;
+  provider?: string;
 }
 
 export interface OrderItem {

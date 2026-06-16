@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import type { UseQueryResult } from '@tanstack/react-query';
+import FormFieldMappingCallout from './FormFieldMappingCallout';
 import IntegrationFormsSheetStates from './IntegrationFormsSheetStates';
 import {
   UNMAPPED_FIELD,
@@ -166,6 +167,12 @@ export default function IntegrationConfigSheet({
                         <p className="!text-md !mb-3 font-medium !text-muted-foreground">
                           {__('Field Mapping:')}
                         </p>
+                        <FormFieldMappingCallout
+                          requiredFieldLabels={mappableFields
+                            .filter((field) => field.required)
+                            .map((field) => field.label)}
+                          hasFormFields={form.fields.length > 0}
+                        />
                         {mappableFields.map((field) => {
                           const raw = config.field_map[field.key] ?? '';
                           const selectValue = raw === '' ? UNMAPPED_FIELD : raw;

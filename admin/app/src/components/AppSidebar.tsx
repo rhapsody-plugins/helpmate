@@ -1,4 +1,5 @@
 import adminHub from '@/assets/apps/admin-hub.svg';
+import integrationsIcon from '@/assets/apps/integrations.svg';
 import automation from '@/assets/apps/automation.svg';
 import comments from '@/assets/apps/comments.svg';
 import conversionAutomation from '@/assets/apps/conversion-automation.svg';
@@ -66,7 +67,6 @@ import {
   Mails,
   MessageCircleReply,
   Package,
-  Plug,
   Radio,
   Rocket,
   ScanSearch,
@@ -89,26 +89,17 @@ export type SectionId =
   | 'inbox'
   | 'channels'
   | 'crm'
+  | 'integrations'
   | 'control-center';
 
 const PAGE_TO_SECTION: Record<PageType, SectionId> = {
-  analytics: 'control-center',
-  activity: 'inbox',
   'data-source': 'helpmate-ai',
   settings: 'automations',
-  'proactive-sales': 'automations',
-  'abandoned-cart': 'crm',
-  'coupon-delivery': 'automations',
   'order-tracker': 'automations',
   'image-search': 'automations',
-  'ticket-system': 'automations',
   'refund-return': 'automations',
-  'app-center': 'automations',
-  'train-chatbot': 'helpmate-ai',
   'test-chatbot': 'automations',
-  'social-chat': 'channels',
   'social-chat-inbox': 'inbox',
-  'social-chat-campaigns': 'channels',
   'social-chat-facebook': 'channels',
   'social-chat-instagram': 'channels',
   'social-chat-whatsapp': 'channels',
@@ -119,14 +110,13 @@ const PAGE_TO_SECTION: Record<PageType, SectionId> = {
   'crm-leads': 'crm',
   'crm-emails': 'crm',
   'crm-segments': 'crm',
-  'crm-analytics': 'crm',
   'control-center-team': 'control-center',
   tasks: 'crm',
   'control-center-dashboard': 'dashboard',
   'control-center-analytics': 'control-center',
   'control-center-settings': 'control-center',
   'control-center-tools': 'control-center',
-  'control-center-integrations': 'control-center',
+  integrations: 'integrations',
   'manage-api': 'control-center',
   setup: 'control-center',
   'inbox-all': 'inbox',
@@ -280,8 +270,14 @@ export function AppSidebar() {
   const {
     canAccess,
     hasRole,
+    hasAnyRole,
     isLoading: permissionsLoading,
   } = usePermissions();
+
+  const canAccessIntegrations = useMemo(
+    () => !permissionsLoading && hasAnyRole(['admin', 'manager']),
+    [permissionsLoading, hasAnyRole]
+  );
   const { isMobile, submenuOpen, setSubmenuOpen, openMobile, setOpenMobile } =
     useSidebar();
 
@@ -296,7 +292,9 @@ export function AppSidebar() {
     const section = PAGE_TO_SECTION[page];
     if (section) {
       setSelectedSection(section);
-      if (section !== 'dashboard') setSubmenuOpen(true);
+      if (section !== 'dashboard' && section !== 'integrations') {
+        setSubmenuOpen(true);
+      }
     }
   }, [page, setSubmenuOpen]);
 
@@ -305,6 +303,9 @@ export function AppSidebar() {
       setSelectedSection(section);
       if (section === 'dashboard') {
         setPage('control-center-dashboard');
+        setSubmenuOpen(false);
+      } else if (section === 'integrations') {
+        setPage('integrations');
         setSubmenuOpen(false);
       } else {
         setSubmenuOpen(true);
@@ -466,11 +467,6 @@ export function AppSidebar() {
         label: __('Modules'),
         page: 'control-center-settings',
         icon: <Package className="w-4 h-4" strokeWidth={1.5} />,
-      },
-      {
-        label: __('Integrations'),
-        page: 'control-center-integrations',
-        icon: <Plug className="w-4 h-4" strokeWidth={1.5} />,
       },
       {
         label: __('Tools'),
@@ -756,7 +752,6 @@ export function AppSidebar() {
     return controlCenterMenuItems.filter((item) => {
       if (item.page === 'control-center-analytics') return canAccess('analytics');
       if (item.page === 'control-center-settings') return hasRole('admin');
-      if (item.page === 'control-center-integrations') return hasRole('admin');
       if (item.page === 'control-center-tools') return hasRole('admin');
       if (item.page === 'control-center-team') return canAccess('team_management');
       if (item.page === 'manage-api') return hasRole('admin');
@@ -916,6 +911,19 @@ export function AppSidebar() {
         badgeCount: crmSectionBadge,
       });
     }
+    if (canAccessIntegrations) {
+      sections.push({
+        id: 'integrations',
+        label: __('Integrations'),
+        icon: (
+          <ChangeSvgColor
+            src={integrationsIcon}
+            stroke="currentColor"
+            className="w-5 h-5 stroke-current [&_path]:stroke-current"
+          />
+        ),
+      });
+    }
     if (filteredControlCenterMenuItems.length > 0) {
       sections.push({
         id: 'control-center',
@@ -930,6 +938,7 @@ export function AppSidebar() {
     hasAnyAutomationAccess,
     filteredInboxMenuItems.length,
     filteredCrmMenuItems.length,
+    canAccessIntegrations,
     filteredControlCenterMenuItems.length,
     inboxSectionBadge,
     crmSectionBadge,
@@ -1578,6 +1587,27 @@ export function AppSidebar() {
                         )}
                       </button>
                     ))}
+                  {section.id === 'integrations' && canAccessIntegrations && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPage('integrations');
+                        setOpenMobile(false);
+                      }}
+                      className={cn(
+                        'flex items-center gap-2 w-full rounded-md px-2 py-1.5 text-sm',
+                        page === 'integrations' &&
+                          'bg-sidebar-primary text-sidebar-primary-foreground'
+                      )}
+                    >
+                      <ChangeSvgColor
+                        src={integrationsIcon}
+                        stroke="currentColor"
+                        className="w-4 h-4 stroke-current [&_path]:stroke-current"
+                      />
+                      {__('Integrations')}
+                    </button>
+                  )}
                   {section.id === 'control-center' && (
                     <>
                       {filteredControlCenterMenuItems.map((item) => (
@@ -1610,10 +1640,10 @@ export function AppSidebar() {
   }
 
   const showSubmenuPanel =
-    submenuOpen && activeSection !== 'dashboard';
+    submenuOpen && activeSection !== 'dashboard' && activeSection !== 'integrations';
 
   const sidebarWidth =
-    activeSection === 'dashboard'
+    activeSection === 'dashboard' || activeSection === 'integrations'
       ? ICON_BAR_WIDTH
       : showSubmenuPanel
         ? `calc(${ICON_BAR_WIDTH} + ${SUBMENU_PANEL_WIDTH})`

@@ -202,10 +202,8 @@ class Helpmate_Chat_Response_Generator
 
         if (isset($data['status']) && $data['status'] == 'success') {
             if (isset($data['tool_results']) && !empty($data['tool_results'])) {
-                $reply = json_decode($data['tool_results'][0]['result']);
-                // if (isset($data['response']['message']) && !empty($data['response']['message'])) {
-                //     $reply->text = $data['response']['message'];
-                // }
+                $reply = $this->decode_tool_result($data['tool_results'][0]['result']);
+                $reply = $this->normalize_tool_reply($reply);
             } else {
                 $reply = [
                     'type' => 'text',
@@ -399,24 +397,37 @@ class Helpmate_Chat_Response_Generator
                         }
                         break;
                     case 'show_order_tracker_options':
-                        if ($this->helpmate->get_product_slug() !== 'helpmate-free' && $this->helpmate->is_helpmate_pro_active()) {
-                            $data['tool_results'][0]['result'] = $GLOBALS['helpmate_pro']->get_order_tracker()->show_order_tracker_options();
-                        }
+                        $data['tool_results'][0]['result'] = $this->resolve_pro_tool_result(
+                            'show_order_tracker_options',
+                            function () {
+                                return $GLOBALS['helpmate_pro']->get_order_tracker()->show_order_tracker_options();
+                            }
+                        );
                         break;
                     case 'show_refund_return_options':
-                        if ($this->helpmate->get_product_slug() !== 'helpmate-free' && $this->helpmate->is_helpmate_pro_active()) {
-                            $data['tool_results'][0]['result'] = $GLOBALS['helpmate_pro']->get_refund_return()->show_refund_return_options();
-                        }
+                        $data['tool_results'][0]['result'] = $this->resolve_pro_tool_result(
+                            'show_refund_return_options',
+                            function () {
+                                return $GLOBALS['helpmate_pro']->get_refund_return()->show_refund_return_options();
+                            }
+                        );
                         break;
                     case 'show_coupon_delivery':
-                        if ($this->helpmate->get_product_slug() !== 'helpmate-free' && $this->helpmate->is_helpmate_pro_active()) {
-                            $data['tool_results'][0]['result'] = $GLOBALS['helpmate_pro']->get_coupon_delivery()->show_coupon_delivery();
-                        }
+                        $data['tool_results'][0]['result'] = $this->resolve_pro_tool_result(
+                            'show_coupon_delivery',
+                            function () {
+                                return $GLOBALS['helpmate_pro']->get_coupon_delivery()->show_coupon_delivery();
+                            }
+                        );
                         break;
                     case 'show_image_search':
-                        if ($this->helpmate->get_product_slug() !== 'helpmate-free' && $this->helpmate->is_helpmate_pro_active()) {
-                            $data['tool_results'][0]['result'] = $GLOBALS['helpmate_pro']->get_image_search()->show_image_search($data['tool_results'][0]['parameters']);
-                        }
+                        $image_search_params = $data['tool_results'][0]['parameters'] ?? [];
+                        $data['tool_results'][0]['result'] = $this->resolve_pro_tool_result(
+                            'show_image_search',
+                            function () use ($image_search_params) {
+                                return $GLOBALS['helpmate_pro']->get_image_search()->show_image_search($image_search_params);
+                            }
+                        );
                         break;
                     default:
                         return $data;
@@ -425,5 +436,152 @@ class Helpmate_Chat_Response_Generator
         }
 
         return $data;
+    }
+
+    /**
+     * Decode a tool result (JSON string or array) into an object for the widget.
+     *
+     * @param mixed $raw Raw tool result.
+     * @return object|null
+     */
+    private function decode_tool_result($raw)
+    {
+        if (is_string($raw)) {
+            return json_decode($raw);
+        }
+        if (is_array($raw)) {
+            return json_decode(wp_json_encode($raw));
+        }
+        return null;
+    }
+
+    /**
+     * Ensure tool reply has displayable text; attach admin feature_error when Pro plugin is inactive.
+     *
+     * @param object|null $reply Decoded tool reply.
+     * @return object|array
+     */
+    private function normalize_tool_reply($reply)
+    {
+        $text = '';
+        if (is_object($reply) && isset($reply->text) && is_string($reply->text)) {
+            $text = trim($reply->text);
+        } elseif (is_array($reply) && isset($reply['text']) && is_string($reply['text'])) {
+            $text = trim($reply['text']);
+        }
+
+        if ($text !== '') {
+            return $reply;
+        }
+
+        return $this->build_empty_tool_fallback_reply();
+    }
+
+    /**
+     * Encode assistant response for chat history storage (never persists literal null).
+     *
+     * @param mixed $response Response from generate_response.
+     * @return string JSON string for DB.
+     */
+    public function encode_response_for_storage($response)
+    {
+        return wp_json_encode($this->normalize_response_for_storage($response));
+    }
+
+    /**
+     * Fallback when a tool returns no usable payload (avoids storing literal "null").
+     *
+     * @return object
+     */
+    private function build_empty_tool_fallback_reply()
+    {
+        return json_decode(wp_json_encode($this->build_empty_tool_fallback_array()));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function build_empty_tool_fallback_array()
+    {
+        $payload = [
+            'type' => 'text',
+            'text' => $this->helpmate->get_pro_tool_customer_unavailable_message(),
+        ];
+
+        if ($this->helpmate->is_pro_license_plugin_mismatch()) {
+            $payload['feature_error'] = [
+                'code' => 'pro_plugin_inactive',
+                'admin_message' => $this->helpmate->get_pro_plugin_inactive_admin_message(),
+            ];
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param mixed $response Response object or array.
+     * @return array<string, mixed>
+     */
+    private function normalize_response_for_storage($response)
+    {
+        if ($response === null) {
+            return $this->build_empty_tool_fallback_array();
+        }
+
+        $encoded = wp_json_encode($response);
+        if ($encoded === 'null' || $encoded === false) {
+            return $this->build_empty_tool_fallback_array();
+        }
+
+        $arr = json_decode($encoded, true);
+        if (! is_array($arr)) {
+            return $this->build_empty_tool_fallback_array();
+        }
+
+        $text = isset($arr['text']) && is_string($arr['text']) ? trim($arr['text']) : '';
+        if ($text === '') {
+            return $this->build_empty_tool_fallback_array();
+        }
+
+        return $arr;
+    }
+
+    /**
+     * Run a Pro tool handler or return inactive-plugin fallback JSON.
+     *
+     * @param string   $tool_name Tool identifier for admin metadata.
+     * @param callable $handler   Callable that returns the Pro module JSON string.
+     * @return string JSON-encoded tool result.
+     */
+    private function resolve_pro_tool_result(string $tool_name, callable $handler)
+    {
+        if ($this->helpmate->is_pro_available()) {
+            return $handler();
+        }
+
+        if ($this->helpmate->is_pro_license_plugin_mismatch()) {
+            return $this->build_pro_plugin_inactive_tool_result($tool_name);
+        }
+
+        return '';
+    }
+
+    /**
+     * JSON tool result when Pro license is active but Helpmate Pro plugin is not.
+     *
+     * @param string $tool_name Tool name for admin diagnostics.
+     * @return string
+     */
+    private function build_pro_plugin_inactive_tool_result(string $tool_name)
+    {
+        return wp_json_encode([
+            'type' => 'text',
+            'text' => $this->helpmate->get_pro_tool_customer_unavailable_message(),
+            'feature_error' => [
+                'code' => 'pro_plugin_inactive',
+                'admin_message' => $this->helpmate->get_pro_plugin_inactive_admin_message(),
+                'tool' => $tool_name,
+            ],
+        ]);
     }
 }

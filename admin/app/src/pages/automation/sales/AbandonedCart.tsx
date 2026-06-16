@@ -33,7 +33,7 @@ export default function AbandonedCart() {
         status: true,
       },
       {
-        title: 'Carts',
+        title: 'Abandoned List',
         status: true,
       },
       {
@@ -53,7 +53,7 @@ export default function AbandonedCart() {
           <Suspense fallback={<div>{__('Loading...')}</div>}>
             {tab === 'Settings' && <TabSettings />}
             {tab === 'Follow Up Emails' && <TabFollowUpEmails />}
-            {tab === 'Carts' && <TabCarts />}
+            {tab === 'Abandoned List' && <TabCarts />}
             {tab === 'Analytics' && <TabAnalytics />}
           </Suspense>
         </TabsContent>

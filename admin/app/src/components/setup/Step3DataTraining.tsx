@@ -27,6 +27,8 @@ interface Step3DataTrainingProps {
 
 type ContentType = 'page' | 'post' | 'product';
 
+type FetchStatus = 'idle' | 'loading' | 'loaded';
+
 interface SelectedItems {
   page: number[];
   post: number[];
@@ -54,8 +56,7 @@ export default function Step3DataTraining({
       : selectedProvider === 'surecart'
         ? 'sc_product'
         : 'product';
-  const { getPostsMutation, addSourceMutation, getBulkJobsQuery } =
-    useDataSource();
+  const { addSourceMutation, getBulkJobsQuery } = useDataSource();
 
   const [selectedTypes, setSelectedTypes] = useState<ContentType[]>([]);
   const [selectedItems, setSelectedItems] = useState<SelectedItems>({
@@ -68,6 +69,13 @@ export default function Step3DataTraining({
   const [pages, setPages] = useState<WordPressPost[]>([]);
   const [posts, setPosts] = useState<WordPressPost[]>([]);
   const [products, setProducts] = useState<WordPressPost[]>([]);
+  const [fetchStatus, setFetchStatus] = useState<
+    Record<ContentType, FetchStatus>
+  >({
+    page: 'idle',
+    post: 'idle',
+    product: 'idle',
+  });
   const [isTraining, setIsTraining] = useState(false);
   const [trainingCompleted, setTrainingCompleted] = useState(false);
   const [activeJobIds, setActiveJobIds] = useState<{
@@ -94,92 +102,90 @@ export default function Step3DataTraining({
     product: 0,
   });
   const completionTriggeredRef = useRef(false);
+  const selectedTypesRef = useRef(selectedTypes);
+  const prevSelectedTypesRef = useRef<ContentType[]>([]);
 
-  const { mutate: getPostsMutate, isPending: getPostsIsPending } =
-    getPostsMutation;
+  useEffect(() => {
+    selectedTypesRef.current = selectedTypes;
+  }, [selectedTypes]);
+
   const { mutate: addMutate } = addSourceMutation;
   const { data: bulkJobsData, refetch: refetchBulkJobs } = getBulkJobsQuery;
 
 
-  // Fetch available items
+  const mapPostsFromApi = (data: WordPressPost[]): WordPressPost[] =>
+    data.map((post: WordPressPost) => ({
+      id: post.id,
+      title:
+        typeof post.title === 'string' ? post.title : post.title.rendered,
+      type: post.type,
+      status: post.status,
+      date: new Date(post.date).toLocaleDateString(),
+      author: post.author,
+      content: post.content,
+      metadata: post.metadata,
+    }));
+
+  // Fetch available items for newly selected types only (parallel, independent requests)
   useEffect(() => {
-    if (selectedTypes.includes('page')) {
-      getPostsMutate('page', {
-        onSuccess: (data) => {
-          if (data) {
-            setPages(
-              data.map((post: WordPressPost) => ({
-                id: post.id,
-                title:
-                  typeof post.title === 'string'
-                    ? post.title
-                    : post.title.rendered,
-                type: post.type,
-                status: post.status,
-                date: new Date(post.date).toLocaleDateString(),
-                author: post.author,
-                content: post.content,
-                metadata: post.metadata,
-              }))
-            );
-          }
-        },
-      });
-    }
-    if (selectedTypes.includes('post')) {
-      getPostsMutate('post', {
-        onSuccess: (data) => {
-          if (data) {
-            setPosts(
-              data.map((post: WordPressPost) => ({
-                id: post.id,
-                title:
-                  typeof post.title === 'string'
-                    ? post.title
-                    : post.title.rendered,
-                type: post.type,
-                status: post.status,
-                date: new Date(post.date).toLocaleDateString(),
-                author: post.author,
-                content: post.content,
-                metadata: post.metadata,
-              }))
-            );
-          }
-        },
-      });
-    }
-    if (
-      selectedTypes.includes('product') &&
-      (isWooCommerceInstalled ||
-        selectedProvider === 'easy_digital_downloads' ||
-        selectedProvider === 'surecart')
-    ) {
-      getPostsMutate(productPostType, {
-        onSuccess: (data) => {
-          if (data) {
-            setProducts(
-              data.map((product: WordPressPost) => ({
-                id: product.id,
-                title:
-                  typeof product.title === 'string'
-                    ? product.title
-                    : product.title.rendered,
-                type: product.type,
-                status: product.status,
-                date: new Date(product.date).toLocaleDateString(),
-                author: product.author,
-                content: product.content,
-                metadata: product.metadata,
-              }))
-            );
-          }
-        },
-      });
-    }
+    const newlySelected = selectedTypes.filter(
+      (type) => !prevSelectedTypesRef.current.includes(type)
+    );
+    prevSelectedTypesRef.current = [...selectedTypes];
+
+    const productCommerceAvailable =
+      isWooCommerceInstalled ||
+      selectedProvider === 'easy_digital_downloads' ||
+      selectedProvider === 'surecart';
+
+    const fetchPostsForType = async (
+      type: ContentType,
+      postType: string
+    ) => {
+      setFetchStatus((prev) => ({ ...prev, [type]: 'loading' }));
+
+      try {
+        const response = await api.get<WordPressPost[]>('/posts', {
+          params: { post_type: postType },
+        });
+        if (!selectedTypesRef.current.includes(type)) {
+          return;
+        }
+        const mapped = response.data ? mapPostsFromApi(response.data) : [];
+        if (type === 'page') {
+          setPages(mapped);
+        } else if (type === 'post') {
+          setPosts(mapped);
+        } else {
+          setProducts(mapped);
+        }
+        setFetchStatus((prev) => ({ ...prev, [type]: 'loaded' }));
+      } catch {
+        if (!selectedTypesRef.current.includes(type)) {
+          return;
+        }
+        if (type === 'page') {
+          setPages([]);
+        } else if (type === 'post') {
+          setPosts([]);
+        } else {
+          setProducts([]);
+        }
+        setFetchStatus((prev) => ({ ...prev, [type]: 'loaded' }));
+      }
+    };
+
+    newlySelected.forEach((type) => {
+      if (type === 'page') {
+        void fetchPostsForType('page', 'page');
+      } else if (type === 'post') {
+        void fetchPostsForType('post', 'post');
+      } else if (type === 'product' && productCommerceAvailable) {
+        void fetchPostsForType('product', productPostType);
+      }
+    });
   }, [
     selectedTypes,
-    getPostsMutate,
     isWooCommerceInstalled,
     productPostType,
     selectedProvider,
@@ -402,16 +408,23 @@ export default function Step3DataTraining({
   }, [bulkJobsData, activeJobIds, completedSyncRequests, isTraining, refetchBulkJobs]);
 
   const toggleType = (type: ContentType) => {
-    setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
-    // Clear selections when unchecking
     if (selectedTypes.includes(type)) {
+      setSelectedTypes((prev) => prev.filter((t) => t !== type));
       setSelectedItems((prev) => ({
         ...prev,
         [type]: [],
       }));
+      if (type === 'page') {
+        setPages([]);
+      } else if (type === 'post') {
+        setPosts([]);
+      } else {
+        setProducts([]);
+      }
+      setFetchStatus((prev) => ({ ...prev, [type]: 'idle' }));
+      return;
     }
+    setSelectedTypes((prev) => [...prev, type]);
   };
 
   const getTotalSelectedCount = () => {
@@ -684,11 +697,81 @@ export default function Step3DataTraining({
   const totalSelected = getTotalSelectedCount();
   const canStartTraining = totalSelected >= 3;
 
+  const renderTypeAvailabilitySubtitle = (type: ContentType) => {
+    if (!selectedTypes.includes(type)) {
+      return null;
+    }
+
+    const status = fetchStatus[type];
+    const count = getItemsForType(type).length;
+
+    if (status === 'loading' || (status === 'idle' && count === 0)) {
+      return (
+        <p className="!my-0 text-sm text-muted-foreground">
+          {__('Loading...')}
+        </p>
+      );
+    }
+
+    if (status === 'loaded' && count > 0) {
+      if (type === 'page') {
+        return (
+          <p className="!my-0 text-sm text-muted-foreground">
+            {sprintf(
+              /* translators: %d: Page count */
+              __('%d pages available'),
+              count
+            )}
+          </p>
+        );
+      }
+      if (type === 'post') {
+        return (
+          <p className="!my-0 text-sm text-muted-foreground">
+            {sprintf(
+              /* translators: %d: Post count */
+              __('%d posts available'),
+              count
+            )}
+          </p>
+        );
+      }
+      return (
+        <p className="!my-0 text-sm text-muted-foreground">
+          {sprintf(
+            /* translators: %d: Product count */
+            __('%d products available'),
+            count
+          )}
+        </p>
+      );
+    }
+
+    if (status === 'loaded' && count === 0) {
+      const emptyMessage =
+        type === 'page'
+          ? __('No pages found on this site')
+          : type === 'post'
+            ? __('No posts found on this site')
+            : __('No products found on this site');
+      return (
+        <p className="!my-0 text-sm text-muted-foreground">{emptyMessage}</p>
+      );
+    }
+
+    return null;
+  };
+
+  const canShowSelectItems = (type: ContentType) =>
+    selectedTypes.includes(type) &&
+    fetchStatus[type] === 'loaded' &&
+    getItemsForType(type).length > 0;
+
   return (
     <div className="space-y-6">
       <div className="mb-6 text-center">
         <h2 className="!mb-2 !mt-0 !text-2xl !font-bold">
-          {__('Step 3: Train Your Data (Optional)')}
+          {__('Step 4: Train Your Data (Optional)')}
         </h2>
         <p className="text-muted-foreground !my-0">
           {__('Select content to train your chatbot. Minimum 3 items recommended.')}
@@ -738,7 +821,7 @@ export default function Step3DataTraining({
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 items-start">
         {/* Pages Card */}
         <Card
           className={`cursor-pointer transition-all ${
@@ -761,37 +844,35 @@ export default function Step3DataTraining({
               />
             </div>
           </CardHeader>
-          <CardContent>
-            <p className="!my-0 text-sm text-muted-foreground">
-              {sprintf(
-                /* translators: %d: Page count */
-                __('%d pages available'),
-                pages.length
-              )}
-            </p>
-            {selectedTypes.includes('page') && (
+          {selectedTypes.includes('page') && (
+            <CardContent className="!pt-0 space-y-2">
+              {renderTypeAvailabilitySubtitle('page')}
               <div className="space-y-2">
-                <p className="text-sm font-medium">
-                  {sprintf(
-                    /* translators: %d: Number of selected items */
-                    __('%d selected'),
-                    selectedItems.page.length
-                  )}
-                </p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsSelectionDialogOpen('page');
-                  }}
-                >
-                  {__('Select Items')}
-                </Button>
+                {fetchStatus.page === 'loaded' && (
+                  <p className="text-sm font-medium">
+                    {sprintf(
+                      /* translators: %d: Number of selected items */
+                      __('%d selected'),
+                      selectedItems.page.length
+                    )}
+                  </p>
+                )}
+                {canShowSelectItems('page') && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsSelectionDialogOpen('page');
+                    }}
+                  >
+                    {__('Select Items')}
+                  </Button>
+                )}
               </div>
-            )}
-          </CardContent>
+            </CardContent>
+          )}
         </Card>
 
         {/* Posts Card */}
@@ -816,37 +897,35 @@ export default function Step3DataTraining({
               />
             </div>
           </CardHeader>
-          <CardContent>
-            <p className="!my-0 text-sm text-muted-foreground">
-              {sprintf(
-                /* translators: %d: Post count */
-                __('%d posts available'),
-                posts.length
-              )}
-            </p>
-            {selectedTypes.includes('post') && (
+          {selectedTypes.includes('post') && (
+            <CardContent className="!pt-0 space-y-2">
+              {renderTypeAvailabilitySubtitle('post')}
               <div className="space-y-2">
-                <p className="text-sm font-medium">
-                  {sprintf(
-                    /* translators: %d: Number of selected items */
-                    __('%d selected'),
-                    selectedItems.post.length
-                  )}
-                </p>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="w-full"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsSelectionDialogOpen('post');
-                  }}
-                >
-                  {__('Select Items')}
-                </Button>
+                {fetchStatus.post === 'loaded' && (
+                  <p className="text-sm font-medium">
+                    {sprintf(
+                      /* translators: %d: Number of selected items */
+                      __('%d selected'),
+                      selectedItems.post.length
+                    )}
+                  </p>
+                )}
+                {canShowSelectItems('post') && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsSelectionDialogOpen('post');
+                    }}
+                  >
+                    {__('Select Items')}
+                  </Button>
+                )}
               </div>
-            )}
-          </CardContent>
+            </CardContent>
+          )}
         </Card>
 
         {/* Products Card */}
@@ -874,37 +953,35 @@ export default function Step3DataTraining({
                 />
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground !my-0">
-                {sprintf(
-                  /* translators: %d: Product count */
-                  __('%d products available'),
-                  products.length
-                )}
-              </p>
-              {selectedTypes.includes('product') && (
+            {selectedTypes.includes('product') && (
+              <CardContent className="!pt-0 space-y-2">
+                {renderTypeAvailabilitySubtitle('product')}
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">
-                    {sprintf(
-                      /* translators: %d: Number of selected items */
-                      __('%d selected'),
-                      selectedItems.product.length
-                    )}
-                  </p>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsSelectionDialogOpen('product');
-                  }}
-                  >
-                    {__('Select Items')}
-                  </Button>
+                  {fetchStatus.product === 'loaded' && (
+                    <p className="text-sm font-medium">
+                      {sprintf(
+                        /* translators: %d: Number of selected items */
+                        __('%d selected'),
+                        selectedItems.product.length
+                      )}
+                    </p>
+                  )}
+                  {canShowSelectItems('product') && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsSelectionDialogOpen('product');
+                      }}
+                    >
+                      {__('Select Items')}
+                    </Button>
+                  )}
                 </div>
-              )}
-            </CardContent>
+              </CardContent>
+            )}
           </Card>
         )}
       </div>
@@ -979,7 +1056,10 @@ export default function Step3DataTraining({
               <ReusableTable
                 data={getItemsForType(isSelectionDialogOpen)}
                 columns={columns}
-                loading={getPostsIsPending}
+                loading={
+                  isSelectionDialogOpen !== null &&
+                  fetchStatus[isSelectionDialogOpen] === 'loading'
+                }
               />
             )}
           </div>

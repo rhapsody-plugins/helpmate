@@ -394,6 +394,19 @@ class Helpmate_Background_Processor
      */
     private function fetch_post_data($post_id, $post_type = 'post')
     {
+        $commerce_post_types = array('product', 'download', 'sc_product');
+        if (in_array($post_type, $commerce_post_types, true)
+            && isset($GLOBALS['helpmate'])
+            && $GLOBALS['helpmate'] instanceof Helpmate
+        ) {
+            $payload = new Helpmate_Product_Training_Payload($GLOBALS['helpmate']);
+            $document = $payload->build_training_document((int) $post_id, $post_type);
+            if ($document) {
+                return $document;
+            }
+            return false;
+        }
+
         // Get the post
         $post = get_post($post_id);
 
@@ -401,7 +414,6 @@ class Helpmate_Background_Processor
             return false;
         }
 
-        // Use the same logic as get_posts method in backend routes
         $metadata = [
             'featured_image' => get_the_post_thumbnail_url($post_id, 'full'),
             'excerpt' => get_the_excerpt($post),
@@ -411,149 +423,14 @@ class Helpmate_Background_Processor
             'tags' => wp_get_post_terms($post_id, 'post_tag', ['fields' => 'names']),
         ];
 
-        // Add WooCommerce product data if post type is product
-        if ($post_type === 'product') {
-            $product = wc_get_product($post_id);
-            if ($product) {
-                // Get all product meta
-                $product_meta = get_post_meta($post_id);
-
-                // Get product attributes
-                $attributes = [];
-                $product_attributes = $product->get_attributes();
-                foreach ($product_attributes as $attribute) {
-                    $attributes[$attribute->get_name()] = [
-                        'name' => $attribute->get_name(),
-                        'options' => $attribute->get_options(),
-                        'visible' => $attribute->get_visible(),
-                        'variation' => $attribute->get_variation(),
-                    ];
-                }
-
-                // Get product gallery images
-                $gallery_ids = $product->get_gallery_image_ids();
-                $gallery_images = [];
-                foreach ($gallery_ids as $gallery_id) {
-                    $gallery_images[] = wp_get_attachment_url($gallery_id);
-                }
-
-                // Get product tags
-                $product_tags = wp_get_post_terms($post_id, 'product_tag', ['fields' => 'names']);
-
-                // Get product categories with full data
-                $product_categories = wp_get_post_terms($post_id, 'product_cat', ['fields' => 'all']);
-                $categories_data = [];
-                foreach ($product_categories as $category) {
-                    $categories_data[] = [
-                        'id' => $category->term_id,
-                        'name' => $category->name,
-                        'slug' => $category->slug,
-                        'description' => $category->description,
-                    ];
-                }
-
-                $metadata['product'] = [
-                    // Basic product info
-                    'name' => $product->get_name(),
-                    'description' => $product->get_description(),
-                    'short_description' => $product->get_short_description(),
-                    'sku' => $product->get_sku(),
-                    'type' => $product->get_type(),
-
-                    // Pricing
-                    'price' => $product->get_price(),
-                    'regular_price' => $product->get_regular_price(),
-                    'sale_price' => $product->get_sale_price(),
-                    'price_html' => $product->get_price_html(),
-
-                    // Stock
-                    'stock_status' => $product->get_stock_status(),
-                    'stock_quantity' => $product->get_stock_quantity(),
-                    'manage_stock' => $product->get_manage_stock(),
-                    'backorders' => $product->get_backorders(),
-
-                    // Status flags
-                    'is_on_sale' => $product->is_on_sale(),
-                    'is_featured' => $product->is_featured(),
-                    'is_visible' => $product->is_visible(),
-                    'is_purchasable' => $product->is_purchasable(),
-                    'is_in_stock' => $product->is_in_stock(),
-                    'is_virtual' => $product->is_virtual(),
-                    'is_downloadable' => $product->is_downloadable(),
-
-                    // Ratings
-                    'rating_count' => $product->get_rating_count(),
-                    'average_rating' => $product->get_average_rating(),
-
-                    // Categories and tags
-                    'categories' => $categories_data,
-                    'tags' => $product_tags,
-
-                    // Attributes
-                    'attributes' => $attributes,
-
-                    // Images
-                    'gallery_images' => $gallery_images,
-
-                    // Dimensions and weight
-                    'weight' => $product->get_weight(),
-                    'dimensions' => [
-                        'length' => $product->get_length(),
-                        'width' => $product->get_width(),
-                        'height' => $product->get_height(),
-                    ],
-
-                    // Shipping
-                    'shipping_class' => $product->get_shipping_class(),
-                    'shipping_class_id' => $product->get_shipping_class_id(),
-
-                    // Sales
-                    'total_sales' => $product->get_total_sales(),
-                    'date_on_sale_from' => $product->get_date_on_sale_from(),
-                    'date_on_sale_to' => $product->get_date_on_sale_to(),
-
-                    // All product meta
-                    'meta' => $product_meta,
-
-                    // Additional WooCommerce data
-                    'cross_sell_ids' => $product->get_cross_sell_ids(),
-                    'upsell_ids' => $product->get_upsell_ids(),
-                    'related_ids' => wc_get_related_products($product->get_id()),
-                    'downloads' => $product->get_downloads(),
-                    'download_limit' => $product->get_download_limit(),
-                    'download_expiry' => $product->get_download_expiry(),
-                ];
-            }
-        }
-
-        if ($post_type === 'sc_product' && isset($GLOBALS['helpmate']) && method_exists($GLOBALS['helpmate'], 'get_surecart')) {
-            $sc_info = $GLOBALS['helpmate']->get_surecart()->get_product_info($post_id);
-            if (!empty($sc_info)) {
-                $metadata['surecart_product'] = $sc_info;
-            }
-        }
-
-        // For products, use product name and description as title and content
-        if ($post_type === 'product' && isset($metadata['product'])) {
-            $title = $metadata['product']['name'];
-            $content = $metadata['product']['description'] ?: $post->post_content;
-        } elseif ($post_type === 'sc_product' && !empty($metadata['surecart_product']['name'])) {
-            $title = $metadata['surecart_product']['name'];
-            $content = !empty($metadata['surecart_product']['description'])
-                ? $metadata['surecart_product']['description']
-                : $post->post_content;
-        } else {
-            $title = get_the_title($post);
-            $content = $post->post_content;
-        }
-
-        // Format content with metadata
-        $formatted_content = $content . "\n\nMetadata:\n" . json_encode($metadata, JSON_PRETTY_PRINT);
+        $title = get_the_title($post);
+        $content = $post->post_content;
+        $formatted_content = $content . "\n\nMetadata:\n" . wp_json_encode($metadata, JSON_PRETTY_PRINT);
 
         return [
             'title' => $title,
             'content' => $formatted_content,
-            'metadata' => $metadata
+            'metadata' => $metadata,
         ];
     }
 

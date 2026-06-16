@@ -193,7 +193,8 @@ class Helpmate_Public
 		// Localize the script with WordPress nonce
 		wp_localize_script($this->plugin_name, 'helpmateApiSettings', array(
 			'nonce' => wp_create_nonce('wp_rest'),
-			'site_url' => get_site_url()
+			'site_url' => get_site_url(),
+			'current_product_id' => $this->get_current_commerce_post_id(),
 		));
 
 		$is_dev = defined('WP_HELPMATE_DEV') && WP_HELPMATE_DEV;
@@ -238,14 +239,37 @@ class Helpmate_Public
 					$this->version,
 					false
 				);
-				if ( defined( 'HELPMATE_DIR' ) ) {
-					wp_set_script_translations( $vite_handle, 'helpmate-ai-chatbot', HELPMATE_DIR . 'languages' );
-				}
+				wp_set_script_translations( $vite_handle, 'helpmate-ai-chatbot' );
 				add_filter('wp_script_attributes', array($this, 'add_type_attribute'), 10, 1);
 
 			}
 		}
 
+	}
+
+	/**
+	 * Post ID when viewing a single commerce product page (WooCommerce, EDD, SureCart).
+	 *
+	 * @since 1.4.0
+	 * @return int
+	 */
+	private function get_current_commerce_post_id(): int
+	{
+		if (!is_singular()) {
+			return 0;
+		}
+
+		$post_id = get_queried_object_id();
+		if (!$post_id) {
+			return 0;
+		}
+
+		$post_type = get_post_type($post_id);
+		if (in_array($post_type, array('product', 'download', 'sc_product'), true)) {
+			return (int) $post_id;
+		}
+
+		return 0;
 	}
 
 	/**
@@ -318,9 +342,7 @@ class Helpmate_Public
 
 		wp_enqueue_style($this->plugin_name . '-scheduling');
 		wp_enqueue_script($this->plugin_name . '-scheduling');
-		if ( defined( 'HELPMATE_DIR' ) ) {
-			wp_set_script_translations( $this->plugin_name . '-scheduling', 'helpmate-ai-chatbot', HELPMATE_DIR . 'languages' );
-		}
+		wp_set_script_translations( $this->plugin_name . '-scheduling', 'helpmate-ai-chatbot' );
 
 		wp_localize_script(
 			$this->plugin_name . '-scheduling',

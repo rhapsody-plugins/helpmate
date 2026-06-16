@@ -224,7 +224,7 @@ class Helpmate_WooCommerce
             return null;
         }
 
-        return [
+        $info = array(
             'id' => $product->get_id(),
             'name' => $product->get_name(),
             'price' => $product->get_price_html(),
@@ -240,15 +240,245 @@ class Helpmate_WooCommerce
             'sku' => $product->get_sku(),
             'description' => $product->get_description(),
             'short_description' => $product->get_short_description(),
-            'categories' => wp_get_post_terms($product->get_id(), 'product_cat', ['fields' => 'names']),
-            'tags' => wp_get_post_terms($product->get_id(), 'product_tag', ['fields' => 'names']),
-            'attributes' => $product->get_attributes(),
+            'categories' => wp_get_post_terms($product->get_id(), 'product_cat', array('fields' => 'names')),
+            'tags' => wp_get_post_terms($product->get_id(), 'product_tag', array('fields' => 'names')),
+            'attributes' => $this->serialize_product_attributes($product),
             'is_on_sale' => $product->is_on_sale(),
             'is_in_stock' => $product->is_in_stock(),
             'rating_count' => $product->get_rating_count(),
             'average_rating' => $product->get_average_rating(),
-            'type' => $product->get_type()
-        ];
+            'type' => $product->get_type(),
+        );
+
+        return Helpmate_Product_Variant_Normalizer::apply_to_block($info, $this->get_product_variant_data($product));
+    }
+
+    /**
+     * Build WooCommerce product block for knowledge-base training metadata.
+     *
+     * @param int $post_id Product post ID.
+     * @return array<string, mixed>|null
+     */
+    public function get_training_product_block(int $post_id): ?array
+    {
+        $product = wc_get_product($post_id);
+        if (!$product) {
+            return null;
+        }
+
+        $attributes = $this->serialize_product_attributes($product);
+
+        $gallery_ids = $product->get_gallery_image_ids();
+        $gallery_images = array();
+        foreach ($gallery_ids as $gallery_id) {
+            $url = wp_get_attachment_url($gallery_id);
+            if ($url) {
+                $gallery_images[] = $url;
+            }
+        }
+
+        $product_tags = wp_get_post_terms($post_id, 'product_tag', array('fields' => 'names'));
+        $product_categories = wp_get_post_terms($post_id, 'product_cat', array('fields' => 'all'));
+        $categories_data = array();
+        if (!is_wp_error($product_categories)) {
+            foreach ($product_categories as $category) {
+                $categories_data[] = array(
+                    'id' => $category->term_id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'description' => $category->description,
+                );
+            }
+        }
+
+        $block = array(
+            'name' => $product->get_name(),
+            'description' => $product->get_description(),
+            'short_description' => $product->get_short_description(),
+            'sku' => $product->get_sku(),
+            'type' => $product->get_type(),
+            'price' => $product->get_price(),
+            'regular_price' => $product->get_regular_price(),
+            'sale_price' => $product->get_sale_price(),
+            'price_html' => $product->get_price_html(),
+            'stock_status' => $product->get_stock_status(),
+            'stock_quantity' => $product->get_stock_quantity(),
+            'manage_stock' => $product->get_manage_stock(),
+            'backorders' => $product->get_backorders(),
+            'is_on_sale' => $product->is_on_sale(),
+            'is_featured' => $product->is_featured(),
+            'is_visible' => $product->is_visible(),
+            'is_purchasable' => $product->is_purchasable(),
+            'is_in_stock' => $product->is_in_stock(),
+            'is_virtual' => $product->is_virtual(),
+            'is_downloadable' => $product->is_downloadable(),
+            'rating_count' => $product->get_rating_count(),
+            'average_rating' => $product->get_average_rating(),
+            'categories' => $categories_data,
+            'tags' => is_wp_error($product_tags) ? array() : $product_tags,
+            'attributes' => $attributes,
+            'gallery_images' => $gallery_images,
+            'weight' => $product->get_weight(),
+            'dimensions' => array(
+                'length' => $product->get_length(),
+                'width' => $product->get_width(),
+                'height' => $product->get_height(),
+            ),
+            'shipping_class' => $product->get_shipping_class(),
+            'shipping_class_id' => $product->get_shipping_class_id(),
+            'total_sales' => $product->get_total_sales(),
+            'date_on_sale_from' => $product->get_date_on_sale_from(),
+            'date_on_sale_to' => $product->get_date_on_sale_to(),
+            'cross_sell_ids' => $product->get_cross_sell_ids(),
+            'upsell_ids' => $product->get_upsell_ids(),
+            'related_ids' => wc_get_related_products($product->get_id()),
+            'downloads' => $product->get_downloads(),
+            'download_limit' => $product->get_download_limit(),
+            'download_expiry' => $product->get_download_expiry(),
+        );
+
+        return Helpmate_Product_Variant_Normalizer::apply_to_block($block, $this->get_product_variant_data($product));
+    }
+
+    /**
+     * Normalized variant rows for a WooCommerce product.
+     *
+     * @param WC_Product $product Product object.
+     * @return array{has_variants:bool,variants:array<int,array<string,mixed>>,price_range:array<string,string>|null}
+     */
+    public function get_product_variant_data($product): array
+    {
+        if (!$product || !$product->is_type('variable')) {
+            return array(
+                'has_variants' => false,
+                'variants' => array(),
+                'price_range' => null,
+            );
+        }
+
+        $variants = array();
+        $child_ids = $product->get_children();
+        foreach ($child_ids as $variation_id) {
+            $variation = wc_get_product($variation_id);
+            if (!$variation || 'publish' !== $variation->get_status()) {
+                continue;
+            }
+
+            $attr_map = array();
+            $variation_attributes = $variation->get_variation_attributes();
+            foreach ($variation_attributes as $attr_key => $attr_value) {
+                if ('' === (string) $attr_value) {
+                    continue;
+                }
+                $taxonomy = str_replace('attribute_', '', (string) $attr_key);
+                $label = function_exists('wc_attribute_label') ? wc_attribute_label($taxonomy, $product) : $taxonomy;
+                $display_value = $attr_value;
+                if (taxonomy_exists($taxonomy)) {
+                    $term = get_term_by('slug', $attr_value, $taxonomy);
+                    if ($term && !is_wp_error($term)) {
+                        $display_value = $term->name;
+                    }
+                }
+                $attr_map[ $label ] = (string) $display_value;
+            }
+
+            $label_parts = array_values($attr_map);
+            $label = !empty($label_parts) ? implode(' / ', $label_parts) : $variation->get_name();
+
+            $image_id = $variation->get_image_id();
+            $image_url = $image_id ? (string) wp_get_attachment_url($image_id) : '';
+
+            $variants[] = Helpmate_Product_Variant_Normalizer::row(array(
+                'id' => $variation->get_id(),
+                'label' => $label,
+                'sku' => $variation->get_sku(),
+                'price' => $variation->get_price_html(),
+                'regular_price' => (string) $variation->get_regular_price(),
+                'sale_price' => (string) $variation->get_sale_price(),
+                'stock_status' => $variation->get_stock_status(),
+                'stock_quantity' => $variation->get_stock_quantity(),
+                'in_stock' => $variation->is_in_stock(),
+                'attributes' => $attr_map,
+                'image' => $image_url,
+            ));
+        }
+
+        $min_price = $product->get_variation_price('min', true);
+        $max_price = $product->get_variation_price('max', true);
+
+        return array(
+            'has_variants' => count($variants) > 0,
+            'variants' => $variants,
+            'price_range' => array(
+                'min' => (string) $min_price,
+                'max' => (string) $max_price,
+            ),
+        );
+    }
+
+    /**
+     * Serialize WooCommerce attributes for JSON metadata.
+     *
+     * @param WC_Product $product Product.
+     * @return array<string, array<string, mixed>>
+     */
+    private function serialize_product_attributes($product): array
+    {
+        $attributes = array();
+        foreach ($product->get_attributes() as $attribute) {
+            $name = $attribute->get_name();
+            $label = function_exists('wc_attribute_label')
+                ? wc_attribute_label($name, $product)
+                : $name;
+            $attributes[ $name ] = array(
+                'name' => $name,
+                'label' => $label,
+                'options' => $this->resolve_attribute_option_labels($attribute),
+                'visible' => $attribute->get_visible(),
+                'variation' => $attribute->get_variation(),
+            );
+        }
+        return $attributes;
+    }
+
+    /**
+     * Map WooCommerce attribute option IDs/slugs to human-readable labels.
+     *
+     * @param WC_Product_Attribute $attribute Product attribute.
+     * @return array<int, string>
+     */
+    private function resolve_attribute_option_labels($attribute): array
+    {
+        $options = $attribute->get_options();
+        if (empty($options)) {
+            return array();
+        }
+
+        if (!$attribute->is_taxonomy()) {
+            return array_map('strval', $options);
+        }
+
+        $taxonomy = $attribute->get_name();
+        $labels = array();
+        foreach ($options as $option) {
+            $term = null;
+            if (is_numeric($option)) {
+                $term = get_term((int) $option, $taxonomy);
+            } elseif (is_string($option) && $option !== '') {
+                $term = get_term_by('slug', $option, $taxonomy);
+                if (!$term) {
+                    $term = get_term_by('name', $option, $taxonomy);
+                }
+            }
+
+            if ($term && !is_wp_error($term)) {
+                $labels[] = $term->name;
+            } else {
+                $labels[] = (string) $option;
+            }
+        }
+
+        return $labels;
     }
 
     /**

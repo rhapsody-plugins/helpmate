@@ -20,7 +20,7 @@
  * Author:            Rhapsody Plugins
  * Author URI:        https://rhapsodyplugins.com/
  * Requires at least: 5.0
- * Tested up to:      6.9
+ * Tested up to:      7.0
  * Stable tag:        2.1.0
  * Requires PHP:      7.4
  * License:           GPL-2.0+
@@ -118,6 +118,8 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-helpmate.php';
 /**
  * Script translations are attached in admin/public enqueue functions — wp_set_script_translations()
  * requires the script handle to already be registered (WP_Scripts::set_translations returns false on init).
+ * The plugin ships only helpmate-ai-chatbot.pot; compiled .mo and Jed JSON load from
+ * wp-content/languages/plugins/ (WordPress language packs or manual installs).
  */
 
 /**

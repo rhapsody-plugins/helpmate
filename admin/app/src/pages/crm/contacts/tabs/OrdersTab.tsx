@@ -21,8 +21,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useCrm } from '@/hooks/useCrm';
 import api from '@/lib/axios';
-import { resolveCommerceIntegration } from '@/pages/control-center/integrations/commerce/resolve-commerce';
-import type { CommerceIntegrationConfig } from '@/pages/control-center/integrations/commerce/types';
+import { resolveCommerceIntegration } from '@/pages/integrations/commerce/resolve-commerce';
+import type { CommerceIntegrationConfig } from '@/pages/integrations/commerce/types';
 import {
   EddOrder,
   ManualOrder,

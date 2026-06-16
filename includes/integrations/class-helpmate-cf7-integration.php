@@ -1002,7 +1002,7 @@ class Helpmate_CF7_Integration
 		echo '</p>';
 
 		if (current_user_can('edit_posts')) {
-			$integrations_url = admin_url('admin.php?page=helpmate&tab=control-center&subtab=integrations');
+			$integrations_url = admin_url('admin.php?page=helpmate&tab=integrations');
 			echo '<p class="description">';
 			echo '<a href="' . esc_url($integrations_url) . '">' . esc_html(__('Open Helpmate Integrations', 'helpmate-ai-chatbot')) . '</a>';
 			echo '</p>';
@@ -1073,6 +1073,11 @@ class Helpmate_CF7_Integration
 				__('Field mapping: %s', 'helpmate-ai-chatbot'),
 				isset($def['label']) ? (string) $def['label'] : $aid
 			)) . '</h3>';
+			Helpmate_Form_Integration_UI::render_field_mapping_notice(
+				$def['mappable_fields'],
+				count($cf7_fields) > 0,
+				'cf7_editor'
+			);
 			echo '<table class="form-table" role="presentation"><tbody>';
 
 			foreach ($def['mappable_fields'] as $mf) {

@@ -180,9 +180,7 @@ class Helpmate_Admin
 						false
 					);
 					// Must run after enqueue: wp_set_script_translations is a no-op if the handle is not registered yet.
-					if ( defined( 'HELPMATE_DIR' ) ) {
-						wp_set_script_translations( $vite_handle, 'helpmate-ai-chatbot', HELPMATE_DIR . 'languages' );
-					}
+					wp_set_script_translations( $vite_handle, 'helpmate-ai-chatbot' );
 					wp_localize_script($vite_handle, 'helpmateApiSettings', array(
 						'nonce' => wp_create_nonce('wp_rest'),
 						'site_url' => get_site_url(),
@@ -350,6 +348,23 @@ class Helpmate_Admin
 				'CRM',
 				'edit_posts',
 				'helpmate&tab=crm&subtab=contacts',
+				array($this, 'display_plugin_setup_page')
+			);
+		}
+
+		// Integrations - Helpmate admin or manager roles
+		$helpmate_roles = Helpmate_Permissions::get_user_roles($current_user_id);
+		if (
+			user_can($current_user_id, 'manage_options') ||
+			in_array('admin', $helpmate_roles, true) ||
+			in_array('manager', $helpmate_roles, true)
+		) {
+			add_submenu_page(
+				'helpmate',
+				'Integrations',
+				'Integrations',
+				'edit_posts',
+				'helpmate&tab=integrations',
 				array($this, 'display_plugin_setup_page')
 			);
 		}
@@ -526,7 +541,17 @@ class Helpmate_Admin
 				});
 			}
 
-			if ($tab === 'control-center' && $subtab !== 'dashboard') {
+			if ($tab === 'integrations') {
+				add_filter('admin_body_class', function ($classes) {
+					return $classes . ' helpmate-integrations-tab';
+				});
+			}
+
+			if (
+				$tab === 'control-center' &&
+				$subtab !== 'dashboard' &&
+				$subtab !== 'integrations'
+			) {
 				add_filter('admin_body_class', function ($classes) {
 					return $classes . ' helpmate-admin-hub-tab';
 				});

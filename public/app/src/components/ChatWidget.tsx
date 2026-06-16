@@ -41,6 +41,12 @@ const sortMessages = (messages: ChatMessage[]) => {
   });
 };
 
+/** Matches Helpmate::get_pro_tool_customer_unavailable_message() for legacy null rows. */
+const getProToolUnavailableMessage = () =>
+  __(
+    "We're sorry — this feature isn't available right now due to a technical issue on our site. Please try again later or contact us directly."
+  );
+
 function buildAssistantMessage(
   msg: {
     id: number;
@@ -55,8 +61,20 @@ function buildAssistantMessage(
   let parsedContent: { text?: string; type?: string; data?: unknown; links?: unknown } | null = null;
   try {
     parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
-    content = parsedContent?.text || content;
-  } catch { /* no-op */ }
+    const parsedText =
+      parsedContent && typeof parsedContent === 'object' && 'text' in parsedContent
+        ? parsedContent.text
+        : undefined;
+    if (typeof parsedText === 'string' && parsedText.trim() !== '') {
+      content = parsedText;
+    } else if (parsedContent === null || content === 'null') {
+      content = getProToolUnavailableMessage();
+    }
+  } catch {
+    if (content === 'null') {
+      content = getProToolUnavailableMessage();
+    }
+  }
 
   const hasToolData = existing?.role === 'assistant' && existing?.type && existing?.type !== 'text';
   const mergedType =
@@ -86,7 +104,10 @@ export default function ChatBot() {
   const [messages, setMessages] = useState<ChatMessage[]>(getStoredMessages());
   const [input, setInput] = useState('');
   const [image, setImage] = useState<File | null>(null);
-  const [productId, setProductId] = useState('');
+  const [productId, setProductId] = useState(() => {
+    const pageProductId = window.helpmateApiSettings?.current_product_id;
+    return pageProductId && pageProductId > 0 ? String(pageProductId) : '';
+  });
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [hasStartedConversation, setHasStartedConversation] = useState(false);
   const [sessionId, setSessionId] = useState(() => localStorage.getItem('chat_session') || '');
@@ -105,10 +126,26 @@ export default function ChatBot() {
   const [showAppointmentDialog, setShowAppointmentDialog] = useState(false);
   const [showEndChatConfirm, setShowEndChatConfirm] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isEndingChatRef = useRef(false);
+  const isSubmittingReviewRef = useRef(false);
+  const reviewDismissedRef = useRef(false);
+  const pollStateRef = useRef({
+    lastId: 0,
+    lastHandoff: null as boolean | null,
+    lastAiDisabled: null as boolean | null,
+    lastAdminTyping: null as boolean | null,
+    lastReview: null as boolean | null,
+  });
 
-  const { getResponseMutation, endChatMutation, submitReviewMutation } = useAi();
+  const {
+    getResponseMutation,
+    endChatMutation,
+    submitReviewMutation,
+    dismissReviewMutation,
+  } = useAi();
   const { mutateAsync: getResponse, isPending: isResponseLoading } =
     getResponseMutation;
+  const { isPending: isEndingChat } = endChatMutation;
   const { getSettingsQuery } = useSettings();
   const { data: settings } = getSettingsQuery;
 
@@ -200,6 +237,14 @@ export default function ChatBot() {
   // SSE stream for live updates (messages, handoff, ai_disabled, admin_typing, review_requested)
   useEffect(() => {
     if (!isChatOpen || !sessionId) return;
+
+    pollStateRef.current = {
+      lastId: 0,
+      lastHandoff: null,
+      lastAiDisabled: null,
+      lastAdminTyping: null,
+      lastReview: null,
+    };
 
     const nonce = window.helpmateApiSettings?.nonce || '';
     if (!nonce) return;
@@ -359,11 +404,16 @@ export default function ChatBot() {
         setIsAdminTyping(typingData.is_admin_typing === true);
         setAdminTypingAvatar(typingData.user_avatar || null);
       }
-      if (type === 'review_requested') setShowReviewForm(true);
+      if (type === 'review_requested') {
+        if (!reviewDismissedRef.current) {
+          setShowReviewForm(true);
+          pollStateRef.current.lastReview = true;
+        }
+      }
       return 0;
     };
 
-    const stateRef = { lastId: 0, lastHandoff: null as boolean | null, lastAiDisabled: null as boolean | null, lastAdminTyping: null as boolean | null, lastReview: null as boolean | null };
+    const stateRef = pollStateRef.current;
     const tick = async () => {
       try {
         const params = new URLSearchParams({
@@ -529,41 +579,78 @@ export default function ChatBot() {
 
   // Perform delete chat (end chat API → review form) - called from confirmation dialog
   const handleConfirmDelete = useCallback(async () => {
+    if (isEndingChatRef.current) return;
+    isEndingChatRef.current = true;
+    reviewDismissedRef.current = false;
+
     const sid = localStorage.getItem('chat_session');
-    if (sid) {
-      try {
-        await endChatMutation.mutateAsync({ session_id: sid });
-      } catch {
-        // Still show review form even if API call fails
+    try {
+      if (sid) {
+        try {
+          await endChatMutation.mutateAsync({ session_id: sid });
+        } catch {
+          // Still show review form even if API call fails
+        }
       }
+      setMessages([]);
+      clearStoredMessages();
+      if (!reviewDismissedRef.current) {
+        pollStateRef.current.lastReview = true;
+        setShowReviewForm(true);
+      }
+      setShowEndChatConfirm(false);
+    } finally {
+      isEndingChatRef.current = false;
     }
-    setMessages([]);
-    clearStoredMessages();
-    setShowReviewForm(true);
-    setShowEndChatConfirm(false);
   }, [endChatMutation]);
 
   // Handle review skip (dismiss without submitting)
-  const handleReviewSkip = useCallback(() => {
-    resetChat();
-  }, [resetChat]);
+  const handleReviewSkip = useCallback(async () => {
+    if (isSubmittingReviewRef.current) return;
+    isSubmittingReviewRef.current = true;
+    reviewDismissedRef.current = true;
+    setShowReviewForm(false);
+
+    const sessionId = localStorage.getItem('chat_session') || '';
+    pollStateRef.current.lastReview = true;
+
+    try {
+      if (sessionId) {
+        try {
+          await dismissReviewMutation.mutateAsync({ session_id: sessionId });
+        } catch {
+          // Still reset chat even if dismiss fails
+        }
+      }
+      resetChat();
+    } finally {
+      isSubmittingReviewRef.current = false;
+    }
+  }, [dismissReviewMutation, resetChat]);
 
   // Handle review submit
   const handleReviewSubmit = useCallback(
     async (rating: number, message: string) => {
+      if (isSubmittingReviewRef.current) return;
+      isSubmittingReviewRef.current = true;
+      reviewDismissedRef.current = true;
+      setShowReviewForm(false);
+
       const sessionId = localStorage.getItem('chat_session') || '';
+      pollStateRef.current.lastReview = true;
+
       try {
         await submitReviewMutation.mutateAsync({
           session_id: sessionId,
           rating,
           message,
         });
-        // Reset chat after review submission
         resetChat();
       } catch (error) {
         console.error('Failed to submit review:', error);
-        // Still reset chat even if review submission fails
         resetChat();
+      } finally {
+        isSubmittingReviewRef.current = false;
       }
     },
     [submitReviewMutation, resetChat]
@@ -819,7 +906,10 @@ export default function ChatBot() {
                   <ReviewForm
                     onSubmit={handleReviewSubmit}
                     onSkip={handleReviewSkip}
-                    isLoading={submitReviewMutation.isPending}
+                    isLoading={
+                      submitReviewMutation.isPending ||
+                      dismissReviewMutation.isPending
+                    }
                   />
                 </div>
               ) : (
@@ -888,7 +978,12 @@ export default function ChatBot() {
         )}
 
       {/* End chat confirmation dialog */}
-      <Dialog open={showEndChatConfirm} onOpenChange={setShowEndChatConfirm}>
+      <Dialog
+        open={showEndChatConfirm}
+        onOpenChange={(open) => {
+          if (!isEndingChat) setShowEndChatConfirm(open);
+        }}
+      >
         <DialogContent className="sm:max-w-md" showCloseButton={false}>
           <DialogHeader>
             <DialogTitle>{__('End this chat?')}</DialogTitle>
@@ -902,11 +997,16 @@ export default function ChatBot() {
             <Button
               variant="outline"
               onClick={() => setShowEndChatConfirm(false)}
+              disabled={isEndingChat}
             >
               {__('Cancel')}
             </Button>
-            <Button variant="destructive" onClick={() => handleConfirmDelete()}>
-              {__('End chat')}
+            <Button
+              variant="destructive"
+              onClick={() => handleConfirmDelete()}
+              disabled={isEndingChat}
+            >
+              {isEndingChat ? __('Ending chat…') : __('End chat')}
             </Button>
           </DialogFooter>
         </DialogContent>

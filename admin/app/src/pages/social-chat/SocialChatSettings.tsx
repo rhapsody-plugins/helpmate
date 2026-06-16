@@ -534,7 +534,7 @@ export default function SocialChatSettings({ page, platform }: SocialChatSetting
   }
 
   return (
-    <PageGuard page={page ?? 'social-chat'}>
+    <PageGuard page={page ?? 'social-chat-facebook'}>
       <div className="gap-0">
         <PageHeader title={pageTitle} />
 

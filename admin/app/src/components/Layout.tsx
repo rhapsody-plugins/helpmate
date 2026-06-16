@@ -8,7 +8,6 @@ import type { SocialChatSettingsProps } from '@/pages/social-chat/SocialChatSett
 import { lazy, Suspense, useEffect } from 'react';
 import type { ComponentType } from 'react';
 
-const Analytics = lazy(() => import('@/pages/control-center/Analytics'));
 const Settings = lazy(() => import('@/pages/settings/Settings'));
 const OrderTracker = lazy(() => import('@/pages/module-settings/OrderTracker'));
 const ImageSearch = lazy(() => import('@/pages/module-settings/ImageSearch'));
@@ -37,9 +36,7 @@ const ControlCenterAnalytics = lazy(
 const ControlCenterSettings = lazy(
   () => import('@/pages/control-center/Settings')
 );
-const ControlCenterIntegrations = lazy(
-  () => import('@/pages/control-center/Integrations')
-);
+const IntegrationsPage = lazy(() => import('@/pages/integrations/Integrations'));
 const ControlCenterTools = lazy(() => import('@/pages/control-center/Tools'));
 const ManageApi = lazy(() => import('@/pages/ManageApi'));
 const Setup = lazy(() => import('@/pages/control-center/Setup'));
@@ -92,13 +89,6 @@ function LayoutContent() {
     }
   }, [isApiKeyLoading, apiKeyData?.api_key, page, setPage]);
 
-  // Redirect legacy social-chat and social-chat-campaigns to Facebook settings
-  useEffect(() => {
-    if (page === 'social-chat' || page === 'social-chat-campaigns') {
-      setPage('social-chat-facebook');
-    }
-  }, [page, setPage]);
-
   // If on setup page, render without sidebar/header
   if (page === 'setup') {
     return (
@@ -110,22 +100,14 @@ function LayoutContent() {
 
   const renderPage = () => {
     switch (page) {
-      case 'analytics':
-        return <Analytics />;
       case 'data-source':
         return <DataSource />;
       case 'test-chatbot':
         return <TestChatbot />;
       case 'settings':
         return <Settings />;
-      case 'proactive-sales':
-        return <ProactiveSalesAutomation />;
-      case 'abandoned-cart':
-        return <AbandonedCartAutomation />;
       case 'appointments-bookings':
         return <Appointments />;
-      case 'coupon-delivery':
-        return <CouponDeliveryAutomation />;
       case 'automation-marketing-email-campaigns':
         return <EmailCampaigns />;
       case 'automation-marketing-lead-capture':
@@ -150,9 +132,6 @@ function LayoutContent() {
         return <ImageSearch />;
       case 'refund-return':
         return <RefundReturn />;
-      case 'social-chat':
-      case 'social-chat-campaigns':
-        return <Loading />;
       case 'social-chat-facebook':
         return <SocialChatSettings page="social-chat-facebook" platform="facebook" />;
       case 'social-chat-instagram':
@@ -192,8 +171,8 @@ function LayoutContent() {
         return <ControlCenterAnalytics />;
       case 'control-center-settings':
         return <ControlCenterSettings />;
-      case 'control-center-integrations':
-        return <ControlCenterIntegrations />;
+      case 'integrations':
+        return <IntegrationsPage />;
       case 'control-center-tools':
         return <ControlCenterTools />;
       case 'control-center-team':

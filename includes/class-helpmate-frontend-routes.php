@@ -374,6 +374,30 @@ class Helpmate_Frontend_Routes
             'permission_callback' => array($this, 'verify_nonce')
         ));
 
+        // Dismiss review request without submitting (e.g. user skips feedback)
+        register_rest_route('helpmate/v1', '/chat/review/dismiss', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                $params = $this->sanitize_request($request, ['session_id']);
+                $session_id = $params['session_id'] ?? '';
+
+                if (empty($session_id)) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => __('Session ID is required', 'helpmate-ai-chatbot')
+                    ], 400);
+                }
+
+                delete_transient('helpmate_review_request_' . $session_id);
+
+                return new WP_REST_Response([
+                    'error' => false,
+                    'message' => __('Review request dismissed', 'helpmate-ai-chatbot')
+                ], 200);
+            },
+            'permission_callback' => array($this, 'verify_nonce')
+        ));
+
         // Check review request status
         register_rest_route('helpmate/v1', '/chat/review-request-status', array(
             'methods' => 'POST',
@@ -629,9 +653,9 @@ class Helpmate_Frontend_Routes
                 }
             }
 
-            // Add smart schedules settings if enabled
+            // Add smart schedules settings if enabled and Pro is operational
             $smartSchedulingSettings = [];
-            if (!empty($smartScheduling) && !empty($smartScheduling['enabled'])) {
+            if (!empty($smartScheduling) && !empty($smartScheduling['enabled']) && $is_pro) {
                 $smartSchedulingSettings['enabled'] = true;
                 $smartSchedulingSettings['buttonText'] = $smartScheduling['buttonText'] ?? 'Get Appointments';
 

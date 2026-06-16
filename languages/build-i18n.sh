@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Refresh translation template (POT), merge PO, verify, compile MO/JSON, sync Vite handle aliases.
+# Generate translation template (POT) only.
 # Invoked by ../build.sh — can also be run standalone from the plugin root: bash languages/build-i18n.sh
 
 set -e
@@ -7,7 +7,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 # Refresh translation template (scans PHP + built JS in admin/app/dist, public/app/dist)
-echo "Generating languages/helpmate.pot..."
+echo "Generating languages/helpmate-ai-chatbot.pot..."
 # Non-interactive bash does not load ~/.bashrc (aliases). Prefer php wp.phar on Windows — avoids
 # cmd.exe //c quoting bugs that leave Command Prompt waiting for stdin (silent hang).
 export WP_CLI_DISABLE_AUTO_CHECK_UPDATE=1
@@ -33,7 +33,7 @@ ensure_php_mbstring_for_wp_cli() {
 
 run_wp_i18n_make_pot() {
     local src="$SCRIPT_DIR"
-    local pot="$SCRIPT_DIR/languages/helpmate.pot"
+    local pot="$SCRIPT_DIR/languages/helpmate-ai-chatbot.pot"
     local domain="helpmate-ai-chatbot"
     # make-pot walks large JS trees; default 128M can exhaust (Peast/JS parse). Override with WP_I18N_MEMORY_LIMIT.
     local php_mem="${WP_I18N_MEMORY_LIMIT:-512M}"
@@ -202,7 +202,7 @@ NODE
         merge_pot=$(generate_ts_i18n_stub_and_pot || true)
         # Strip CR so [ -f "$merge_pot" ] works on Windows/Git Bash when paths pick up \r
         merge_pot="${merge_pot//$'\r'/}"
-        echo "Running: $* i18n make-pot -> languages/helpmate.pot (may take a minute on Windows)..."
+        echo "Running: $* i18n make-pot -> languages/helpmate-ai-chatbot.pot (may take a minute on Windows)..."
         if [ -n "$merge_pot" ] && [ -f "$merge_pot" ]; then
             "$@" i18n make-pot "$src" "$pot" --domain="$domain" --exclude="$excludes" --merge="$merge_pot"
             rm -f "$merge_pot"
@@ -236,175 +236,3 @@ NODE
     exit 1
 }
 run_wp_i18n_make_pot
-
-# Merge fresh POT into existing locale PO files (preserves msgstr; updates refs when Vite hashes change).
-run_wp_i18n_update_po() {
-    local pot="$SCRIPT_DIR/languages/helpmate.pot"
-    local dest="$SCRIPT_DIR/languages"
-    local php_mem="${WP_I18N_MEMORY_LIMIT:-256M}"
-
-    resolve_wp_phar() {
-        local p
-        for p in "${WP_CLI_PHAR:-}" "/c/wp-cli/wp.phar" "/c/Program Files/wp-cli/wp.phar"; do
-            [ -n "$p" ] && [ -f "$p" ] && printf '%s' "$p" && return 0
-        done
-        return 1
-    }
-
-    # Per-file update: on Windows/Git Bash, `update-po pot languages/` can report success but not
-    # fully msgmerge (leaves PO short of POT). Passing each *.po explicitly fixes it.
-    run_update_po() {
-        local f
-        echo "Merging helpmate.pot into each .po (wp i18n update-po)..."
-        shopt -s nullglob
-        for f in "$dest"/*.po; do
-            echo "  -> $(basename "$f")"
-            "$@" i18n update-po "$pot" "$f"
-        done
-        shopt -u nullglob
-    }
-
-    local phar
-    phar=$(resolve_wp_phar || true)
-    if command -v php >/dev/null 2>&1 && [ -n "$phar" ] && php "$phar" --version >/dev/null 2>&1; then
-        ensure_php_mbstring_for_wp_cli
-        run_update_po php -d "memory_limit=${php_mem}" "$phar"
-        return 0
-    fi
-    if wp --version >/dev/null 2>&1; then
-        ensure_php_mbstring_for_wp_cli
-        WP_CLI_PHP_ARGS="-dmemory_limit=${php_mem}" run_update_po wp
-        return 0
-    fi
-    if wp.cmd --version >/dev/null 2>&1; then
-        ensure_php_mbstring_for_wp_cli
-        WP_CLI_PHP_ARGS="-dmemory_limit=${php_mem}" run_update_po wp.cmd
-        return 0
-    fi
-
-    echo "Error: wp (WP-CLI) is required for i18n update-po."
-    exit 1
-}
-run_wp_i18n_update_po
-
-# Fail the build if msgmerge did not fully sync (POT has strings missing from a locale PO).
-verify_i18n_po_matches_pot() {
-    local pot="$SCRIPT_DIR/languages/helpmate.pot"
-    local pot_n
-    pot_n=$(grep -c '^msgid ' "$pot" 2>/dev/null | tr -d '\r' || echo 0)
-    pot_n=$((pot_n + 0))
-    if [ "$pot_n" -eq 0 ]; then
-        return 0
-    fi
-    local po_files=()
-    shopt -s nullglob
-    po_files=( "$SCRIPT_DIR/languages"/*.po )
-    shopt -u nullglob
-    local po po_n
-    for po in "${po_files[@]}"; do
-        po_n=$(grep -c '^msgid ' "$po" 2>/dev/null | tr -d '\r' || echo 0)
-        po_n=$((po_n + 0))
-        if [ "$po_n" -ne "$pot_n" ]; then
-            echo "Error: i18n PO out of sync with POT."
-            echo "  POT msgid entries: $pot_n ($(basename "$pot"))"
-            echo "  PO  msgid entries: $po_n ($(basename "$po"))"
-            echo "  Fix: wp i18n update-po \"$pot\" \"$po\""
-            exit 1
-        fi
-    done
-}
-verify_i18n_po_matches_pot
-
-# Regenerate .mo and per-script JSON so hashes match current Vite chunk filenames (admin/public).
-run_wp_i18n_compile_translations() {
-    local phar=""
-    local p
-    for p in "${WP_CLI_PHAR:-}" "/c/wp-cli/wp.phar" "/c/Program Files/wp-cli/wp.phar"; do
-        [ -n "$p" ] && [ -f "$p" ] && { phar="$p"; break; }
-    done
-    if ! command -v php >/dev/null 2>&1 || [ -z "$phar" ]; then
-        echo "Skipping languages make-mo/make-json (php or wp.phar unavailable)."
-        return 0
-    fi
-    ensure_php_mbstring_for_wp_cli
-    local php_mem="${WP_I18N_MEMORY_LIMIT:-256M}"
-    echo "Compiling languages/*.po -> .mo and Jed JSON for wp-i18n..."
-    php -d "memory_limit=${php_mem}" "$phar" i18n make-mo "$SCRIPT_DIR/languages"
-
-    # Remove stale Jed files from prior builds ({domain}-{locale}-{md5}.json). make-json only writes new ones.
-    # Preserve handle aliases (*-helpmate-admin-vite.json, etc.): last segment is never 32 hex chars.
-    echo "Removing stale md5-named Jed JSON files in languages/..."
-    langs="$SCRIPT_DIR/languages"
-    shopt -s nullglob
-    for j in "$langs"/helpmate-ai-chatbot-*-*.json; do
-        [ -f "$j" ] || continue
-        base=$(basename "$j" .json)
-        suffix="${base##*-}"
-        if echo "$suffix" | grep -Eq '^[0-9a-fA-F]{32}$'; then
-            rm -f "$j"
-            echo "  removed $(basename "$j")"
-        fi
-    done
-    shopt -u nullglob
-
-    # Default make-json --purge strips JS-sourced msgids from .po and breaks POT/PO sync; keep full PO for translators.
-    php -d "memory_limit=${php_mem}" "$phar" i18n make-json "$SCRIPT_DIR/languages" --pretty-print --no-purge
-}
-run_wp_i18n_compile_translations
-
-# WordPress load_script_textdomain() checks {domain}-{locale}-{handle}.json BEFORE md5-named files.
-# Using only md5 filenames fails when URL-relative-path math differs from the build host (proxy, locale, etc.).
-# TS strings are merged from stub.js into POT — Jed files often only reference stub.js, so we also copy those
-# to handle aliases when dist-based grep finds nothing or when alias files were deleted.
-run_wp_i18n_sync_handle_aliases() {
-    local langs="$SCRIPT_DIR/languages"
-    local po_base j stub_j
-    # Drop all handle alias JSONs so the copies below are full regenerations per locale.
-    shopt -s nullglob
-    for f in "$langs"/*-helpmate-admin-vite.json "$langs"/*-helpmate-public-vite.json; do
-        rm -f "$f"
-    done
-    shopt -u nullglob
-    is_handle_alias_json() {
-        case "$(basename "$1")" in *-helpmate-admin-vite.json|*-helpmate-public-vite.json) return 0 ;; *) return 1 ;; esac
-    }
-    echo "Syncing Jed JSON aliases for wp_enqueue_script handles (admin-vite, public-vite)..."
-    shopt -s nullglob
-    for po in "$langs"/helpmate-ai-chatbot-*.po; do
-        [ -f "$po" ] || continue
-        po_base=$(basename "$po" .po)
-        for j in "$langs/${po_base}"-*.json; do
-            is_handle_alias_json "$j" && continue
-            grep -q 'admin/app/dist' "$j" 2>/dev/null || continue
-            cp "$j" "$langs/${po_base}-helpmate-admin-vite.json"
-            echo "  $(basename "$j") -> ${po_base}-helpmate-admin-vite.json"
-            break
-        done
-        for j in "$langs/${po_base}"-*.json; do
-            is_handle_alias_json "$j" && continue
-            grep -q 'public/app/dist' "$j" 2>/dev/null || continue
-            cp "$j" "$langs/${po_base}-helpmate-public-vite.json"
-            echo "  $(basename "$j") -> ${po_base}-helpmate-public-vite.json"
-            break
-        done
-        stub_j=""
-        for j in "$langs/${po_base}"-*.json; do
-            is_handle_alias_json "$j" && continue
-            grep -q '"source": "stub.js"' "$j" 2>/dev/null || continue
-            stub_j=$j
-            break
-        done
-        if [ -n "$stub_j" ]; then
-            if [ ! -f "$langs/${po_base}-helpmate-admin-vite.json" ]; then
-                cp "$stub_j" "$langs/${po_base}-helpmate-admin-vite.json"
-                echo "  $(basename "$stub_j") -> ${po_base}-helpmate-admin-vite.json (stub.js fallback)"
-            fi
-            if [ ! -f "$langs/${po_base}-helpmate-public-vite.json" ]; then
-                cp "$stub_j" "$langs/${po_base}-helpmate-public-vite.json"
-                echo "  $(basename "$stub_j") -> ${po_base}-helpmate-public-vite.json (stub.js fallback)"
-            fi
-        fi
-    done
-    shopt -u nullglob
-}
-run_wp_i18n_sync_handle_aliases

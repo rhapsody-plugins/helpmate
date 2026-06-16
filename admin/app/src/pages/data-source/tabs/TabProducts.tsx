@@ -60,7 +60,6 @@ export default function TabProducts() {
 
   const {
     getPostsMutation,
-    getPostTypesQuery,
     getSourcesMutation,
     removeSourceMutation,
     addSourceMutation,
@@ -79,10 +78,6 @@ export default function TabProducts() {
     removeSourceMutation;
   const { mutate: getPostsMutate, isPending: getPostsIsPending } =
     getPostsMutation;
-  const availablePostTypeNames = useMemo(
-    () => (getPostTypesQuery.data ?? []).map((postType) => postType.name),
-    [getPostTypesQuery.data]
-  );
   const { data: bulkJobsData, refetch: refetchBulkJobs } = getBulkJobsQuery;
   const { mutate: cancelBulkJobMutate } = cancelBulkJobMutation;
   const { mutate: deleteBulkJobMutate } = deleteBulkJobMutation;
@@ -94,28 +89,23 @@ export default function TabProducts() {
     },
     refetchOnWindowFocus: false,
   });
-  const configuredProductPostType =
-    commerceConfigQuery.data?.selected_provider === 'easy_digital_downloads'
-      ? 'download'
-      : commerceConfigQuery.data?.selected_provider === 'surecart'
-        ? 'sc_product'
-        : 'product';
+  const selectedCommerceProvider =
+    commerceConfigQuery.data?.selected_provider ?? '';
   const productPostType = useMemo(() => {
-    if (availablePostTypeNames.length === 0) {
+    if (!selectedCommerceProvider) {
       return null;
     }
-
-    if (availablePostTypeNames.includes(configuredProductPostType)) {
-      return configuredProductPostType;
+    if (selectedCommerceProvider === 'easy_digital_downloads') {
+      return 'download';
     }
-
-    const fallbackPostTypes = ['product', 'download', 'sc_product'];
-    const fallbackMatch = fallbackPostTypes.find((postTypeName) =>
-      availablePostTypeNames.includes(postTypeName)
-    );
-
-    return fallbackMatch ?? null;
-  }, [availablePostTypeNames, configuredProductPostType]);
+    if (selectedCommerceProvider === 'surecart') {
+      return 'sc_product';
+    }
+    if (selectedCommerceProvider === 'woocommerce') {
+      return 'product';
+    }
+    return null;
+  }, [selectedCommerceProvider]);
 
   const dokanCheckQuery = useQuery<
     { installed?: boolean; active?: boolean },
@@ -239,6 +229,9 @@ export default function TabProducts() {
   }, [products]);
 
   const fetchProducts = useCallback(() => {
+    if (commerceConfigQuery.isLoading) {
+      return;
+    }
     if (!productPostType) {
       setProducts([]);
       return;
@@ -265,7 +258,7 @@ export default function TabProducts() {
         setProducts(formattedProducts);
       },
     });
-  }, [getPostsMutate, productPostType]);
+  }, [commerceConfigQuery.isLoading, getPostsMutate, productPostType]);
 
   useEffect(() => {
     fetchProducts();

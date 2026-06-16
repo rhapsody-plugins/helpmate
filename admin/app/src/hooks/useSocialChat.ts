@@ -78,6 +78,11 @@ export interface SocialMessage {
     feedback?: 'good' | 'bad';
     copied?: boolean;
     rag_context?: string;
+    feature_error?: {
+      code: string;
+      admin_message: string;
+      tool?: string;
+    };
     tool_type?: string;
     tool_data?: {
       products?: Array<{
