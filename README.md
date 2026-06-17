@@ -266,6 +266,11 @@ Helpmate integrates with leading WordPress plugins and platforms, helping busine
 * Easy Digital Downloads
 * SureCart
 
+#### MultiVendor Marketplace
+
+* Dokan
+* WCFM
+
 #### Page Builders
 
 * Elementor
