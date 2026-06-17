@@ -55,9 +55,7 @@ class Helpmate_Tools
         $this->helpmate->get_database()->initialize_task_custom_fields();
         $this->helpmate->create_default_email_templates();
 
-        if (function_exists('wp_cache_flush_group')) {
-            wp_cache_flush_group('helpmate');
-        }
+        $this->flush_helpmate_object_cache();
 
         flush_rewrite_rules(false);
 
@@ -453,5 +451,18 @@ class Helpmate_Tools
             'helpmate_team_members',
             'helpmate_documents',
         );
+    }
+
+    /**
+     * Clear Helpmate object cache entries after a full reset.
+     *
+     * @return void
+     */
+    private function flush_helpmate_object_cache(): void
+    {
+        wp_cache_delete( Helpmate_Elementor_Utils::CACHE_LANDING_KEY, Helpmate_Elementor_Utils::CACHE_GROUP );
+        wp_cache_delete( Helpmate_Elementor_Utils::CACHE_PLACEMENTS_KEY, Helpmate_Elementor_Utils::CACHE_GROUP );
+        wp_cache_delete( 'helpmate_scheduling_page_' . md5( '%[helpmate_scheduling]%' ), Helpmate_Elementor_Utils::CACHE_GROUP );
+        wp_cache_flush();
     }
 }

@@ -465,7 +465,7 @@ class Helpmate_Forminator_Integration
 		if (ctype_digit($s) && strlen($s) >= 10) {
 			$ts = (int) substr($s, 0, 10);
 
-			return wp_date('Y-m-d', $ts);
+			return date_i18n('Y-m-d', $ts);
 		}
 
 		$formats = ['Y-m-d', 'm/d/Y', 'n/j/Y', 'd/m/Y', 'j/n/Y', 'm-d-Y', 'd-m-Y'];
@@ -481,7 +481,7 @@ class Helpmate_Forminator_Integration
 
 		$ts = strtotime($s);
 		if ($ts !== false) {
-			return wp_date('Y-m-d', $ts);
+			return date_i18n('Y-m-d', $ts);
 		}
 
 		return '';

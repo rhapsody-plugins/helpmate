@@ -446,7 +446,7 @@ class Helpmate_WPForms_Integration
 		}
 
 		$ts = strtotime($s);
-		return $ts === false ? '' : wp_date('Y-m-d', $ts);
+		return $ts === false ? '' : date_i18n('Y-m-d', $ts);
 	}
 
 	private function normalize_wpforms_scheduled_time($value)

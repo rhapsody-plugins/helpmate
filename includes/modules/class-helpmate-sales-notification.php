@@ -377,13 +377,13 @@ class Helpmate_Sales_Notification
         if (isset($order->date_created_gmt) && $order->date_created_gmt !== '') {
             $dt = date_create_immutable((string) $order->date_created_gmt, new \DateTimeZone('UTC'));
             if ($dt instanceof \DateTimeImmutable) {
-                return wp_date($format, $dt->getTimestamp());
+                return date_i18n($format, $dt->getTimestamp());
             }
         }
         if (isset($order->date_created) && $order->date_created !== '') {
-            $dt = date_create_immutable((string) $order->date_created, wp_timezone());
-            if ($dt instanceof \DateTimeImmutable) {
-                return wp_date($format, $dt->getTimestamp());
+            $ts = mysql2date('U', (string) $order->date_created, false);
+            if ($ts) {
+                return date_i18n($format, (int) $ts);
             }
         }
 

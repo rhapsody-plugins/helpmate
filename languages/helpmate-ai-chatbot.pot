@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-17T04:40:06+00:00\n"
+"POT-Creation-Date: 2026-06-17T06:31:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: helpmate-ai-chatbot\n"
@@ -6252,46 +6252,46 @@ msgstr ""
 msgid "Review request dismissed"
 msgstr ""
 
-#: includes/class-helpmate-tools.php:66
+#: includes/class-helpmate-tools.php:64
 msgid "Helpmate data and settings have been reset to defaults."
 msgstr ""
 
-#: includes/class-helpmate-tools.php:79
+#: includes/class-helpmate-tools.php:77
 msgid "CRM module is not available."
 msgstr ""
 
-#: includes/class-helpmate-tools.php:121
-#: includes/class-helpmate-tools.php:277
+#: includes/class-helpmate-tools.php:119
+#: includes/class-helpmate-tools.php:275
 msgid "API key is required to access the cloud."
 msgstr ""
 
-#: includes/class-helpmate-tools.php:156
+#: includes/class-helpmate-tools.php:154
 msgid "API key is required."
 msgstr ""
 
-#: includes/class-helpmate-tools.php:210
+#: includes/class-helpmate-tools.php:208
 msgid "API key is required to sync from the cloud."
 msgstr ""
 
-#: includes/class-helpmate-tools.php:214
+#: includes/class-helpmate-tools.php:212
 msgid "A bulk knowledge-base job is still running. Please wait and try again."
 msgstr ""
 
 #. translators: %d: number of documents imported
-#: includes/class-helpmate-tools.php:262
+#: includes/class-helpmate-tools.php:260
 #, php-format
 msgid "%d documents imported from the cloud."
 msgstr ""
 
-#: includes/class-helpmate-tools.php:288
+#: includes/class-helpmate-tools.php:286
 msgid "Failed to fetch cloud documents."
 msgstr ""
 
-#: includes/class-helpmate-tools.php:375
+#: includes/class-helpmate-tools.php:373
 msgid "Some cloud documents are missing sync metadata. Run Backfill before sync for best results."
 msgstr ""
 
-#: includes/class-helpmate-tools.php:377
+#: includes/class-helpmate-tools.php:375
 msgid "Some cloud documents are legacy entries; they will import as general type with reconstructed content."
 msgstr ""
 

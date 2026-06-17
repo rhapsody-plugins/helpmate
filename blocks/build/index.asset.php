@@ -5,6 +5,10 @@
  * @package Helpmate
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 return array(
 	'dependencies' => array(
 		'wp-blocks',

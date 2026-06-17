@@ -687,9 +687,17 @@ class Helpmate_Background_Processor
             $debug_info['action_scheduler_jobs'] = $scheduled_actions;
             $debug_info['action_scheduler_job_count'] = count($scheduled_actions);
         } else {
-            // Check WordPress cron
-            $cron_jobs = wp_get_scheduled_event('helpmate_process_bulk_documents_cron', ['job_id' => $job_id]);
-            $debug_info['wp_cron_job'] = $cron_jobs;
+            // Check WordPress cron (wp_next_scheduled is available since WP 2.1).
+            $cron_timestamp = wp_next_scheduled(
+                'helpmate_process_bulk_documents_cron',
+                array( 'job_id' => $job_id )
+            );
+            $debug_info['wp_cron_job'] = false !== $cron_timestamp
+                ? array(
+                    'timestamp'    => $cron_timestamp,
+                    'scheduled_at' => gmdate( 'Y-m-d H:i:s', $cron_timestamp ),
+                )
+                : false;
         }
 
         return $debug_info;
