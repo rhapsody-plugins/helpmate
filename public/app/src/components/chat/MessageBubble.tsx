@@ -8,6 +8,7 @@ import { MessageActions } from '@/components/chat/MessageActions';
 import { ProductCarousel } from '@/components/chat/ProductCarousel';
 import { Ticket } from '@/components/chat/Ticket';
 import { useSettings } from '@/hooks/useSettings';
+import { __ } from '@/lib/utils';
 import type {
   ChatMessage,
   ContactFormData,
@@ -64,6 +65,13 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     }
   };
 
+  const displayContent =
+    updatedMessage.content === 'null'
+      ? __(
+          "We're sorry — this feature isn't available right now due to a technical issue on our site. Please try again later or contact us directly."
+        )
+      : updatedMessage.content;
+
   return (
     <div
       className={`flex gap-2 ${
@@ -89,7 +97,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           }`}
         >
           <FormattedContent
-            content={updatedMessage.content}
+            content={displayContent}
             imageUrl={updatedMessage.imageUrl}
             className={
               updatedMessage.role === 'user' ? 'text-white' : 'text-neutral-800'

@@ -1,0 +1,29 @@
+/**
+ * Block editor only: keep Helpmate block UI (notices + preview) below the editor chrome.
+ */
+
+.helpmate-block-scheduling,
+.helpmate-block-promo-banner {
+	margin-top: 20px;
+	margin-bottom: 16px;
+	clear: both;
+}
+
+.helpmate-block-scheduling > .components-notice,
+.helpmate-block-promo-banner > .components-notice {
+	margin-bottom: 12px;
+}
+
+.helpmate-block-preview-fallback {
+	margin: 12px 0;
+	color: #757575;
+	font-size: 13px;
+}
+
+/**
+ * Block editor: sticky top bar uses position:fixed; offset below editor header chrome.
+ * (Loaded only via block editorStyle — not on the frontend.)
+ */
+.helpmate-promo-banner-sticky.helpmate-promo-banner-top {
+	top: 64px;
+}

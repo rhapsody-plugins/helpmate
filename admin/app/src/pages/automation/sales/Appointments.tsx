@@ -4,6 +4,7 @@ import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { MenuItem } from '@/types';
 import { useMarkReadByType } from '@/hooks/useNotifications';
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { __ } from '@/lib/utils';
 
 // Lazy load tab components
 const TabSettings = lazy(() =>
@@ -39,9 +40,9 @@ export default function Appointments() {
     <PageGuard page="appointments-bookings">
       <div className="relative">
         <Tabs className="gap-0" value={tab} onValueChange={setTab}>
-          <PageHeader menuItems={MENU_ITEMS} title="Appointments & Bookings" />
+          <PageHeader menuItems={MENU_ITEMS} title={__('Appointments & Bookings')} />
           <TabsContent value={tab} className="p-6">
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div>{__('Loading...')}</div>}>
               {tab === 'Schedules' && <TabSchedules />}
               {tab === 'Settings' && <TabSettings />}
             </Suspense>

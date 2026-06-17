@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/tooltip';
 import type { MessageActionsProps } from '@/types';
 import { useAi } from '@/hooks/useAi';
+import { __ } from '@/lib/utils';
 
 export function MessageActions({ message, messageId }: MessageActionsProps) {
   const [copied, setCopied] = useState(false);
@@ -61,7 +62,7 @@ export function MessageActions({ message, messageId }: MessageActionsProps) {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>This was helpful</p>
+            <p>{__('This was helpful')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -79,7 +80,7 @@ export function MessageActions({ message, messageId }: MessageActionsProps) {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>This was not helpful</p>
+            <p>{__('This was not helpful')}</p>
           </TooltipContent>
         </Tooltip>
 
@@ -99,7 +100,7 @@ export function MessageActions({ message, messageId }: MessageActionsProps) {
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>{copied ? 'Copied!' : 'Copy message'}</p>
+            <p>{copied ? __('Copied!') : __('Copy message')}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

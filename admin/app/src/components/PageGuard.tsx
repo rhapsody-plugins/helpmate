@@ -1,5 +1,6 @@
 import { usePermissions } from '@/hooks/usePermissions';
 import { PageType } from '@/contexts/MainContext';
+import { __, sprintf } from '@/lib/utils';
 import Unauthorized from './Unauthorized';
 import Loading from './Loading';
 
@@ -7,6 +8,7 @@ interface PageGuardProps {
   page: PageType;
   children: React.ReactNode;
   requiredRole?: string;
+  requiredRoles?: string[];
   customMessage?: string;
 }
 
@@ -14,12 +16,24 @@ export default function PageGuard({
   page,
   children,
   requiredRole,
+  requiredRoles,
   customMessage,
 }: PageGuardProps) {
-  const { canAccessPage, hasRole, isLoading } = usePermissions();
+  const { canAccessPage, hasRole, hasAnyRole, isLoading } = usePermissions();
 
   if (isLoading) {
     return <Loading />;
+  }
+
+  if (requiredRoles && requiredRoles.length > 0 && !hasAnyRole(requiredRoles)) {
+    return (
+      <Unauthorized
+        message={
+          customMessage ||
+          __("You don't have permission to access this page.")
+        }
+      />
+    );
   }
 
   // Check for required role first (e.g., admin for team management)
@@ -28,7 +42,11 @@ export default function PageGuard({
       <Unauthorized
         message={
           customMessage ||
-          `Only ${requiredRole} role users can access this page.`
+          sprintf(
+            /* translators: %s: Required WordPress role slug */
+            __('Only %s role users can access this page.'),
+            requiredRole
+          )
         }
       />
     );
@@ -39,7 +57,7 @@ export default function PageGuard({
     return (
       <Unauthorized
         message={
-          customMessage || "You don't have permission to access this page."
+          customMessage || __("You don't have permission to access this page.")
         }
       />
     );

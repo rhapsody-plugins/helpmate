@@ -29,7 +29,7 @@ import { Ticket } from '@public/components/chat/Ticket';
 import { useDataSource } from '@/hooks/useDataSource';
 import type { SocialConversation, SocialMessage } from '@/hooks/useSocialChat';
 import { parseUTCDate } from '@/pages/crm/contacts/utils';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Copy,
@@ -120,7 +120,9 @@ function ToolDisplay({
           return (
             <div className={toolWrapperClass}>
               <span className="text-sm text-gray-600">
-                Order Tracker
+                {__(
+                  'Order tracker could not load — check that Helpmate Pro is activated in Plugins.'
+                )}
                 {toolData.orderId ? ` — Order #${String(toolData.orderId)}` : ''}
               </span>
             </div>
@@ -130,7 +132,9 @@ function ToolDisplay({
       return (
         <div className={toolWrapperClass}>
           <span className="text-sm text-gray-600">
-            Order Tracker
+            {__(
+              'Order tracker could not load — check that Helpmate Pro is activated in Plugins.'
+            )}
             {toolData.orderId ? ` — Order #${String(toolData.orderId)}` : ''}
           </span>
         </div>
@@ -153,7 +157,9 @@ function ToolDisplay({
           return (
             <div className={toolWrapperClass}>
               <span className="text-sm text-gray-600">
-                Refund & Return
+                {__(
+                  'Refund & return could not load — check that Helpmate Pro is activated in Plugins.'
+                )}
                 {toolData.submitted ? ' — Submitted' : ''}
               </span>
             </div>
@@ -163,7 +169,9 @@ function ToolDisplay({
       return (
         <div className={toolWrapperClass}>
           <span className="text-sm text-gray-600">
-            Refund & Return
+            {__(
+              'Refund & return could not load — check that Helpmate Pro is activated in Plugins.'
+            )}
             {toolData.submitted ? ' — Submitted' : ''}
           </span>
         </div>
@@ -384,8 +392,25 @@ export function InboxMessageBubble({
                   addSuffix: true,
                 })}
               </span>
-              {message.error_message && (
-                <span className="ml-2 text-red-500">Failed to send</span>
+              {message.meta_data?.feature_error && (
+                <>
+                  <span>·</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="ml-1 text-amber-600 cursor-help">
+                        {__('Feature unavailable')}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-sm">
+                      <p className="text-sm">
+                        {message.meta_data.feature_error.admin_message}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </>
+              )}
+              {message.error_message && !message.meta_data?.feature_error && (
+                <span className="ml-2 text-red-500">{__('Failed to send')}</span>
               )}
               {/* User feedback indicators (display only - from frontend) */}
               {!isTicket &&

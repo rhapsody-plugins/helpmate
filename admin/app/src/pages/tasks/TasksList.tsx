@@ -5,7 +5,7 @@ import { ProBadge } from '@/components/ProBadge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { TaskFilters as TaskFiltersType } from '@/types/crm';
 import { TaskFilters, getTaskFilterCount } from './TaskFilters';
 import { TasksListView } from './TasksListView';
@@ -61,13 +61,13 @@ export default function TasksList() {
       <div className="gap-0 relative">
         {!isPro && (
           <ProBadge
-            topMessage="Create and manage tasks. Track follow-ups, deadlines, and assignments."
-            buttonText="Unlock Tasks"
+            topMessage={__('Create and manage tasks. Track follow-ups, deadlines, and assignments.')}
+            buttonText={__('Unlock Tasks')}
             tooltipMessage={null}
           />
         )}
         <PageHeader
-          title="Tasks"
+          title={__('Tasks')}
           rightActions={
             <div className="flex gap-2 items-center">
               <TaskFilters
@@ -111,7 +111,7 @@ export default function TasksList() {
               </div>
               <Button onClick={handleCreateTask} disabled={!isPro}>
                 <Plus className="mr-2 w-4 h-4" />
-                Add Task
+                {__('Add Task')}
               </Button>
             </div>
           }
@@ -124,7 +124,7 @@ export default function TasksList() {
             )}
           >
             <CardHeader>
-              <CardTitle className="!text-lg !my-0">Tasks</CardTitle>
+              <CardTitle className="!text-lg !my-0">{__('Tasks')}</CardTitle>
             </CardHeader>
             <CardContent>
               {viewMode === 'list' ? (

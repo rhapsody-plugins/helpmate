@@ -60,7 +60,7 @@ import {
   useSocialChat,
 } from '@/hooks/useSocialChat';
 import api from '@/lib/axios';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import {
   Archive,
@@ -865,7 +865,7 @@ export default function SocialInbox() {
         >
           <div className="flex-shrink-0 p-4 space-y-3 border-b">
             <div className="flex justify-between items-center">
-              <h2 className="!text-lg !font-semibold !my-0 !mr-2">{showArchived ? 'Archived' : 'Inbox'}</h2>
+              <h2 className="!text-lg !font-semibold !my-0 !mr-2">{showArchived ? __('Archived') : __('Inbox')}</h2>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
@@ -905,12 +905,12 @@ export default function SocialInbox() {
                         </Button>
                       </PopoverTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>Filter conversations</TooltipContent>
+                    <TooltipContent>{__('Filter conversations')}</TooltipContent>
                   </Tooltip>
                   <PopoverContent className="w-80" align="end">
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <h4 className="!font-medium !text-lg !my-0">Filters</h4>
+                        <h4 className="!font-medium !text-lg !my-0">{__('Filters')}</h4>
                         {(selectedChannels.length > 0 ||
                           filters.is_human_handoff !== undefined ||
                           filters.account_id !== undefined ||
@@ -933,14 +933,14 @@ export default function SocialInbox() {
                               setCustomDateTo('');
                             }}
                           >
-                            Clear All
+                            {__('Clear All')}
                           </Button>
                         )}
                       </div>
 
                       {/* Channels Filter */}
                       <div className="p-3 space-y-2 rounded-lg border border-border">
-                        <div className="mb-2 text-sm font-medium">Channels</div>
+                        <div className="mb-2 text-sm font-medium">{__('Channels')}</div>
                         <div className="space-y-2">
                           {[
                             { value: 'website', label: 'Website' },
@@ -979,7 +979,7 @@ export default function SocialInbox() {
                                 htmlFor={`channel-${channel.value}`}
                                 className="text-sm font-normal cursor-pointer"
                               >
-                                {channel.label}
+                                {__(channel.label)}
                               </label>
                             </div>
                           ))}
@@ -989,7 +989,7 @@ export default function SocialInbox() {
                       {/* Date Range Filter */}
                       <div className="p-3 space-y-2 rounded-lg border border-border">
                         <div className="mb-2 text-sm font-medium">
-                          Date Range
+                          {__('Date Range')}
                         </div>
                         <div className="space-y-2">
                           <div className="flex flex-wrap gap-2">
@@ -1056,13 +1056,13 @@ export default function SocialInbox() {
                                   setCustomDateTo('');
                                 }}
                               >
-                                {preset.label}
+                                {__(preset.label)}
                               </Button>
                             ))}
                           </div>
                           <div className="space-y-2">
                             <div className="text-xs text-muted-foreground">
-                              Custom Range
+                              {__('Custom Range')}
                             </div>
                             <div className="flex gap-2">
                               <Input
@@ -1101,7 +1101,7 @@ export default function SocialInbox() {
                       {/* Handoff Status Filter */}
                       <div className="p-3 space-y-2 rounded-lg border border-border">
                         <div className="mb-2 text-sm font-medium">
-                          Handoff Status
+                          {__('Handoff Status')}
                         </div>
                         <Select
                           value={
@@ -1127,10 +1127,10 @@ export default function SocialInbox() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="handoff">Handoff</SelectItem>
+                            <SelectItem value="all">{__('All')}</SelectItem>
+                            <SelectItem value="handoff">{__('Handoff')}</SelectItem>
                             <SelectItem value="no_handoff">
-                              No Handoff
+                              {__('No Handoff')}
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -1138,7 +1138,7 @@ export default function SocialInbox() {
 
                       {/* Account Filter */}
                       <div className="p-3 space-y-2 rounded-lg border border-border">
-                        <div className="mb-2 text-sm font-medium">Account</div>
+                        <div className="mb-2 text-sm font-medium">{__('Account')}</div>
                         <Select
                           value={
                             filters.account_id === undefined
@@ -1159,7 +1159,7 @@ export default function SocialInbox() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">All Accounts</SelectItem>
+                            <SelectItem value="all">{__('All Accounts')}</SelectItem>
                             {accounts.map((account) => (
                               <SelectItem
                                 key={account.id}
@@ -1194,7 +1194,7 @@ export default function SocialInbox() {
                 ) : conversations.length === 0 ? (
                   <div className="py-8 text-center text-muted-foreground">
                     <MessageCircle className="mx-auto mb-3 w-12 h-12 opacity-20" />
-                    <p>{showArchived ? 'No archived conversations' : 'No conversations yet'}</p>
+                    <p>{showArchived ? __('No archived conversations') : __('No conversations yet')}</p>
                   </div>
                 ) : (
                   <div className="divide-y max-w-[350px]">
@@ -1367,7 +1367,7 @@ export default function SocialInbox() {
               <div className="flex flex-1 justify-center items-center text-muted-foreground">
                 <div className="text-center">
                   <MessageCircle className="mx-auto mb-4 w-16 h-16 opacity-20" />
-                  <p>Select a conversation to view messages</p>
+                  <p>{__('Select a conversation to view messages')}</p>
                 </div>
               </div>
             ) : (
@@ -1612,7 +1612,7 @@ export default function SocialInbox() {
                                 )}
                                 <div className="flex gap-1 items-center text-xs text-gray-500">
                                   {getSenderIcon('customer')}
-                                  <span>Customer</span>
+                                  <span>{__('Customer')}</span>
                                   <span>·</span>
                                   <span>
                                     {formatDistanceToNow(
@@ -1778,7 +1778,7 @@ export default function SocialInbox() {
         <SheetContent className="sm:!max-w-2xl flex flex-col h-full gap-0 overflow-hidden">
           <SheetHeader className="pb-4 mt-6 border-b">
             <SheetTitle className="text-lg font-bold !my-0">
-              Create New Ticket
+              {__('Create New Ticket')}
             </SheetTitle>
           </SheetHeader>
           <div className="overflow-y-auto flex-1 p-4 pt-6">
@@ -1792,7 +1792,7 @@ export default function SocialInbox() {
                   name="subject"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Subject</FormLabel>
+                      <FormLabel>{__('Subject')}</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter ticket subject" {...field} />
                       </FormControl>
@@ -1808,7 +1808,7 @@ export default function SocialInbox() {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>{__('Email')}</FormLabel>
                           <FormControl>
                             <Input
                               type="email"
@@ -1834,7 +1834,7 @@ export default function SocialInbox() {
                           </FormControl>
                           <div className="space-y-1 leading-none">
                             <FormLabel>
-                              Create new contact with this email
+                              {__('Create new contact with this email')}
                             </FormLabel>
                           </div>
                         </FormItem>
@@ -1862,7 +1862,7 @@ export default function SocialInbox() {
                   name="priority"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Priority</FormLabel>
+                      <FormLabel>{__('Priority')}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -1873,10 +1873,10 @@ export default function SocialInbox() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="normal">Normal</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                          <SelectItem value="urgent">Urgent</SelectItem>
+                          <SelectItem value="low">{__('Low')}</SelectItem>
+                          <SelectItem value="normal">{__('Normal')}</SelectItem>
+                          <SelectItem value="high">{__('High')}</SelectItem>
+                          <SelectItem value="urgent">{__('Urgent')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -1885,7 +1885,7 @@ export default function SocialInbox() {
                 />
 
                 <div className="space-y-2">
-                  <FormLabel>Contact (Optional)</FormLabel>
+                  <FormLabel>{__('Contact (Optional)')}</FormLabel>
                   <Popover
                     open={contactPopoverOpen}
                     onOpenChange={setContactPopoverOpen}
@@ -1898,7 +1898,7 @@ export default function SocialInbox() {
                       >
                         {selectedContact
                           ? `${selectedContact.email} (${selectedContact.first_name} ${selectedContact.last_name})`
-                          : 'Select contact...'}
+                          : __('Select contact...')}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="p-0 w-full">
@@ -1908,7 +1908,7 @@ export default function SocialInbox() {
                           value={contactSearch}
                           onValueChange={setContactSearch}
                         />
-                        <CommandEmpty>No contacts found.</CommandEmpty>
+                        <CommandEmpty>{__('No contacts found.')}</CommandEmpty>
                         <CommandGroup className="overflow-y-auto max-h-64">
                           <CommandItem
                             onSelect={() => {
@@ -1920,7 +1920,7 @@ export default function SocialInbox() {
                               checked={selectedContactId === null}
                               className="mr-2"
                             />
-                            No contact
+                            {__('No contact')}
                           </CommandItem>
                           {contacts.map((contact) => (
                             <CommandItem
@@ -1949,7 +1949,7 @@ export default function SocialInbox() {
                   name="message"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Message</FormLabel>
+                      <FormLabel>{__('Message')}</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Enter ticket message"
@@ -1968,10 +1968,12 @@ export default function SocialInbox() {
                     variant="outline"
                     onClick={() => setIsCreateTicketOpen(false)}
                   >
-                    Cancel
+                    {__('Cancel')}
                   </Button>
                   <Button type="submit" disabled={createTicket.isPending}>
-                    {createTicket.isPending ? 'Creating...' : 'Create Ticket'}
+                    {createTicket.isPending
+                      ? __('Creating...')
+                      : __('Create Ticket')}
                   </Button>
                 </div>
               </form>
@@ -1984,9 +1986,11 @@ export default function SocialInbox() {
       <Dialog open={showEndChatConfirm} onOpenChange={setShowEndChatConfirm}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>End this chat?</DialogTitle>
+            <DialogTitle>{__('End this chat?')}</DialogTitle>
             <DialogDescription>
-              The user will be asked to rate their experience.
+              {__(
+                'The user will be asked to rate their experience.'
+              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -1994,7 +1998,7 @@ export default function SocialInbox() {
               variant="outline"
               onClick={() => setShowEndChatConfirm(false)}
             >
-              Cancel
+              {__('Cancel')}
             </Button>
             <Button
               variant="destructive"
@@ -2006,7 +2010,7 @@ export default function SocialInbox() {
               }}
               disabled={endChatMutation.isPending}
             >
-              End chat
+              {__('End chat')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2016,11 +2020,13 @@ export default function SocialInbox() {
       <Dialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Archive this conversation?</DialogTitle>
+            <DialogTitle>{__('Archive this conversation?')}</DialogTitle>
             <DialogDescription>
               {selectedConversation?.platform === 'website'
-                ? "The user will be asked to rate their experience."
-                : "The conversation will be moved to Archived."}
+                ? __(
+                    'The user will be asked to rate their experience.'
+                  )
+                : __('The conversation will be moved to Archived.')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -2028,7 +2034,7 @@ export default function SocialInbox() {
               variant="outline"
               onClick={() => setShowArchiveConfirm(false)}
             >
-              Cancel
+              {__('Cancel')}
             </Button>
             <Button
               onClick={() => {
@@ -2045,7 +2051,7 @@ export default function SocialInbox() {
                 updateStatusMutation.isPending || endChatMutation.isPending
               }
             >
-              Archive
+              {__('Archive')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -2168,7 +2174,7 @@ function ConversationItem({
                   variant="outline"
                   className="px-1 py-0 text-xs text-amber-700 bg-amber-50 border-amber-200 mt-0.5"
                 >
-                  <UserCheck className="w-2.5 h-2.5 mr-0.5" /> Human
+                  <UserCheck className="w-2.5 h-2.5 mr-0.5" /> {__('Human')}
                 </Badge>
               )}
           </div>

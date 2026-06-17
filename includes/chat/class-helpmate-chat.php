@@ -202,7 +202,8 @@ class Helpmate_Chat
             }
 
             // Store the messages using helpers
-            $message_ids = $this->helpers->store_messages($result['session_id'], $message, json_encode($result['response']), (object) ['usage' => (object) ['totalTokens' => 0]], $metadata);
+            $assistant_payload = $this->response_generator->encode_response_for_storage($result['response']);
+            $message_ids = $this->helpers->store_messages($result['session_id'], $message, $assistant_payload, (object) ['usage' => (object) ['totalTokens' => 0]], $metadata);
 
             // Increment unread count for website conversation (user message creates unread)
             if ($social_chat && isset($message_ids['user']) && $message_ids['user']) {
@@ -355,7 +356,7 @@ class Helpmate_Chat
             $admin_typing_key = 'helpmate_typing_website_' . $session_id . '_admin';
             $typing_user_id = get_transient($admin_typing_key);
             $is_admin_typing = $typing_user_id !== false;
-            
+
             // Get typing user's avatar if typing
             $typing_user_avatar = null;
             $typing_user_name = null;

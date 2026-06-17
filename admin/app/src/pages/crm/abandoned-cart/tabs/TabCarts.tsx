@@ -3,6 +3,7 @@ import { ReusableTable } from '@/components/ReusableTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMain } from '@/contexts/MainContext';
 import useAbandonedCart from '@/hooks/useAbandonedCart';
@@ -17,13 +18,32 @@ import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ContactCreateSheet } from '@/pages/crm/contacts/components/ContactCreateSheet';
 
+const PER_PAGE = 50;
+
 export default function TabCarts() {
   const { getSettingsMutation, getProQuery } = useSettings();
-  const { getAbandonedCarts, sendEmail } = useAbandonedCart();
-  const { data: abandonedCarts, isFetching: isFetchingAbandonedCarts } =
-    getAbandonedCarts;
+  const [listPage, setListPage] = useState(1);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedSearch(searchInput.trim()), 400);
+    return () => window.clearTimeout(t);
+  }, [searchInput]);
+
+  useEffect(() => {
+    setListPage(1);
+  }, [debouncedSearch]);
+
+  const { getAbandonedCarts, sendEmail } = useAbandonedCart({
+    page: listPage,
+    perPage: PER_PAGE,
+    search: debouncedSearch,
+  });
+  const abandonedCarts = getAbandonedCarts.data?.carts ?? [];
+  const pagination = getAbandonedCarts.data?.pagination;
+  const { isFetching: isFetchingAbandonedCarts } = getAbandonedCarts;
   const { data: settings, mutate: getSettings } = getSettingsMutation;
-  const { setPage } = useMain();
+  const { setPage: setAppPage } = useMain();
   const [contactSearchCache, setContactSearchCache] = useState<
     Record<string, number | null>
   >({});
@@ -109,7 +129,7 @@ export default function TabCarts() {
             'crm_selected_contact_id',
             cachedContactId.toString()
           );
-          setPage('crm-contact-details');
+          setAppPage('crm-contact-details');
         } else {
           // Contact doesn't exist, open create sheet
           setCreateSheetEmail(email);
@@ -148,7 +168,7 @@ export default function TabCarts() {
               'crm_selected_contact_id',
               contact.id.toString()
             );
-            setPage('crm-contact-details');
+            setAppPage('crm-contact-details');
           } else {
             // Contact doesn't exist
             setContactSearchCache((prev) => ({ ...prev, [email]: null }));
@@ -185,7 +205,7 @@ export default function TabCarts() {
         setIsCreateSheetOpen(true);
       }
     },
-    [setPage]
+    [setAppPage, contactSearchCache]
   );
 
   const columns: ColumnDef<AbandonedCartType>[] = useMemo(
@@ -299,14 +319,25 @@ export default function TabCarts() {
               </Button>
               <Button
                 size="sm"
-                onClick={() =>
+                disabled={!row.original.customer?.user_email}
+                onClick={() => {
+                  let parsed: unknown = row.original.cart_data;
+                  try {
+                    if (typeof parsed === 'string') {
+                      parsed = JSON.parse(parsed);
+                    }
+                  } catch {
+                    parsed = [];
+                  }
                   sendEmail.mutate({
                     id: row.original.id,
                     user_id: row.original.customer.ID,
                     template_id: (settings?.selected_email_template as number) || 1,
-                    cart_data: row.original.cart_data,
-                  })
-                }
+                    cart_data: parsed,
+                    to_email: row.original.customer.user_email,
+                    to_name: row.original.customer.display_name,
+                  });
+                }}
               >
                 Send Email
               </Button>
@@ -335,10 +366,24 @@ export default function TabCarts() {
           )}
         >
           <CardHeader>
-            <CardTitle className="text-xl font-bold">
-              Abandoned Carts{' '}
-              <InfoTooltip message="Review all abandoned carts and their statuses." />
-            </CardTitle>
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+              <CardTitle className="text-xl font-bold">
+                Abandoned Carts{' '}
+                <InfoTooltip message="Review all abandoned carts and their statuses." />
+              </CardTitle>
+              <Input
+                placeholder="Search by email…"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            {pagination && pagination.total > 0 && (
+              <p className="text-sm text-muted-foreground">
+                {pagination.total} total
+                {debouncedSearch ? ` (filtered)` : ''}
+              </p>
+            )}
           </CardHeader>
           <CardContent>
             {isFetchingAbandonedCarts ? (
@@ -360,17 +405,51 @@ export default function TabCarts() {
                 </div>
               </div>
             ) : (
-              <ReusableTable
-                columns={columns}
-                data={abandonedCarts}
-                className={cn(
-                  'w-full',
-                  !getProQuery.data &&
-                    'opacity-50 cursor-not-allowed pointer-events-none'
+              <>
+                <ReusableTable
+                  columns={columns}
+                  data={abandonedCarts}
+                  className={cn(
+                    'w-full',
+                    !getProQuery.data &&
+                      'opacity-50 cursor-not-allowed pointer-events-none'
+                  )}
+                  rightAlignedColumns={['actions']}
+                  loading={isFetchingAbandonedCarts}
+                />
+                {pagination && pagination.total_pages > 1 && (
+                  <div className="flex gap-2 justify-end items-center mt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={listPage <= 1 || isFetchingAbandonedCarts}
+                      onClick={() => setListPage((p) => Math.max(1, p - 1))}
+                    >
+                      Previous
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      Page {pagination.page} of {pagination.total_pages}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={
+                        listPage >= pagination.total_pages ||
+                        isFetchingAbandonedCarts
+                      }
+                      onClick={() =>
+                        setListPage((p) =>
+                          Math.min(pagination.total_pages, p + 1)
+                        )
+                      }
+                    >
+                      Next
+                    </Button>
+                  </div>
                 )}
-                rightAlignedColumns={['actions']}
-                loading={isFetchingAbandonedCarts}
-              />
+              </>
             )}
           </CardContent>
         </Card>
@@ -393,7 +472,7 @@ export default function TabCarts() {
             'crm_selected_contact_id',
             contactId.toString()
           );
-          setPage('crm-contact-details');
+          setAppPage('crm-contact-details');
         }}
       />
     </div>

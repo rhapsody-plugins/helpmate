@@ -26,6 +26,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSettings } from '@/hooks/useSettings';
+import { __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -142,7 +143,12 @@ export default function TabAi() {
     <Card>
       <CardHeader>
         <CardTitle className="flex gap-1 items-center text-xl font-bold">
-          Chatbot <InfoTooltip message="Settings for the AI model." />
+          {__('Chatbot')}{' '}
+          <InfoTooltip
+            message={__(
+              'Settings for the AI model.'
+            )}
+          />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -185,11 +191,17 @@ export default function TabAi() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base">
-                          Enable AI Responses
-                          <InfoTooltip message="When disabled, the chatbot will remain visible but AI will not respond to any messages. Messages will still be stored for admin review." />
+                          {__('Enable AI Responses')}
+                          <InfoTooltip
+                            message={__(
+                              'When disabled, the chatbot will remain visible but AI will not respond to any messages. Messages will still be stored for admin review.'
+                            )}
+                          />
                         </FormLabel>
                         <FormDescription>
-                          Globally enable or disable AI responses for all chat conversations
+                          {__(
+                            'Globally enable or disable AI responses for all chat conversations'
+                          )}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -208,8 +220,12 @@ export default function TabAi() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Tone
-                        <InfoTooltip message="The right tone builds connection, makes your AI feel like part of your team." />
+                        {__('Tone')}
+                        <InfoTooltip
+                          message={__(
+                            'The right tone builds connection, makes your AI feel like part of your team.'
+                          )}
+                        />
                       </FormLabel>
                       <FormControl>
                         <RadioCardGroup
@@ -224,9 +240,9 @@ export default function TabAi() {
                                 htmlFor={tone.value}
                                 className="cursor-pointer"
                               >
-                                <div className="font-medium">{tone.label}</div>
+                                <div className="font-medium">{__(tone.label)}</div>
                                 <div className="text-sm text-muted-foreground">
-                                  {tone.description}
+                                  {__(tone.description)}
                                 </div>
                               </RadioCardLabel>
                             </div>
@@ -244,8 +260,12 @@ export default function TabAi() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Language
-                        <InfoTooltip message="Select the language for AI responses." />
+                        {__('Language')}
+                        <InfoTooltip
+                          message={__(
+                            'Select the language for AI responses.'
+                          )}
+                        />
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
@@ -259,7 +279,7 @@ export default function TabAi() {
                         <SelectContent className="max-h-[300px] overflow-y-auto">
                           {Object.entries(languages).map(([code, langData]) => (
                             <SelectItem key={code} value={code}>
-                              {langData.name}
+                              {__(langData.name)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -276,7 +296,7 @@ export default function TabAi() {
                   disabled={isUpdating}
                   loading={isUpdating}
                 >
-                  {isUpdating ? 'Saving...' : 'Save'}
+                  {isUpdating ? __('Saving...') : __('Save')}
                 </Button>
               </>
             )}

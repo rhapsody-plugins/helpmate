@@ -34,6 +34,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { __, sprintf } from '@/lib/utils';
 import { z } from 'zod';
 
 const formSchema = z
@@ -261,11 +262,11 @@ export default function TabFile() {
     () => [
       {
         accessorKey: 'title',
-        header: 'Title',
+        header: __('Title'),
       },
       {
         accessorKey: 'metadata',
-        header: 'File Name',
+        header: __('File Name'),
         cell: ({ row }) => {
           const metadata = row.getValue('metadata') as string;
           const parsedMetadata = JSON.parse(metadata);
@@ -281,7 +282,7 @@ export default function TabFile() {
       },
       {
         accessorKey: 'content',
-        header: 'Content',
+        header: __('Content'),
         cell: ({ row }) => {
           const content = row.getValue('content') as string;
           return (
@@ -293,7 +294,7 @@ export default function TabFile() {
       },
       {
         accessorKey: 'last_updated',
-        header: 'Last Updated',
+        header: __('Last Updated'),
         cell: ({ row }) => {
           const timestamp = row.getValue('last_updated') as number;
           return format(parseUTCTimestamp(timestamp), 'PPpp', {
@@ -303,7 +304,7 @@ export default function TabFile() {
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => (
           <div className="flex gap-2 justify-end">
             <Button
@@ -314,7 +315,7 @@ export default function TabFile() {
                 setIsContentSheetOpen(true);
               }}
             >
-              View
+              {__('View')}
             </Button>
             {canEditOrDelete ? (
               <Button
@@ -324,19 +325,21 @@ export default function TabFile() {
                 disabled={removeIsPending}
                 onClick={() => handleRemove(row.original.id)}
               >
-                Delete
+                {__('Delete')}
               </Button>
             ) : (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="inline-block">
                     <Button variant="destructive" size="sm" disabled>
-                      Delete
+                      {__('Delete')}
                     </Button>
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>
-                  Add your OpenAI API key in Manage API to edit or delete
+                  {__(
+                    'Add your OpenAI API key in Manage API to edit or delete'
+                  )}
                 </TooltipContent>
               </Tooltip>
             )}
@@ -358,8 +361,10 @@ export default function TabFile() {
       <Card>
         <CardHeader>
           <CardTitle className="flex gap-1 items-center text-xl font-bold">
-            File Source{' '}
-            <InfoTooltip message="Add a file source to your Helpmate." />
+            {__('File Source')}{' '}
+            <InfoTooltip
+              message={__('Add a file source to your Helpmate.')}
+            />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -373,7 +378,7 @@ export default function TabFile() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel>{__('Title')}</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter text" {...field} />
                     </FormControl>
@@ -385,7 +390,7 @@ export default function TabFile() {
                 name="content"
                 render={() => (
                   <FormItem>
-                    <FormLabel>File</FormLabel>
+                    <FormLabel>{__('File')}</FormLabel>
                     <FormControl>
                       <div className="flex gap-4 items-center">
                         <Input
@@ -400,16 +405,22 @@ export default function TabFile() {
                           variant="outline"
                           onClick={() => fileInputRef.current?.click()}
                         >
-                          Choose File
+                          {__('Choose File')}
                         </Button>
                         <span className="text-sm text-muted-foreground">
-                          {selectedFileName || 'No file chosen'}
+                          {selectedFileName || __('No file chosen')}
                         </span>
                       </div>
                     </FormControl>
                     <FormDescription>
-                      CSV, TXT, JSON, PDF, DOC, DOCX, XLS, and XLSX formats are
-                      supported. Maximum file size: {isPro ? '500KB' : '300KB'}.
+                      {__(
+                        'CSV, TXT, JSON, PDF, DOC, DOCX, XLS, and XLSX formats are supported.'
+                      )}{' '}
+                      {sprintf(
+                        /* translators: %s: Maximum upload size */
+                        __('Maximum file size: %s.'),
+                        isPro ? '500KB' : '300KB'
+                      )}
                     </FormDescription>
                   </FormItem>
                 )}
@@ -419,7 +430,7 @@ export default function TabFile() {
                 loading={addIsPending}
                 type="submit"
               >
-                {addIsPending ? 'Saving...' : 'Save'}
+                {addIsPending ? __('Saving...') : __('Save')}
               </Button>
             </form>
           </Form>
@@ -430,7 +441,7 @@ export default function TabFile() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl font-bold">
-              Saved File Sources
+              {__('Saved File Sources')}
             </CardTitle>
             <Input
               placeholder="Search saved files..."
@@ -457,7 +468,7 @@ export default function TabFile() {
         <SheetContent className="sm:!max-w-2xl flex flex-col h-full gap-0">
           <SheetHeader className="mt-6">
             <SheetTitle className="text-lg font-bold !my-0">
-              File Content
+              {__('File Content')}
             </SheetTitle>
           </SheetHeader>
           <div className="overflow-y-auto flex-1 p-4 pt-0">
@@ -469,7 +480,7 @@ export default function TabFile() {
               variant="outline"
               onClick={() => setIsContentSheetOpen(false)}
             >
-              Close
+              {__('Close')}
             </Button>
           </div>
         </SheetContent>

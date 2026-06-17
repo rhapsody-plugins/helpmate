@@ -25,7 +25,7 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __, sprintf } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PlayIcon } from 'lucide-react';
 import { useCallback, useEffect } from 'react';
@@ -179,8 +179,10 @@ export default function TabWidget() {
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="flex gap-1 items-center text-xl font-bold">
-            Appearance{' '}
-            <InfoTooltip message="Settings for the Helpmate chatbot widget." />
+            {__('Appearance')}{' '}
+            <InfoTooltip
+              message={__('Settings for the Helpmate chatbot widget.')}
+            />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -214,7 +216,7 @@ export default function TabWidget() {
                     name="primary_color"
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Primary Color</FormLabel>
+                        <FormLabel>{__('Primary Color')}</FormLabel>
                         <FormControl>
                           <GradientPicker
                             background={field.value}
@@ -231,7 +233,7 @@ export default function TabWidget() {
                     name="primary_gradient"
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Primary Gradient</FormLabel>
+                        <FormLabel>{__('Primary Gradient')}</FormLabel>
                         <FormControl>
                           <GradientPicker
                             background={field.value}
@@ -248,7 +250,7 @@ export default function TabWidget() {
                     name="secondary_color"
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Secondary Color</FormLabel>
+                        <FormLabel>{__('Secondary Color')}</FormLabel>
                         <FormControl>
                           <GradientPicker
                             background={field.value}
@@ -265,7 +267,7 @@ export default function TabWidget() {
                     name="secondary_gradient"
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Secondary Gradient</FormLabel>
+                        <FormLabel>{__('Secondary Gradient')}</FormLabel>
                         <FormControl>
                           <GradientPicker
                             background={field.value}
@@ -282,7 +284,7 @@ export default function TabWidget() {
                     name="font_size"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Font Size</FormLabel>
+                        <FormLabel>{__('Font Size')}</FormLabel>
                         <FormControl>
                           <div className="space-y-2">
                             <Slider
@@ -310,7 +312,7 @@ export default function TabWidget() {
                     name="icon_size"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Icon Size</FormLabel>
+                        <FormLabel>{__('Icon Size')}</FormLabel>
                         <FormControl>
                           <div className="space-y-2">
                             <Slider
@@ -336,7 +338,7 @@ export default function TabWidget() {
                     name="sound_effect"
                     render={({ field }) => (
                       <FormItem className="flex flex-col gap-2">
-                        <FormLabel>Sound Effect</FormLabel>
+                        <FormLabel>{__('Sound Effect')}</FormLabel>
                         <div className="flex gap-2 items-center">
                           <FormControl className="w-full">
                             <Select
@@ -347,10 +349,14 @@ export default function TabWidget() {
                                 <SelectValue placeholder="Select a sound effect" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="none">{__('None')}</SelectItem>
                                 {SOUND_EFFECTS.map((soundEffect, index) => (
                                   <SelectItem key={index} value={soundEffect}>
-                                    Notification {index + 1}
+                                    {sprintf(
+                                      /* translators: %d: Notification sound index */
+                                      __('Notification %d'),
+                                      index + 1
+                                    )}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -405,7 +411,7 @@ export default function TabWidget() {
                     name="icon_shape"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Icon Shape</FormLabel>
+                        <FormLabel>{__('Icon Shape')}</FormLabel>
                         <FormControl>
                           <Select
                             value={field.value}
@@ -415,12 +421,10 @@ export default function TabWidget() {
                               <SelectValue placeholder="Select a shape" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="circle">Circle</SelectItem>
-                              <SelectItem value="square">Square</SelectItem>
-                              <SelectItem value="rounded">Rounded</SelectItem>
-                              <SelectItem value="rectangle">
-                                Rectangle
-                              </SelectItem>
+                              <SelectItem value="circle">{__('Circle')}</SelectItem>
+                              <SelectItem value="square">{__('Square')}</SelectItem>
+                              <SelectItem value="rounded">{__('Rounded')}</SelectItem>
+                              <SelectItem value="rectangle">{__('Rectangle')}</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -435,8 +439,10 @@ export default function TabWidget() {
                   <div className="relative col-span-2">
                     {!isPro && (
                       <ProBadge
-                        topMessage="Customize your chatbot to your brand."
-                        buttonText="Customize"
+                        topMessage={__(
+                          'Customize your chatbot to your brand.'
+                        )}
+                        buttonText={__('Customize')}
                         tooltipMessage={null}
                       />
                     )}
@@ -452,7 +458,7 @@ export default function TabWidget() {
                         name="bot_icon"
                         render={({ field }) => (
                           <FormItem className="flex flex-col gap-2">
-                            <FormLabel>Bot Icon</FormLabel>
+                            <FormLabel>{__('Bot Icon')}</FormLabel>
                             <FormControl>
                               <MediaPicker
                                 imageUrl={field.value}
@@ -477,7 +483,7 @@ export default function TabWidget() {
                         name="bot_name"
                         render={({ field }) => (
                           <FormItem className="flex flex-col gap-2">
-                            <FormLabel>Bot Name</FormLabel>
+                            <FormLabel>{__('Bot Name')}</FormLabel>
                             <FormControl>
                               <Input placeholder="Helpmate" {...field} />
                             </FormControl>
@@ -490,7 +496,7 @@ export default function TabWidget() {
                         name="icon"
                         render={({ field }) => (
                           <FormItem className="flex flex-col gap-2">
-                            <FormLabel>Button Icon</FormLabel>
+                            <FormLabel>{__('Button Icon')}</FormLabel>
                             <FormControl>
                               <MediaPicker
                                 imageUrl={field.value}
@@ -522,14 +528,14 @@ export default function TabWidget() {
                       disabled={isUpdating}
                       loading={isUpdating}
                     >
-                      {isUpdating ? 'Saving...' : 'Save'}
+                      {isUpdating ? __('Saving...') : __('Save')}
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       onClick={handleResetToDefaults}
                     >
-                      Reset
+                      {__('Reset')}
                     </Button>
                   </div>
                 </div>

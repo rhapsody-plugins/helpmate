@@ -128,6 +128,15 @@
   --spacing: 0.3rem;
 }
 
+/* Breakpoints must not live in @theme inline — keeps sm:/lg: media queries resolving reliably. */
+@theme {
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 80rem;
+  --breakpoint-2xl: 96rem;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -364,4 +373,112 @@ h3.tiptap-heading + h2.tiptap-heading {
 #helpmate-portal-root h6,
 #helpmate-portal-root p {
   @apply my-0;
+}
+
+/* #helpmate-root h/p { my-0 } breaks margin-based space-y; use flex+gap inside admin shells. */
+@layer components {
+  #helpmate-root
+    :is(.space-y-0\.5):not(.flex-row):not([class*='flex-row']):not([class*='grid']),
+  #helpmate-portal-root
+    :is(.space-y-0\.5):not(.flex-row):not([class*='flex-row']):not(
+      [class*='grid']
+    ) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 0.5);
+  }
+
+  #helpmate-root
+    :is(.space-y-1):not(.flex-row):not([class*='flex-row']):not([class*='grid']),
+  #helpmate-portal-root
+    :is(.space-y-1):not(.flex-row):not([class*='flex-row']):not([class*='grid']) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1);
+  }
+
+  #helpmate-root
+    :is(.space-y-2):not(.flex-row):not([class*='flex-row']):not([class*='grid']),
+  #helpmate-portal-root
+    :is(.space-y-2):not(.flex-row):not([class*='flex-row']):not([class*='grid']) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+  }
+
+  #helpmate-root
+    :is(.space-y-2\.5):not(.flex-row):not([class*='flex-row']):not(
+      [class*='grid']
+    ),
+  #helpmate-portal-root
+    :is(.space-y-2\.5):not(.flex-row):not([class*='flex-row']):not(
+      [class*='grid']
+    ) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2.5);
+  }
+
+  #helpmate-root
+    :is(.space-y-3):not(.flex-row):not([class*='flex-row']):not([class*='grid']),
+  #helpmate-portal-root
+    :is(.space-y-3):not(.flex-row):not([class*='flex-row']):not([class*='grid']) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 3);
+  }
+
+  #helpmate-root
+    :is(.space-y-4):not(.flex-row):not([class*='flex-row']):not([class*='grid']),
+  #helpmate-portal-root
+    :is(.space-y-4):not(.flex-row):not([class*='flex-row']):not([class*='grid']) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 4);
+  }
+
+  #helpmate-root
+    :is(.space-y-6):not(.flex-row):not([class*='flex-row']):not([class*='grid']),
+  #helpmate-portal-root
+    :is(.space-y-6):not(.flex-row):not([class*='flex-row']):not([class*='grid']) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 6);
+  }
+
+  #helpmate-root
+    :is(.space-y-8):not(.flex-row):not([class*='flex-row']):not([class*='grid']),
+  #helpmate-portal-root
+    :is(.space-y-8):not(.flex-row):not([class*='flex-row']):not([class*='grid']) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 8);
+  }
+
+  #helpmate-root
+    :is(
+      .space-y-0\.5,
+      .space-y-1,
+      .space-y-2,
+      .space-y-2\.5,
+      .space-y-3,
+      .space-y-4,
+      .space-y-6,
+      .space-y-8
+    )
+    > *,
+  #helpmate-portal-root
+    :is(
+      .space-y-0\.5,
+      .space-y-1,
+      .space-y-2,
+      .space-y-2\.5,
+      .space-y-3,
+      .space-y-4,
+      .space-y-6,
+      .space-y-8
+    )
+    > * {
+    margin-top: 0 !important;
+  }
 }

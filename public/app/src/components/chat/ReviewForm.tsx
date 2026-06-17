@@ -5,12 +5,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Star } from 'lucide-react';
 import { useState } from 'react';
 import { useTheme } from '@/context/ThemeContext';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 
 interface ReviewFormProps {
-  onSubmit: (rating: number, message: string) => void;
+  onSubmit: (rating: number, message: string) => void | Promise<void>;
   onCancel?: () => void;
-  onSkip?: () => void;
+  onSkip?: () => void | Promise<void>;
   isLoading?: boolean;
 }
 
@@ -23,12 +23,28 @@ export function ReviewForm({
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { icon_shape } = useTheme();
+  const isBusy = isSubmitting || isLoading;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (rating > 0) {
-      onSubmit(rating, message);
+    if (isBusy || rating === 0) return;
+    setIsSubmitting(true);
+    try {
+      await onSubmit(rating, message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSkip = async () => {
+    if (isBusy || !onSkip) return;
+    setIsSubmitting(true);
+    try {
+      await onSkip();
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -49,10 +65,10 @@ export function ReviewForm({
     >
       <div className="flex-1 p-6 flex flex-col items-center justify-center">
         <h2 className="text-xl font-semibold mb-2 text-center">
-          How was your experience?
+          {__('How was your experience?')}
         </h2>
         <p className="text-sm text-muted-foreground mb-6 text-center">
-          Please rate your chat session
+          {__('Please rate your chat session')}
         </p>
 
         {/* Star Rating */}
@@ -65,7 +81,7 @@ export function ReviewForm({
               onMouseEnter={() => setHoveredRating(star)}
               onMouseLeave={() => setHoveredRating(0)}
               className="focus:outline-none transition-transform hover:scale-110"
-              disabled={isLoading}
+              disabled={isBusy}
             >
               <Star
                 size={40}
@@ -83,11 +99,11 @@ export function ReviewForm({
         {/* Message Input */}
         <form onSubmit={handleSubmit} className="w-full max-w-sm">
           <Textarea
-            placeholder="Share your feedback (optional)"
+            placeholder={__('Share your feedback (optional)')}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             className="mb-4 min-h-[100px] resize-none"
-            disabled={isLoading}
+            disabled={isBusy}
           />
 
           {/* Buttons */}
@@ -97,29 +113,29 @@ export function ReviewForm({
                 type="button"
                 variant="outline"
                 onClick={onCancel}
-                disabled={isLoading}
+                disabled={isBusy}
                 className="flex-1"
               >
-                Cancel
+                {__('Cancel')}
               </Button>
             )}
             {onSkip && (
               <Button
                 type="button"
                 variant="outline"
-                onClick={onSkip}
-                disabled={isLoading}
+                onClick={handleSkip}
+                disabled={isBusy}
                 className="flex-1"
               >
-                Skip
+                {__('Skip')}
               </Button>
             )}
             <Button
               type="submit"
-              disabled={rating === 0 || isLoading}
+              disabled={rating === 0 || isBusy}
               className="flex-1"
             >
-              {isLoading ? 'Submitting...' : 'Submit Review'}
+              {isBusy ? __('Submitting…') : __('Submit Review')}
             </Button>
           </div>
         </form>

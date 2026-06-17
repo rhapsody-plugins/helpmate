@@ -69,6 +69,12 @@ export interface ManualOrder {
   order_type: 'manual';
 }
 
+export interface WooCommerceOrderVendorLine {
+  product_label: string;
+  vendor_store_name: string;
+  vendor_id: number;
+}
+
 export interface WooCommerceOrder {
   id: number;
   order_number: string;
@@ -77,9 +83,80 @@ export interface WooCommerceOrder {
   date_created: string;
   edit_url: string;
   order_type: 'woocommerce';
+  /** Present when Dokan integration + toggle enabled (optional). */
+  vendor_summary?: string;
+  vendor_lines?: WooCommerceOrderVendorLine[];
 }
 
-export type Order = ManualOrder | WooCommerceOrder;
+export interface EddOrder {
+  id: number;
+  order_number: string;
+  status: string;
+  total: string;
+  date_created: string;
+  edit_url: string;
+  /** Plain-text line-item summary from the server (EDD). */
+  product_summary?: string;
+  order_type: 'easy_digital_downloads';
+}
+
+export interface SureCartOrder {
+  id: string;
+  order_number: string;
+  status: string;
+  total: string;
+  currency?: string;
+  date_created: string;
+  edit_url: string;
+  product_summary?: string;
+  order_type: 'surecart';
+}
+
+export type Order = ManualOrder | WooCommerceOrder | EddOrder | SureCartOrder;
+
+export interface LearnPressNamedItem {
+  id: number;
+  title: string;
+}
+
+export interface LearnPressProgressSnapshot {
+  enrolled_course_ids: number[];
+  completed_course_ids: number[];
+  in_progress_course_ids: number[];
+  completed_lesson_ids: number[];
+  enrolled_courses: LearnPressNamedItem[];
+  completed_lessons: LearnPressNamedItem[];
+  counts: {
+    enrolled_courses: number;
+    completed_courses: number;
+    in_progress_courses: number;
+    completed_lessons: number;
+  };
+}
+
+export interface ContactLearnPressData {
+  active: boolean;
+  wp_user_id: number | null;
+  live: LearnPressProgressSnapshot;
+  snapshot: LearnPressProgressSnapshot;
+  last_synced_at: string | null;
+}
+
+export interface ContactTutorData {
+  active: boolean;
+  wp_user_id: number | null;
+  live: LearnPressProgressSnapshot;
+  snapshot: LearnPressProgressSnapshot;
+  last_synced_at: string | null;
+}
+
+export interface ContactLifterLmsData {
+  active: boolean;
+  wp_user_id: number | null;
+  live: LearnPressProgressSnapshot;
+  snapshot: LearnPressProgressSnapshot;
+  last_synced_at: string | null;
+}
 
 export interface ContactFilters {
   status?: string;
@@ -89,6 +166,12 @@ export interface ContactFilters {
   city?: string;
   state?: string;
   country?: string;
+  integration_source?: string;
+}
+
+export interface ContactIntegrationSourceOption {
+  value: string;
+  label: string;
 }
 
 export interface Pagination {

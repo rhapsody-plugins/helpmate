@@ -109,6 +109,7 @@ class Helpmate_Database
             user_id bigint(20) NOT NULL,
             cart_data text NOT NULL,
             cart_status varchar(50) NOT NULL COMMENT 'Order Placed, Abandoned, Recovered',
+            commerce_provider varchar(50) NOT NULL DEFAULT 'woocommerce',
             woocommerce_session_id varchar(255) NOT NULL,
             timestamp bigint(20) NOT NULL,
             mails_sent int(11) NOT NULL,
@@ -242,11 +243,11 @@ class Helpmate_Database
         ) $charset_collate;";
         dbDelta($sql);
 
-        // Returns and refunds table
+        // Returns and refunds table (order_id varchar: Woo/EDD numeric ids + SureCart UUIDs)
         $returns_refunds_table = esc_sql($wpdb->prefix . 'helpmate_returns_refunds');
         $sql = "CREATE TABLE IF NOT EXISTS {$returns_refunds_table} (
             id bigint(20) NOT NULL AUTO_INCREMENT,
-            order_id bigint(20) NOT NULL,
+            order_id varchar(191) NOT NULL,
             user_id bigint(20) NOT NULL,
             type varchar(50) NOT NULL COMMENT 'refund, return, or exchange',
             status varchar(50) NOT NULL DEFAULT 'pending' COMMENT 'pending, approved, rejected',
@@ -263,6 +264,22 @@ class Helpmate_Database
             KEY created_at (created_at)
         ) $charset_collate;";
         dbDelta($sql);
+
+        $rr_order_id_type = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time schema alignment
+            $wpdb->prepare(
+                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix
+                "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s AND COLUMN_NAME = 'order_id'"
+                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                ,
+                DB_NAME,
+                $returns_refunds_table
+            )
+        );
+        if ($rr_order_id_type && strtolower((string) $rr_order_id_type) === 'bigint') {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Migrate order_id for SureCart UUIDs; table name is safe, uses wpdb->prefix
+            $wpdb->query("ALTER TABLE {$returns_refunds_table} MODIFY order_id varchar(191) NOT NULL");
+        }
 
         // Jobs table for background processing
         $sql = "CREATE TABLE IF NOT EXISTS {$jobs_table} (
@@ -1075,6 +1092,32 @@ class Helpmate_Database
         ) $charset_collate;";
         dbDelta($sql);
 
+        // Integration events table
+        $integration_events_table = esc_sql($wpdb->prefix . 'helpmate_integration_events');
+        $sql = "CREATE TABLE IF NOT EXISTS {$integration_events_table} (
+            id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            integration varchar(100) NOT NULL,
+            source varchar(100) NOT NULL,
+            form_id bigint(20) unsigned NULL,
+            action varchar(100) NOT NULL,
+            status varchar(64) NOT NULL,
+            error_code varchar(120) NULL,
+            error_message text NULL,
+            payload_hash varchar(64) NULL,
+            dedup_key varchar(64) NULL,
+            metadata longtext NULL,
+            created_at bigint(20) NOT NULL,
+            PRIMARY KEY (id),
+            KEY integration (integration),
+            KEY action (action),
+            KEY status (status),
+            KEY form_id (form_id),
+            KEY payload_hash (payload_hash),
+            KEY dedup_key (dedup_key),
+            KEY created_at (created_at)
+        ) $charset_collate;";
+        dbDelta($sql);
+
         $this->initialize_default_module_settings();
         $this->initialize_task_custom_fields();
     }
@@ -1085,6 +1128,20 @@ class Helpmate_Database
      * @since 1.0.0
      * @access private
      */
+    /**
+     * Delete all settings and re-insert factory defaults (admin tools reset).
+     *
+     * @since 1.0.0
+     */
+    public function reset_settings_to_defaults()
+    {
+        global $wpdb;
+        $table = esc_sql($wpdb->prefix . 'helpmate_settings');
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Admin reset
+        $wpdb->query("DELETE FROM {$table}");
+        $this->seed_all_default_settings();
+    }
+
     private function initialize_default_module_settings()
     {
         global $wpdb;
@@ -1096,8 +1153,54 @@ class Helpmate_Database
             // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         );
 
-        // Define all default settings
-        $default_settings = [
+        $default_settings = $this->get_default_settings_map();
+
+        // Insert only missing settings
+        foreach ($default_settings as $key => $value) {
+            if (!in_array($key, $existing_settings, true)) {
+                $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $wpdb->prefix . 'helpmate_settings',
+                    [
+                        'setting_key' => $key,
+                        'setting_value' => json_encode($value),
+                        'last_updated' => time()
+                    ],
+                    ['%s', '%s', '%d']
+                );
+            }
+        }
+    }
+
+    /**
+     * Insert all factory default settings (used after full settings wipe).
+     *
+     * @since 1.0.0
+     */
+    private function seed_all_default_settings()
+    {
+        global $wpdb;
+        $default_settings = $this->get_default_settings_map();
+        foreach ($default_settings as $key => $value) {
+            $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                $wpdb->prefix . 'helpmate_settings',
+                [
+                    'setting_key' => $key,
+                    'setting_value' => json_encode($value),
+                    'last_updated' => time()
+                ],
+                ['%s', '%s', '%d']
+            );
+        }
+    }
+
+    /**
+     * Factory default settings map.
+     *
+     * @return array<string, mixed>
+     */
+    private function get_default_settings_map()
+    {
+        return [
             'modules' => HELPMATE_MODULE_DEFAULT_SETTINGS,
             'api' => [
                 'api_key' => '',
@@ -1173,6 +1276,19 @@ class Helpmate_Database
                 "proactive_sales_template" => "1",
                 "products" => []
             ],
+            'dokan_integration' => [
+                'show_vendor_in_orders_tab'        => false,
+                'show_vendor_in_training_products' => false,
+                'show_vendor_in_product_lists'     => false,
+            ],
+            'wcfm_integration' => [
+                'show_vendor_in_orders_tab'        => false,
+                'show_vendor_in_training_products' => false,
+                'show_vendor_in_product_lists'     => false,
+            ],
+            'multivendor_integration' => [
+                'selected_provider' => 'dokan',
+            ],
             'coupons' => [
                 "coupons" => [],
                 "exit_intent_coupon" => "",
@@ -1199,23 +1315,26 @@ class Helpmate_Database
                 'leads_enabled' => false,
                 'conversation_starters_enabled' => false,
             ],
+            'cf7_integrations' => [
+                'forms' => [],
+            ],
+            'forminator_integrations' => [
+                'forms' => [],
+            ],
+            'wpforms_integrations' => [
+                'forms' => [],
+            ],
+            'ninja_forms_integrations' => [
+                'forms' => [],
+            ],
+            'formidable_forms_integrations' => [
+                'forms' => [],
+            ],
+            'integrations' => [
+                'event_retention_days' => 90,
+            ],
             'helpmate_crm_custom_statuses' => []
         ];
-
-        // Insert only missing settings
-        foreach ($default_settings as $key => $value) {
-            if (!in_array($key, $existing_settings)) {
-                $wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                    $wpdb->prefix . 'helpmate_settings',
-                    [
-                        'setting_key' => $key,
-                        'setting_value' => json_encode($value),
-                        'last_updated' => time()
-                    ],
-                    ['%s', '%s', '%d']
-                );
-            }
-        }
     }
 
     /**

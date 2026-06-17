@@ -537,7 +537,7 @@ class Helpmate_Ticket
     {
         $shop_name = get_bloginfo('name');
 
-        /* translators: %s: Recipient name */
+        /* translators: %s: Recipient's name */
         $greeting = sprintf(__('Hello %s,', 'helpmate-ai-chatbot'), esc_html($name));
 
         return '<div style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #ffffff;">

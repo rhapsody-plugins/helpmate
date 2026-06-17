@@ -374,6 +374,30 @@ class Helpmate_Frontend_Routes
             'permission_callback' => array($this, 'verify_nonce')
         ));
 
+        // Dismiss review request without submitting (e.g. user skips feedback)
+        register_rest_route('helpmate/v1', '/chat/review/dismiss', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                $params = $this->sanitize_request($request, ['session_id']);
+                $session_id = $params['session_id'] ?? '';
+
+                if (empty($session_id)) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => __('Session ID is required', 'helpmate-ai-chatbot')
+                    ], 400);
+                }
+
+                delete_transient('helpmate_review_request_' . $session_id);
+
+                return new WP_REST_Response([
+                    'error' => false,
+                    'message' => __('Review request dismissed', 'helpmate-ai-chatbot')
+                ], 200);
+            },
+            'permission_callback' => array($this, 'verify_nonce')
+        ));
+
         // Check review request status
         register_rest_route('helpmate/v1', '/chat/review-request-status', array(
             'methods' => 'POST',
@@ -460,10 +484,55 @@ class Helpmate_Frontend_Routes
     private function get_product_info($product_ids)
     {
         $products = [];
+        $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+            ? $this->helpmate->get_primary_commerce_provider()
+            : '';
+        if (empty($provider)) {
+            return [];
+        }
 
         foreach ($product_ids as $product_id) {
-            $product = wc_get_product($product_id);
-            if ($product) {
+            if ($provider === 'easy_digital_downloads' && get_post_type($product_id) === 'download') {
+                $download = $this->helpmate->get_edd()->get_product_info((int) $product_id);
+                if (!empty($download)) {
+                    $products[] = [
+                        'id' => $download['id'],
+                        'name' => $download['name'],
+                        'price' => $download['price'],
+                        'image' => $download['image'],
+                        'regular_price' => $download['regular_price'],
+                        'sale_price' => $download['sale_price'],
+                        'discount_percentage' => 0,
+                        'stock_status' => $download['stock_status'] ?? 'in_stock',
+                        'url' => $download['permalink'],
+                        'average_rating' => 0,
+                        'review_count' => 0
+                    ];
+                }
+            } elseif ($provider === 'surecart' && get_post_type($product_id) === 'sc_product' && method_exists($this->helpmate, 'get_surecart')) {
+                $sc_product = $this->helpmate->get_surecart()->get_product_info((int) $product_id);
+                if (!empty($sc_product)) {
+                    $products[] = [
+                        'id' => $sc_product['id'],
+                        'name' => $sc_product['name'],
+                        'price' => $sc_product['price'],
+                        'image' => $sc_product['image'],
+                        'regular_price' => $sc_product['regular_price'],
+                        'sale_price' => $sc_product['sale_price'],
+                        'discount_percentage' => (!empty($sc_product['regular_price_raw']) && !empty($sc_product['sale_price_raw']) && (float) $sc_product['regular_price_raw'] > 0)
+                            ? (int) round((((float) $sc_product['regular_price_raw'] - (float) $sc_product['sale_price_raw']) / (float) $sc_product['regular_price_raw']) * 100)
+                            : 0,
+                        'stock_status' => $sc_product['stock_status'] ?? 'in_stock',
+                        'url' => $sc_product['permalink'],
+                        'average_rating' => (float) ($sc_product['average_rating'] ?? 0),
+                        'review_count' => (int) ($sc_product['rating_count'] ?? 0)
+                    ];
+                }
+            } else {
+                $product = wc_get_product($product_id);
+                if (!$product) {
+                    continue;
+                }
                 $average_rating = $product->get_average_rating();
                 $review_count = $product->get_review_count();
 
@@ -502,6 +571,15 @@ class Helpmate_Frontend_Routes
             }
             $is_pro = $this->helpmate->get_product_slug() !== 'helpmate-free' && $this->helpmate->is_helpmate_pro_active();
             $is_woocommerce_active = $this->helpmate->is_woocommerce_active();
+            $selected_provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+                ? $this->helpmate->get_primary_commerce_provider()
+                : '';
+            $active_commerce_providers = !empty($selected_provider) ? [$selected_provider] : [];
+            $is_commerce_active = !empty($active_commerce_providers);
+            $image_search_operational = method_exists($this->helpmate, 'is_image_search_operational')
+                && $this->helpmate->is_image_search_operational();
+            $sales_notification_commerce_active = method_exists($this->helpmate, 'is_sales_notification_commerce_active')
+                && $this->helpmate->is_sales_notification_commerce_active();
             $settings = [];
             $customization = $this->helpmate->get_settings()->get_setting('customization') ?? [];
             $proactiveSales = $this->helpmate->get_settings()->get_setting('proactive_sales') ?? [];
@@ -540,11 +618,11 @@ class Helpmate_Frontend_Routes
             if (!$is_pro) {
                 $settings['business_hours_enabled'] = false;
             }
-            if ($proactiveSales['products'] && $is_woocommerce_active) {
+            if (!empty($proactiveSales['products']) && $is_commerce_active) {
                 $proactiveSalesProducts = $this->get_product_info($proactiveSales['products']);
             }
-            if ($this->helpmate->get_settings()->get_setting('coupons')['exit_intent_coupon']) {
-                $settings['exit_intent_coupon'] = $this->helpmate->get_settings()->get_setting('coupons')['exit_intent_coupon'];
+            if (!empty($coupons['exit_intent_coupon'])) {
+                $settings['exit_intent_coupon'] = $coupons['exit_intent_coupon'];
             }
 
             $withoutProducts = array_filter(
@@ -575,9 +653,9 @@ class Helpmate_Frontend_Routes
                 }
             }
 
-            // Add smart schedules settings if enabled
+            // Add smart schedules settings if enabled and Pro is operational
             $smartSchedulingSettings = [];
-            if (!empty($smartScheduling) && !empty($smartScheduling['enabled'])) {
+            if (!empty($smartScheduling) && !empty($smartScheduling['enabled']) && $is_pro) {
                 $smartSchedulingSettings['enabled'] = true;
                 $smartSchedulingSettings['buttonText'] = $smartScheduling['buttonText'] ?? 'Get Appointments';
 
@@ -609,6 +687,10 @@ class Helpmate_Frontend_Routes
                 'api' => $api,
                 'is_pro' => $is_pro,
                 'is_woocommerce_active' => $is_woocommerce_active,
+                'image_search_operational' => $image_search_operational,
+                'sales_notification_commerce_active' => $sales_notification_commerce_active,
+                'selected_commerce_provider' => $selected_provider,
+                'active_commerce_providers' => $active_commerce_providers,
                 'modules' => $modules,
                 'customization' => $customization,
                 'proactive_sales_products' => $proactiveSalesProducts,
@@ -634,37 +716,9 @@ class Helpmate_Frontend_Routes
      */
     private function find_page_with_shortcode($shortcode)
     {
-        // Search in posts
-        $posts = get_posts(array(
-            'post_type' => array('post', 'page'),
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            's' => $shortcode,
-        ));
-
-        foreach ($posts as $post) {
-            if (has_shortcode($post->post_content, 'helpmate_scheduling')) {
-                return get_permalink($post->ID);
-            }
-        }
-
-        // Also search in post content directly (more reliable)
-        global $wpdb;
-        $shortcode_pattern = '%[helpmate_scheduling]%';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct query necessary; caching not appropriate for frequently changing data
-        $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT ID, post_type FROM {$wpdb->posts}
-            WHERE post_status = 'publish'
-            AND (post_type = 'post' OR post_type = 'page')
-            AND post_content LIKE %s
-            ORDER BY post_date DESC
-            LIMIT 1",
-            $shortcode_pattern
-        ));
-
-        if (!empty($results)) {
-            $post_id = $results[0]->ID;
-            return get_permalink($post_id);
+        if (class_exists('Helpmate_Elementor_Utils')) {
+            $url = Helpmate_Elementor_Utils::get_scheduling_landing_permalink();
+            return $url ? $url : null;
         }
 
         return null;

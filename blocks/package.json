@@ -1,0 +1,5 @@
+{
+	"name": "helpmate-blocks",
+	"private": true,
+	"description": "Block editor UI is committed as blocks/build/index.js (vanilla wp.* APIs). Optional: add @wordpress/scripts and src/ if you prefer JSX builds."
+}

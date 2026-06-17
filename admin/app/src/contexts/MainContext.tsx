@@ -9,23 +9,13 @@ import {
 } from 'react';
 
 export type PageType =
-  | 'analytics'
-  | 'activity'
   | 'data-source'
   | 'settings'
-  | 'proactive-sales'
-  | 'abandoned-cart'
-  | 'coupon-delivery'
   | 'order-tracker'
   | 'image-search'
-  | 'ticket-system'
   | 'refund-return'
-  | 'app-center'
-  | 'train-chatbot'
   | 'test-chatbot'
-  | 'social-chat'
   | 'social-chat-inbox'
-  | 'social-chat-campaigns'
   | 'social-chat-facebook'
   | 'social-chat-instagram'
   | 'social-chat-whatsapp'
@@ -36,13 +26,14 @@ export type PageType =
   | 'crm-leads'
   | 'crm-emails'
   | 'crm-segments'
-  | 'crm-analytics'
   | 'appointments-bookings'
   | 'control-center-team'
   | 'tasks'
   | 'control-center-dashboard'
   | 'control-center-analytics'
   | 'control-center-settings'
+  | 'control-center-tools'
+  | 'integrations'
   | 'manage-api'
   | 'setup'
   | 'inbox-all'
@@ -65,24 +56,14 @@ export type PageType =
 
 // Map page types to tab/subtab structure
 const pageToTabMap: Record<PageType, { tab: string; subtab?: string }> = {
-  analytics: { tab: 'analytics' },
-  activity: { tab: 'activity' },
   'data-source': { tab: 'data-source' },
   settings: { tab: 'settings' },
-  'proactive-sales': { tab: 'apps', subtab: 'proactive-sales' },
-  'abandoned-cart': { tab: 'crm', subtab: 'abandoned-cart' },
   'appointments-bookings': { tab: 'crm', subtab: 'appointments-bookings' },
-  'coupon-delivery': { tab: 'apps', subtab: 'coupon-delivery' },
   'order-tracker': { tab: 'apps', subtab: 'order-tracker' },
   'image-search': { tab: 'apps', subtab: 'image-search' },
-  'ticket-system': { tab: 'apps', subtab: 'ticket-system' },
   'refund-return': { tab: 'apps', subtab: 'refund-return' },
-  'app-center': { tab: 'apps' },
-  'train-chatbot': { tab: 'data-source' },
   'test-chatbot': { tab: 'test-chatbot' },
-  'social-chat': { tab: 'social-chat', subtab: 'settings' },
   'social-chat-inbox': { tab: 'social-chat', subtab: 'inbox' },
-  'social-chat-campaigns': { tab: 'social-chat', subtab: 'campaigns' },
   'social-chat-facebook': { tab: 'social-chat', subtab: 'facebook' },
   'social-chat-instagram': { tab: 'social-chat', subtab: 'instagram' },
   'social-chat-whatsapp': { tab: 'social-chat', subtab: 'whatsapp' },
@@ -93,12 +74,13 @@ const pageToTabMap: Record<PageType, { tab: string; subtab?: string }> = {
   'crm-leads': { tab: 'crm', subtab: 'leads' },
   'crm-emails': { tab: 'crm', subtab: 'emails' },
   'crm-segments': { tab: 'crm', subtab: 'segments' },
-  'crm-analytics': { tab: 'crm', subtab: 'analytics' },
   'control-center-team': { tab: 'control-center', subtab: 'team' },
   tasks: { tab: 'crm', subtab: 'tasks' },
   'control-center-dashboard': { tab: 'control-center', subtab: 'dashboard' },
   'control-center-analytics': { tab: 'control-center', subtab: 'analytics' },
   'control-center-settings': { tab: 'control-center', subtab: 'settings' },
+  'control-center-tools': { tab: 'control-center', subtab: 'tools' },
+  integrations: { tab: 'integrations' },
   'manage-api': { tab: 'control-center', subtab: 'manage-api' },
   setup: { tab: 'setup' },
   'inbox-all': { tab: 'social-chat', subtab: 'inbox' },
@@ -150,18 +132,13 @@ const pageToTabMap: Record<PageType, { tab: string; subtab?: string }> = {
 // Map tab/subtab to page type
 const tabToPageMap: Record<string, Record<string, PageType>> = {
   apps: {
-    'proactive-sales': 'proactive-sales',
-    'coupon-delivery': 'coupon-delivery',
     'order-tracker': 'order-tracker',
     'image-search': 'image-search',
-    'ticket-system': 'ticket-system',
     'refund-return': 'refund-return',
   },
   'social-chat': {
-    settings: 'social-chat',
     inbox: 'social-chat-inbox',
     'inbox-archived': 'inbox-archived',
-    campaigns: 'social-chat-campaigns',
     facebook: 'social-chat-facebook',
     instagram: 'social-chat-instagram',
     whatsapp: 'social-chat-whatsapp',
@@ -172,16 +149,15 @@ const tabToPageMap: Record<string, Record<string, PageType>> = {
     leads: 'crm-leads',
     emails: 'crm-emails',
     segments: 'crm-segments',
-    analytics: 'crm-analytics',
     tasks: 'tasks',
     'custom-fields': 'crm-custom-fields',
-    'abandoned-cart': 'abandoned-cart',
     'appointments-bookings': 'appointments-bookings',
   },
   'control-center': {
     dashboard: 'control-center-dashboard',
     analytics: 'control-center-analytics',
     settings: 'control-center-settings',
+    tools: 'control-center-tools',
     team: 'control-center-team',
     'manage-api': 'manage-api',
   },
@@ -205,11 +181,6 @@ function getPageFromUrl(): PageType {
   const urlParams = new URLSearchParams(window.location.search);
   const tab = urlParams.get('tab');
   const subtab = urlParams.get('subtab');
-
-  // Redirect legacy customization/behavior URLs to settings
-  if (tab === 'customization' || tab === 'behavior') {
-    return 'settings';
-  }
 
   if (tab && subtab && tabToPageMap[tab]?.[subtab]) {
     return tabToPageMap[tab][subtab];
@@ -300,14 +271,6 @@ export function MainProvider({ children }: MainProviderProps) {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
-
-  // Normalize URL when landing with legacy tab=customization or tab=behavior
-  useEffect(() => {
-    const tab = new URLSearchParams(window.location.search).get('tab');
-    if ((tab === 'customization' || tab === 'behavior') && page === 'settings') {
-      updateUrlParams('settings');
-    }
-  }, [page]);
 
   const value = useMemo(
     () => ({

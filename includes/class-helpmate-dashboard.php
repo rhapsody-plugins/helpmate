@@ -47,8 +47,16 @@ class Helpmate_Dashboard
     public function get_dashboard_data($date_filter = 'today', $user_id = null)
     {
         try {
-            // Check if WooCommerce is active
-            $woocommerce_active = class_exists('WooCommerce');
+            $active_providers = method_exists($this->helpmate, 'get_active_commerce_providers')
+                ? $this->helpmate->get_active_commerce_providers()
+                : array();
+            if (empty($active_providers) && method_exists($this->helpmate, 'get_detected_commerce_providers')) {
+                $detected = $this->helpmate->get_detected_commerce_providers();
+                if (count($detected) === 1) {
+                    $active_providers = $detected;
+                }
+            }
+            $commerce_active = !empty($active_providers);
 
             // Calculate date ranges for current and previous periods
             $end_date = current_time('timestamp', true);
@@ -56,16 +64,16 @@ class Helpmate_Dashboard
             $previous_start_date = $this->get_previous_period_start_date($date_filter, $start_date);
 
             // Get WooCommerce orders data for both periods (system-wide, no user filtering)
-            $current_orders_data = $woocommerce_active ? $this->get_woocommerce_orders_data($start_date, $end_date) : ['total_orders' => 0, 'total_revenue' => 0, 'revenue_by_date' => []];
-            $previous_orders_data = $woocommerce_active ? $this->get_woocommerce_orders_data($previous_start_date, $start_date) : ['total_orders' => 0, 'total_revenue' => 0, 'revenue_by_date' => []];
+            $current_orders_data = $commerce_active ? $this->get_woocommerce_orders_data($start_date, $end_date) : ['total_orders' => 0, 'total_revenue' => 0, 'revenue_by_date' => []];
+            $previous_orders_data = $commerce_active ? $this->get_woocommerce_orders_data($previous_start_date, $start_date) : ['total_orders' => 0, 'total_revenue' => 0, 'revenue_by_date' => []];
 
             // Get chat sessions data for both periods (filtered by user_id if provided)
             $current_chat_data = $this->get_chat_sessions_data($start_date, $end_date, $user_id);
             $previous_chat_data = $this->get_chat_sessions_data($previous_start_date, $start_date, $user_id);
 
             // Get sales data for both periods (system-wide, no user filtering)
-            $current_sales_data = $woocommerce_active ? $this->get_sales_data($start_date, $end_date) : ['roi' => 0, 'aov' => 0];
-            $previous_sales_data = $woocommerce_active ? $this->get_sales_data($previous_start_date, $start_date) : ['roi' => 0, 'aov' => 0];
+            $current_sales_data = $commerce_active ? $this->get_sales_data($start_date, $end_date) : ['roi' => 0, 'aov' => 0];
+            $previous_sales_data = $commerce_active ? $this->get_sales_data($previous_start_date, $start_date) : ['roi' => 0, 'aov' => 0];
 
             // Get statistics data for both periods (with optional user filtering)
             $current_stats_data = $this->get_statistics_data($start_date, $end_date, $user_id);
@@ -223,12 +231,53 @@ class Helpmate_Dashboard
      */
     private function get_woocommerce_orders_data($start_date, $end_date)
     {
-        // Check if WooCommerce is active
-        if (!class_exists('WooCommerce')) {
+        $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+            ? $this->helpmate->get_primary_commerce_provider()
+            : '';
+        if ($provider === '') {
             return array(
                 'total_orders' => 0,
                 'total_revenue' => 0,
                 'revenue_by_date' => array()
+            );
+        }
+
+        if ($provider === 'easy_digital_downloads' && function_exists('edd_get_orders')) {
+            $orders = edd_get_orders([
+                'number' => 1000,
+                'status' => 'complete',
+                'date_query' => [
+                    'after' => gmdate('Y-m-d H:i:s', $start_date),
+                    'before' => gmdate('Y-m-d H:i:s', $end_date),
+                ],
+            ]);
+            $total_revenue = 0;
+            $revenue_by_date = array();
+            foreach ((array) $orders as $order) {
+                $order_total = (float) ($order->total ?? 0);
+                $total_revenue += $order_total;
+                $date = !empty($order->date_created) ? gmdate('Y-m-d', strtotime((string) $order->date_created)) : gmdate('Y-m-d');
+                if (!isset($revenue_by_date[$date])) {
+                    $revenue_by_date[$date] = 0;
+                }
+                $revenue_by_date[$date] += $order_total;
+            }
+            return [
+                'total_orders' => is_array($orders) ? count($orders) : 0,
+                'total_revenue' => $total_revenue,
+                'revenue_by_date' => $revenue_by_date,
+            ];
+        }
+
+        if ($provider === 'surecart') {
+            return $this->get_surecart_dashboard_orders_aggregate($start_date, $end_date);
+        }
+
+        if (!function_exists('wc_get_orders')) {
+            return array(
+                'total_orders' => 0,
+                'total_revenue' => 0,
+                'revenue_by_date' => array(),
             );
         }
 
@@ -255,6 +304,113 @@ class Helpmate_Dashboard
             'total_orders' => count($orders),
             'total_revenue' => $total_revenue,
             'revenue_by_date' => $revenue_by_date
+        );
+    }
+
+    /**
+     * SureCart orders aggregate for dashboard (paid/processing in UTC window).
+     *
+     * @param int $start_date Start Unix timestamp (GMT).
+     * @param int $end_date   End Unix timestamp (GMT).
+     * @return array{total_orders:int,total_revenue:float,revenue_by_date:array<string,float>}
+     */
+    private function get_surecart_dashboard_orders_aggregate($start_date, $end_date)
+    {
+        if (!class_exists('\SureCart\Models\Order')) {
+            return array(
+                'total_orders' => 0,
+                'total_revenue' => 0,
+                'revenue_by_date' => array(),
+            );
+        }
+
+        $start_ts = (int) $start_date;
+        $end_ts = (int) $end_date;
+        $total_revenue = 0.0;
+        $revenue_by_date = array();
+        $count = 0;
+
+        try {
+            $page = 1;
+            $per_page = 100;
+            $max_pages = 40;
+
+            while ($page <= $max_pages) {
+                $query = \SureCart\Models\Order::where(
+                    array(
+                        'status' => array('paid', 'processing'),
+                    )
+                )->with(array('checkout'));
+
+                $page_result = $query->paginate(
+                    array(
+                        'per_page' => $per_page,
+                        'page' => $page,
+                    )
+                );
+
+                if (is_wp_error($page_result)) {
+                    break;
+                }
+
+                $orders_list = array();
+                if (is_object($page_result)) {
+                    $raw = null;
+                    if (method_exists($page_result, 'getAttribute')) {
+                        $raw = $page_result->getAttribute('data');
+                    }
+                    if (!is_array($raw)) {
+                        $raw = $page_result->data;
+                    }
+                    if (is_array($raw)) {
+                        $orders_list = $raw;
+                    }
+                } elseif (is_array($page_result)) {
+                    $orders_list = $page_result;
+                }
+
+                if (empty($orders_list)) {
+                    break;
+                }
+
+                foreach ($orders_list as $order) {
+                    if (!is_object($order)) {
+                        continue;
+                    }
+                    $ts = !empty($order->created_at) ? (int) $order->created_at : 0;
+                    if ($ts < $start_ts || $ts > $end_ts) {
+                        continue;
+                    }
+                    $checkout = (isset($order->checkout) && is_object($order->checkout)) ? $order->checkout : null;
+                    $minor = $checkout && isset($checkout->total_amount) ? (int) $checkout->total_amount : 0;
+                    $zd = $checkout && !empty($checkout->is_zero_decimal);
+                    $amount = $zd ? (float) $minor : (float) round($minor / 100, 2);
+                    $total_revenue += $amount;
+                    ++$count;
+                    $d = gmdate('Y-m-d', $ts);
+                    if (!isset($revenue_by_date[$d])) {
+                        $revenue_by_date[$d] = 0;
+                    }
+                    $revenue_by_date[$d] += $amount;
+                }
+
+                if (count($orders_list) < $per_page) {
+                    break;
+                }
+                ++$page;
+            }
+        } catch (\Throwable $e) {
+            return array(
+                'total_orders' => 0,
+                'total_revenue' => 0,
+                'revenue_by_date' => array(),
+            );
+        }
+
+        return array(
+            'total_orders' => $count,
+            'total_revenue' => $total_revenue,
+            'revenue_by_date' => $revenue_by_date,
         );
     }
 
@@ -323,12 +479,45 @@ class Helpmate_Dashboard
      */
     private function get_sales_data($start_date, $end_date)
     {
-        // Check if WooCommerce is active
-        if (!class_exists('WooCommerce') || !is_plugin_active('woocommerce/woocommerce.php')) {
+        $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+            ? $this->helpmate->get_primary_commerce_provider()
+            : '';
+        if ($provider === '') {
             return array(
                 'roi' => 0,
                 'aov' => 0
             );
+        }
+
+        if ($provider === 'easy_digital_downloads' && function_exists('edd_get_orders')) {
+            $orders = edd_get_orders([
+                'number' => 1000,
+                'status' => 'complete',
+                'date_query' => [
+                    'after' => gmdate('Y-m-d H:i:s', $start_date),
+                    'before' => gmdate('Y-m-d H:i:s', $end_date),
+                ],
+            ]);
+            $total_revenue = 0;
+            $order_count = 0;
+            foreach ((array) $orders as $order) {
+                $total_revenue += (float) ($order->total ?? 0);
+                $order_count++;
+            }
+            $aov = $order_count > 0 ? $total_revenue / $order_count : 0;
+            return ['roi' => 0, 'aov' => $aov];
+        }
+
+        if ($provider === 'surecart') {
+            $agg = $this->get_surecart_dashboard_orders_aggregate($start_date, $end_date);
+            $count = (int) ($agg['total_orders'] ?? 0);
+            $rev = (float) ($agg['total_revenue'] ?? 0);
+            $aov = $count > 0 ? $rev / $count : 0;
+            return array('roi' => 0, 'aov' => round($aov, 2));
+        }
+
+        if (!function_exists('wc_get_orders')) {
+            return array('roi' => 0, 'aov' => 0);
         }
 
         $args = array(

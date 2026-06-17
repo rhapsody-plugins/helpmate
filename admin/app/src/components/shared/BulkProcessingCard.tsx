@@ -5,6 +5,7 @@ import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { BulkJob } from '@/types/bulkJob';
 import { Separator } from '@/components/ui/separator';
+import { __, sprintf } from '@/lib/utils';
 
 interface BulkProcessingCardProps {
   activeBulkJob: BulkJob | null;
@@ -55,7 +56,7 @@ export function BulkProcessingCard({
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
             {getStatusIcon(activeBulkJob.status)}
-            <CardTitle className="text-lg">Bulk Processing Progress</CardTitle>
+            <CardTitle className="text-lg">{__('Bulk Processing Progress')}</CardTitle>
             <Badge className={getStatusColor(activeBulkJob.status)}>
               {activeBulkJob.status.charAt(0).toUpperCase() +
                 activeBulkJob.status.slice(1)}
@@ -63,7 +64,7 @@ export function BulkProcessingCard({
           </div>
           <div className="flex gap-4 items-center">
             <div className="text-xs text-muted-foreground">
-              Started:{' '}
+              {__('Started:')}{' '}
               {format(
                 new Date(activeBulkJob.created_at + 'Z'),
                 'PPpp'
@@ -71,7 +72,7 @@ export function BulkProcessingCard({
               {activeBulkJob.completed_at && (
                 <span>
                   {' '}
-                  • Completed:{' '}
+                  • {__('Completed:')}{' '}
                   {format(
                     new Date(activeBulkJob.completed_at + 'Z'),
                     'PPpp'
@@ -87,7 +88,7 @@ export function BulkProcessingCard({
                 onClick={onCancel}
                 className="text-red-600 hover:text-red-700"
               >
-                Cancel
+                {__('Cancel')}
               </Button>
             )}
             {(activeBulkJob.status === 'completed' ||
@@ -100,7 +101,7 @@ export function BulkProcessingCard({
                 onClick={onDismiss}
                 className="text-gray-600 hover:text-gray-700"
               >
-                Dismiss
+                {__('Dismiss')}
               </Button>
             )}
           </div>
@@ -110,18 +111,20 @@ export function BulkProcessingCard({
         <div className="flex gap-4 items-center divide-gray-200 lg:flex-row">
           <div className="space-y-2 w-full">
             <div className="flex justify-between text-sm">
-              <span>Progress</span>
+              <span>{__('Progress')}</span>
               <span>
-                {activeBulkJob.processed_documents} /{' '}
-                {activeBulkJob.total_documents} documents
+                {sprintf(
+                  /* translators: 1: Processed document count, 2: Total document count */
+                  __('%1$d / %2$d documents'),
+                  Number(activeBulkJob.processed_documents),
+                  Number(activeBulkJob.total_documents)
+                )}
                 {(activeBulkJob.status === 'completed' ||
                   activeBulkJob.status === 'failed') && (
                   <span className="ml-2 text-xs text-muted-foreground">
-                    (Finished - will auto-dismiss in{' '}
                     {activeBulkJob.errors && activeBulkJob.errors.length > 0
-                      ? '10s'
-                      : '3s'}
-                    )
+                      ? __('(Finished — will auto-dismiss in 10 seconds)')
+                      : __('(Finished — will auto-dismiss in 3 seconds)')}
                   </span>
                 )}
               </span>
@@ -141,14 +144,20 @@ export function BulkProcessingCard({
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>
                 {activeBulkJob.status === 'processing'
-                  ? 'Processing...'
+                  ? __('Processing...')
                   : activeBulkJob.status === 'completed'
-                  ? 'Completed!'
+                  ? __('Completed!')
                   : activeBulkJob.status === 'failed'
-                  ? 'Failed'
-                  : 'Scheduled'}
+                  ? __('Failed')
+                  : __('Scheduled')}
               </span>
-              <span>{activeBulkJob.progress}% complete</span>
+              <span>
+                {sprintf(
+                  /* translators: %d: Percentage complete */
+                  __('%d%% complete'),
+                  activeBulkJob.progress
+                )}
+              </span>
             </div>
           </div>
 
@@ -159,20 +168,20 @@ export function BulkProcessingCard({
               <div className="text-2xl font-bold text-green-600">
                 {activeBulkJob.successful_documents}
               </div>
-              <div className="text-muted-foreground">Successful</div>
+              <div className="text-muted-foreground">{__('Successful')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-red-600">
                 {activeBulkJob.failed_documents}
               </div>
-              <div className="text-muted-foreground">Failed</div>
+              <div className="text-muted-foreground">{__('Failed')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
                 {parseInt(activeBulkJob.total_documents) -
                   parseInt(activeBulkJob.processed_documents)}
               </div>
-              <div className="text-muted-foreground">Remaining</div>
+              <div className="text-muted-foreground">{__('Remaining')}</div>
             </div>
           </div>
         </div>
@@ -181,8 +190,13 @@ export function BulkProcessingCard({
           <div className="flex gap-2 items-center p-3 bg-green-50 rounded-lg border border-green-200">
             <CheckCircle className="w-4 h-4 text-green-600" />
             <div className="text-green-800">
-              Bulk processing completed successfully!{' '}
-              {activeBulkJob.successful_documents} documents were processed.
+              {sprintf(
+                /* translators: %d: Number of documents processed successfully */
+                __(
+                  'Bulk processing completed successfully! %d documents were processed.'
+                ),
+                activeBulkJob.successful_documents
+              )}
             </div>
           </div>
         )}
@@ -202,15 +216,22 @@ export function BulkProcessingCard({
               ) ? (
                 <div>
                   <div className="font-semibold">
-                    Embedding Credits Limit Reached
+                    {__('Embedding Credits Limit Reached')}
                   </div>
                   <div className="mt-1 text-sm">
-                    Processing stopped due to insufficient embedding credits.
-                    Please try again later or contact support.
+                    {__(
+                      'Processing stopped due to insufficient embedding credits. Please try again later or contact support.'
+                    )}
                   </div>
                 </div>
               ) : (
-                `Bulk processing failed. ${activeBulkJob.failed_documents} documents failed to process.`
+                sprintf(
+                  /* translators: %d: Number of documents that failed */
+                  __(
+                    'Bulk processing failed. %d documents failed to process.'
+                  ),
+                  activeBulkJob.failed_documents
+                )
               )}
             </div>
           </div>
@@ -219,7 +240,7 @@ export function BulkProcessingCard({
         {activeBulkJob.errors && activeBulkJob.errors.length > 0 && (
           <div className="space-y-2">
             <div className="text-sm font-medium text-muted-foreground">
-              Errors:
+              {__('Errors:')}
             </div>
             <div className="overflow-y-auto space-y-1 max-h-32">
               {activeBulkJob.errors.map((error, index) => {
@@ -246,7 +267,7 @@ export function BulkProcessingCard({
                       }
                     >
                       {isCreditsLimit
-                        ? 'Credits limit reached - processing stopped'
+                        ? __('Credits limit reached - processing stopped')
                         : error.error}
                     </div>
                   </div>

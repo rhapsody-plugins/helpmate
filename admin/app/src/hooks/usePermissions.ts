@@ -3,23 +3,13 @@ import { PageType } from '@/contexts/MainContext';
 
 // Map pages to required permissions
 const PAGE_PERMISSIONS: Record<PageType, string[]> = {
-  'analytics': ['analytics'],
-  'activity': ['analytics'],
   'data-source': ['chat_settings'],
   'settings': ['chat_settings'],
-  'proactive-sales': ['chat_settings'],
-  'abandoned-cart': ['chat_settings'],
-  'coupon-delivery': ['chat_settings'],
   'order-tracker': ['chat_settings'],
   'image-search': ['chat_settings'],
-  'ticket-system': ['live_chat', 'tickets'],
   'refund-return': ['live_chat', 'tickets'],
-  'app-center': [], // Always accessible
-  'train-chatbot': ['chat_settings'],
   'test-chatbot': ['chat_settings'],
-  'social-chat': ['chat_settings'], // Settings page requires chat_settings
   'social-chat-inbox': ['live_chat'],
-  'social-chat-campaigns': ['chat_settings'],
   'social-chat-facebook': ['chat_settings'],
   'social-chat-instagram': ['chat_settings'],
   'social-chat-whatsapp': ['chat_settings'],
@@ -30,12 +20,13 @@ const PAGE_PERMISSIONS: Record<PageType, string[]> = {
   'crm-leads': ['crm_leads', 'leads'],
   'crm-emails': ['crm_emails', 'emails'],
   'crm-segments': ['crm_segments', 'segments'],
-  'crm-analytics': ['analytics'],
   'control-center-team': ['team_management'],
   'tasks': ['crm_tasks', 'tasks'],
   'control-center-analytics': ['analytics'],
   'control-center-dashboard': ['analytics'],
   'control-center-settings': ['team_management'], // Requires admin role (checked separately in PageGuard)
+  'control-center-tools': ['team_management'], // Requires admin role (checked separately in PageGuard)
+  integrations: [], // Role-only access (admin or manager) via PageGuard / sidebar
   'manage-api': ['team_management'], // Requires admin role (checked separately in PageGuard)
   'appointments-bookings': ['appointments', 'crm_contacts'],
   'automation-marketing-email-campaigns': ['emails', 'crm_emails'],
@@ -139,4 +130,3 @@ export function usePermissions() {
     canAccessPage,
   };
 }
-

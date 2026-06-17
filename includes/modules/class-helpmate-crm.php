@@ -20,6 +20,32 @@ if (!defined('ABSPATH'))
 class Helpmate_CRM
 {
     /**
+     * Allowed CRM sync source tokens.
+     *
+     * @var array<int,string>
+     */
+    private $allowed_sync_sources = ['woocommerce', 'easy_digital_downloads', 'surecart', 'dokan', 'wcfm', 'learnpress', 'tutor', 'lifterlms', 'ultimate_member', 'members', 'user_registration'];
+
+    /**
+     * Human labels for sync sources.
+     *
+     * @var array<string,string>
+     */
+    private $sync_source_labels = [
+        'woocommerce' => 'WooCommerce',
+        'easy_digital_downloads' => 'Easy Digital Downloads',
+        'surecart' => 'SureCart',
+        'dokan' => 'Dokan',
+        'wcfm' => 'WCFM Marketplace',
+        'learnpress' => 'LearnPress',
+        'tutor' => 'Tutor LMS',
+        'lifterlms' => 'LifterLMS',
+        'ultimate_member' => 'Ultimate Member',
+        'members' => 'Members',
+        'user_registration' => 'User Registration',
+        'none' => 'No Integration',
+    ];
+    /**
      * The helpmate instance.
      *
      * @since    1.3.0
@@ -158,6 +184,27 @@ class Helpmate_CRM
         if (!empty($filters['country'])) {
             $where[] = 'c.country = %s';
             $params[] = $filters['country'];
+        }
+
+        // Integration source filter.
+        if (isset($filters['integration_source']) && '' !== $filters['integration_source']) {
+            $source = sanitize_key((string) $filters['integration_source']);
+            if ('none' === $source) {
+                $params[] = 'crm_sync_sources';
+                $where[] =
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix
+                    "NOT EXISTS (SELECT 1 FROM {$field_values_table} fv
+                    INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                    WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value != '')";
+            } elseif (in_array($source, $this->allowed_sync_sources, true)) {
+                $params[] = 'crm_sync_sources';
+                $params[] = '%,' . $source . ',%';
+                $where[] =
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix
+                    "EXISTS (SELECT 1 FROM {$field_values_table} fv
+                    INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                    WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+            }
         }
 
         $where_clause = implode(' AND ', $where);
@@ -424,6 +471,476 @@ class Helpmate_CRM
     }
 
     /**
+     * Create or update a CRM contact from Dokan vendor profile (match by email).
+     *
+     * @since 1.x.x
+     * @param array $data Mapped vendor fields (email, names, phone, address, wp_user_id, status).
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_dokan_vendor(array $data)
+    {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            false,
+            __('Could not update contact from vendor data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Create or update a CRM contact from WCFM vendor profile (match by email).
+     *
+     * Uses the same full-overwrite semantics as Dokan vendor sync.
+     *
+     * @param array $data Mapped vendor fields (email, names, phone, address, wp_user_id, status).
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_wcfm_vendor(array $data)
+    {
+        return $this->upsert_contact_from_dokan_vendor($data);
+    }
+
+    /**
+     * Create or update a CRM contact from commerce customer sync (match by email).
+     *
+     * Uses one-way full overwrite semantics by email, but preserves existing contact
+     * subscription status on update to avoid unintentionally resubscribing contacts.
+     *
+     * @param array $data Mapped customer fields (email, names, phone, address, wp_user_id, status).
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_commerce_sync(array $data)
+    {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            true,
+            __('Could not update contact from imported data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Create or update a CRM contact from LMS student sync (match by email).
+     *
+     * @param array $data Mapped student fields.
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_lms_student(array $data)
+    {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            true,
+            __('Could not update contact from LMS student data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Create or update a CRM contact from Ultimate Member sync (match by email).
+     *
+     * @param array $data Mapped member fields.
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_ultimate_member(array $data)
+    {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            true,
+            __('Could not update contact from Ultimate Member data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Create or update a CRM contact from Members sync (match by email).
+     *
+     * @param array $data Mapped member fields.
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_members(array $data)
+    {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            true,
+            __('Could not update contact from Members data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Create or update a CRM contact from User Registration sync (match by email).
+     *
+     * @param array $data Mapped member fields.
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    public function upsert_contact_from_user_registration(array $data)
+    {
+        return $this->upsert_contact_from_import_data(
+            $data,
+            true,
+            __('Could not update contact from User Registration data.', 'helpmate-ai-chatbot')
+        );
+    }
+
+    /**
+     * Save Ultimate Member snapshot fields for a contact.
+     *
+     * @param int   $contact_id Contact ID.
+     * @param array $snapshot   UM snapshot.
+     * @return bool
+     */
+    public function save_contact_ultimate_member_snapshot(int $contact_id, array $snapshot): bool
+    {
+        $field_values = [
+            'um_account_status' => isset($snapshot['account_status']) ? sanitize_key((string) $snapshot['account_status']) : '',
+            'um_primary_role' => isset($snapshot['primary_role']) ? sanitize_key((string) $snapshot['primary_role']) : '',
+            'um_registered_at' => isset($snapshot['registered_at']) ? sanitize_text_field((string) $snapshot['registered_at']) : '',
+            'um_last_login_at' => isset($snapshot['last_login_at']) ? sanitize_text_field((string) $snapshot['last_login_at']) : '',
+            'um_registration_form' => isset($snapshot['registration_form']) ? sanitize_text_field((string) $snapshot['registration_form']) : '',
+            'um_profile_completed' => !empty($snapshot['profile_completed']) ? '1' : '0',
+            'um_last_synced_at' => gmdate('Y-m-d H:i:s'),
+        ];
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
+        if (empty($field_ids)) {
+            return false;
+        }
+
+        $values_by_id = [];
+        foreach ($field_values as $field_name => $value) {
+            if (!isset($field_ids[$field_name])) {
+                continue;
+            }
+            $values_by_id[(int) $field_ids[$field_name]] = $value;
+        }
+        if (empty($values_by_id)) {
+            return false;
+        }
+
+        return $this->save_contact_custom_field_values($contact_id, $values_by_id);
+    }
+
+    /**
+     * Save Members snapshot fields for a contact.
+     *
+     * @param int   $contact_id Contact ID.
+     * @param array $snapshot   Members snapshot.
+     * @return bool
+     */
+    public function save_contact_members_snapshot(int $contact_id, array $snapshot): bool
+    {
+        $field_values = [
+            'members_primary_role' => isset($snapshot['primary_role']) ? sanitize_key((string) $snapshot['primary_role']) : '',
+            'members_all_roles' => isset($snapshot['all_roles']) ? sanitize_text_field((string) $snapshot['all_roles']) : '',
+            'members_registered_at' => isset($snapshot['registered_at']) ? sanitize_text_field((string) $snapshot['registered_at']) : '',
+            'members_last_login_at' => isset($snapshot['last_login_at']) ? sanitize_text_field((string) $snapshot['last_login_at']) : '',
+            'members_profile_completed' => !empty($snapshot['profile_completed']) ? '1' : '0',
+            'members_last_synced_at' => gmdate('Y-m-d H:i:s'),
+        ];
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
+        if (empty($field_ids)) {
+            return false;
+        }
+
+        $values_by_id = [];
+        foreach ($field_values as $field_name => $value) {
+            if (!isset($field_ids[$field_name])) {
+                continue;
+            }
+            $values_by_id[(int) $field_ids[$field_name]] = $value;
+        }
+        if (empty($values_by_id)) {
+            return false;
+        }
+
+        return $this->save_contact_custom_field_values($contact_id, $values_by_id);
+    }
+
+    /**
+     * Save User Registration snapshot fields for a contact.
+     *
+     * @param int   $contact_id Contact ID.
+     * @param array $snapshot   User Registration snapshot.
+     * @return bool
+     */
+    public function save_contact_user_registration_snapshot(int $contact_id, array $snapshot): bool
+    {
+        $field_values = [
+            'ur_account_status' => isset($snapshot['account_status']) ? sanitize_key((string) $snapshot['account_status']) : '',
+            'ur_primary_role' => isset($snapshot['primary_role']) ? sanitize_key((string) $snapshot['primary_role']) : '',
+            'ur_all_roles' => isset($snapshot['all_roles']) ? sanitize_text_field((string) $snapshot['all_roles']) : '',
+            'ur_registered_at' => isset($snapshot['registered_at']) ? sanitize_text_field((string) $snapshot['registered_at']) : '',
+            'ur_last_login_at' => isset($snapshot['last_login_at']) ? sanitize_text_field((string) $snapshot['last_login_at']) : '',
+            'ur_registration_form' => isset($snapshot['registration_form']) ? sanitize_text_field((string) $snapshot['registration_form']) : '',
+            'ur_profile_completed' => !empty($snapshot['profile_completed']) ? '1' : '0',
+            'ur_last_synced_at' => gmdate('Y-m-d H:i:s'),
+        ];
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
+        if (empty($field_ids)) {
+            return false;
+        }
+
+        $values_by_id = [];
+        foreach ($field_values as $field_name => $value) {
+            if (!isset($field_ids[$field_name])) {
+                continue;
+            }
+            $values_by_id[(int) $field_ids[$field_name]] = $value;
+        }
+        if (empty($values_by_id)) {
+            return false;
+        }
+
+        return $this->save_contact_custom_field_values($contact_id, $values_by_id);
+    }
+
+    /**
+     * Save LearnPress snapshot fields for a contact.
+     *
+     * Uses token-safe list format for segment matching (e.g. ",12,45,").
+     *
+     * @param int   $contact_id Contact ID.
+     * @param array $snapshot   LMS snapshot.
+     * @return bool
+     */
+    public function save_contact_lms_snapshot(int $contact_id, array $snapshot): bool
+    {
+        $field_values = [
+            'lp_enrolled_course_ids' => $this->normalize_lms_token_list($snapshot['enrolled_course_ids'] ?? []),
+            'lp_completed_course_ids' => $this->normalize_lms_token_list($snapshot['completed_course_ids'] ?? []),
+            'lp_in_progress_course_ids' => $this->normalize_lms_token_list($snapshot['in_progress_course_ids'] ?? []),
+            'lp_completed_lesson_ids' => $this->normalize_lms_token_list($snapshot['completed_lesson_ids'] ?? []),
+            'lp_last_synced_at' => isset($snapshot['last_synced_at'])
+                ? sanitize_text_field((string) $snapshot['last_synced_at'])
+                : gmdate('Y-m-d H:i:s'),
+        ];
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
+        if (empty($field_ids)) {
+            return false;
+        }
+
+        $values_by_id = [];
+        foreach ($field_values as $field_name => $value) {
+            if (!isset($field_ids[$field_name])) {
+                continue;
+            }
+            $values_by_id[(int) $field_ids[$field_name]] = $value;
+        }
+
+        if (empty($values_by_id)) {
+            return false;
+        }
+
+        return $this->save_contact_custom_field_values($contact_id, $values_by_id);
+    }
+
+    /**
+     * Save Tutor LMS snapshot fields for a contact.
+     *
+     * Uses token-safe list format for segment matching (e.g. ",12,45,").
+     *
+     * @param int   $contact_id Contact ID.
+     * @param array $snapshot   LMS snapshot.
+     * @return bool
+     */
+    public function save_contact_tutor_snapshot(int $contact_id, array $snapshot): bool
+    {
+        $field_values = [
+            'tutor_enrolled_course_ids' => $this->normalize_lms_token_list($snapshot['enrolled_course_ids'] ?? []),
+            'tutor_completed_course_ids' => $this->normalize_lms_token_list($snapshot['completed_course_ids'] ?? []),
+            'tutor_in_progress_course_ids' => $this->normalize_lms_token_list($snapshot['in_progress_course_ids'] ?? []),
+            'tutor_completed_lesson_ids' => $this->normalize_lms_token_list($snapshot['completed_lesson_ids'] ?? []),
+            'tutor_last_synced_at' => isset($snapshot['last_synced_at'])
+                ? sanitize_text_field((string) $snapshot['last_synced_at'])
+                : gmdate('Y-m-d H:i:s'),
+        ];
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
+        if (empty($field_ids)) {
+            return false;
+        }
+
+        $values_by_id = [];
+        foreach ($field_values as $field_name => $value) {
+            if (!isset($field_ids[$field_name])) {
+                continue;
+            }
+            $values_by_id[(int) $field_ids[$field_name]] = $value;
+        }
+
+        if (empty($values_by_id)) {
+            return false;
+        }
+
+        return $this->save_contact_custom_field_values($contact_id, $values_by_id);
+    }
+
+    /**
+     * Save LifterLMS snapshot fields for a contact.
+     *
+     * Uses token-safe list format for segment matching (e.g. ",12,45,").
+     *
+     * @param int   $contact_id Contact ID.
+     * @param array $snapshot   LMS snapshot.
+     * @return bool
+     */
+    public function save_contact_lifterlms_snapshot(int $contact_id, array $snapshot): bool
+    {
+        $field_values = [
+            'lifter_enrolled_course_ids' => $this->normalize_lms_token_list($snapshot['enrolled_course_ids'] ?? []),
+            'lifter_completed_course_ids' => $this->normalize_lms_token_list($snapshot['completed_course_ids'] ?? []),
+            'lifter_in_progress_course_ids' => $this->normalize_lms_token_list($snapshot['in_progress_course_ids'] ?? []),
+            'lifter_completed_lesson_ids' => $this->normalize_lms_token_list($snapshot['completed_lesson_ids'] ?? []),
+            'lifter_last_synced_at' => isset($snapshot['last_synced_at'])
+                ? sanitize_text_field((string) $snapshot['last_synced_at'])
+                : gmdate('Y-m-d H:i:s'),
+        ];
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(array_keys($field_values));
+        if (empty($field_ids)) {
+            return false;
+        }
+
+        $values_by_id = [];
+        foreach ($field_values as $field_name => $value) {
+            if (!isset($field_ids[$field_name])) {
+                continue;
+            }
+            $values_by_id[(int) $field_ids[$field_name]] = $value;
+        }
+
+        if (empty($values_by_id)) {
+            return false;
+        }
+
+        return $this->save_contact_custom_field_values($contact_id, $values_by_id);
+    }
+
+    /**
+     * Shared upsert path for vendor/customer imports (match by email).
+     *
+     * @param array  $data                     Import payload.
+     * @param bool   $preserve_status_on_update Preserve existing contact status when updating.
+     * @param string $update_error_message     Message to return when update fails.
+     * @return array{created?:true,updated?:true,id:int}|WP_Error
+     */
+    private function upsert_contact_from_import_data(array $data, bool $preserve_status_on_update, string $update_error_message)
+    {
+        $email = isset($data['email']) ? sanitize_email((string) $data['email']) : '';
+        if (empty($email)) {
+            return new WP_Error('no_email', __('A valid email is required.', 'helpmate-ai-chatbot'));
+        }
+
+        $payload = array(
+            'first_name'     => isset($data['first_name']) ? sanitize_text_field((string) $data['first_name']) : '',
+            'last_name'      => isset($data['last_name']) ? sanitize_text_field((string) $data['last_name']) : '',
+            'email'          => $email,
+            'phone'          => isset($data['phone']) ? sanitize_text_field((string) $data['phone']) : '',
+            'address_line_1' => isset($data['address_line_1']) ? sanitize_text_field((string) $data['address_line_1']) : '',
+            'address_line_2' => isset($data['address_line_2']) ? sanitize_text_field((string) $data['address_line_2']) : '',
+            'city'           => isset($data['city']) ? sanitize_text_field((string) $data['city']) : '',
+            'state'          => isset($data['state']) ? sanitize_text_field((string) $data['state']) : '',
+            'zip_code'       => isset($data['zip_code']) ? sanitize_text_field((string) $data['zip_code']) : '',
+            'country'        => isset($data['country']) ? sanitize_text_field((string) $data['country']) : '',
+            'wp_user_id'     => isset($data['wp_user_id']) ? (int) $data['wp_user_id'] : null,
+            'status'         => isset($data['status']) ? sanitize_text_field((string) $data['status']) : 'subscribed',
+        );
+
+        $existing = $this->get_contact_by_email($email);
+        if ($existing) {
+            $ok = $this->replace_contact_from_import_data(
+                (int) $existing['id'],
+                $payload,
+                $preserve_status_on_update
+            );
+            if (!$ok) {
+                return new WP_Error('update_failed', $update_error_message);
+            }
+            return array('updated' => true, 'id' => (int) $existing['id']);
+        }
+
+        $contact_id = $this->create_contact($payload);
+        if (is_wp_error($contact_id)) {
+            return $contact_id;
+        }
+        if (false === $contact_id) {
+            return new WP_Error('create_failed', __('Could not create contact.', 'helpmate-ai-chatbot'));
+        }
+
+        return array('created' => true, 'id' => (int) $contact_id);
+    }
+
+    /**
+     * Overwrite mapped scalar columns from imported profile data (empty strings allowed).
+     *
+     * @since 1.x.x
+     * @param int   $contact_id Contact ID.
+     * @param array $data       Normalized payload from upsert_contact_from_import_data.
+     * @param bool  $preserve_status Whether to preserve existing contact status.
+     * @return bool
+     */
+    private function replace_contact_from_import_data(int $contact_id, array $data, bool $preserve_status = false): bool
+    {
+        global $wpdb;
+        $table = esc_sql($wpdb->prefix . 'helpmate_crm_contacts');
+
+        if (!empty($data['email'])) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Duplicate check before update
+            $existing = $wpdb->get_var(
+                $wpdb->prepare(
+                    // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix
+                    "SELECT id FROM {$table} WHERE email = %s AND id != %d"
+                    // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    ,
+                    $data['email'],
+                    $contact_id
+                )
+            );
+            if ($existing) {
+                return false;
+            }
+        }
+
+        $update_data = array(
+            'first_name'     => $data['first_name'],
+            'last_name'      => $data['last_name'],
+            'email'          => $data['email'],
+            'phone'          => $data['phone'],
+            'address_line_1' => $data['address_line_1'],
+            'address_line_2' => $data['address_line_2'],
+            'city'           => $data['city'],
+            'state'          => $data['state'],
+            'zip_code'       => $data['zip_code'],
+            'country'        => $data['country'],
+            'updated_at'     => current_time('mysql'),
+        );
+        if (!$preserve_status) {
+            $update_data['status'] = $data['status'];
+        }
+        if (!empty($data['wp_user_id'])) {
+            $update_data['wp_user_id'] = (int) $data['wp_user_id'];
+        }
+
+        $formats = array();
+        foreach (array_keys($update_data) as $col) {
+            $formats[] = ('wp_user_id' === $col) ? '%d' : '%s';
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Dokan sync overwrite path
+        $result = $wpdb->update(
+            $table,
+            $update_data,
+            array('id' => $contact_id),
+            $formats,
+            array('%d')
+        );
+
+        if (false !== $result) {
+            $this->schedule_segment_count_refresh();
+        }
+
+        return false !== $result;
+    }
+
+    /**
      * Delete a contact.
      *
      * @since    1.3.0
@@ -482,6 +999,188 @@ class Helpmate_CRM
         }
 
         return $result !== false;
+    }
+
+    /**
+     * Ensure contact custom fields exist and return field_name => field_id map.
+     *
+     * @param array<int,string> $field_names Field names.
+     * @return array<string,int>
+     */
+    private function get_or_create_contact_custom_field_ids(array $field_names): array
+    {
+        $field_names = array_values(array_unique(array_filter(array_map('sanitize_key', $field_names))));
+        if (empty($field_names)) {
+            return [];
+        }
+
+        $current = $this->get_custom_fields('contact');
+        $map = [];
+        foreach ($current as $row) {
+            if (empty($row['field_name']) || empty($row['id'])) {
+                continue;
+            }
+            $map[(string) $row['field_name']] = (int) $row['id'];
+        }
+
+        foreach ($field_names as $field_name) {
+            if (isset($map[$field_name])) {
+                continue;
+            }
+            $label = ucwords(str_replace('_', ' ', $field_name));
+            $created = $this->create_custom_field([
+                'field_name' => $field_name,
+                'field_label' => $label,
+                'field_type' => 'text',
+                'is_required' => 0,
+                'entity_type' => 'contact',
+                'display_order' => 0,
+            ]);
+            if ($created) {
+                $map[$field_name] = (int) $created;
+            }
+        }
+
+        return $map;
+    }
+
+    /**
+     * Convert an ID list into token-safe list string.
+     *
+     * @param mixed $ids Raw IDs.
+     * @return string
+     */
+    private function normalize_lms_token_list($ids): string
+    {
+        if (!is_array($ids)) {
+            return '';
+        }
+        $clean = array_values(array_unique(array_filter(array_map('absint', $ids))));
+        if (empty($clean)) {
+            return '';
+        }
+        return ',' . implode(',', $clean) . ',';
+    }
+
+    /**
+     * Append a sync source token to one contact.
+     *
+     * @param int    $contact_id Contact ID.
+     * @param string $source     Source token.
+     * @return bool
+     */
+    public function add_contact_sync_source(int $contact_id, string $source): bool
+    {
+        $source = sanitize_key($source);
+        if (!in_array($source, $this->allowed_sync_sources, true)) {
+            return false;
+        }
+
+        $field_ids = $this->get_or_create_contact_custom_field_ids(['crm_sync_sources']);
+        $field_id = isset($field_ids['crm_sync_sources']) ? (int) $field_ids['crm_sync_sources'] : 0;
+        if ($field_id <= 0) {
+            return false;
+        }
+
+        $custom_fields = $this->get_contact_custom_field_values($contact_id);
+        $existing_raw = '';
+        foreach ($custom_fields as $row) {
+            if (!is_array($row) || empty($row['field_name']) || 'crm_sync_sources' !== $row['field_name']) {
+                continue;
+            }
+            $existing_raw = is_scalar($row['value']) ? (string) $row['value'] : '';
+            break;
+        }
+
+        $sources = $this->parse_sync_source_tokens($existing_raw);
+        if (!in_array($source, $sources, true)) {
+            $sources[] = $source;
+        }
+        $tokenized = $this->encode_sync_source_tokens($sources);
+
+        return $this->save_contact_custom_field_values($contact_id, [$field_id => $tokenized]);
+    }
+
+    /**
+     * Return source options detected from CRM data.
+     *
+     * @return array<int,array{value:string,label:string}>
+     */
+    public function get_contact_sync_source_options(): array
+    {
+        global $wpdb;
+        $values_table = esc_sql($wpdb->prefix . 'helpmate_crm_contact_field_values');
+        $fields_table = esc_sql($wpdb->prefix . 'helpmate_crm_custom_fields');
+        $tokens = [];
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Query for filter options; low-cost and frequently changing
+        $rows = $wpdb->get_col(
+            $wpdb->prepare(
+                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix
+                "SELECT fv.field_value
+                FROM {$values_table} fv
+                INNER JOIN {$fields_table} cf ON fv.field_id = cf.id
+                WHERE cf.field_name = %s AND fv.field_value IS NOT NULL AND fv.field_value != ''"
+                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                ,
+                'crm_sync_sources'
+            )
+        );
+
+        if (is_array($rows)) {
+            foreach ($rows as $raw) {
+                foreach ($this->parse_sync_source_tokens((string) $raw) as $token) {
+                    if (in_array($token, $this->allowed_sync_sources, true)) {
+                        $tokens[$token] = true;
+                    }
+                }
+            }
+        }
+
+        $options = [];
+        foreach ($this->allowed_sync_sources as $token) {
+            if (!empty($tokens[$token])) {
+                $options[] = [
+                    'value' => $token,
+                    'label' => $this->sync_source_labels[$token] ?? ucfirst(str_replace('_', ' ', $token)),
+                ];
+            }
+        }
+        $options[] = ['value' => 'none', 'label' => $this->sync_source_labels['none']];
+
+        return $options;
+    }
+
+    /**
+     * Parse token list ",a,b,c," to array.
+     *
+     * @param string $raw Raw value.
+     * @return array<int,string>
+     */
+    private function parse_sync_source_tokens(string $raw): array
+    {
+        $raw = trim($raw);
+        if ('' === $raw) {
+            return [];
+        }
+        $parts = explode(',', trim($raw, ','));
+        $tokens = array_values(array_unique(array_filter(array_map('sanitize_key', $parts))));
+        return array_values(array_filter($tokens));
+    }
+
+    /**
+     * Encode source tokens as token-safe list.
+     *
+     * @param array<int,string> $tokens Tokens.
+     * @return string
+     */
+    private function encode_sync_source_tokens(array $tokens): string
+    {
+        $tokens = array_values(array_unique(array_filter(array_map('sanitize_key', $tokens))));
+        if (empty($tokens)) {
+            return '';
+        }
+        return ',' . implode(',', $tokens) . ',';
     }
 
     /**
@@ -993,7 +1692,7 @@ class Helpmate_CRM
     }
 
     /**
-     * Get orders for a contact (WooCommerce + manual).
+     * Get orders for a contact (WooCommerce + EDD + SureCart + manual).
      *
      * @since    1.3.0
      * @param    int    $contact_id    The contact ID.
@@ -1008,10 +1707,34 @@ class Helpmate_CRM
 
         $orders = [];
 
-        // Get WooCommerce orders
-        $woo_orders = $this->get_woocommerce_orders_by_contact($contact_id);
-        foreach ($woo_orders as $order) {
-            $orders[] = array_merge($order, ['order_type' => 'woocommerce']);
+        $primary = method_exists($this->helpmate, 'get_primary_commerce_provider')
+            ? $this->helpmate->get_primary_commerce_provider()
+            : '';
+
+        // Provider-specific orders: only list the active primary commerce (avoid Woo rows on SureCart-primary sites).
+        $include_woo = ('' === $primary || 'woocommerce' === $primary) && class_exists('WooCommerce');
+        $include_edd = ('' === $primary || 'easy_digital_downloads' === $primary) && function_exists('edd_get_orders');
+        $include_sc = ('' === $primary || 'surecart' === $primary) && class_exists('\SureCart\Models\Order');
+
+        if ($include_woo) {
+            $woo_orders = $this->get_woocommerce_orders_by_contact($contact_id);
+            foreach ($woo_orders as $order) {
+                $orders[] = array_merge($order, ['order_type' => 'woocommerce']);
+            }
+        }
+
+        if ($include_edd) {
+            $edd_orders = $this->get_edd_orders_by_contact($contact_id);
+            foreach ($edd_orders as $order) {
+                $orders[] = array_merge($order, ['order_type' => 'easy_digital_downloads']);
+            }
+        }
+
+        if ($include_sc) {
+            $sc_orders = $this->get_surecart_orders_by_contact($contact_id);
+            foreach ($sc_orders as $order) {
+                $orders[] = array_merge($order, ['order_type' => 'surecart']);
+            }
         }
 
         // Get manual orders
@@ -1060,14 +1783,16 @@ class Helpmate_CRM
             ]);
 
             foreach ($customer_orders as $order) {
-                $orders[] = [
+                $row = [
                     'id' => $order->get_id(),
                     'order_number' => $order->get_order_number(),
                     'status' => $order->get_status(),
                     'total' => $order->get_total(),
                     'date_created' => $order->get_date_created()->date('Y-m-d H:i:s'),
-                    'edit_url' => admin_url('post.php?post=' . $order->get_id() . '&action=edit')
+                    'edit_url' => admin_url('post.php?post=' . $order->get_id() . '&action=edit'),
                 ];
+                $row = $this->maybe_append_multivendor_to_woo_order_row($row, $order);
+                $orders[] = $row;
             }
         }
 
@@ -1091,19 +1816,491 @@ class Helpmate_CRM
                 }
 
                 if (!$exists) {
-                    $orders[] = [
+                    $row = [
                         'id' => $order->get_id(),
                         'order_number' => $order->get_order_number(),
                         'status' => $order->get_status(),
                         'total' => $order->get_total(),
                         'date_created' => $order->get_date_created()->date('Y-m-d H:i:s'),
-                        'edit_url' => admin_url('post.php?post=' . $order->get_id() . '&action=edit')
+                        'edit_url' => admin_url('post.php?post=' . $order->get_id() . '&action=edit'),
                     ];
+                    $row = $this->maybe_append_multivendor_to_woo_order_row($row, $order);
+                    $orders[] = $row;
                 }
             }
         }
 
         return $orders;
+    }
+
+    /**
+     * Append multivendor display fields when integration toggle is on (additive only).
+     *
+     * WCFM takes precedence over Dokan if both are active/enabled.
+     *
+     * @param array    $row   Order row.
+     * @param WC_Order $order Order object.
+     * @return array
+     */
+    private function maybe_append_multivendor_to_woo_order_row(array $row, $order): array
+    {
+        $primary = method_exists($this->helpmate, 'get_primary_multivendor_provider')
+            ? $this->helpmate->get_primary_multivendor_provider()
+            : '';
+
+        if ('wcfm' === $primary && method_exists($this->helpmate, 'get_wcfm')) {
+            $wcfm = $this->helpmate->get_wcfm();
+            if ($wcfm->should_enrich_orders()) {
+                $extra = $wcfm->get_vendor_display_for_order($order);
+                return array_merge($row, $extra);
+            }
+        }
+
+        if ('dokan' === $primary && method_exists($this->helpmate, 'get_dokan')) {
+            $dokan = $this->helpmate->get_dokan();
+            if ($dokan->should_enrich_orders()) {
+                $extra = $dokan->get_vendor_display_for_order($order);
+                return array_merge($row, $extra);
+            }
+        }
+
+        return $row;
+    }
+
+    /**
+     * Build a short plain-text line summary for CRM orders table (EDD).
+     *
+     * @since    2.0.3
+     * @param    int    $order_id    EDD order ID.
+     * @param    object $order       Order object from edd_get_orders.
+     * @return   string Summary or empty string.
+     */
+    private function format_edd_order_product_summary(int $order_id, $order): string
+    {
+        $lines = [];
+
+        $order_items = [];
+        if (is_object($order) && method_exists($order, 'get_items')) {
+            $order_items = $order->get_items();
+        } elseif ($order_id > 0 && function_exists('edd_get_order_items')) {
+            $order_items = edd_get_order_items(
+                [
+                    'order_id' => $order_id,
+                    'number' => 200,
+                    'orderby' => 'cart_index',
+                    'order' => 'ASC',
+                    'no_found_rows' => true,
+                ]
+            );
+        }
+
+        if (is_array($order_items)) {
+            foreach ($order_items as $item) {
+                $type = isset($item->type) ? (string) $item->type : '';
+                if (in_array($type, ['fee', 'discount'], true)) {
+                    continue;
+                }
+                $quantity = isset($item->quantity) ? (int) $item->quantity : 0;
+                $product_id = isset($item->product_id) ? (int) $item->product_id : 0;
+                if ($quantity < 1 && $product_id > 0) {
+                    $quantity = 1;
+                }
+                if ($quantity < 1) {
+                    continue;
+                }
+                $name = isset($item->product_name) ? (string) $item->product_name : '';
+                $lines[] = [
+                    'name' => $name,
+                    'qty' => $quantity,
+                ];
+            }
+        }
+
+        if (empty($lines) && isset($order->cart_details) && is_array($order->cart_details)) {
+            foreach ($order->cart_details as $row) {
+                $name = isset($row['name']) ? (string) $row['name'] : '';
+                $quantity = isset($row['quantity']) ? (int) $row['quantity'] : 1;
+                if ($quantity < 1) {
+                    $quantity = 1;
+                }
+                $lines[] = [
+                    'name' => $name,
+                    'qty' => $quantity,
+                ];
+            }
+        }
+
+        if (empty($lines)) {
+            if ($order_id > 0 && function_exists('edd_count_order_items')) {
+                $item_count = (int) edd_count_order_items(
+                    [
+                        'order_id' => $order_id,
+                        'type__in' => ['download'],
+                    ]
+                );
+                if ($item_count < 1) {
+                    $item_count = (int) edd_count_order_items(
+                        [
+                            'order_id' => $order_id,
+                        ]
+                    );
+                }
+                if ($item_count > 0) {
+                    return sprintf(
+                        /* translators: %d: number of line items in the order */
+                        _n('%d item', '%d items', $item_count, 'helpmate-ai-chatbot'),
+                        $item_count
+                    );
+                }
+            }
+            return '';
+        }
+
+        $max_show = 3;
+        $parts = [];
+        $slice = array_slice($lines, 0, $max_show);
+        foreach ($slice as $line) {
+            $label = $line['name'] !== ''
+                ? wp_strip_all_tags($line['name'])
+                : __('Product', 'helpmate-ai-chatbot');
+            $parts[] = sprintf(
+                /* translators: 1: product name, 2: quantity */
+                __('%1$s × %2$d', 'helpmate-ai-chatbot'),
+                $label,
+                $line['qty']
+            );
+        }
+
+        $remaining = count($lines) - count($slice);
+        if ($remaining > 0) {
+            $parts[] = sprintf(
+                /* translators: %d: Count of additional items not shown */
+                __('+%d more', 'helpmate-ai-chatbot'),
+                $remaining
+            );
+        }
+
+        $summary = implode(', ', $parts);
+        $total_units = 0;
+        foreach ($lines as $line) {
+            $total_units += (int) $line['qty'];
+        }
+        $line_count = count($lines);
+
+        if ($line_count > 1) {
+            $summary .= ' — ' . sprintf(
+                /* translators: 1: number of distinct line items, 2: sum of quantities */
+                __('%1$d products, %2$d total qty', 'helpmate-ai-chatbot'),
+                $line_count,
+                $total_units
+            );
+        }
+
+        return $summary;
+    }
+
+    /**
+     * Get Easy Digital Downloads orders for a contact.
+     *
+     * @since    2.0.3
+     * @param    int    $contact_id    The contact ID.
+     * @return   array    The EDD orders.
+     */
+    public function get_edd_orders_by_contact(int $contact_id): array
+    {
+        if (!function_exists('edd_get_orders')) {
+            return [];
+        }
+
+        $contact = $this->get_contact($contact_id);
+        if (!$contact) {
+            return [];
+        }
+
+        $orders = [];
+
+        $crm = $this;
+        $collect_orders = function (array $args) use (&$orders, $crm) {
+            $query_args = array_merge([
+                'number' => 200,
+                'orderby' => 'date_created',
+                'order' => 'DESC',
+            ], $args);
+
+            $fetched_orders = edd_get_orders($query_args);
+            if (!is_array($fetched_orders)) {
+                return;
+            }
+
+            foreach ($fetched_orders as $order) {
+                $order_id = (int) ($order->id ?? 0);
+                if ($order_id <= 0) {
+                    continue;
+                }
+
+                $already_added = false;
+                foreach ($orders as $existing) {
+                    if ((int) ($existing['id'] ?? 0) === $order_id) {
+                        $already_added = true;
+                        break;
+                    }
+                }
+                if ($already_added) {
+                    continue;
+                }
+
+                $total = '';
+                if (isset($order->total) && $order->total !== null) {
+                    $total = (string) $order->total;
+                } elseif (isset($order->subtotal) && $order->subtotal !== null) {
+                    $total = (string) $order->subtotal;
+                }
+
+                $status = isset($order->status) ? (string) $order->status : '';
+                $currency = isset($order->currency) ? (string) $order->currency : '';
+                $date_created = isset($order->date_created) ? (string) $order->date_created : '';
+                if (empty($date_created) && isset($order->date_created_gmt)) {
+                    $date_created = (string) $order->date_created_gmt;
+                }
+
+                $orders[] = [
+                    'id' => $order_id,
+                    'order_number' => (string) ($order->number ?? $order_id),
+                    'status' => $status,
+                    'total' => $total,
+                    'currency' => $currency,
+                    'date_created' => $date_created,
+                    'edit_url' => admin_url('edit.php?post_type=download&page=edd-payment-history&view=view-order-details&id=' . $order_id),
+                    'product_summary' => $crm->format_edd_order_product_summary($order_id, $order),
+                ];
+            }
+        };
+
+        // Primary strategy: Match by WP user ID.
+        if (!empty($contact['wp_user_id'])) {
+            $collect_orders(['user_id' => (int) $contact['wp_user_id']]);
+        }
+
+        // Fallback: Match by email.
+        if (!empty($contact['email'])) {
+            $collect_orders(['email' => $contact['email']]);
+        }
+
+        return $orders;
+    }
+
+    /**
+     * Rows from SureCart Order::paginate() (Collection uses __get('data') without __isset).
+     *
+     * @param mixed $page_result Paginate result or list.
+     * @return array<int, mixed>
+     */
+    private function crm_surecart_extract_paginate_list($page_result): array
+    {
+        if (is_wp_error($page_result)) {
+            return array();
+        }
+        if (is_array($page_result)) {
+            return $page_result;
+        }
+        if (!is_object($page_result)) {
+            return array();
+        }
+        $raw = null;
+        if (method_exists($page_result, 'getAttribute')) {
+            $raw = $page_result->getAttribute('data');
+        }
+        if (!is_array($raw)) {
+            $raw = $page_result->data;
+        }
+
+        return is_array($raw) ? $raw : array();
+    }
+
+    /**
+     * Get SureCart orders for a contact (WP user or email → customer id).
+     *
+     * @since 2.0.5
+     * @param int $contact_id Contact ID.
+     * @return array<int, array<string, mixed>>
+     */
+    public function get_surecart_orders_by_contact(int $contact_id): array
+    {
+        if (!class_exists('\SureCart\Models\Order')) {
+            return [];
+        }
+
+        $contact = $this->get_contact($contact_id);
+        if (!$contact) {
+            return [];
+        }
+
+        $customer_ids = array();
+
+        if (!empty($contact['wp_user_id']) && class_exists('\SureCart\Models\User')) {
+            try {
+                $sc_user = \SureCart\Models\User::find((int) $contact['wp_user_id']);
+                if (!is_wp_error($sc_user) && is_object($sc_user)) {
+                    $customer_ids = array_values(
+                        array_filter(
+                            (array) $sc_user->customerIds(),
+                            static function ($id) {
+                                return null !== $id && '' !== $id;
+                            }
+                        )
+                    );
+                    if (empty($customer_ids)) {
+                        $linked = $sc_user->getOrCreateLiveCustomerId();
+                        if (!is_wp_error($linked) && !empty($linked)) {
+                            $customer_ids = array_values(
+                                array_filter(
+                                    (array) $sc_user->customerIds(),
+                                    static function ($id) {
+                                        return null !== $id && '' !== $id;
+                                    }
+                                )
+                            );
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                $customer_ids = array();
+            }
+        }
+
+        if (empty($customer_ids) && !empty($contact['email']) && class_exists('\SureCart\Models\Customer')) {
+            try {
+                $email_lower = strtolower(trim((string) $contact['email']));
+                $c = \SureCart\Models\Customer::where(
+                    array(
+                        'email' => $email_lower,
+                        'live_mode' => true,
+                    )
+                )->first();
+                if ((is_wp_error($c) || !is_object($c) || empty($c->id)) && $email_lower !== '') {
+                    $c = \SureCart\Models\Customer::where(
+                        array(
+                            'email' => $email_lower,
+                            'live_mode' => false,
+                        )
+                    )->first();
+                }
+                if (!is_wp_error($c) && is_object($c) && !empty($c->id)) {
+                    $customer_ids[] = $c->id;
+                }
+            } catch (\Throwable $e) {
+                $customer_ids = array();
+            }
+        }
+
+        $customer_ids = array_values(
+            array_unique(
+                array_filter(
+                    array_map('strval', $customer_ids),
+                    static function ($v) {
+                        return $v !== '';
+                    }
+                )
+            )
+        );
+
+        if (empty($customer_ids)) {
+            return array();
+        }
+
+        $out = array();
+        $seen = array();
+
+        try {
+            $page = 1;
+            $per_page = 100;
+            $max_pages = 25;
+            while ($page <= $max_pages) {
+                $query = \SureCart\Models\Order::where(
+                    array(
+                        'customer_ids' => $customer_ids,
+                    )
+                )->with(array('checkout'));
+
+                $page_result = $query->paginate(
+                    array(
+                        'per_page' => $per_page,
+                        'page' => $page,
+                    )
+                );
+
+                if (is_wp_error($page_result)) {
+                    break;
+                }
+
+                $list = $this->crm_surecart_extract_paginate_list($page_result);
+
+                if (empty($list)) {
+                    break;
+                }
+
+                foreach ($list as $order) {
+                    if (!is_object($order)) {
+                        continue;
+                    }
+                    $oid = isset($order->id) ? (string) $order->id : '';
+                    if ($oid === '' || isset($seen[ $oid ])) {
+                        continue;
+                    }
+                    $seen[ $oid ] = true;
+
+                    $number = isset($order->number) && (string) $order->number !== ''
+                        ? (string) $order->number
+                        : $oid;
+                    $status = isset($order->status) ? (string) $order->status : '';
+                    $date_created = '';
+                    if (!empty($order->created_at_date)) {
+                        $date_created = (string) $order->created_at_date;
+                    } elseif (!empty($order->created_at)) {
+                        $ts = (int) $order->created_at;
+                        if ($ts > 0) {
+                            $date_created = gmdate('Y-m-d H:i:s', $ts);
+                        }
+                    }
+
+                    $checkout = (isset($order->checkout) && is_object($order->checkout)) ? $order->checkout : null;
+                    $currency = $checkout && isset($checkout->currency) ? (string) $checkout->currency : '';
+                    $minor = $checkout && isset($checkout->total_amount) ? (int) $checkout->total_amount : 0;
+                    $zd = $checkout && !empty($checkout->is_zero_decimal);
+                    $total_float = $zd ? (float) $minor : (float) round($minor / 100, 2);
+                    $total = (string) $total_float;
+
+                    $edit_url = add_query_arg(
+                        array(
+                            'page' => 'sc-orders',
+                            'action' => 'edit',
+                            'id' => $oid,
+                        ),
+                        admin_url('admin.php')
+                    );
+
+                    $out[] = array(
+                        'id' => $oid,
+                        'order_number' => $number,
+                        'status' => $status,
+                        'total' => $total,
+                        'currency' => $currency,
+                        'date_created' => $date_created,
+                        'edit_url' => $edit_url,
+                        'product_summary' => '',
+                    );
+                }
+
+                if (count($list) < $per_page) {
+                    break;
+                }
+                ++$page;
+            }
+        } catch (\Throwable $e) {
+            return array();
+        }
+
+        return $out;
     }
 
     /**
@@ -1583,6 +2780,118 @@ class Helpmate_CRM
      * @param    int    $template_id    The template ID.
      * @return   bool|WP_Error          Whether the deletion was successful, or WP_Error if default template.
      */
+    /**
+     * Reset all default email templates and force re-wire module settings.
+     *
+     * @since 1.0.0
+     * @param bool $force_rewire
+     * @return array|WP_Error
+     */
+    public function reset_default_email_templates(bool $force_rewire = true)
+    {
+        global $wpdb;
+        $table = esc_sql($wpdb->prefix . 'helpmate_crm_email_templates');
+
+        $orphan_count = 0;
+        $default_ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            "SELECT id FROM {$table} WHERE is_default = 1" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe
+        );
+        if (!empty($default_ids)) {
+            $ids_list = implode(',', array_map('intval', $default_ids));
+            $campaigns_table = esc_sql($wpdb->prefix . 'helpmate_crm_campaigns');
+            $recurring_table = esc_sql($wpdb->prefix . 'helpmate_crm_recurring_campaigns');
+            $steps_table = esc_sql($wpdb->prefix . 'helpmate_crm_email_sequence_steps');
+            // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names safe; IDs are intval
+            $orphan_count += (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$campaigns_table} WHERE template_id IN ({$ids_list})"
+            );
+            $orphan_count += (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$recurring_table} WHERE template_id IN ({$ids_list})"
+            );
+            $orphan_count += (int) $wpdb->get_var(
+                "SELECT COUNT(*) FROM {$steps_table} WHERE template_id IN ({$ids_list})"
+            );
+            // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safe, uses wpdb->prefix; update/delete doesn't require caching
+        $wpdb->query("DELETE FROM {$table} WHERE is_default = 1");
+
+        $followup_templates = $this->create_default_abandoned_cart_followup_templates();
+        $refund_template_id = $this->create_default_refund_return_template();
+        $abandoned_cart_template_id = $this->create_default_abandoned_cart_template();
+        $schedule_templates = $this->create_default_smart_schedule_templates();
+
+        if ($force_rewire) {
+            $helpmate = $GLOBALS['helpmate'];
+            $settings = $helpmate->get_settings();
+
+            if ($abandoned_cart_template_id) {
+                $abandoned_cart_settings = $settings->get_setting('abandoned_cart') ?: array();
+                $abandoned_cart_settings['selected_email_template'] = $abandoned_cart_template_id;
+                if (!empty($followup_templates)) {
+                    $abandoned_cart_settings['follow_up_emails'] = array(
+                        array(
+                            'id' => 1,
+                            'delay' => 3,
+                            'delayUnit' => 'hours',
+                            'template_id' => $followup_templates['first'] ?? null,
+                            'enabled' => false,
+                        ),
+                        array(
+                            'id' => 2,
+                            'delay' => 1,
+                            'delayUnit' => 'days',
+                            'template_id' => $followup_templates['second'] ?? null,
+                            'enabled' => false,
+                        ),
+                        array(
+                            'id' => 3,
+                            'delay' => 3,
+                            'delayUnit' => 'days',
+                            'template_id' => $followup_templates['third'] ?? null,
+                            'enabled' => false,
+                        ),
+                    );
+                }
+                $settings->set_setting('abandoned_cart', $abandoned_cart_settings);
+            }
+
+            if ($refund_template_id) {
+                $refund_settings = $settings->get_setting('refund_return') ?: array();
+                $refund_settings['selected_email_template'] = $refund_template_id;
+                $settings->set_setting('refund_return', $refund_settings);
+            }
+
+            if (
+                !empty($schedule_templates)
+                && $helpmate->is_helpmate_pro_active()
+                && $helpmate->get_product_slug() !== 'helpmate-free'
+            ) {
+                $smart_settings = $settings->get_setting('smart_schedules') ?: array();
+                if (!isset($smart_settings['emailTemplates']) || !is_array($smart_settings['emailTemplates'])) {
+                    $smart_settings['emailTemplates'] = array();
+                }
+                if (!empty($schedule_templates['pending'])) {
+                    $smart_settings['emailTemplates']['pending'] = $schedule_templates['pending'];
+                }
+                if (!empty($schedule_templates['confirmed'])) {
+                    $smart_settings['emailTemplates']['confirmed'] = $schedule_templates['confirmed'];
+                }
+                if (!empty($schedule_templates['cancelled'])) {
+                    $smart_settings['emailTemplates']['cancelled'] = $schedule_templates['cancelled'];
+                }
+                $settings->set_setting('smart_schedules', $smart_settings);
+            }
+        }
+
+        return array(
+            'success' => true,
+            'message' => __('Default email templates have been reset.', 'helpmate-ai-chatbot'),
+            'orphaned_campaign_references' => $orphan_count,
+        );
+    }
+
     public function delete_email_template(int $template_id)
     {
         global $wpdb;
@@ -3006,6 +4315,29 @@ class Helpmate_CRM
         $contacts_table = esc_sql($wpdb->prefix . 'helpmate_crm_contacts');
         $field_values_table = esc_sql($wpdb->prefix . 'helpmate_crm_contact_field_values');
         $custom_fields_table = esc_sql($wpdb->prefix . 'helpmate_crm_custom_fields');
+        if ('integration_source' === $field) {
+            $field = 'crm_sync_sources';
+        }
+        $tokenized_lms_fields = [
+            'lp_enrolled_course_ids',
+            'lp_completed_course_ids',
+            'lp_in_progress_course_ids',
+            'lp_completed_lesson_ids',
+            'tutor_enrolled_course_ids',
+            'tutor_completed_course_ids',
+            'tutor_in_progress_course_ids',
+            'tutor_completed_lesson_ids',
+            'lifter_enrolled_course_ids',
+            'lifter_completed_course_ids',
+            'lifter_in_progress_course_ids',
+            'lifter_completed_lesson_ids',
+        ];
+        $tokenized_role_fields = [
+            'ur_all_roles',
+        ];
+        $is_tokenized_lms_field = in_array($field, $tokenized_lms_fields, true);
+        $is_tokenized_role_field = in_array($field, $tokenized_role_fields, true);
+        $is_tokenized_source_field = ('crm_sync_sources' === $field);
 
         // Check if it's a standard contact field
         $standard_fields = ['first_name', 'last_name', 'email', 'phone', 'city', 'state', 'country', 'zip_code', 'status', 'date_of_birth'];
@@ -3025,6 +4357,42 @@ class Helpmate_CRM
                     $params[] = $value;
                     return "{$field_ref} = %s";
                 } else {
+                    if ($is_tokenized_source_field) {
+                        $needle = sanitize_key((string) $value);
+                        if ($needle === '') {
+                            return null;
+                        }
+                        $params[] = $field;
+                        $params[] = '%,' . $needle . ',%';
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
+                        return "EXISTS (SELECT 1 FROM {$field_values_table} fv
+                        INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                        WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+                    }
+                    if ($is_tokenized_role_field) {
+                        $needle = sanitize_key((string) $value);
+                        if ($needle === '') {
+                            return null;
+                        }
+                        $params[] = $field;
+                        $params[] = '%,' . $needle . ',%';
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
+                        return "EXISTS (SELECT 1 FROM {$field_values_table} fv
+                        INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                        WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+                    }
+                    if ($is_tokenized_lms_field) {
+                        $needle = absint($value);
+                        if ($needle <= 0) {
+                            return null;
+                        }
+                        $params[] = $field;
+                        $params[] = '%,' . $needle . ',%';
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
+                        return "EXISTS (SELECT 1 FROM {$field_values_table} fv
+                        INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                        WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+                    }
                     // Custom field
                     $params[] = $field;
                     $params[] = $value;
@@ -3039,6 +4407,42 @@ class Helpmate_CRM
                     $params[] = $value;
                     return "{$field_ref} != %s";
                 } else {
+                    if ($is_tokenized_source_field) {
+                        $needle = sanitize_key((string) $value);
+                        if ($needle === '') {
+                            return null;
+                        }
+                        $params[] = $field;
+                        $params[] = '%,' . $needle . ',%';
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
+                        return "NOT EXISTS (SELECT 1 FROM {$field_values_table} fv
+                        INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                        WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+                    }
+                    if ($is_tokenized_role_field) {
+                        $needle = sanitize_key((string) $value);
+                        if ($needle === '') {
+                            return null;
+                        }
+                        $params[] = $field;
+                        $params[] = '%,' . $needle . ',%';
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
+                        return "NOT EXISTS (SELECT 1 FROM {$field_values_table} fv
+                        INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                        WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+                    }
+                    if ($is_tokenized_lms_field) {
+                        $needle = absint($value);
+                        if ($needle <= 0) {
+                            return null;
+                        }
+                        $params[] = $field;
+                        $params[] = '%,' . $needle . ',%';
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
+                        return "NOT EXISTS (SELECT 1 FROM {$field_values_table} fv
+                        INNER JOIN {$custom_fields_table} cf ON fv.field_id = cf.id
+                        WHERE fv.contact_id = c.id AND cf.field_name = %s AND fv.field_value LIKE %s)";
+                    }
                     $params[] = $field;
                     $params[] = $value;
                     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
@@ -3048,11 +4452,23 @@ class Helpmate_CRM
                 }
 
             case 'contains':
-                $search_value = '%' . $wpdb->esc_like($value) . '%';
+                $search_value = $is_tokenized_lms_field
+                    ? '%,' . absint($value) . ',%'
+                    : ($is_tokenized_source_field
+                        ? '%,' . sanitize_key((string) $value) . ',%'
+                        : ($is_tokenized_role_field
+                            ? '%,' . sanitize_key((string) $value) . ',%'
+                            : '%' . $wpdb->esc_like($value) . '%'));
+                if (($is_tokenized_source_field || $is_tokenized_role_field) && sanitize_key((string) $value) === '') {
+                    return null;
+                }
                 if ($is_standard_field) {
                     $params[] = $search_value;
                     return "{$field_ref} LIKE %s";
                 } else {
+                    if ($is_tokenized_lms_field && absint($value) <= 0) {
+                        return null;
+                    }
                     $params[] = $field;
                     $params[] = $search_value;
                     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later
@@ -3062,11 +4478,23 @@ class Helpmate_CRM
                 }
 
             case 'not_contains':
-                $search_value = '%' . $wpdb->esc_like($value) . '%';
+                $search_value = $is_tokenized_lms_field
+                    ? '%,' . absint($value) . ',%'
+                    : ($is_tokenized_source_field
+                        ? '%,' . sanitize_key((string) $value) . ',%'
+                        : ($is_tokenized_role_field
+                            ? '%,' . sanitize_key((string) $value) . ',%'
+                            : '%' . $wpdb->esc_like($value) . '%'));
+                if (($is_tokenized_source_field || $is_tokenized_role_field) && sanitize_key((string) $value) === '') {
+                    return null;
+                }
                 if ($is_standard_field) {
                     $params[] = $search_value;
                     return "{$field_ref} NOT LIKE %s";
                 } else {
+                    if ($is_tokenized_lms_field && absint($value) <= 0) {
+                        return null;
+                    }
                     $params[] = $field;
                     $params[] = $search_value;
                     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are safe, use wpdb->prefix; query will be prepared later

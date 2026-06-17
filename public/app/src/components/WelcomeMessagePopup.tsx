@@ -1,4 +1,5 @@
 import { useSettings } from '@/hooks/useSettings';
+import { __ } from '@/lib/utils';
 
 interface WelcomeMessagePopupProps {
   onClose: () => void;
@@ -20,7 +21,7 @@ export function WelcomeMessagePopup({ onClose, isOtherPopupVisible = false }: We
       <button
         onClick={onClose}
         className="flex absolute right-0 -top-8 z-10 justify-center items-center w-6 h-6 bg-gray-100 rounded-full transition-colors hover:bg-gray-200"
-        aria-label="Close welcome messages"
+        aria-label={__('Close welcome messages')}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

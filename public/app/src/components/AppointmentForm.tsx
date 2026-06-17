@@ -19,8 +19,9 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import api from '@/lib/axios';
+import { __, sprintf } from '@/lib/utils';
 import { CheckCircle2, XCircle } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 type FormFieldConfig = { visible: boolean; required: boolean };
@@ -54,10 +55,41 @@ function formatTimeSlot(slot: string): string {
   return `${parts[0]}:${parts[1] ?? '00'}`;
 }
 
-const RESERVE_EXPIRED_MSG = 'Your hold expired. Please select a time again.';
-const SLOT_TAKEN_MSG = 'This slot is no longer available. Please choose another time.';
-
 export function AppointmentForm() {
+  const l10n = useMemo(
+    () => ({
+      reserveExpired: __(
+        'Your hold expired. Please select a time again.'
+      ),
+      slotTaken: __(
+        'This slot is no longer available. Please choose another time.'
+      ),
+      fieldRequired: __('This field is required'),
+      settingsLoadError: __(
+        'Failed to load form settings. Please refresh.'
+      ),
+      slotsLoadError: __(
+        'Failed to load available time slots.'
+      ),
+      futureDate: __('Please select a future date'),
+      emailOrPhone: __('Email or phone is required'),
+      emailInvalid: __('Please enter a valid email address'),
+      scheduleFailed: __('Failed to schedule appointment.'),
+      scheduleFailedRetry: __(
+        'Failed to schedule appointment. Please try again.'
+      ),
+      success: __(
+        'Appointment scheduled successfully! We will contact you soon.'
+      ),
+      loadingForm: __('Loading form…'),
+      selectTime: __('Select a time'),
+      noSlots: __('No available slots'),
+      loading: __('Loading…'),
+      scheduleAppt: __('Schedule appointment'),
+      scheduling: __('Scheduling…'),
+    }),
+    []
+  );
   const [settings, setSettings] = useState<SmartSchedulesSettings | null>(null);
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
@@ -98,12 +130,12 @@ export function AppointmentForm() {
         if (!cancelled) setSettings(res.data ?? null);
       })
       .catch(() => {
-        if (!cancelled) setSettingsError('Failed to load form settings. Please refresh.');
+        if (!cancelled) setSettingsError(l10n.settingsLoadError);
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [l10n.settingsLoadError]);
 
   useEffect(() => {
     clearReservation();
@@ -131,7 +163,7 @@ export function AppointmentForm() {
       .catch(() => {
         if (!cancelled) {
           setTimeSlots([]);
-          setSubmitMessage({ type: 'error', text: 'Failed to load available time slots.' });
+          setSubmitMessage({ type: 'error', text: l10n.slotsLoadError });
         }
       })
       .finally(() => {
@@ -140,7 +172,7 @@ export function AppointmentForm() {
     return () => {
       cancelled = true;
     };
-  }, [selectedDate, slotListKey, form]);
+  }, [selectedDate, slotListKey, form, l10n.slotsLoadError]);
 
   const refetchSlots = useCallback(() => {
     setSlotListKey((k) => k + 1);
@@ -167,7 +199,7 @@ export function AppointmentForm() {
         }>('schedules/reserve-slot', { date, time: value });
         if (res.data?.error) {
           form.setValue('time', '');
-          setSubmitMessage({ type: 'error', text: res.data?.message ?? SLOT_TAKEN_MSG });
+          setSubmitMessage({ type: 'error', text: res.data?.message ?? l10n.slotTaken });
           refetchSlots();
           return;
         }
@@ -179,11 +211,11 @@ export function AppointmentForm() {
         }
       } catch {
         form.setValue('time', '');
-        setSubmitMessage({ type: 'error', text: SLOT_TAKEN_MSG });
+        setSubmitMessage({ type: 'error', text: l10n.slotTaken });
         refetchSlots();
       }
     },
-    [form, reservationToken, refetchSlots]
+    [form, reservationToken, refetchSlots, l10n.slotTaken]
   );
 
   useEffect(() => {
@@ -193,12 +225,12 @@ export function AppointmentForm() {
       if (now >= reservationExpiresAt) {
         clearReservation();
         form.setValue('time', '');
-        setSubmitMessage({ type: 'error', text: RESERVE_EXPIRED_MSG });
+        setSubmitMessage({ type: 'error', text: l10n.reserveExpired });
         refetchSlots();
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [reservationExpiresAt, clearReservation, form, refetchSlots]);
+  }, [reservationExpiresAt, clearReservation, form, refetchSlots, l10n.reserveExpired]);
 
   const nowSec = Math.floor(Date.now() / 1000);
   const remainingSeconds =
@@ -229,7 +261,7 @@ export function AppointmentForm() {
     if (values.date) {
       const d = new Date(values.date);
       if (d < today) {
-        form.setError('date', { message: 'Please select a future date' });
+        form.setError('date', { message: l10n.futureDate });
         return;
       }
     }
@@ -238,14 +270,14 @@ export function AppointmentForm() {
       const hasEmail = (values.email ?? '').trim();
       const hasPhone = (values.phone ?? '').trim();
       if (!hasEmail && !hasPhone) {
-        form.setError('email', { message: 'Email or phone is required' });
-        form.setError('phone', { message: 'Email or phone is required' });
+        form.setError('email', { message: l10n.emailOrPhone });
+        form.setError('phone', { message: l10n.emailOrPhone });
         return;
       }
     }
 
     if (values.email && !EMAIL_REGEX.test(values.email)) {
-      form.setError('email', { message: 'Please enter a valid email address' });
+      form.setError('email', { message: l10n.emailInvalid });
       return;
     }
 
@@ -265,7 +297,7 @@ export function AppointmentForm() {
       const res = await api.post<{ error?: boolean; message?: string }>('schedules', body);
 
       if (res.data?.error) {
-        const msg = res.data.message ?? 'Failed to schedule appointment.';
+        const msg = res.data.message ?? l10n.scheduleFailed;
         if (msg.includes('expired') || msg.includes('reservation')) {
           clearReservation();
           form.setValue('time', '');
@@ -278,7 +310,7 @@ export function AppointmentForm() {
       clearReservation();
       setSubmitMessage({
         type: 'success',
-        text: 'Appointment scheduled successfully! We will contact you soon.',
+        text: l10n.success,
       });
       form.reset({ name: '', email: '', phone: '', message: '', date: '', time: '' });
       setTimeSlots([]);
@@ -297,7 +329,7 @@ export function AppointmentForm() {
       }
       setSubmitMessage({
         type: 'error',
-        text: message ?? 'Failed to schedule appointment. Please try again.',
+        text: message ?? l10n.scheduleFailedRetry,
       });
     }
   });
@@ -313,7 +345,7 @@ export function AppointmentForm() {
   if (!settings) {
     return (
       <div className="py-4 text-sm text-center text-muted-foreground">
-        Loading form...
+        {l10n.loadingForm}
       </div>
     );
   }
@@ -327,14 +359,15 @@ export function AppointmentForm() {
           <FormField
             control={form.control}
             name="name"
-            rules={{ required: isFieldRequired('name') ? 'This field is required' : false }}
+            rules={{ required: isFieldRequired('name') ? l10n.fieldRequired : false }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Name {isFieldRequired('name') && <span className="text-destructive">*</span>}
+                  {__('Name')}{' '}
+                  {isFieldRequired('name') && <span className="text-destructive">*</span>}
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Name" {...field} />
+                  <Input placeholder={__('Name')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -348,19 +381,19 @@ export function AppointmentForm() {
             name="email"
             rules={{
               required: isFieldRequired('email') || requireAtLeastOneContact
-                ? 'This field is required'
+                ? l10n.fieldRequired
                 : false,
             }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Email{' '}
+                  {__('Email')}{' '}
                   {(isFieldRequired('email') || requireAtLeastOneContact) && (
                     <span className="text-destructive">*</span>
                   )}
                 </FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="Email" {...field} />
+                  <Input type="email" placeholder={__('Email')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -373,15 +406,16 @@ export function AppointmentForm() {
             control={form.control}
             name="phone"
             rules={{
-              required: isFieldRequired('phone') ? 'This field is required' : false,
+              required: isFieldRequired('phone') ? l10n.fieldRequired : false,
             }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Phone {isFieldRequired('phone') && <span className="text-destructive">*</span>}
+                  {__('Phone')}{' '}
+                  {isFieldRequired('phone') && <span className="text-destructive">*</span>}
                 </FormLabel>
                 <FormControl>
-                  <Input type="tel" placeholder="Phone" {...field} />
+                  <Input type="tel" placeholder={__('Phone')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -393,14 +427,15 @@ export function AppointmentForm() {
           <FormField
             control={form.control}
             name="message"
-            rules={{ required: isFieldRequired('message') ? 'This field is required' : false }}
+            rules={{ required: isFieldRequired('message') ? l10n.fieldRequired : false }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Message {isFieldRequired('message') && <span className="text-destructive">*</span>}
+                  {__('Message')}{' '}
+                  {isFieldRequired('message') && <span className="text-destructive">*</span>}
                 </FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Message" rows={4} {...field} />
+                  <Textarea placeholder={__('Message')} rows={4} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -412,11 +447,12 @@ export function AppointmentForm() {
           <FormField
             control={form.control}
             name="date"
-            rules={{ required: isFieldRequired('date') ? 'This field is required' : false }}
+            rules={{ required: isFieldRequired('date') ? l10n.fieldRequired : false }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Date {isFieldRequired('date') && <span className="text-destructive">*</span>}
+                  {__('Date')}{' '}
+                  {isFieldRequired('date') && <span className="text-destructive">*</span>}
                 </FormLabel>
                 <FormControl>
                   <Input type="date" min={minDate} {...field} />
@@ -431,11 +467,12 @@ export function AppointmentForm() {
           <FormField
             control={form.control}
             name="time"
-            rules={{ required: isFieldRequired('time') ? 'This field is required' : false }}
+            rules={{ required: isFieldRequired('time') ? l10n.fieldRequired : false }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Time {isFieldRequired('time') && <span className="text-destructive">*</span>}
+                  {__('Time')}{' '}
+                  {isFieldRequired('time') && <span className="text-destructive">*</span>}
                 </FormLabel>
                 <Select
                   disabled={!selectedDate || timeSlotsLoading}
@@ -450,12 +487,12 @@ export function AppointmentForm() {
                       <SelectValue
                         placeholder={
                           timeSlotsLoading
-                            ? 'Loading...'
+                            ? l10n.loading
                             : !selectedDate
-                              ? 'Select a time'
+                              ? l10n.selectTime
                               : timeSlots.length === 0
-                                ? 'No available slots'
-                                : 'Select a time'
+                                ? l10n.noSlots
+                                : l10n.selectTime
                         }
                       />
                     </SelectTrigger>
@@ -472,7 +509,11 @@ export function AppointmentForm() {
                   <p
                     className={`text-sm ${remainingSeconds !== null && remainingSeconds <= 60 ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground'}`}
                   >
-                    You have {countdownLabel} to complete your booking.
+                    {sprintf(
+                      /* translators: %s: Remaining time (mm:ss) to complete booking */
+                      __('You have %s to complete your booking.'),
+                      countdownLabel
+                    )}
                   </p>
                 )}
                 <FormMessage />
@@ -482,7 +523,7 @@ export function AppointmentForm() {
         )}
 
         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? 'Scheduling...' : 'Schedule Appointment'}
+          {form.formState.isSubmitting ? l10n.scheduling : l10n.scheduleAppt}
         </Button>
 
         {submitMessage && (

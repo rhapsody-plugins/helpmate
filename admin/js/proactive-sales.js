@@ -1,5 +1,10 @@
 jQuery(function($) {
-    // Handle proactive sales action clicks
+    var i18n = window.helpmateProactiveSales || {};
+    var addProactiveText = i18n.addProactiveText || 'Add Proactive';
+    var removeProactiveText = i18n.removeProactiveText || 'Remove Proactive';
+    var errorText = i18n.errorText || 'An error occurred';
+    var requestErrorText = i18n.requestErrorText || 'An error occurred while processing your request';
+
     var originalText;
     $(document).on('click', '.proactive-sales-action', function () {
         var button = $(this), productId = button.data('product-id'), action = button.data('action');
@@ -24,21 +29,20 @@ jQuery(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    // Update button text and data-action
                     const newAction = action === 'add' ? 'remove' : 'add';
-                    const newText = action === 'add' ? 'Remove Proactive' : 'Add Proactive';
+                    const newText = action === 'add' ? removeProactiveText : addProactiveText;
 
                     button
                         .data('action', newAction)
                         .text(newText)
                         .prop('disabled', false);
                 } else {
-                    alert(response.data.message || 'An error occurred');
+                    alert(response.data && response.data.message ? response.data.message : errorText);
                     button.prop('disabled', false);
                 }
             },
             error: function() {
-                alert('An error occurred while processing your request');
+                alert(requestErrorText);
                 button.prop('disabled', false);
             }
         });

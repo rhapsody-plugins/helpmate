@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/sheet';
 import { TeamMember, useTeam } from '@/hooks/useTeam';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
@@ -224,10 +224,10 @@ export default function TeamMemberForm({
         <SheetHeader>
           <SheetTitle>
             {addRoleOnly
-              ? 'Add Live Chat Agent'
+              ? __('Add Live Chat Agent')
               : isEditing
-                ? 'Edit Team Member'
-                : 'Add Team Member'}
+                ? __('Edit Team Member')
+                : __('Add Team Member')}
           </SheetTitle>
         </SheetHeader>
 
@@ -243,7 +243,7 @@ export default function TeamMemberForm({
                   name="mode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mode</FormLabel>
+                      <FormLabel>{__('Mode')}</FormLabel>
                       <FormControl>
                         <div className="flex gap-4">
                           <Button
@@ -256,7 +256,7 @@ export default function TeamMemberForm({
                               form.resetField('user_id');
                             }}
                           >
-                            Create New User
+                            {__('Create New User')}
                           </Button>
                           <Button
                             type="button"
@@ -272,7 +272,7 @@ export default function TeamMemberForm({
                               form.resetField('last_name');
                             }}
                           >
-                            Select Existing User
+                            {__('Select Existing User')}
                           </Button>
                         </div>
                       </FormControl>
@@ -290,7 +290,7 @@ export default function TeamMemberForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Username <span className="text-red-500">*</span>
+                          {__('Username')} <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -306,7 +306,7 @@ export default function TeamMemberForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Email <span className="text-red-500">*</span>
+                          {__('Email')} <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input type="email" {...field} />
@@ -322,7 +322,7 @@ export default function TeamMemberForm({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Password <span className="text-red-500">*</span>
+                          {__('Password')} <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
                           <Input type="password" {...field} />
@@ -338,7 +338,7 @@ export default function TeamMemberForm({
                       name="first_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>First Name</FormLabel>
+                          <FormLabel>{__('First Name')}</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -352,7 +352,7 @@ export default function TeamMemberForm({
                       name="last_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Last Name</FormLabel>
+                          <FormLabel>{__('Last Name')}</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -363,7 +363,7 @@ export default function TeamMemberForm({
                   </div>
 
                   <div className="space-y-3 p-4 bg-gray-50 rounded-md">
-                    <div className="text-sm font-medium">Welcome Email Options</div>
+                    <div className="text-sm font-medium">{__('Welcome Email Options')}</div>
                     <FormField
                       control={form.control}
                       name="send_reset_link"
@@ -383,10 +383,10 @@ export default function TeamMemberForm({
                           </FormControl>
                           <div className="space-y-1 leading-none">
                             <FormLabel className="font-normal cursor-pointer">
-                              Send password reset link (recommended)
+                              {__('Send password reset link (recommended)')}
                             </FormLabel>
                             <p className="text-xs text-gray-500">
-                              User will receive a secure link to set their password
+                              {__('User will receive a secure link to set their password')}
                             </p>
                           </div>
                         </FormItem>
@@ -411,10 +411,10 @@ export default function TeamMemberForm({
                           </FormControl>
                           <div className="space-y-1 leading-none">
                             <FormLabel className="font-normal cursor-pointer">
-                              Include password in email
+                              {__('Include password in email')}
                             </FormLabel>
                             <p className="text-xs text-gray-500">
-                              Password will be included in the welcome email (less secure)
+                              {__('Password will be included in the welcome email (less secure)')}
                             </p>
                           </div>
                         </FormItem>
@@ -431,7 +431,7 @@ export default function TeamMemberForm({
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>
-                        WordPress User <span className="text-red-500">*</span>
+                        {__('WordPress User')} <span className="text-red-500">*</span>
                       </FormLabel>
                       <Popover
                         open={userSearchOpen}
@@ -452,7 +452,7 @@ export default function TeamMemberForm({
                                 ? `${selectedUser.display_name} (${selectedUser.email})`
                                 : isEditing && selectedUserId && member?.user
                                   ? `${member.user.display_name} (${member.user.email})`
-                                  : 'Search and select user...'}
+                                  : __('Search and select user...')}
                               <ChevronsUpDown className="ml-2 w-4 h-4 opacity-50 shrink-0" />
                             </Button>
                           </FormControl>
@@ -467,8 +467,8 @@ export default function TeamMemberForm({
                             />
                             <CommandEmpty>
                               {usersQuery.isLoading
-                                ? 'Loading...'
-                                : 'No user found.'}
+                                ? __('Loading...')
+                                : __('No user found.')}
                             </CommandEmpty>
                             <CommandGroup>
                               {usersQuery.data?.map((user) => (
@@ -503,7 +503,7 @@ export default function TeamMemberForm({
 
               {isEditing && (
                 <div className="p-4 bg-gray-50 rounded-md">
-                  <div className="mb-1 text-sm font-medium">Current User</div>
+                  <div className="mb-1 text-sm font-medium">{__('Current User')}</div>
                   <div className="text-sm text-gray-600">
                     {member.user?.display_name || member.user?.login} (
                     {member.user?.email})
@@ -519,10 +519,10 @@ export default function TeamMemberForm({
                   <FormItem>
                     <div>
                       <FormLabel className="text-base">
-                        Roles <span className="text-red-500">*</span>
+                        {__('Roles')} <span className="text-red-500">*</span>
                       </FormLabel>
                       <p className="text-sm text-gray-500">
-                        Select one or more roles for this team member
+                        {__('Select one or more roles for this team member')}
                       </p>
                     </div>
                     {availableRoles.map((role) => (
@@ -551,7 +551,7 @@ export default function TeamMemberForm({
                                 />
                               </FormControl>
                               <FormLabel className="font-normal cursor-pointer">
-                                {ROLE_LABELS[role] || role}
+                                {ROLE_LABELS[role] ? __(ROLE_LABELS[role]) : role}
                               </FormLabel>
                             </FormItem>
                           );
@@ -566,13 +566,13 @@ export default function TeamMemberForm({
 
               <div className="flex gap-3 justify-end pt-4">
                 <Button type="button" variant="outline" onClick={onClose}>
-                  Cancel
+                  {__('Cancel')}
                 </Button>
                 <Button type="submit" disabled={isLoading}>
                   {isLoading && (
                     <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                   )}
-                  {isEditing ? 'Update' : 'Create'}
+                  {isEditing ? __('Update') : __('Create')}
                 </Button>
               </div>
             </form>

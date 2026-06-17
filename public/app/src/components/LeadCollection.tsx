@@ -11,14 +11,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { useTheme } from '@/context/ThemeContext';
 import { useLeads } from '@/hooks/useLeads';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useMemo } from 'react';
 import { z } from 'zod';
 
 export default function LeadCollection({
   setCollectLead,
-  title = 'Please fill out the form to continue.',
+  title = __('Please fill out the form to continue.'),
   variant = 'large',
   textColor = 'text-white',
 }: {
@@ -34,16 +35,28 @@ export default function LeadCollection({
   const { data: settings } = getSettingsQuery;
   const collectLeadSettings = settings?.settings?.lead_form_fields;
 
-  const schema = z.object({
-    name: z.string().min(collectLeadSettings?.includes('name') ? 1 : 0),
-    email: z
-      .string()
-      .email()
-      .min(collectLeadSettings?.includes('email') ? 1 : 0),
-    phone: z.string().min(collectLeadSettings?.includes('phone') ? 10 : 0),
-    website: z.string().min(collectLeadSettings?.includes('website') ? 1 : 0),
-    message: z.string().min(collectLeadSettings?.includes('message') ? 1 : 0),
-  });
+  const schema = useMemo(() => {
+    const req = __('This field is required');
+    const emailInvalid = __('Please enter a valid email address');
+    const phoneShort = __('Please enter a valid phone number');
+    return z.object({
+      name: collectLeadSettings?.includes('name')
+        ? z.string().min(1, req)
+        : z.string(),
+      email: collectLeadSettings?.includes('email')
+        ? z.string().min(1, req).email(emailInvalid)
+        : z.string(),
+      phone: collectLeadSettings?.includes('phone')
+        ? z.string().min(10, phoneShort)
+        : z.string(),
+      website: collectLeadSettings?.includes('website')
+        ? z.string().min(1, req)
+        : z.string(),
+      message: collectLeadSettings?.includes('message')
+        ? z.string().min(1, req)
+        : z.string(),
+    });
+  }, [collectLeadSettings]);
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -100,7 +113,7 @@ export default function LeadCollection({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={cn(textColor)}>Name</FormLabel>
+                    <FormLabel className={cn(textColor)}>{__('Name')}</FormLabel>
                     <FormControl>
                       <Input className="bg-white" type="text" {...field} />
                     </FormControl>
@@ -114,7 +127,7 @@ export default function LeadCollection({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={cn(textColor)}>Email</FormLabel>
+                    <FormLabel className={cn(textColor)}>{__('Email')}</FormLabel>
                     <FormControl>
                       <Input className="bg-white" type="email" {...field} />
                     </FormControl>
@@ -128,7 +141,7 @@ export default function LeadCollection({
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={cn(textColor)}>Phone</FormLabel>
+                    <FormLabel className={cn(textColor)}>{__('Phone')}</FormLabel>
                     <FormControl>
                       <Input className="bg-white" type="tel" {...field} />
                     </FormControl>
@@ -142,7 +155,7 @@ export default function LeadCollection({
                 name="website"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={cn(textColor)}>Website</FormLabel>
+                    <FormLabel className={cn(textColor)}>{__('Website')}</FormLabel>
                     <FormControl>
                       <Input className="bg-white" type="url" {...field} />
                     </FormControl>
@@ -156,7 +169,7 @@ export default function LeadCollection({
                 name="message"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className={cn(textColor)}>Message</FormLabel>
+                    <FormLabel className={cn(textColor)}>{__('Message')}</FormLabel>
                     <FormControl>
                       <Textarea className="bg-white" {...field} />
                     </FormControl>
@@ -165,7 +178,7 @@ export default function LeadCollection({
               />
             )}
             <Button className={cn(variant === 'small' && 'self-start')} type="submit" size="lg" disabled={isPending}>
-              {isPending ? 'Submitting...' : 'Submit'}
+              {isPending ? __('Submitting…') : __('Submit')}
             </Button>
           </div>
         </form>

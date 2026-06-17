@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import type { CouponData } from '@/types';
 import { useSettings } from '@/hooks/useSettings';
 import LeadCollection from '@/components/LeadCollection';
+import { __, sprintf } from '@/lib/utils';
 
 interface CouponProps {
   data: CouponData;
@@ -37,7 +38,7 @@ export function Coupon({ data, skipLeadGate = false }: CouponProps) {
       {!collectLead && couponCollectLead ? (
         <LeadCollection
           setCollectLead={setCollectLead}
-          title="To get your coupon, please fill out the form below."
+          title={__('To get your coupon, please fill out the form below.')}
           variant="small"
           textColor="text-slate-800 !text-base font-normal text-left"
         />
@@ -50,14 +51,18 @@ export function Coupon({ data, skipLeadGate = false }: CouponProps) {
 
             <div className="flex flex-col items-center">
               <div className="mb-1 text-sm font-medium text-slate-500">
-                Special Offer
+                {__('Special Offer')}
               </div>
               <div
                 className="text-2xl font-bold text-slate-800"
                 dangerouslySetInnerHTML={{ __html: data.discount }}
               />
               <div className="mt-1 text-xs text-slate-500">
-                Valid until {data.validUntil}
+                {sprintf(
+                  /* translators: %s: Coupon expiry date */
+                  __('Valid until %s'),
+                  data.validUntil
+                )}
               </div>
             </div>
           </div>
@@ -74,11 +79,11 @@ export function Coupon({ data, skipLeadGate = false }: CouponProps) {
             >
               {copied ? (
                 <>
-                  <Check size={14} className="mr-1 text-green-600" /> Copied
+                  <Check size={14} className="mr-1 text-green-600" /> {__('Copied')}
                 </>
               ) : (
                 <>
-                  <Copy size={14} className="mr-1" /> Copy Code
+                  <Copy size={14} className="mr-1" /> {__('Copy code')}
                 </>
               )}
             </Button>

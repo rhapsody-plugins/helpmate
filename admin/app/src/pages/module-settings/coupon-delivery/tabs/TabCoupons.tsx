@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import useCoupons from '@/hooks/useCoupons';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { Coupon } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -73,27 +73,34 @@ export default function TabCoupons() {
     () => [
       {
         accessorKey: 'code',
-        header: 'Code',
+        header: __('Code'),
       },
       {
         accessorKey: 'amount',
-        header: 'Amount',
+        header: __('Amount'),
       },
       {
         accessorKey: 'discount_type',
-        header: 'Discount Type',
+        header: __('Discount Type'),
       },
       {
         accessorKey: 'description',
-        header: 'Description',
+        header: __('Description'),
       },
       {
         accessorKey: 'date_expires',
-        header: 'Expires',
+        header: __('Expires'),
+        cell: ({ getValue }) => {
+          const v = getValue();
+          if (v == null || v === '') {
+            return __('Never');
+          }
+          return String(v);
+        },
       },
       {
         accessorKey: 'usage_count',
-        header: 'Usage Count',
+        header: __('Usage Count'),
       },
     ],
     []
@@ -104,10 +111,10 @@ export default function TabCoupons() {
       ...commonColumns,
       {
         accessorKey: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => (
           <Button size="sm" onClick={() => handleAdd(row.original.id)}>
-            Add
+            {__('Add')}
           </Button>
         ),
       },
@@ -120,14 +127,14 @@ export default function TabCoupons() {
       ...commonColumns,
       {
         accessorKey: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => (
           <Button
             size="sm"
             variant="destructive"
             onClick={() => handleRemove(row.original.id)}
           >
-            Remove
+            {__('Remove')}
           </Button>
         ),
       },
@@ -140,8 +147,10 @@ export default function TabCoupons() {
       <div className="relative">
         {!getProQuery.data && (
           <ProBadge
-            topMessage="Imagine your chatbot whispering 'Here's 10% off' right before they bounce. That's smart conversion."
-            buttonText="Convert Exits into Orders"
+            topMessage={__(
+            "Imagine your chatbot whispering 'Here's 10% off' right before they bounce. That's smart conversion."
+          )}
+            buttonText={__('Convert Exits into Orders')}
             tooltipMessage={null}
           />
         )}
@@ -154,7 +163,7 @@ export default function TabCoupons() {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle className="items-center text-xl font-bold">
-                Available Coupons
+                {__('Available Coupons')}
               </CardTitle>
               <Input
                 placeholder="Search coupons..."
@@ -198,8 +207,10 @@ export default function TabCoupons() {
       <div className="relative">
         {!getProQuery.data && (
           <ProBadge
-            topMessage="Imagine your chatbot whispering 'Here's 10% off' right before they bounce. That's smart conversion."
-            buttonText="Convert Exits into Orders"
+            topMessage={__(
+            "Imagine your chatbot whispering 'Here's 10% off' right before they bounce. That's smart conversion."
+          )}
+            buttonText={__('Convert Exits into Orders')}
             tooltipMessage={null}
           />
         )}
@@ -212,7 +223,7 @@ export default function TabCoupons() {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle className="text-xl font-bold">
-                Saved for Coupon Delivery
+                {__('Saved for Coupon Delivery')}
               </CardTitle>
               <Input
                 placeholder="Search saved coupons..."

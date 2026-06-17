@@ -1,4 +1,4 @@
-# Helpmate – Support Automation, AI Chatbot, Live Chat, WhatsApp Automation, Booking & CRM for WordPress
+# Helpmate – Support Automation, AI Chatbot, Live Chat, Social Automation, Booking & CRM Solution
 
 > Tags: automation, ai chatbot, live chat, crm, appointments
 
@@ -31,7 +31,7 @@ If you need automation, AI chatbot, live chat, CRM, appointments and booking in 
   - Promo Bar (1 Template)
   - Sales Notifications (1 Template)
 
-- **Inbox**
+- **Unified Inbox**
   - All Conversations (Partial)
   - Chatbot (200 Chat Credits)
   - Tickets
@@ -41,6 +41,25 @@ If you need automation, AI chatbot, live chat, CRM, appointments and booking in 
   - Notes
   - Order Management
   - Leads (Chat Widget Leads)
+
+- **Integration**
+  - WooCommerce (Default)
+  - Easy Digital Downloads
+  - SureCart
+  - LearnPress
+  - TutorLMS
+  - LifterLMS
+  - Ultimate Member
+  - Members
+  - User Registration & Membership
+  - Elementor
+  - Gutenberg Blocks
+  - Beaver Builder
+  - Contact Form 7
+  - Forminator
+  - Ninja Forms
+  - WPForms
+  - Formidable Forms
 
 - **Admin Hub**
   - Teams & Roles
@@ -66,21 +85,23 @@ All Free Features + Below
   - Email Sequences
   - Abandoned Cart Recovery
 
-- **Inbox**
+- **Unified Inbox**
   - All Conversations
   - Chatbot, Unlimited Chat Credits With Own API Key
   - Live Chat
   - Social Messages
   - Comments on Social Media
 
-- **Channels**
+- **Communication Channels**
   - Facebook Messages
   - Facebook Comments
   - Instagram Messages
   - Instagram Comments
   - WhatsApp
   - Live Chat
-  - Contacts (Unlimited)
+
+- **CRM**
+  - Leads (Social & Chat Widget)
   - Appointments & Bookings
   - Segments
   - Custom Fields
@@ -91,147 +112,212 @@ All Free Features + Below
 
 **[Helpmate All Features](https://helpmate.chat/features/?utm_source=wp_org&utm_medium=wp_readme&utm_campaign=free_user)**
 
-## Helpmate's Features
+## Helpmate's Features 👇
 
 Here's a straightforward look at what Helpmate can do for your WordPress business.
 
-### ⚙ Support Automation System
+### 🤖 AI Chatbot for WordPress & WooCommerce
 
-Helpmate is a support automation plugin for WordPress designed to automate repetitive customer support tasks and reduce manual workload. The support automation system helps businesses manage conversations, automate responses, and improve efficiency inside the WordPress dashboard.
+Deliver instant customer support with an AI chatbot built specifically for WordPress and WooCommerce. Helpmate uses your knowledge base to answer customer questions about products, orders, shipping, refunds, returns, and store policies. Instead of forcing customers to wait for support agents, the AI chatbot provides accurate answers 24/7, helping you improve customer satisfaction while reducing support workload.
 
-Helpmate is built for automation:
+The AI chatbot can guide shoppers through their buying journey, recommend products, answer pre-sales questions, and provide post-purchase support from a single chat window.
 
-* Support automation workflows
-* Auto DM and auto comment replies
-* Email campaigns
-* Email sequences
-* Lead capture automation
-* Coupon delivery automation
-* Proactive sales automation
-* Abandoned cart recovery automation
-* Sales notification popups
-* Promo bar announcements
+#### Helpmate AI
 
-Automation helps increase engagement, leads and sales without manual effort.
+* AI chatbot powered by your website content and knowledge base
+* Answer customer questions instantly, 24/7
+* Reduce support workload with automated responses
+* Provide accurate product, order, and policy information
+* Improve customer experience with conversational AI
 
----
+#### Knowledge Base
 
-### 🤖 AI Chatbot for WordPress
-
-Helpmate includes an AI chatbot for WordPress that automatically responds to customer inquiries and support questions. This WordPress chatbot uses knowledge base training and customizable behavior settings to deliver accurate responses.
-
-Helpmate AI chatbot helps automate customer support and engagement:
-
-* AI chatbot trained with knowledge base
-* Custom chatbot tone and language
-* Test chatbot before going live
-* Behavior and appearance controls
-* Product search by image
-* Order status tracking
-* Refund and return in chat window
-
-This AI chatbot reduces manual support work and improves response speed.
+* Train your AI chatbot using your website content
+* Create a self-service customer support experience
+* Deliver faster and more accurate answers
+* Continuously improve chatbot performance
 
 ---
 
-### 💬 Live Chat & Omnichannel Inbox
+### ⚡ Marketing Automation & Customer Support Automation
 
-Helpmate provides a live chat plugin for WordPress with a centralized omnichannel inbox. The live chat system allows businesses to manage all conversations from one dashboard.
+Automate repetitive tasks and create personalized customer journeys without complex workflows. Helpmate helps store owners save time by handling common support and marketing activities automatically.
 
-Helpmate includes a complete live chat and messaging system:
+From abandoned cart recovery and coupon delivery to proactive sales messages and email sequences, the automation tools help convert more visitors into customers while reducing manual work.
 
-* Live chat for WordPress
+Customers can track orders, request refunds, search products by image, and receive promotional offers directly through chat conversations.
+
+* Test chatbot responses before going live
+* Customize chatbot appearance and behavior
+* Display promotional offers with Promo Bar
+* Show real-time sales notifications
+* Automate Facebook and Instagram messages and comments
+* Automate order status tracking requests
+* Let customers search products by image
+* Handle refund and return requests inside chat
+* Send automated email campaigns
+* Capture leads automatically
+* Deliver coupons through chat conversations
+* Trigger proactive sales messages
+* Create automated email sequences
+* Recover abandoned carts with automated follow-ups
+
+---
+
+### 💬 Live Chat for Real-Time Customer Engagement
+
+Connect with visitors instantly through a built-in live chat system. Whether customers need product recommendations, order assistance, or support, your team can respond in real time from a unified inbox.
+
+The live chat system works alongside the AI chatbot, allowing businesses to automate common questions while enabling human agents to handle more complex conversations. This hybrid approach helps improve response times and customer experiences.
+
+#### Features Include
+
+* Real-time communication with website visitors
+* Seamlessly switch between AI chatbot and human agents
+* Improve response times and customer satisfaction
+* Convert more visitors into customers
+
+---
+
+### 📥 Unified Inbox for All Customer Conversations
+
+Stop switching between multiple platforms. Helpmate centralizes customer communication into a single inbox where teams can manage every conversation.
+
+View AI chatbot interactions, live chat messages, support tickets, Facebook messages, Instagram messages, WhatsApp conversations, and social media comments from one place.
+
+This unified communication hub helps support teams stay organized, respond faster, and provide consistent customer experiences across all channels.
+
+#### Features Include
+
+* View all conversations in one place
 * AI chatbot conversations
 * Support tickets
-* Social messages from Facebook, Instagram and WhatsApp
-* Comments management
-* Archived conversations
-* All conversations in one inbox
-
-This live chat plugin centralizes customer support and messaging.
+* Live chat for WordPress websites
+* Facebook and Instagram messages
+* Social media comments
 
 ---
 
-### 📱 Channels Supported
+### 👥 CRM for WordPress & WooCommerce
 
-Helpmate supports multiple communication channels to unify customer support automation.
+Build stronger customer relationships with a built-in CRM designed for WordPress businesses. Helpmate stores customer information, communication history, orders, appointments, and support interactions in a centralized customer profile.
 
-Connect multiple channels:
+The CRM helps businesses track leads, manage customer data, organize tasks, and create customer segments for personalized communication.
 
-* Facebook Messenger
+Whether leads come from social media, website chat widgets, or support conversations, the CRM keeps all customer information connected and accessible.
+
+#### CRM Features
+
+* Centralized customer contact management
+* Unlimited contacts
+* Customer notes and activity tracking
+* WooCommerce order management
+* Lead management from live chat and social channels
+* Appointment and booking records
+* Customer segmentation
+* Custom fields for customer data
+* Task management for teams
+* Email templates for faster communication
+* Customer profiles and history
+* Lead qualification and organization
+
+### 🌐 Multi-Channel Customer Communication
+
+Reach customers wherever they prefer to communicate. Helpmate supports multiple communication channels so businesses can manage customer interactions from a single platform.
+
+Supported channels include website live chat, Facebook Messenger, Instagram messaging, WhatsApp, social media comments, and more.
+
+#### Supported Channels
+
+* Facebook Messages
 * Facebook Comments
-* Instagram DM
+* Instagram Messages
 * Instagram Comments
 * WhatsApp
-* Live Chat widget
-
-Manage all communication inside WordPress.
+* Website Live Chat
 
 ---
 
-### 🧠 Built-in CRM for WordPress
+### 📅 Appointments & Bookings Management
 
-Helpmate includes a built-in CRM for WordPress that helps manage contacts, leads, and customer data directly inside the WordPress admin panel.
+Manage appointments and bookings directly inside WordPress. Allow customers to request consultations, schedule meetings, or book services while keeping appointment records connected to your CRM.
 
-Helpmate includes a full CRM system:
+By combining appointments with customer profiles, support history, and order information, businesses gain a complete view of every customer interaction.
 
-* Contacts management
-* Notes and activity logs
-* Order management
-* Leads from social and chat widget
-* Appointments and bookings
-* Segments
-* Custom fields
-* Tasks
-* Email templates
+This makes it easier to follow up with prospects, nurture leads, and provide personalized service throughout the customer journey.
 
-This CRM helps organize customers, leads, appointments and support data in one place.
+#### Appointment Management
+
+* Accept appointment and booking requests
+* Track scheduled meetings and consultations
+* Manage customer appointments from one dashboard
+* Store appointment history within CRM records
+* Improve customer engagement and follow-up
 
 ---
 
-### 📅 Appointments & Booking System
+### 🔌 Powerful Integrations for Growing Businesses
 
-Helpmate includes an appointments and booking system for WordPress that integrates with live chat, CRM, and automation tools.
+Helpmate integrates with leading WordPress plugins and platforms, helping businesses connect customer support, sales, marketing, and CRM workflows.
 
-Helpmate supports appointments and booking management:
+#### eCommerce
 
-* Create appointments
-* Manage bookings
-* Automate reminders
-* Sync with CRM contacts
+* WooCommerce (Default)
+* Easy Digital Downloads
+* SureCart
 
-The appointment booking system works alongside AI chatbot and support automation to streamline scheduling and customer communication.
+#### MultiVendor Marketplace
+
+* Dokan
+* WCFM
+
+#### Page Builders
+
+* Elementor
+* Gutenberg Blocks
+* Beaver Builder
+
+#### Form Builders
+
+* Contact Form 7
+* Forminator
+* Ninja Forms
+* WPForms
+* Formidable Forms
+
+#### LMS Platforms
+
+* LearnPress
+* Tutor LMS
+* LifterLMS
+
+#### Membership Platforms
+
+* Ultimate Member
+* Members
+* User Registration & Membership
 
 ---
 
 ### 🏢 Admin Hub & Team Management
 
-Helpmate includes an admin hub for managing support automation, AI chatbot, live chat, CRM, and booking features from one dashboard.
+Manage your entire customer support operation from a centralized admin hub. Control team permissions, manage API keys, monitor performance, and analyze customer engagement through built-in analytics.
 
-Admin features:
+The admin hub helps teams collaborate efficiently while maintaining visibility across customer support, live chat, automation, CRM, and appointments.
 
-* Teams and roles
-* Analytics dashboard
-* Manage modules
+#### Feature Includes
 
-Control support automation, AI chatbot, CRM and live chat from one admin hub.
+* Teams and roles management
+* API key management
+* Performance analytics
+* Customer support insights
+* Team collaboration tools
 
 ---
 
 ### 🚀 Why Choose Helpmate?
 
-* Support automation for WordPress
-* AI chatbot with knowledge base
-* Live chat and Facebook, Instagram, WhatsApp messaging
-* Built-in CRM
-* Email campaigns
-* Email sequences
-* Appointments and booking system
-* Lead capture and sales automation
-* Abandoned cart recovery
-* Omnichannel inbox
-
-One plugin. Complete support automation system.
+Helpmate combines an AI chatbot, marketing automation, live chat, CRM, appointments, and omnichannel customer communication into one powerful WordPress plugin. Whether you run a WooCommerce store, membership website, online course platform, or service business, Helpmate helps you automate support, capture leads, manage customer relationships, and grow revenue from a single dashboard.
 
 ---
 
@@ -241,22 +327,22 @@ One plugin. Complete support automation system.
 
 ## Frequently Asked Questions
 
-**How can I use unlimited chat?**  
+**How can I use unlimited chat?**
 You need to use own OpenAI API key to do that.
 
-**Do I need to know how to code?**  
+**Do I need to know how to code?**
 Not at all. If you can install a WordPress plugin, you can use Helpmate easily.
 
-**Is this a full replacement for human support agents?**  
+**Is this a full replacement for human support agents?**
 No, Helpmate is not here to replace your support team. It's designed to enhance and support them.
 
-**Will this slow down my Website?**  
+**Will this slow down my Website?**
 Not at all. Helpmate is lightweight and optimized for performance. Its JavaScript files are **deferred**, so they only load on the frontend when needed — ensuring your site stays fast.
 
-**Can I use in any WordPress website?**  
+**Can I use in any WordPress website?**
 Yes, You can use it in any WordPress website like store, personal, company etc.
 
-**In how many ways can I train the chatbot**  
+**In how many ways can I train the chatbot**
 You can train the chatbot in 5 different ways:
 
 - 1. WordPress content (Posts, Pages, Products)
@@ -265,19 +351,19 @@ You can train the chatbot in 5 different ways:
 - 4. Q&A pairs
 - 5. File uploads (CSV, TXT, JSON)
 
-**Can I train the chatbot using my own FAQ content?**  
+**Can I train the chatbot using my own FAQ content?**
 Yes! Simply input your questions and answers in the Q&A dashboard.
 
-**Can I view chat history?**  
+**Can I view chat history?**
 Yes, you can review all chat history. If the bot gives an incorrect answer, you can add the correct one to improve future responses.
 
-**Can I see the data I've trained the bot with?**  
+**Can I see the data I've trained the bot with?**
 Yes, you can view all trained data — and delete or update it at any time.
 
-**Can AI respond to support tickets?**  
+**Can AI respond to support tickets?**
 No, Helpmate does not automate ticket replies. We've intentionally kept this part for human intervention, as relying solely on AI may lead to customer dissatisfaction in complex or sensitive cases.
 
-**How many languages does the chatbot support?**  
+**How many languages does the chatbot support?**
 Following languages are supported by ai chatbot but not limited to...
 
 - English
@@ -305,40 +391,40 @@ Following languages are supported by ai chatbot but not limited to...
 - Vietnamese
 - Thai
 
-**Can users track orders using a phone number?**  
+**Can users track orders using a phone number?**
 Absolutely. Customers can track their orders using their email, phone number, or order ID — no login required.
 
-**Is the coupon system automatic or manual?**  
+**Is the coupon system automatic or manual?**
 Both! You can choose to deliver coupons manually or automate them based on user behavior, like exit intent.
 
-**What if a customer wants to speak with a real person?**  
+**What if a customer wants to speak with a real person?**
 Helpmate includes a smooth human handover option with one-click links to WhatsApp, Messenger, or direct phone support.
 
-**Can I use Helpmate on multiple websites?**  
+**Can I use Helpmate on multiple websites?**
 Yes, depending on your license. We offer single-site and multi-site licenses. Please check your plan details before deploying to additional domains.
 
-**Does Helpmate work with any WooCommerce theme?**  
+**Does Helpmate work with any WooCommerce theme?**
 Yes, Helpmate is designed to be theme-agnostic. It works seamlessly with any modern, well-coded WooCommerce theme.
 
-**Is Helpmate compatible with page builders like Elementor or Divi?**  
+**Is Helpmate compatible with page builders like Elementor or Divi?**
 Absolutely. Helpmate works flawlessly with popular page builders including Elementor, Divi, WPBakery, and Gutenberg.
 
-**How is customer data handled and stored?**  
+**How is customer data handled and stored?**
 All data is stored securely on your own WordPress server. Helpmate does not send your customer data to any third-party services.
 
-**Can I customize the chatbot's appearance?**  
+**Can I customize the chatbot's appearance?**
 Yes. You can customize the chatbot's colors, icon, welcome message, and branding to match your store's look and feel.
 
-**Does Helpmate support mobile users?**  
+**Does Helpmate support mobile users?**
 Yes, Helpmate is fully responsive and optimized for all mobile devices and screen sizes.
 
-**Can I turn off certain features I don't need?**  
+**Can I turn off certain features I don't need?**
 Yes, Helpmate is modular. You can enable or disable features like order tracking, coupon delivery, or proactive sales based on your business needs.
 
-**Is there a way to collect leads through the chatbot?**  
+**Is there a way to collect leads through the chatbot?**
 Yes. You can use Helpmate to collect user emails, phone numbers, or custom information during conversations.
 
-**What kind of support do I get with Helpmate?**  
+**What kind of support do I get with Helpmate?**
 We provide detailed documentation, video tutorials, and email-based support. Premium users also get priority assistance.
 
 ---

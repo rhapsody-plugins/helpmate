@@ -80,28 +80,37 @@ function parseCartItems(cart: AbandonedCartType): CartItem[] {
 
 export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
   const { useContact } = useCrm();
-  const { getAbandonedCarts } = useAbandonedCart();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [previewCart, setPreviewCart] = useState<AbandonedCartType | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [productNames, setProductNames] = useState<Record<number, string>>({});
-
   const { data: contact, isLoading: contactLoading } = useContact(
     contactId,
     contactId !== null
   );
-  const { data: abandonedCarts, isFetching: isFetchingCarts } =
-    getAbandonedCarts;
+  const contactEmail = contact?.email?.trim() ?? '';
+  const { getAbandonedCarts } = useAbandonedCart({
+    search: contactEmail,
+    perPage: 100,
+    page: 1,
+    listEnabled: contactId !== null && contactEmail !== '',
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [previewCart, setPreviewCart] = useState<AbandonedCartType | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [productNames, setProductNames] = useState<Record<number, string>>({});
+  const [productVendors, setProductVendors] = useState<Record<number, string>>(
+    {}
+  );
 
-  // Filter abandoned carts by contact email
+  const abandonedCarts = getAbandonedCarts.data?.carts ?? [];
+  const { isFetching: isFetchingCarts } = getAbandonedCarts;
+
+  // Exact email match (search is substring on server)
   const filteredCarts = useMemo(() => {
-    if (!contact?.email || !abandonedCarts) {
+    if (!contact?.email) {
       return [];
     }
-
+    const em = contact.email.toLowerCase();
     return abandonedCarts.filter(
       (cart: AbandonedCartType) =>
-        cart.customer?.user_email?.toLowerCase() === contact.email.toLowerCase()
+        cart.customer?.user_email?.toLowerCase() === em
     );
   }, [contact?.email, abandonedCarts]);
 
@@ -115,6 +124,8 @@ export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
     if (!previewCart) {
       return;
     }
+
+    setProductVendors({});
 
     const fetchProductNames = async () => {
       const cartItems = parseCartItems(previewCart);
@@ -135,6 +146,10 @@ export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
           const response = await api.get<{
             error: boolean;
             data: Record<string, string | null>;
+            vendors?: Record<
+              string,
+              { vendor_id: number; vendor_store_name: string }
+            >;
           }>('/products/names', { params: { ids: idsParam } });
 
           if (response.data && !response.data.error && response.data.data) {
@@ -150,6 +165,20 @@ export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
               }
             });
             setProductNames(fetchedNames);
+            if (response.data.vendors) {
+              const vmap: Record<number, string> = {};
+              Object.entries(response.data.vendors).forEach(([id, v]) => {
+                const productId = parseInt(id, 10);
+                if (
+                  !isNaN(productId) &&
+                  v?.vendor_store_name &&
+                  typeof v.vendor_store_name === 'string'
+                ) {
+                  vmap[productId] = v.vendor_store_name;
+                }
+              });
+              setProductVendors(vmap);
+            }
           } else {
             const fallbackNames: Record<number, string> = {};
             idsArray.forEach((id) => {
@@ -276,6 +305,11 @@ export function AbandonedCartsTab({ contactId }: AbandonedCartsTabProps) {
               >
                 <div>
                   <div className="font-medium">{productName}</div>
+                  {productId && productVendors[productId] ? (
+                    <div className="text-xs text-muted-foreground">
+                      {productVendors[productId]}
+                    </div>
+                  ) : null}
                   {item.variation_id && item.product_id && (
                     <div className="text-xs text-muted-foreground">
                       Variation

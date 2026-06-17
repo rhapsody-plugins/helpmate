@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { useCrm } from '@/hooks/useCrm';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { useState } from 'react';
 import type { ContactFormData } from '../schemas';
@@ -45,7 +45,7 @@ export function WordPressUserSelector({ form }: WordPressUserSelectorProps) {
       name="wp_user_id"
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>WordPress User</FormLabel>
+          <FormLabel>{__('WordPress User')}</FormLabel>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <FormControl>
@@ -59,7 +59,7 @@ export function WordPressUserSelector({ form }: WordPressUserSelectorProps) {
                 >
                   {selectedUser
                     ? `${selectedUser.display_name} (${selectedUser.email})`
-                    : 'Select WordPress user...'}
+                    : __('Select WordPress user...')}
                   <ChevronsUpDown className="ml-2 w-4 h-4 opacity-50 shrink-0" />
                 </Button>
               </FormControl>
@@ -73,7 +73,7 @@ export function WordPressUserSelector({ form }: WordPressUserSelectorProps) {
                   onValueChange={setSearchQuery}
                 />
                 <CommandEmpty>
-                  {isLoading ? 'Loading...' : 'No user found.'}
+                  {isLoading ? __('Loading...') : __('No user found.')}
                 </CommandEmpty>
                 <CommandGroup>
                   <CommandItem
@@ -89,7 +89,7 @@ export function WordPressUserSelector({ form }: WordPressUserSelectorProps) {
                         !field.value ? 'opacity-100' : 'opacity-0'
                       )}
                     />
-                    No user
+                    {__('No user')}
                   </CommandItem>
                   {users?.map((user) => (
                     <CommandItem

@@ -25,6 +25,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useCrm } from '@/hooks/useCrm';
+import { __ } from '@/lib/utils';
 import { siteToDatetimeLocal } from '@/pages/crm/contacts/utils';
 import { TaskFilters as TaskFiltersType } from '@/types/crm';
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
@@ -83,14 +84,14 @@ export function TaskFilters({
     <PopoverContent className="w-96" align="end">
       <div className="flex flex-col max-h-[50vh]">
         <div className="flex flex-shrink-0 justify-between items-center mb-3">
-          <h4 className="!font-medium !text-lg !my-0">Filters</h4>
+          <h4 className="!font-medium !text-lg !my-0">{__('Filters')}</h4>
           {hasActiveFilters && (
             <Button
               variant="outline"
               size="xs"
               onClick={clearFilters}
             >
-              Clear All
+              {__('Clear All')}
             </Button>
           )}
         </div>
@@ -98,7 +99,7 @@ export function TaskFilters({
 
         {/* Search Filter */}
         <div className="p-3 space-y-2 rounded-lg border border-border">
-          <div className="mb-2 text-sm font-medium">Search</div>
+          <div className="mb-2 text-sm font-medium">{__('Search')}</div>
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -114,7 +115,7 @@ export function TaskFilters({
         {/* Status Filter */}
         {statusField && statusField.field_options && (
           <div className="p-3 space-y-2 rounded-lg border border-border">
-            <div className="mb-2 text-sm font-medium">Status</div>
+            <div className="mb-2 text-sm font-medium">{__('Status')}</div>
             <Select
               value={filters.status || 'all'}
               onValueChange={(value) =>
@@ -125,7 +126,7 @@ export function TaskFilters({
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="all">{__('All statuses')}</SelectItem>
                 {statusField.field_options.map((status) => (
                   <SelectItem key={status} value={status}>
                     {status}
@@ -139,7 +140,7 @@ export function TaskFilters({
         {/* Priority Filter */}
         {priorityField && priorityField.field_options && (
           <div className="p-3 space-y-2 rounded-lg border border-border">
-            <div className="mb-2 text-sm font-medium">Priority</div>
+            <div className="mb-2 text-sm font-medium">{__('Priority')}</div>
             <Select
               value={filters.priority || 'all'}
               onValueChange={(value) =>
@@ -150,7 +151,7 @@ export function TaskFilters({
                 <SelectValue placeholder="All priorities" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All priorities</SelectItem>
+                <SelectItem value="all">{__('All priorities')}</SelectItem>
                 {priorityField.field_options.map((priority) => (
                   <SelectItem key={priority} value={priority}>
                     {priority}
@@ -163,7 +164,7 @@ export function TaskFilters({
 
         {/* Assigned To Filter */}
         <div className="p-3 space-y-2 rounded-lg border border-border">
-          <div className="mb-2 text-sm font-medium">Assigned To</div>
+          <div className="mb-2 text-sm font-medium">{__('Assigned To')}</div>
           <Select
             value={
               filters.assigned_to === undefined
@@ -181,9 +182,9 @@ export function TaskFilters({
               <SelectValue placeholder="All users" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All users</SelectItem>
-              <SelectItem value="me">My Tasks</SelectItem>
-              <SelectItem value="unassigned">Unassigned</SelectItem>
+              <SelectItem value="all">{__('All users')}</SelectItem>
+              <SelectItem value="me">{__('My Tasks')}</SelectItem>
+              <SelectItem value="unassigned">{__('Unassigned')}</SelectItem>
               {users?.map((user) => (
                 <SelectItem key={user.id} value={String(user.id)}>
                   {user.display_name}
@@ -202,7 +203,7 @@ export function TaskFilters({
               className="justify-between w-full text-sm"
             >
               <span className="flex gap-2 items-center">
-                Advanced Filters
+                {__('Advanced Filters')}
                 {hasAdvancedFilters && (
                   <span className="flex justify-center items-center w-5 h-5 text-xs rounded-full bg-primary text-primary-foreground">
                     •
@@ -220,7 +221,7 @@ export function TaskFilters({
             <div className="pt-3 space-y-3">
               {/* Due Date From */}
               <div className="p-3 space-y-2 rounded-lg border border-border">
-                <Label htmlFor="due_date_from" className="mb-2 text-sm font-medium">Due From</Label>
+                <Label htmlFor="due_date_from" className="mb-2 text-sm font-medium">{__('Due From')}</Label>
                 <Input
                   id="due_date_from"
                   type="datetime-local"
@@ -231,7 +232,7 @@ export function TaskFilters({
 
               {/* Due Date To */}
               <div className="p-3 space-y-2 rounded-lg border border-border">
-                <Label htmlFor="due_date_to" className="mb-2 text-sm font-medium">Due To</Label>
+                <Label htmlFor="due_date_to" className="mb-2 text-sm font-medium">{__('Due To')}</Label>
                 <Input
                   id="due_date_to"
                   type="datetime-local"
@@ -242,7 +243,7 @@ export function TaskFilters({
 
               {/* Overdue Only */}
               <div className="p-3 space-y-2 rounded-lg border border-border">
-                <div className="mb-2 text-sm font-medium">Overdue Only</div>
+                <div className="mb-2 text-sm font-medium">{__('Overdue Only')}</div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="overdue"
@@ -255,14 +256,14 @@ export function TaskFilters({
                     htmlFor="overdue"
                     className="text-sm font-normal cursor-pointer"
                   >
-                    Overdue only
+                    {__('Overdue only')}
                   </Label>
                 </div>
               </div>
 
               {/* Has Contacts */}
               <div className="p-3 space-y-2 rounded-lg border border-border">
-                <div className="mb-2 text-sm font-medium">Has Contacts</div>
+                <div className="mb-2 text-sm font-medium">{__('Has Contacts')}</div>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="has_contacts"
@@ -280,7 +281,7 @@ export function TaskFilters({
                     htmlFor="has_contacts"
                     className="text-sm font-normal cursor-pointer"
                   >
-                    Has contacts
+                    {__('Has contacts')}
                   </Label>
                 </div>
               </div>
@@ -301,7 +302,7 @@ export function TaskFilters({
               {children}
             </PopoverTrigger>
           </TooltipTrigger>
-          <TooltipContent>Filter tasks</TooltipContent>
+          <TooltipContent>{__('Filter tasks')}</TooltipContent>
         </Tooltip>
         {filtersContent}
       </Popover>

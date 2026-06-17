@@ -7,6 +7,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { HelpmatePricingURL } from '@/lib/constants';
+import { __ } from '@/lib/utils';
 import { CrownIcon } from 'lucide-react';
 
 interface ApiKeyChangeConfirmationDialogProps {
@@ -45,65 +46,60 @@ export function ApiKeyChangeConfirmationDialog({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="!py-0 !my-0 text-left">
-            Change Api Key
+            {__('Change Api Key')}
           </DialogTitle>
           <div className="!py-0 !my-0 text-left">
             <p className="mt-2 text-slate-600 dark:text-slate-300">
-              Your trained data is{' '}
-              <span className="font-semibold">bound to your current api key</span>.
-              Changing your api key will require you to delete all your trained
-              data and train them again.
+              {__(
+                'Changing your API key will replace the local knowledge base on this site with documents stored in the cloud for the new license.'
+              )}
             </p>
 
             <div className="space-y-6">
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  What happens when you change your api key:
+                  {__('What happens when you change your api key:')}
                 </h4>
                 <ul className="!pl-6 mt-3 space-y-3 !list-disc text-slate-700 dark:text-slate-200">
                   <li>
-                    <span className="font-semibold">All trained data will be lost</span> —
-                    Your chatbot will lose all the knowledge it has learned from your
-                    training data.
+                    <span className="font-semibold">{__('Local trained data is replaced')}</span>{' '}
+                    — {__('Documents in this WordPress site are cleared and re-imported from the cloud for the new license.')}
                   </li>
                   <li>
-                    <span className="font-semibold">You'll need to retrain everything</span> —
-                    You'll have to upload and train all your data again from scratch.
+                    <span className="font-semibold">{__('Previous license data stays in the cloud')}</span>{' '}
+                    — {__('Vectors for your old API key remain on the server; only this site switches to the new license catalog.')}
                   </li>
                   <li>
-                    <span className="font-semibold">Temporary service interruption</span> —
-                    Your chatbot may not work properly until you retrain your data.
+                    <span className="font-semibold">{__('Empty catalog possible')}</span>{' '}
+                    — {__('If the new license has no documents in the cloud for this site, your knowledge base here will be empty until you train again.')}
                   </li>
                 </ul>
               </section>
 
               <section>
                 <h4 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  Better alternative: Upgrade your api key
+                  {__('Better alternative: Upgrade your api key')}
                 </h4>
                 <ul className="!pl-6 mt-3 space-y-3 !list-disc text-slate-700 dark:text-slate-200">
                   <li>
-                    <span className="font-semibold">Keep all your trained data</span> —
-                    Your chatbot retains all its knowledge and continues working
-                    seamlessly.
+                    <span className="font-semibold">{__('Keep all your trained data')}</span>{' '}
+                    — {__('Your chatbot retains all its knowledge and continues working seamlessly.')}
                   </li>
                   <li>
-                    <span className="font-semibold">Get more features and credits</span> —
-                    Unlock advanced features and higher usage limits.
+                    <span className="font-semibold">{__('Get more features and credits')}</span>{' '}
+                    — {__('Unlock advanced features and higher usage limits.')}
                   </li>
                   <li>
-                    <span className="font-semibold">No downtime or retraining</span> —
-                    Your chatbot keeps working without any interruption.
+                    <span className="font-semibold">{__('No downtime or retraining')}</span>{' '}
+                    — {__('Your chatbot keeps working without any interruption.')}
                   </li>
                 </ul>
               </section>
 
               <section className="px-4 rounded-xl border bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
                 <p className="text-slate-700 dark:text-slate-200">
-                  💡 <span className="font-semibold">Recommendation:</span> If you need
-                  more features or credits, consider upgrading your api key instead of
-                  changing it. This way you keep all your trained data and get better
-                  performance.
+                  💡 <span className="font-semibold">{__('Recommendation:')}</span>{' '}
+                  {__('If you need more features or credits, consider upgrading your api key instead of changing it. This way you keep all your trained data and get better performance.')}
                 </p>
               </section>
             </div>
@@ -115,7 +111,7 @@ export function ApiKeyChangeConfirmationDialog({
             onClick={handleCancel}
             className="w-full sm:w-auto"
           >
-            Cancel
+            {__('Cancel')}
           </Button>
           <Button
             variant="default"
@@ -123,14 +119,14 @@ export function ApiKeyChangeConfirmationDialog({
             className="w-full bg-blue-600 sm:w-auto hover:bg-blue-700"
           >
             <CrownIcon className="mr-2 w-4 h-4" />
-            Upgrade ApiKey
+            {__('Upgrade ApiKey')}
           </Button>
           <Button
             variant="destructive"
             onClick={handleConfirm}
             className="w-full sm:w-auto"
           >
-            Change ApiKey Anyway
+            {__('Change ApiKey Anyway')}
           </Button>
         </DialogFooter>
       </DialogContent>

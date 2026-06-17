@@ -5,7 +5,7 @@ import PageGuard from '@/components/PageGuard';
 import PageHeader from '@/components/PageHeader';
 import { ProBadge } from '@/components/ProBadge';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import {
   Sheet,
   SheetContent,
@@ -38,12 +38,12 @@ export default function Segments() {
   const columns: ColumnDef<Segment>[] = [
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: __('Name'),
       cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
     },
     {
       accessorKey: 'contact_count',
-      header: 'Contacts',
+      header: __('Contacts'),
       cell: ({ row }) => (
         <div className="flex gap-2 items-center">
           <span>{row.original.contact_count}</span>
@@ -65,7 +65,7 @@ export default function Segments() {
     },
     {
       accessorKey: 'created_at',
-      header: 'Created',
+      header: __('Created'),
       cell: ({ row }) =>
         formatDistanceToNow(parseUTCDate(row.original.created_at), {
           addSuffix: true,
@@ -74,7 +74,7 @@ export default function Segments() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: __('Actions'),
       cell: ({ row }) => (
         <div className="flex gap-2 justify-end items-center">
           <Button
@@ -91,7 +91,7 @@ export default function Segments() {
             variant="outline"
             size="sm"
             onClick={() => {
-              if (confirm('Are you sure you want to delete this segment?')) {
+              if (confirm(__('Are you sure you want to delete this segment?'))) {
                 deleteSegment.mutate(row.original.id);
               }
             }}
@@ -128,8 +128,10 @@ export default function Segments() {
         <div className="relative">
           {!isPro && (
             <ProBadge
-              topMessage="Organize your contacts into segments for targeted messaging and outreach."
-              buttonText="Unlock Segments"
+              topMessage={__(
+                'Organize your contacts into segments for targeted messaging and outreach.'
+              )}
+              buttonText={__('Unlock Segments')}
               tooltipMessage={null}
             />
           )}
@@ -139,11 +141,11 @@ export default function Segments() {
             )}
           >
             <PageHeader
-              title="Segments"
+              title={__('Segments')}
               rightActions={
                 <Button onClick={handleCreate} size="sm" disabled={!isPro}>
                   <Plus className="mr-2 w-4 h-4" />
-                  Create Segment
+                  {__('Create Segment')}
                 </Button>
               }
             />
@@ -155,7 +157,7 @@ export default function Segments() {
                 )}
               >
                 <CardHeader>
-                  <CardTitle className="!text-lg !my-0">Segments</CardTitle>
+                  <CardTitle className="!text-lg !my-0">{__('Segments')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ReusableTable
@@ -170,7 +172,7 @@ export default function Segments() {
                 <SheetContent className="sm:!max-w-2xl">
                   <SheetHeader>
                     <SheetTitle>
-                      {editingSegment ? 'Edit Segment' : 'Create Segment'}
+                      {editingSegment ? __('Edit Segment') : __('Create Segment')}
                     </SheetTitle>
                   </SheetHeader>
                   <div className="overflow-y-auto flex-1 p-4 pt-6">

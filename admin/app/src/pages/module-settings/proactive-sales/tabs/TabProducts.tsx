@@ -12,10 +12,56 @@ import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Input } from '@/components/ui/input';
 import { useDataSource } from '@/hooks/useDataSource';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import api from '@/lib/axios';
+import { cn, __ } from '@/lib/utils';
 import { DiscountedProduct } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
+import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
+const SVG_THUMB_PLACEHOLDER =
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="%239ca3af" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>'
+  );
+
+function discountedProductPlaceholderUrl(): string {
+  const base =
+    typeof window !== 'undefined'
+      ? window.helpmateApiSettings?.plugin_url
+      : undefined;
+  if (base) {
+    return `${base}assets/images/product-placeholder.svg`;
+  }
+  return SVG_THUMB_PLACEHOLDER;
+}
+
+function DiscountedProductThumbnail({
+  name,
+  imageUrl,
+}: {
+  name: string;
+  imageUrl: string;
+}) {
+  const placeholder = discountedProductPlaceholderUrl();
+  const initial = imageUrl?.trim() ? imageUrl : placeholder;
+
+  return (
+    <img
+      src={initial}
+      alt={name}
+      className="object-cover w-10 h-10 rounded-md bg-muted"
+      onError={(e) => {
+        const el = e.currentTarget;
+        if (el.getAttribute('data-img-fallback') === '1') {
+          return;
+        }
+        el.setAttribute('data-img-fallback', '1');
+        el.src = placeholder;
+      }}
+    />
+  );
+}
 
 // ============================================================================
 // COMPONENT
@@ -102,6 +148,71 @@ export default function TabProducts() {
     [getSettings, proactiveSales, updateSettings]
   );
 
+  const dokanCheckQuery = useQuery<{ active?: boolean }, Error>({
+    queryKey: ['check-dokan', 'proactive-sales-products'],
+    queryFn: async () => {
+      const response = await api.get('/check-dokan');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const wcfmCheckQuery = useQuery<{ active?: boolean }, Error>({
+    queryKey: ['check-wcfm', 'proactive-sales-products'],
+    queryFn: async () => {
+      const response = await api.get('/check-wcfm');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const dokanIntegrationQuery = useQuery<
+    { show_vendor_in_product_lists?: boolean },
+    Error
+  >({
+    queryKey: ['settings', 'dokan_integration', 'proactive-sales'],
+    queryFn: async () => {
+      const response = await api.get('/settings/dokan_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const wcfmIntegrationQuery = useQuery<
+    { show_vendor_in_product_lists?: boolean },
+    Error
+  >({
+    queryKey: ['settings', 'wcfm_integration', 'proactive-sales'],
+    queryFn: async () => {
+      const response = await api.get('/settings/wcfm_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const multivendorConfigQuery = useQuery<{ selected_provider?: string }, Error>({
+    queryKey: ['settings', 'multivendor_integration', 'proactive-sales'],
+    queryFn: async () => {
+      const response = await api.get('/settings/multivendor_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const selectedMultivendorProvider =
+    multivendorConfigQuery.data?.selected_provider === 'wcfm'
+      ? 'wcfm'
+      : multivendorConfigQuery.data?.selected_provider === 'dokan'
+        ? 'dokan'
+        : 'dokan';
+
+  const showVendorOnDiscounted =
+    selectedMultivendorProvider === 'wcfm' && wcfmCheckQuery.data?.active === true
+      ? wcfmIntegrationQuery.data?.show_vendor_in_product_lists === true
+      : selectedMultivendorProvider === 'dokan' &&
+        dokanCheckQuery.data?.active === true &&
+        dokanIntegrationQuery.data?.show_vendor_in_product_lists === true;
+
   // ========================================================================
   // MEMOIZED VALUES
   // ========================================================================
@@ -110,22 +221,21 @@ export default function TabProducts() {
     () => [
       {
         accessorKey: 'image_url',
-        header: 'Image',
+        header: __('Image'),
         cell: ({ row }) => (
-          <img
-            src={row.original.image_url}
-            alt={row.original.name}
-            className="object-cover w-10 h-10 rounded-md"
+          <DiscountedProductThumbnail
+            name={row.original.name}
+            imageUrl={row.original.image_url}
           />
         ),
       },
       {
         accessorKey: 'name',
-        header: 'Name',
+        header: __('Name'),
       },
       {
         accessorKey: 'regular_price',
-        header: 'Regular Price',
+        header: __('Regular Price'),
         cell: ({ row }) => (
           <span
             className="text-sm font-medium"
@@ -135,7 +245,7 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'sale_price',
-        header: 'Sale Price',
+        header: __('Sale Price'),
         cell: ({ row }) => (
           <span
             className="text-sm font-medium"
@@ -145,7 +255,7 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'discount_percentage',
-        header: 'Discount Percentage',
+        header: __('Discount Percentage'),
         cell: ({ row }) => (
           <span className="text-sm font-medium">
             {row.original.discount_percentage}%
@@ -154,7 +264,7 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'stock_status',
-        header: 'Stock Status',
+        header: __('Stock Status'),
         cell: ({ row }) => (
           <Badge
             variant={
@@ -165,8 +275,8 @@ export default function TabProducts() {
             color={row.original.stock_status === 'instock' ? 'green' : 'red'}
           >
             {row.original.stock_status === 'instock'
-              ? 'In Stock'
-              : 'Out of Stock'}
+              ? __('In Stock')
+              : __('Out of Stock')}
           </Badge>
         ),
       },
@@ -174,41 +284,67 @@ export default function TabProducts() {
     []
   );
 
-  const columns = useMemo<ColumnDef<DiscountedProduct>[]>(
-    () => [
-      ...commonColumns,
+  const columns = useMemo<ColumnDef<DiscountedProduct>[]>(() => {
+    const vendorCol: ColumnDef<DiscountedProduct> = {
+      id: 'vendor_store',
+      header: __('Vendor'),
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">
+          {row.original.vendor_store_name?.trim()
+            ? row.original.vendor_store_name
+            : '—'}
+        </span>
+      ),
+    };
+    const tail: ColumnDef<DiscountedProduct>[] = [
       {
         accessorKey: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => (
           <Button size="sm" onClick={() => handleAdd(row.original.id)}>
-            Add
+            {__('Add')}
           </Button>
         ),
       },
-    ],
-    [commonColumns, handleAdd]
-  );
+    ];
+    if (showVendorOnDiscounted) {
+      return [...commonColumns, vendorCol, ...tail];
+    }
+    return [...commonColumns, ...tail];
+  }, [commonColumns, handleAdd, showVendorOnDiscounted]);
 
-  const savedColumns = useMemo<ColumnDef<DiscountedProduct>[]>(
-    () => [
-      ...commonColumns,
+  const savedColumns = useMemo<ColumnDef<DiscountedProduct>[]>(() => {
+    const vendorCol: ColumnDef<DiscountedProduct> = {
+      id: 'vendor_store_saved',
+      header: __('Vendor'),
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">
+          {row.original.vendor_store_name?.trim()
+            ? row.original.vendor_store_name
+            : '—'}
+        </span>
+      ),
+    };
+    const tail: ColumnDef<DiscountedProduct>[] = [
       {
         accessorKey: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => (
           <Button
             size="sm"
             variant="destructive"
             onClick={() => handleRemove(row.original.id)}
           >
-            Remove
+            {__('Remove')}
           </Button>
         ),
       },
-    ],
-    [commonColumns, handleRemove]
-  );
+    ];
+    if (showVendorOnDiscounted) {
+      return [...commonColumns, vendorCol, ...tail];
+    }
+    return [...commonColumns, ...tail];
+  }, [commonColumns, handleRemove, showVendorOnDiscounted]);
 
   // ========================================================================
   // RENDER
@@ -220,8 +356,10 @@ export default function TabProducts() {
       <div className="relative">
         {!getProQuery.data && (
           <ProBadge
-            topMessage="It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
-            buttonText="Boost Sales Conversations"
+          topMessage={__(
+            "It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
+          )}
+          buttonText={__('Boost Sales Conversations')}
             tooltipMessage={null}
           />
         )}
@@ -235,8 +373,8 @@ export default function TabProducts() {
             <div className="flex justify-between items-center">
               <div>
                 <CardTitle className="flex gap-1 items-center text-xl font-bold">
-                  Discounted Products
-                  <InfoTooltip message="Add discounted products for proactive sales." />
+                  {__('Discounted Products')}
+                  <InfoTooltip message={__('Add discounted products for proactive sales.')} />
                 </CardTitle>
               </div>
               <Input
@@ -270,8 +408,10 @@ export default function TabProducts() {
       <div className="relative">
         {!getProQuery.data && (
           <ProBadge
-            topMessage="It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
-            buttonText="Boost Sales Conversations"
+          topMessage={__(
+            "It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
+          )}
+          buttonText={__('Boost Sales Conversations')}
             tooltipMessage={null}
           />
         )}
@@ -284,7 +424,7 @@ export default function TabProducts() {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle className="text-xl font-bold">
-                Saved for Proactive Sales
+                {__('Saved for Proactive Sales')}
               </CardTitle>
               <Input
                 placeholder="Search saved products..."

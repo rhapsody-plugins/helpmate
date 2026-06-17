@@ -1,0 +1,7701 @@
+# Copyright (C) 2026 Rhapsody Plugins
+# This file is distributed under the GPL-2.0+.
+msgid ""
+msgstr ""
+"Project-Id-Version: Helpmate – Support Automation, AI Chatbot, Live Chat, Social Automation, Booking & CRM Solution 2.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/helpmate-ai-chatbot\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-06-17T04:40:06+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: helpmate-ai-chatbot\n"
+
+#: stub.js:2
+msgid " (Pro)"
+msgstr ""
+
+#: stub.js:3
+msgid " Save them securely."
+msgstr ""
+
+#: stub.js:4
+msgid " — sign in at platform.openai.com → API keys → Create new secret key."
+msgstr ""
+
+#. translators: 1: Processed document count, 2: Total document count
+#: stub.js:6
+#, js-format
+msgid "%1$d / %2$d documents"
+msgstr ""
+
+#. translators: 1: Number of local sites, 2: Total trained items
+#: stub.js:8
+#, js-format
+msgid "%1$d saved copies • %2$d items total"
+msgstr ""
+
+#. translators: 1: Segment name, 2: Contact count
+#: stub.js:10
+#, js-format
+msgid "%1$s (%2$d contacts)"
+msgstr ""
+
+#. translators: %1$s: Integration title
+#: stub.js:12
+#, js-format
+msgid "%1$s — Activity Log"
+msgstr ""
+
+#. translators: %d: number of campaign rows with orphaned template references
+#: stub.js:14
+#, js-format
+msgid "%d campaign or sequence step(s) still reference deleted default template IDs."
+msgstr ""
+
+#. translators: %d: Number of selected contacts
+#: stub.js:16
+#, js-format
+msgid "%d contact(s) selected"
+msgstr ""
+
+#. translators: %d: number of legacy cloud documents
+#: stub.js:18
+#, js-format
+msgid "%d document(s) are missing full sync metadata and may import as general type with reconstructed content."
+msgstr ""
+
+#: stub.js:19
+#, js-format
+msgid "%d documents synced from your license."
+msgstr ""
+
+#. translators: %d: number of documents updated in the cloud
+#: stub.js:21
+#, js-format
+msgid "%d documents updated in the cloud"
+msgstr ""
+
+#. translators: %d: Failed count
+#: stub.js:23
+#, js-format
+msgid "%d failed"
+msgstr ""
+
+#. translators: %d: Total number of trained items from the local test site
+#: stub.js:25
+#, js-format
+msgid "%d items saved from your computer"
+msgstr ""
+
+#. translators: %d: Selected item count in dialog
+#: stub.js:27
+#, js-format
+msgid "%d items selected"
+msgstr ""
+
+#. translators: %d: Selected item count
+#: stub.js:29
+#, js-format
+msgid "%d items selected (ready to train)"
+msgstr ""
+
+#. translators: %d: Selected item count toward minimum
+#: stub.js:31
+#, js-format
+msgid "%d of 3 minimum items selected"
+msgstr ""
+
+#. translators: %d: Page count
+#: stub.js:33
+#, js-format
+msgid "%d pages available"
+msgstr ""
+
+#. translators: %d: Post count
+#: stub.js:35
+#, js-format
+msgid "%d posts available"
+msgstr ""
+
+#. translators: %d: Product count
+#: stub.js:37
+#, js-format
+msgid "%d products available"
+msgstr ""
+
+#. translators: %d: Number of selected rows
+#: stub.js:39
+#, js-format
+msgid "%d row(s) selected"
+msgstr ""
+
+#. translators: %d: Number of selected items
+#: stub.js:41
+#, js-format
+msgid "%d selected"
+msgstr ""
+
+#. translators: %d: Sent count
+#: stub.js:43
+#, js-format
+msgid "%d sent"
+msgstr ""
+
+#. translators: %d: Number of steps
+#: stub.js:45
+#, js-format
+msgid "%d steps"
+msgstr ""
+
+#: stub.js:46
+#, js-format
+msgid "%d trained items"
+msgstr ""
+
+#. translators: %d: percentage of cloud documents with full sync metadata
+#: stub.js:48
+#, js-format
+msgid "%d%%"
+msgstr ""
+
+#. translators: %d: Percentage complete
+#: stub.js:50
+#, js-format
+msgid "%d%% complete"
+msgstr ""
+
+#. translators: %d: Days since activity
+#: stub.js:52
+#, js-format
+msgid "%dd ago"
+msgstr ""
+
+#. translators: %d: Hours since activity
+#: stub.js:54
+#, js-format
+msgid "%dh ago"
+msgstr ""
+
+#. translators: %d: Minutes since activity
+#: stub.js:56
+#, js-format
+msgid "%dm ago"
+msgstr ""
+
+#. translators: %s: Event count
+#: stub.js:58
+#, js-format
+msgid "%s events"
+msgstr ""
+
+#. translators: %s: User's first name or display name
+#: stub.js:60
+#: includes/chat/class-helpmate-chat.php:433
+#: includes/modules/class-helpmate-social-chat.php:2864
+#, js-format,php-format
+msgid "%s joined the conversation"
+msgstr ""
+
+#: stub.js:61
+msgid "(Dynamic)"
+msgstr ""
+
+#: stub.js:62
+msgid "(Finished — will auto-dismiss in 10 seconds)"
+msgstr ""
+
+#: stub.js:63
+msgid "(Finished — will auto-dismiss in 3 seconds)"
+msgstr ""
+
+#: stub.js:64
+msgid "(Pro Only)"
+msgstr ""
+
+#: stub.js:65
+msgid "(click to edit)"
+msgstr ""
+
+#. translators: %d: Count of additional items not shown
+#: stub.js:67
+#: includes/modules/class-helpmate-crm.php:1978
+#, js-format,php-format
+msgid "+%d more"
+msgstr ""
+
+#. translators: %s: Number of additional live agents beyond the first
+#: stub.js:69
+#, js-format
+msgid "+%s more"
+msgstr ""
+
+#: stub.js:70
+msgid ". Save this PIN securely—you will need it if you ever need to re-register or recover your account."
+msgstr ""
+
+#: stub.js:71
+msgid "1 Hour"
+msgstr ""
+
+#: stub.js:72
+msgid "1 Minute"
+msgstr ""
+
+#: stub.js:73
+msgid "1 event"
+msgstr ""
+
+#: stub.js:74
+msgid "1 item saved from your computer"
+msgstr ""
+
+#: stub.js:75
+msgid "1 template"
+msgstr ""
+
+#: stub.js:76
+msgid "1 trained item"
+msgstr ""
+
+#: stub.js:77
+msgid "1. Test Common Questions"
+msgstr ""
+
+#: stub.js:78
+msgid "10 Seconds"
+msgstr ""
+
+#: stub.js:79
+msgid "15 Minutes"
+msgstr ""
+
+#: stub.js:80
+msgid "1k to 30k"
+msgstr ""
+
+#: stub.js:81
+msgid "2 Minutes"
+msgstr ""
+
+#: stub.js:82
+msgid "2. Try Edge Cases"
+msgstr ""
+
+#: stub.js:83
+msgid "3. Product Queries"
+msgstr ""
+
+#: stub.js:84
+msgid "30 Minutes"
+msgstr ""
+
+#: stub.js:85
+msgid "30 Seconds"
+msgstr ""
+
+#: stub.js:86
+msgid "4. Conversational Flow"
+msgstr ""
+
+#: stub.js:87
+msgid "5 Minutes"
+msgstr ""
+
+#: stub.js:88
+msgid "5 Seconds"
+msgstr ""
+
+#: stub.js:89
+msgid "5. Special Features"
+msgstr ""
+
+#: stub.js:90
+msgid "6-digit PIN"
+msgstr ""
+
+#: stub.js:91
+msgid "AI Comment"
+msgstr ""
+
+#: stub.js:92
+msgid "AI DM"
+msgstr ""
+
+#: stub.js:93
+msgid "AI Responses"
+msgstr ""
+
+#: stub.js:94
+msgid "AI is thinking..."
+msgstr ""
+
+#: stub.js:95
+msgid "AOV"
+msgstr ""
+
+#: stub.js:96
+msgid "API Key"
+msgstr ""
+
+#: stub.js:97
+msgid "API Key Setup"
+msgstr ""
+
+#: stub.js:98
+msgid "API Key Type"
+msgstr ""
+
+#: stub.js:99
+msgid "API key and integration settings stored in Helpmate"
+msgstr ""
+
+#: stub.js:100
+msgid "API key changed. No trained documents were found for this license in the cloud."
+msgstr ""
+
+#: stub.js:101
+msgid "Abandoned Cart"
+msgstr ""
+
+#: stub.js:102
+msgid "Abandoned Cart Analytics"
+msgstr ""
+
+#: stub.js:103
+msgid "Abandoned Carts"
+msgstr ""
+
+#: stub.js:104
+msgid "Abandoned Value"
+msgstr ""
+
+#: stub.js:105
+msgid "Accepted"
+msgstr ""
+
+#: stub.js:106
+msgid "Access Denied"
+msgstr ""
+
+#: stub.js:107
+msgid "Account"
+msgstr ""
+
+#: stub.js:108
+#: includes/integrations/class-helpmate-cf7-integration.php:1024
+msgid "Action"
+msgstr ""
+
+#: stub.js:109
+msgid "Actions"
+msgstr ""
+
+#: stub.js:110
+msgid "Activate"
+msgstr ""
+
+#: stub.js:111
+msgid "Activate API Key"
+msgstr ""
+
+#: stub.js:112
+msgid "Activate Api Key"
+msgstr ""
+
+#: stub.js:113
+msgid "Activate Your API Key"
+msgstr ""
+
+#: stub.js:114
+msgid "Activating..."
+msgstr ""
+
+#: stub.js:115
+msgid "Activating…"
+msgstr ""
+
+#: stub.js:116
+msgid "Active"
+msgstr ""
+
+#: stub.js:117
+msgid "Active commerce platform"
+msgstr ""
+
+#: stub.js:118
+msgid "Active."
+msgstr ""
+
+#: stub.js:119
+msgid "Active. Use it in the builder."
+msgstr ""
+
+#: stub.js:120
+msgid "Activity"
+msgstr ""
+
+#: stub.js:121
+msgid "Add"
+msgstr ""
+
+#: stub.js:122
+msgid "Add Condition"
+msgstr ""
+
+#: stub.js:123
+msgid "Add Contact"
+msgstr ""
+
+#: stub.js:124
+msgid "Add Custom Field"
+msgstr ""
+
+#: stub.js:125
+msgid "Add Group"
+msgstr ""
+
+#: stub.js:126
+msgid "Add Live Chat Agent"
+msgstr ""
+
+#: stub.js:127
+msgid "Add Reason"
+msgstr ""
+
+#: stub.js:128
+msgid "Add Starter"
+msgstr ""
+
+#: stub.js:129
+msgid "Add Step"
+msgstr ""
+
+#: stub.js:130
+msgid "Add Task"
+msgstr ""
+
+#: stub.js:131
+msgid "Add Team Member"
+msgstr ""
+
+#: stub.js:132
+msgid "Add Your First Contact"
+msgstr ""
+
+#: stub.js:133
+msgid "Add Your First Contact Field"
+msgstr ""
+
+#: stub.js:134
+msgid "Add Your First Task Field"
+msgstr ""
+
+#: stub.js:135
+msgid "Add a URL source to your Helpmate."
+msgstr ""
+
+#: stub.js:136
+msgid "Add a file source to your Helpmate."
+msgstr ""
+
+#: stub.js:137
+msgid "Add a question and answer source to your Helpmate."
+msgstr ""
+
+#: stub.js:138
+msgid "Add a text source to your Helpmate."
+msgstr ""
+
+#: stub.js:139
+msgid "Add content to see preview"
+msgstr ""
+
+#: stub.js:140
+msgid "Add credit/balance:"
+msgstr ""
+
+#: stub.js:141
+msgid "Add discounted products for proactive sales."
+msgstr ""
+
+#: stub.js:142
+msgid "Add knowledge base"
+msgstr ""
+
+#: stub.js:143
+msgid "Add team members as live chat agents to handle live chats."
+msgstr ""
+
+#: stub.js:144
+msgid "Add your OpenAI API key in Manage API to edit or delete"
+msgstr ""
+
+#: stub.js:145
+msgid "Add your own OpenAI API key to use when your credits are exhausted. This is optional."
+msgstr ""
+
+#: stub.js:146
+msgid "Address"
+msgstr ""
+
+#: stub.js:147
+msgid "Address Information"
+msgstr ""
+
+#: stub.js:148
+msgid "Address Line 1"
+msgstr ""
+
+#: stub.js:149
+msgid "Address Line 2"
+msgstr ""
+
+#: stub.js:150
+#: includes/modules/class-helpmate-leads.php:574
+#: includes/modules/class-helpmate-ticket.php:593
+#: includes/modules/class-helpmate-ticket.php:786
+#: includes/modules/class-helpmate-ticket.php:795
+#: includes/modules/class-helpmate-ticket.php:1056
+#: includes/modules/class-helpmate-ticket.php:1110
+msgid "Admin"
+msgstr ""
+
+#: stub.js:151
+msgid "Admin Hub"
+msgstr ""
+
+#: stub.js:152
+msgid "Advanced Filters"
+msgstr ""
+
+#: stub.js:153
+msgid "After clicking Connect, you'll be redirected to a new screen where a popup window will open to complete the connection. Some browsers (e.g., Microsoft Edge) block popups by default. If the connection does not complete, allow popups for this site in your browser settings and try again."
+msgstr ""
+
+#: stub.js:154
+msgid "All"
+msgstr ""
+
+#: stub.js:155
+msgid "All Accounts"
+msgstr ""
+
+#: stub.js:156
+msgid "All Conversations"
+msgstr ""
+
+#: stub.js:157
+msgid "All Groups"
+msgstr ""
+
+#: stub.js:158
+msgid "All Integrations"
+msgstr ""
+
+#: stub.js:159
+msgid "All Roles"
+msgstr ""
+
+#: stub.js:160
+msgid "All Statuses"
+msgstr ""
+
+#: stub.js:161
+msgid "All Teams"
+msgstr ""
+
+#: stub.js:162
+msgid "All Types"
+msgstr ""
+
+#: stub.js:163
+msgid "All conversations are marked as debug sessions"
+msgstr ""
+
+#: stub.js:164
+msgid "All conversations for this account"
+msgstr ""
+
+#: stub.js:165
+msgid "All conversations, tickets, CRM data, and tasks"
+msgstr ""
+
+#: stub.js:166
+msgid "All messages in those conversations"
+msgstr ""
+
+#: stub.js:167
+msgid "All priorities"
+msgstr ""
+
+#: stub.js:168
+msgid "All statuses"
+msgstr ""
+
+#: stub.js:169
+msgid "All users"
+msgstr ""
+
+#: stub.js:170
+msgid "All vendors"
+msgstr ""
+
+#: stub.js:171
+msgid "Already have an API key?"
+msgstr ""
+
+#: stub.js:172
+msgid "Amount"
+msgstr ""
+
+#. translators: %s: Refund amount
+#: stub.js:174
+#, js-format
+msgid "Amount: $%s"
+msgstr ""
+
+#: stub.js:175
+msgid "An API key is required to preview or sync from the cloud."
+msgstr ""
+
+#: stub.js:176
+msgid "Analytics"
+msgstr ""
+
+#: stub.js:177
+msgid "Answer"
+msgstr ""
+
+#: stub.js:178
+msgid "Any"
+msgstr ""
+
+#: stub.js:179
+msgid "Any Group"
+msgstr ""
+
+#: stub.js:180
+msgid "Appearance"
+msgstr ""
+
+#: stub.js:181
+#: public/js/helpmate-scheduling.js:293
+msgid "Appointment scheduled successfully! We will contact you soon."
+msgstr ""
+
+#: stub.js:182
+msgid "Appointments & Bookings"
+msgstr ""
+
+#: stub.js:183
+msgid "Approved"
+msgstr ""
+
+#: stub.js:184
+msgid "Archive"
+msgstr ""
+
+#: stub.js:185
+msgid "Archive this conversation?"
+msgstr ""
+
+#: stub.js:186
+msgid "Archived"
+msgstr ""
+
+#. translators: %s: Contact email address
+#: stub.js:188
+#, js-format
+msgid "Are you sure you want to delete contact \"%s\"?"
+msgstr ""
+
+#: stub.js:189
+msgid "Are you sure you want to delete this automation?"
+msgstr ""
+
+#: stub.js:190
+msgid "Are you sure you want to delete this contact? This action cannot be undone."
+msgstr ""
+
+#: stub.js:191
+msgid "Are you sure you want to delete this email sequence?"
+msgstr ""
+
+#: stub.js:192
+msgid "Are you sure you want to delete this schedule?"
+msgstr ""
+
+#: stub.js:193
+msgid "Are you sure you want to delete this segment?"
+msgstr ""
+
+#: stub.js:194
+msgid "Are you sure you want to remove this live chat agent?"
+msgstr ""
+
+#: stub.js:195
+msgid "Are you sure you want to remove this team member?"
+msgstr ""
+
+#: stub.js:196
+msgid "Are you sure you want to unlink this contact from the conversation?"
+msgstr ""
+
+#: stub.js:197
+msgid "Ask AI for Coupon"
+msgstr ""
+
+#: stub.js:198
+msgid "Ask frequently asked questions to verify accuracy of responses"
+msgstr ""
+
+#: stub.js:199
+msgid "Assigned To"
+msgstr ""
+
+#: stub.js:200
+msgid "Associated Contacts"
+msgstr ""
+
+#: stub.js:201
+msgid "Author"
+msgstr ""
+
+#: stub.js:202
+msgid "Auto DM & Comments"
+msgstr ""
+
+#: stub.js:203
+msgid "Auto DM and Comments"
+msgstr ""
+
+#: stub.js:204
+msgid "Auto Hide"
+msgstr ""
+
+#: stub.js:205
+msgid "Automatically deliver personalized coupons when customers engage in chat or show exit intent. Helps reduce cart abandonment and increase average order value."
+msgstr ""
+
+#: stub.js:206
+msgid "Automation Title"
+msgstr ""
+
+#: stub.js:207
+msgid "Automation Type"
+msgstr ""
+
+#: stub.js:208
+msgid "Automations"
+msgstr ""
+
+#: stub.js:209
+msgid "Available Coupons"
+msgstr ""
+
+#: stub.js:210
+msgid "Available in the block editor."
+msgstr ""
+
+#: stub.js:211
+msgid "Average Rating"
+msgstr ""
+
+#: stub.js:212
+msgid "Average Time to Recovery"
+msgstr ""
+
+#: stub.js:213
+msgid "Avg Messages/Session"
+msgstr ""
+
+#: stub.js:214
+msgid "Avg Recovery Time"
+msgstr ""
+
+#: stub.js:215
+msgid "Avg Resolution Time"
+msgstr ""
+
+#: stub.js:216
+msgid "Avg Resolution Time (h)"
+msgstr ""
+
+#: stub.js:217
+msgid "Back"
+msgstr ""
+
+#: stub.js:218
+msgid "Backfill cloud metadata"
+msgstr ""
+
+#. translators: 1: updated count, 2: skipped count
+#: stub.js:220
+#, js-format
+msgid "Backfill complete: %1$d updated, %2$d skipped."
+msgstr ""
+
+#: stub.js:221
+msgid "Backfill recommended"
+msgstr ""
+
+#: stub.js:222
+msgid "Background Color"
+msgstr ""
+
+#: stub.js:223
+msgid "Basic Information"
+msgstr ""
+
+#: stub.js:224
+msgid "Beaver Builder"
+msgstr ""
+
+#: stub.js:225
+msgid "Before you connect"
+msgstr ""
+
+#: stub.js:226
+msgid "Behavior"
+msgstr ""
+
+#: stub.js:227
+msgid "Better alternative: Upgrade your api key"
+msgstr ""
+
+#: stub.js:228
+msgid "Billing"
+msgstr ""
+
+#: stub.js:229
+msgid "Blockquote"
+msgstr ""
+
+#: stub.js:230
+msgid "Bold"
+msgstr ""
+
+#: stub.js:231
+msgid "Boost Sales Conversations"
+msgstr ""
+
+#: stub.js:232
+msgid "Bot Icon"
+msgstr ""
+
+#: stub.js:233
+msgid "Bot Name"
+msgstr ""
+
+#: stub.js:234
+msgid "Bot icon"
+msgstr ""
+
+#: stub.js:235
+msgid "Bottom"
+msgstr ""
+
+#: stub.js:236
+#, js-format
+msgid "Bring test-site knowledge to %s"
+msgstr ""
+
+#: stub.js:237
+msgid "Build Loyalty with Ease"
+msgstr ""
+
+#: stub.js:238
+msgid "Built-in templates will be recreated. Custom templates are not deleted."
+msgstr ""
+
+#: stub.js:239
+msgid "Bulk Processing Progress"
+msgstr ""
+
+#. translators: %d: Number of documents processed successfully
+#: stub.js:241
+#, js-format
+msgid "Bulk processing completed successfully! %d documents were processed."
+msgstr ""
+
+#. translators: %d: Number of documents that failed
+#: stub.js:243
+#, js-format
+msgid "Bulk processing failed. %d documents failed to process."
+msgstr ""
+
+#: stub.js:244
+msgid "Bullet list"
+msgstr ""
+
+#: stub.js:245
+msgid "Business hours"
+msgstr ""
+
+#: stub.js:246
+msgid "Business hours are evaluated in this timezone. Choose \"Site timezone\" to use your WordPress Settings → General timezone."
+msgstr ""
+
+#: stub.js:247
+msgid "Button Background Color"
+msgstr ""
+
+#: stub.js:248
+msgid "Button Icon"
+msgstr ""
+
+#: stub.js:249
+msgid "Button Text"
+msgstr ""
+
+#: stub.js:250
+msgid "Button Text Color"
+msgstr ""
+
+#: stub.js:251
+msgid "Button Text Font Size"
+msgstr ""
+
+#: stub.js:252
+msgid "Button URL"
+msgstr ""
+
+#: stub.js:253
+msgid "By"
+msgstr ""
+
+#: stub.js:254
+msgid "By Source"
+msgstr ""
+
+#: stub.js:255
+msgid "By Team"
+msgstr ""
+
+#: stub.js:256
+msgid "CRM"
+msgstr ""
+
+#: stub.js:257
+msgid "CRM Analytics"
+msgstr ""
+
+#: stub.js:258
+msgid "CRM Segment Snapshot"
+msgstr ""
+
+#: stub.js:259
+msgid "CSV, TXT, JSON, PDF, DOC, DOCX, XLS, and XLSX formats are supported."
+msgstr ""
+
+#: stub.js:260
+msgid "Campaign Name"
+msgstr ""
+
+#: stub.js:261
+msgid "Campaign Type"
+msgstr ""
+
+#: stub.js:262
+msgid "Campaigns or sequences that referenced old default template IDs may need their template re-selected."
+msgstr ""
+
+#: stub.js:263
+msgid "Cancel"
+msgstr ""
+
+#: stub.js:264
+msgid "Cancelled"
+msgstr ""
+
+#: stub.js:265
+msgid "Cart Recovery Rate"
+msgstr ""
+
+#: stub.js:266
+msgid "Change Api Key"
+msgstr ""
+
+#: stub.js:267
+msgid "Change ApiKey Anyway"
+msgstr ""
+
+#: stub.js:268
+msgid "Change Contact"
+msgstr ""
+
+#: stub.js:269
+msgid "Changing your API key will replace the local knowledge base on this site with documents stored in the cloud for the new license."
+msgstr ""
+
+#: stub.js:270
+msgid "Channels"
+msgstr ""
+
+#: stub.js:271
+msgid "Chat Credits"
+msgstr ""
+
+#: stub.js:272
+msgid "Chat Sessions"
+msgstr ""
+
+#: stub.js:273
+msgid "Chat button"
+msgstr ""
+
+#: stub.js:274
+msgid "Chat widget"
+msgstr ""
+
+#: stub.js:275
+msgid "Chatbot"
+msgstr ""
+
+#: stub.js:276
+msgid "Chatbot Analytics"
+msgstr ""
+
+#: stub.js:277
+msgid "Chatbot Tone & Language"
+msgstr ""
+
+#: stub.js:278
+msgid "Checkbox"
+msgstr ""
+
+#: stub.js:279
+msgid "Choose File"
+msgstr ""
+
+#: stub.js:280
+msgid "Choose a post to trigger the automation only on comments from that post."
+msgstr ""
+
+#: stub.js:281
+msgid "Circle"
+msgstr ""
+
+#: stub.js:282
+msgid "City"
+msgstr ""
+
+#: stub.js:283
+msgid "Clear All"
+msgstr ""
+
+#: stub.js:284
+msgid "Clear all"
+msgstr ""
+
+#: stub.js:285
+msgid "Close"
+msgstr ""
+
+#: stub.js:286
+msgid "Close Button Color"
+msgstr ""
+
+#: stub.js:287
+msgid "Close Button Position"
+msgstr ""
+
+#: stub.js:288
+msgid "Close welcome messages"
+msgstr ""
+
+#: stub.js:289
+msgid "Cloud"
+msgstr ""
+
+#: stub.js:290
+msgid "Cloud metadata readiness"
+msgstr ""
+
+#: stub.js:291
+msgid "Code"
+msgstr ""
+
+#: stub.js:292
+msgid "Collect Information"
+msgstr ""
+
+#: stub.js:293
+msgid "Collect Lead"
+msgstr ""
+
+#: stub.js:294
+msgid "Collects"
+msgstr ""
+
+#: stub.js:295
+msgid "Coming Soon"
+msgstr ""
+
+#: stub.js:296
+msgid "Comment Reply (Optional)"
+msgstr ""
+
+#: stub.js:297
+msgid "Comments"
+msgstr ""
+
+#: stub.js:298
+msgid "Commerce"
+msgstr ""
+
+#: stub.js:299
+msgid "Complete these steps to get the most out of your chatbot"
+msgstr ""
+
+#. translators: %d: Completed course count
+#: stub.js:301
+#, js-format
+msgid "Completed courses: %d"
+msgstr ""
+
+#. translators: %d: Completed lesson count
+#: stub.js:303
+#, js-format
+msgid "Completed lessons: %d"
+msgstr ""
+
+#: stub.js:304
+msgid "Completed!"
+msgstr ""
+
+#: stub.js:305
+msgid "Completed:"
+msgstr ""
+
+#: stub.js:306
+msgid "Completion Rate"
+msgstr ""
+
+#: stub.js:307
+msgid "Conditions"
+msgstr ""
+
+#: stub.js:308
+msgid "Configure"
+msgstr ""
+
+#: stub.js:309
+msgid "Configure business hours"
+msgstr ""
+
+#: stub.js:310
+msgid "Configure business hours to control when live agents are available. Upgrade to Pro to enable Live Chat settings."
+msgstr ""
+
+#: stub.js:311
+msgid "Confirm Delete"
+msgstr ""
+
+#: stub.js:312
+msgid "Confirm Password"
+msgstr ""
+
+#: stub.js:313
+msgid "Confirm reset"
+msgstr ""
+
+#: stub.js:314
+msgid "Confirm sync"
+msgstr ""
+
+#: stub.js:315
+msgid "Confirmation"
+msgstr ""
+
+#: stub.js:316
+msgid "Confirmed"
+msgstr ""
+
+#: stub.js:317
+msgid "Connect"
+msgstr ""
+
+#: stub.js:318
+msgid "Connect Facebook, Instagram, and WhatsApp to manage all your social conversations in one place."
+msgstr ""
+
+#: stub.js:319
+msgid "Connect Facebook, Instagram, and WhatsApp to manage all your social conversations in one place. Enable AI-powered auto-replies for each platform."
+msgstr ""
+
+#: stub.js:320
+msgid "Connect Page"
+msgstr ""
+
+#: stub.js:321
+msgid "Connect external plugins to Helpmate workflows by category."
+msgstr ""
+
+#: stub.js:322
+msgid "Connect member profile/account events to CRM sync and integration logs. Ultimate Member focuses account/profile lifecycle, Members focuses roles/capabilities, and User Registration focuses registration/profile flows."
+msgstr ""
+
+#: stub.js:323
+msgid "Connect your Facebook Page"
+msgstr ""
+
+#: stub.js:324
+msgid "Connect your Instagram Business account"
+msgstr ""
+
+#: stub.js:325
+msgid "Connect your TikTok Business account"
+msgstr ""
+
+#: stub.js:326
+msgid "Connect your WhatsApp Business account"
+msgstr ""
+
+#: stub.js:327
+msgid "Connected"
+msgstr ""
+
+#: stub.js:328
+msgid "Connected social accounts (you must reconnect channels)"
+msgstr ""
+
+#: stub.js:329
+msgid "Contact"
+msgstr ""
+
+#. translators: %d: Contact ID
+#: stub.js:331
+#: includes/modules/class-helpmate-crm.php:5349
+#: includes/modules/class-helpmate-crm.php:5386
+#: includes/modules/class-helpmate-crm.php:5938
+#: includes/modules/class-helpmate-crm.php:5975
+#, js-format,php-format
+msgid "Contact #%d"
+msgstr ""
+
+#: stub.js:332
+msgid "Contact (Optional)"
+msgstr ""
+
+#: stub.js:333
+msgid "Contact Details"
+msgstr ""
+
+#: stub.js:334
+msgid "Contact created"
+msgstr ""
+
+#: stub.js:335
+msgid "Contact fields"
+msgstr ""
+
+#: stub.js:336
+msgid "Contacts"
+msgstr ""
+
+#. translators: %d: Contact count
+#: stub.js:338
+#, js-format
+msgid "Contacts (%d)"
+msgstr ""
+
+#: stub.js:339
+msgid "Contacts Created"
+msgstr ""
+
+#: stub.js:340
+msgid "Contacts Updated"
+msgstr ""
+
+#: stub.js:341
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:39
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:37
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:82
+#: includes/integrations/elementor/class-helpmate-elementor-widget-scheduling.php:104
+#: blocks/build/index.js:60
+msgid "Content"
+msgstr ""
+
+#: stub.js:342
+msgid "Content not available"
+msgstr ""
+
+#: stub.js:343
+msgid "Conversations"
+msgstr ""
+
+#: stub.js:344
+msgid "Conversion Automation"
+msgstr ""
+
+#: stub.js:345
+msgid "Conversion Rate"
+msgstr ""
+
+#. translators: (%) is a literal percent sign for the rate label
+#: stub.js:347
+msgid "Conversion Rate (%)"
+msgstr ""
+
+#: stub.js:348
+msgid "Convert Exits into Orders"
+msgstr ""
+
+#: stub.js:349
+msgid "Copied"
+msgstr ""
+
+#: stub.js:350
+msgid "Copied!"
+msgstr ""
+
+#: stub.js:351
+msgid "Copy"
+msgstr ""
+
+#: stub.js:352
+msgid "Copy code"
+msgstr ""
+
+#: stub.js:353
+msgid "Copy finished but no items were moved. Importing any existing site data."
+msgstr ""
+
+#: stub.js:354
+msgid "Copy message"
+msgstr ""
+
+#: stub.js:355
+msgid "Copy to this site"
+msgstr ""
+
+#: stub.js:356
+msgid "Copying your saved knowledge to this site..."
+msgstr ""
+
+#: stub.js:357
+msgid "Could not load events. Try again."
+msgstr ""
+
+#: stub.js:358
+msgid "Could not load forms. Try closing and reopening this panel."
+msgstr ""
+
+#: stub.js:359
+msgid "Could not load integrations. Check your connection and try again."
+msgstr ""
+
+#: stub.js:360
+msgid "Could not update migration status."
+msgstr ""
+
+#: stub.js:361
+msgid "Countdown Background Color"
+msgstr ""
+
+#: stub.js:362
+msgid "Countdown Text Color"
+msgstr ""
+
+#: stub.js:363
+msgid "Countdown Text Font Size"
+msgstr ""
+
+#: stub.js:364
+msgid "Country"
+msgstr ""
+
+#: stub.js:365
+msgid "Coupon Delivery"
+msgstr ""
+
+#: stub.js:366
+msgid "Courses:"
+msgstr ""
+
+#: stub.js:367
+msgid "Create"
+msgstr ""
+
+#: stub.js:368
+msgid "Create Automation"
+msgstr ""
+
+#: stub.js:369
+msgid "Create Campaign"
+msgstr ""
+
+#: stub.js:370
+msgid "Create Contact"
+msgstr ""
+
+#: stub.js:371
+msgid "Create Contact from Lead"
+msgstr ""
+
+#: stub.js:372
+msgid "Create Email Sequence"
+msgstr ""
+
+#: stub.js:373
+msgid "Create New"
+msgstr ""
+
+#: stub.js:374
+msgid "Create New Promo Bar"
+msgstr ""
+
+#: stub.js:375
+msgid "Create New Ticket"
+msgstr ""
+
+#: stub.js:376
+msgid "Create New User"
+msgstr ""
+
+#: stub.js:377
+msgid "Create QnA Source"
+msgstr ""
+
+#: stub.js:378
+msgid "Create Segment"
+msgstr ""
+
+#: stub.js:379
+msgid "Create Sequence"
+msgstr ""
+
+#: stub.js:380
+msgid "Create Task"
+msgstr ""
+
+#: stub.js:381
+msgid "Create Template"
+msgstr ""
+
+#: stub.js:382
+msgid "Create Text Source"
+msgstr ""
+
+#: stub.js:383
+msgid "Create Ticket"
+msgstr ""
+
+#: stub.js:384
+msgid "Create URL Source"
+msgstr ""
+
+#: stub.js:385
+msgid "Create a free API key or use an existing one to get started"
+msgstr ""
+
+#: stub.js:386
+msgid "Create and manage tasks. Track follow-ups, deadlines, and assignments."
+msgstr ""
+
+#: stub.js:387
+msgid "Create automations with keywords. When users comment with your automation keywords on Facebook or Instagram posts, they'll receive an automated direct message with automation details and a 'Claim the Deal' button."
+msgstr ""
+
+#: stub.js:388
+msgid "Create automations with keywords. When users comment with your automation keywords on Facebook or Instagram posts, they'll receive an automated direct message with your custom message."
+msgstr ""
+
+#: stub.js:389
+msgid "Create contacts"
+msgstr ""
+
+#: stub.js:390
+msgid "Create custom fields to capture and organize contact data your way."
+msgstr ""
+
+#: stub.js:391
+msgid "Create email sequences that automatically send emails over time."
+msgstr ""
+
+#: stub.js:392
+msgid "Create new contact with this email"
+msgstr ""
+
+#: stub.js:393
+msgid "Create new secret key."
+msgstr ""
+
+#: stub.js:394
+msgid "Created"
+msgstr ""
+
+#: stub.js:395
+msgid "Created At"
+msgstr ""
+
+#. translators: %s: Created datetime
+#: stub.js:397
+#, js-format
+msgid "Created on %s"
+msgstr ""
+
+#: stub.js:398
+msgid "Creating Contact..."
+msgstr ""
+
+#: stub.js:399
+msgid "Creating..."
+msgstr ""
+
+#: stub.js:400
+msgid "Credit Usage"
+msgstr ""
+
+#: stub.js:401
+msgid "Credits limit reached - processing stopped"
+msgstr ""
+
+#: stub.js:402
+msgid "Current User"
+msgstr ""
+
+#: stub.js:403
+msgid "Current key"
+msgstr ""
+
+#: stub.js:404
+msgid "Custom Fields"
+msgstr ""
+
+#: stub.js:405
+msgid "Custom Message"
+msgstr ""
+
+#: stub.js:406
+msgid "Custom Range"
+msgstr ""
+
+#: stub.js:407
+msgid "Customer"
+msgstr ""
+
+#: stub.js:408
+msgid "Customer Details"
+msgstr ""
+
+#: stub.js:409
+msgid "Customer Email"
+msgstr ""
+
+#: stub.js:410
+msgid "Customer Name"
+msgstr ""
+
+#: stub.js:411
+msgid "Customers can track their orders in real-time using email, phone number, or order ID, right from the chat window. It reduces customer anxiety and the feature enhances transparency, which helps build trust and loyalty."
+msgstr ""
+
+#: stub.js:412
+msgid "Customers can upload an image to search for similar or exact products from your store. It’s perfect for mobile-first shoppers who use screenshots or photos to find products."
+msgstr ""
+
+#: stub.js:413
+msgid "Customization"
+msgstr ""
+
+#: stub.js:414
+msgid "Customize"
+msgstr ""
+
+#: stub.js:415
+msgid "Customize chatbot"
+msgstr ""
+
+#: stub.js:416
+msgid "Customize your chatbot to your brand."
+msgstr ""
+
+#: stub.js:417
+msgid "DM for Comments"
+msgstr ""
+
+#: stub.js:418
+msgid "Danger zone"
+msgstr ""
+
+#: stub.js:419
+msgid "Dashboard"
+msgstr ""
+
+#: stub.js:420
+msgid "Data Training (Optional)"
+msgstr ""
+
+#: stub.js:421
+#: public/partials/helpmate-scheduling-form.php:80
+msgid "Date"
+msgstr ""
+
+#: stub.js:422
+msgid "Date Range"
+msgstr ""
+
+#: stub.js:423
+msgid "Date of Birth"
+msgstr ""
+
+#: stub.js:424
+msgid "Days"
+msgstr ""
+
+#: stub.js:425
+msgid "Debug"
+msgstr ""
+
+#: stub.js:426
+msgid "Dedup key"
+msgstr ""
+
+#: stub.js:427
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:53
+#: blocks/build/index.js:34
+msgid "Default"
+msgstr ""
+
+#: stub.js:428
+msgid "Delay (Days)"
+msgstr ""
+
+#: stub.js:429
+msgid "Delay (Hours)"
+msgstr ""
+
+#: stub.js:430
+msgid "Delete"
+msgstr ""
+
+#: stub.js:431
+msgid "Delete Connected Account"
+msgstr ""
+
+#: stub.js:432
+msgid "Delete Image After Search"
+msgstr ""
+
+#: stub.js:433
+msgid "Delete Selected"
+msgstr ""
+
+#: stub.js:434
+msgid "Delete key"
+msgstr ""
+
+#: stub.js:435
+msgid "Deleted contact"
+msgstr ""
+
+#: stub.js:436
+msgid "Deletes and recreates only built-in CRM email templates, then re-wires abandoned cart, refund & return, and smart scheduling defaults. Custom templates are kept."
+msgstr ""
+
+#: stub.js:437
+msgid "Deleting..."
+msgstr ""
+
+#: stub.js:438
+msgid "Description"
+msgstr ""
+
+#: stub.js:439
+msgid "Deselect all"
+msgstr ""
+
+#. translators: %s: Total WordPress user count
+#: stub.js:441
+#, js-format
+msgid "Detected members (v1: total WP users): %s"
+msgstr ""
+
+#: stub.js:442
+msgid "Digital products and order workflows used by Helpmate when EDD is the selected commerce platform."
+msgstr ""
+
+#: stub.js:443
+msgid "Disable Facebook"
+msgstr ""
+
+#: stub.js:444
+msgid "Disable Instagram"
+msgstr ""
+
+#: stub.js:445
+msgid "Disable WhatsApp"
+msgstr ""
+
+#: stub.js:446
+msgid "Disabled"
+msgstr ""
+
+#: stub.js:447
+msgid "Discount Percentage"
+msgstr ""
+
+#: stub.js:448
+msgid "Discount Type"
+msgstr ""
+
+#: stub.js:449
+msgid "Discounted Products"
+msgstr ""
+
+#: stub.js:450
+msgid "Dismiss"
+msgstr ""
+
+#: stub.js:451
+msgid "Display"
+msgstr ""
+
+#: stub.js:452
+msgid "Display Close Button"
+msgstr ""
+
+#: stub.js:453
+msgid "Display For"
+msgstr ""
+
+#: stub.js:454
+msgid "Display Order"
+msgstr ""
+
+#: stub.js:455
+msgid "Display real-time sales activity like “Someone just purchased this” to create social proof. Requires a primary commerce integration (WooCommerce, Easy Digital Downloads, or SureCart) with that plugin active."
+msgstr ""
+
+#: stub.js:456
+msgid "Docs"
+msgstr ""
+
+#: stub.js:457
+msgid "Document count mismatch"
+msgstr ""
+
+#: stub.js:458
+msgid "Documents in this WordPress site are cleared and re-imported from the cloud for the new license."
+msgstr ""
+
+#: stub.js:459
+msgid "Dokan"
+msgstr ""
+
+#: stub.js:460
+msgid "Dokan plugin is active but the marketplace runtime is not loaded yet. Refresh after Dokan finishes loading."
+msgstr ""
+
+#: stub.js:461
+msgid "Don't edit response for products or posts information. Use \"Train Chatbot\" menu for those."
+msgstr ""
+
+#: stub.js:462
+msgid "Done"
+msgstr ""
+
+#: stub.js:463
+msgid "Dropdown"
+msgstr ""
+
+#: stub.js:464
+msgid "Due Date"
+msgstr ""
+
+#: stub.js:465
+msgid "Due From"
+msgstr ""
+
+#: stub.js:466
+msgid "Due To"
+msgstr ""
+
+#: stub.js:467
+msgid "Dynamic Content Detected:"
+msgstr ""
+
+#: stub.js:468
+msgid "Easy Digital Downloads"
+msgstr ""
+
+#: stub.js:469
+msgid "Edit"
+msgstr ""
+
+#: stub.js:470
+msgid "Edit Automation"
+msgstr ""
+
+#: stub.js:471
+msgid "Edit Custom Field"
+msgstr ""
+
+#: stub.js:472
+msgid "Edit Email Sequence"
+msgstr ""
+
+#: stub.js:473
+msgid "Edit Note"
+msgstr ""
+
+#: stub.js:474
+msgid "Edit Promo Bar"
+msgstr ""
+
+#: stub.js:475
+msgid "Edit Reason"
+msgstr ""
+
+#: stub.js:476
+msgid "Edit Response"
+msgstr ""
+
+#: stub.js:477
+msgid "Edit Segment"
+msgstr ""
+
+#: stub.js:478
+msgid "Edit Task"
+msgstr ""
+
+#: stub.js:479
+msgid "Edit Team Member"
+msgstr ""
+
+#: stub.js:480
+msgid "Edit Website Overview"
+msgstr ""
+
+#: stub.js:481
+msgid "Edited version:"
+msgstr ""
+
+#: stub.js:482
+msgid "Elementor"
+msgstr ""
+
+#: stub.js:483
+#: includes/integrations/class-helpmate-cf7-integration.php:232
+#: includes/integrations/class-helpmate-cf7-integration.php:247
+#: includes/integrations/class-helpmate-cf7-integration.php:259
+#: includes/integrations/class-helpmate-cf7-integration.php:275
+#: public/partials/helpmate-scheduling-form.php:58
+msgid "Email"
+msgstr ""
+
+#: stub.js:484
+msgid "Email Campaigns"
+msgstr ""
+
+#: stub.js:485
+msgid "Email Required"
+msgstr ""
+
+#: stub.js:486
+msgid "Email Sequences"
+msgstr ""
+
+#: stub.js:487
+msgid "Email Template"
+msgstr ""
+
+#: stub.js:488
+msgid "Email Templates"
+msgstr ""
+
+#: stub.js:489
+#: public/js/helpmate-scheduling.js:353
+#: public/js/helpmate-scheduling.js:357
+msgid "Email or phone is required"
+msgstr ""
+
+#: stub.js:490
+msgid "Email will be required when creating the contact"
+msgstr ""
+
+#. translators: %s: Customer email
+#: stub.js:492
+#, js-format
+msgid "Email: %s"
+msgstr ""
+
+#: stub.js:493
+msgid "Emails"
+msgstr ""
+
+#: stub.js:494
+msgid "Emails Sent"
+msgstr ""
+
+#: stub.js:495
+msgid "Embedding Credits Limit Reached"
+msgstr ""
+
+#: stub.js:496
+msgid "Employee of Month"
+msgstr ""
+
+#: stub.js:497
+msgid "Empty catalog possible"
+msgstr ""
+
+#: stub.js:498
+msgid "Enable AI Responses"
+msgstr ""
+
+#: stub.js:499
+msgid "Enable Countdown"
+msgstr ""
+
+#: stub.js:500
+msgid "Enable Facebook"
+msgstr ""
+
+#: stub.js:501
+msgid "Enable Instagram"
+msgstr ""
+
+#: stub.js:502
+msgid "Enable Members integration events"
+msgstr ""
+
+#: stub.js:503
+msgid "Enable Module"
+msgstr ""
+
+#: stub.js:504
+msgid "Enable UM integration events"
+msgstr ""
+
+#: stub.js:505
+msgid "Enable Unlimited Chats"
+msgstr ""
+
+#: stub.js:506
+msgid "Enable User Registration integration events"
+msgstr ""
+
+#: stub.js:507
+msgid "Enable WhatsApp"
+msgstr ""
+
+#: stub.js:508
+msgid "Enable or disable the AI Chatbot module. Requires an API key to be activated."
+msgstr ""
+
+#: stub.js:509
+msgid "Enable or disable this recurring campaign"
+msgstr ""
+
+#: stub.js:510
+#: includes/integrations/class-helpmate-cf7-integration.php:1016
+msgid "Enabled"
+msgstr ""
+
+#: stub.js:511
+msgid "End Date"
+msgstr ""
+
+#: stub.js:512
+msgid "End Date/Time"
+msgstr ""
+
+#: stub.js:513
+msgid "End chat"
+msgstr ""
+
+#: stub.js:514
+msgid "End this chat?"
+msgstr ""
+
+#: stub.js:515
+msgid "Ending chat…"
+msgstr ""
+
+#. translators: %d: Enrolled course count
+#: stub.js:517
+#, js-format
+msgid "Enrolled courses: %d"
+msgstr ""
+
+#: stub.js:518
+msgid "Enter Email"
+msgstr ""
+
+#: stub.js:519
+msgid "Enter Message"
+msgstr ""
+
+#: stub.js:520
+msgid "Enter Name"
+msgstr ""
+
+#: stub.js:521
+msgid "Enter Phone"
+msgstr ""
+
+#: stub.js:522
+msgid "Enter URL:"
+msgstr ""
+
+#: stub.js:523
+msgid "Enter Website"
+msgstr ""
+
+#: stub.js:524
+msgid "Enter keywords separated by commas. Automation triggers if ANY keyword is found (e.g., \"sale, deal, discount\")."
+msgstr ""
+
+#: stub.js:525
+msgid "Enter subject"
+msgstr ""
+
+#: stub.js:526
+msgid "Enter your email"
+msgstr ""
+
+#: stub.js:527
+msgid "Enter your existing PIN"
+msgstr ""
+
+#: stub.js:528
+msgid "Enter your message"
+msgstr ""
+
+#: stub.js:529
+msgid "Entity Type"
+msgstr ""
+
+#: stub.js:530
+msgid "Errors:"
+msgstr ""
+
+#. translators: 1: Error count, 2: Last error message
+#: stub.js:532
+#, js-format
+msgid "Errors: %1$d (last: %2$s)"
+msgstr ""
+
+#: stub.js:533
+msgid "Everyone"
+msgstr ""
+
+#: stub.js:534
+msgid "Existing CRM contacts with the "
+msgstr ""
+
+#. translators: %1$s: Commerce provider name
+#: stub.js:536
+#, js-format
+msgid "Existing CRM contacts with the same email as a %1$s customer will be updated from that customer profile."
+msgstr ""
+
+#: stub.js:537
+msgid "Existing CRM contacts with the same email as a Dokan vendor will be updated with that vendor's profile (name, phone, address, WordPress user link)."
+msgstr ""
+
+#: stub.js:538
+msgid "Existing CRM contacts with the same email as a LifterLMS student will be updated from that student profile."
+msgstr ""
+
+#: stub.js:539
+msgid "Existing CRM contacts with the same email as a Members user can be updated from that profile."
+msgstr ""
+
+#: stub.js:540
+msgid "Existing CRM contacts with the same email as a Tutor LMS student will be updated from that student profile."
+msgstr ""
+
+#: stub.js:541
+msgid "Existing CRM contacts with the same email as a UM member can be updated from that member profile."
+msgstr ""
+
+#: stub.js:542
+msgid "Existing CRM contacts with the same email as a User Registration member can be updated from that member profile."
+msgstr ""
+
+#: stub.js:543
+msgid "Existing CRM contacts with the same email as a WCFM vendor will be updated with that vendor's profile (name, phone, address, WordPress user link)."
+msgstr ""
+
+#: stub.js:544
+msgid "Exit Intent Coupon"
+msgstr ""
+
+#: stub.js:545
+msgid "Expires"
+msgstr ""
+
+#: stub.js:546
+msgid "Facebook"
+msgstr ""
+
+#: stub.js:547
+msgid "Facebook Comments"
+msgstr ""
+
+#: stub.js:548
+msgid "Facebook Messages"
+msgstr ""
+
+#: stub.js:549
+msgid "Failed"
+msgstr ""
+
+#: stub.js:550
+msgid "Failed (terminal)"
+msgstr ""
+
+#: stub.js:551
+msgid "Failed (transient)"
+msgstr ""
+
+#: stub.js:552
+msgid "Failed emails"
+msgstr ""
+
+#: stub.js:553
+msgid "Failed to load available time slots."
+msgstr ""
+
+#: stub.js:554
+msgid "Failed to load form settings. Please refresh."
+msgstr ""
+
+#: stub.js:555
+msgid "Failed to load live chat agents"
+msgstr ""
+
+#: stub.js:556
+msgid "Failed to load pages. Please try connecting again."
+msgstr ""
+
+#: stub.js:557
+msgid "Failed to load team members"
+msgstr ""
+
+#: stub.js:558
+#: public/js/helpmate-scheduling.js:282
+msgid "Failed to schedule appointment."
+msgstr ""
+
+#: stub.js:559
+#: public/js/helpmate-scheduling.js:298
+msgid "Failed to schedule appointment. Please try again."
+msgstr ""
+
+#: stub.js:560
+msgid "Failed to send"
+msgstr ""
+
+#: stub.js:561
+msgid "Failure details not available for campaigns/sequences sent before this feature was added."
+msgstr ""
+
+#: stub.js:562
+msgid "False"
+msgstr ""
+
+#: stub.js:563
+msgid "Feature Name"
+msgstr ""
+
+#: stub.js:564
+msgid "Feature not available on localhost"
+msgstr ""
+
+#: stub.js:565
+msgid "Feature unavailable"
+msgstr ""
+
+#: stub.js:566
+msgid "Field Label"
+msgstr ""
+
+#: stub.js:567
+msgid "Field Mapping:"
+msgstr ""
+
+#: stub.js:568
+msgid "Field Type"
+msgstr ""
+
+#: stub.js:569
+msgid "File"
+msgstr ""
+
+#: stub.js:570
+msgid "File Content"
+msgstr ""
+
+#: stub.js:571
+msgid "File Name"
+msgstr ""
+
+#: stub.js:572
+msgid "File Source"
+msgstr ""
+
+#: stub.js:573
+msgid "Filter by Team Member"
+msgstr ""
+
+#: stub.js:574
+msgid "Filter conversations"
+msgstr ""
+
+#: stub.js:575
+msgid "Filter tasks"
+msgstr ""
+
+#: stub.js:576
+msgid "Filters"
+msgstr ""
+
+#: stub.js:577
+msgid "Finishing up..."
+msgstr ""
+
+#: stub.js:578
+msgid "First Name"
+msgstr ""
+
+#: stub.js:579
+msgid "Font Size"
+msgstr ""
+
+#: stub.js:580
+msgid "Form"
+msgstr ""
+
+#. translators: %d: Form ID
+#: stub.js:582
+#, js-format
+msgid "Form ID: %d"
+msgstr ""
+
+#: stub.js:583
+msgid "Forms"
+msgstr ""
+
+#: stub.js:584
+msgid "Free"
+msgstr ""
+
+#: stub.js:585
+msgid "Free Chat Credits"
+msgstr ""
+
+#: stub.js:586
+msgid "Full Name"
+msgstr ""
+
+#: stub.js:587
+msgid "Full metadata"
+msgstr ""
+
+#: stub.js:588
+msgid "General"
+msgstr ""
+
+#: stub.js:589
+msgid "General context of the website"
+msgstr ""
+
+#: stub.js:590
+msgid "Get Free Forever API Key"
+msgstr ""
+
+#: stub.js:591
+msgid "Get Pro"
+msgstr ""
+
+#: stub.js:592
+msgid "Get This Key From RhapsodyPlugins"
+msgstr ""
+
+#: stub.js:593
+msgid "Get Your Free Forever API Key"
+msgstr ""
+
+#: stub.js:594
+msgid "Get appointments"
+msgstr ""
+
+#: stub.js:595
+msgid "Get more features and credits"
+msgstr ""
+
+#: stub.js:596
+msgid "Get started by adding your first team member."
+msgstr ""
+
+#: stub.js:597
+msgid "Get your API key:"
+msgstr ""
+
+#: stub.js:598
+msgid "Getting Started"
+msgstr ""
+
+#: stub.js:599
+msgid "Give them answers before they ask. Real-time order tracking reduces refunds and raises trust."
+msgstr ""
+
+#: stub.js:600
+msgid "Globally enable or disable AI responses for all chat conversations"
+msgstr ""
+
+#: stub.js:601
+msgid "Go Pro"
+msgstr ""
+
+#. translators: %d: Condition group number
+#: stub.js:603
+#, js-format
+msgid "Group %d"
+msgstr ""
+
+#: stub.js:604
+msgid "Gutenberg"
+msgstr ""
+
+#: stub.js:605
+msgid "HTML"
+msgstr ""
+
+#: stub.js:606
+msgid "Handoff"
+msgstr ""
+
+#: stub.js:607
+msgid "Handoff Rate"
+msgstr ""
+
+#. translators: (%) is a literal percent sign for the rate label
+#: stub.js:609
+msgid "Handoff Rate (%)"
+msgstr ""
+
+#: stub.js:610
+msgid "Handoff Status"
+msgstr ""
+
+#: stub.js:611
+msgid "Handoffs"
+msgstr ""
+
+#: stub.js:612
+msgid "Has Contacts"
+msgstr ""
+
+#: stub.js:613
+msgid "Has contacts"
+msgstr ""
+
+#: stub.js:614
+msgid "Hello! How can I assist you today?"
+msgstr ""
+
+#: stub.js:615
+msgid "Helpmate AI"
+msgstr ""
+
+#: stub.js:616
+msgid "Helpmate AI Chatbot is not just a chatbot, it helps you increase sales."
+msgstr ""
+
+#: stub.js:617
+msgid "Helpmate API Key"
+msgstr ""
+
+#: stub.js:618
+msgid "Helpmate Ai Chatbot is not just a chatbot, it helps you increase sales."
+msgstr ""
+
+#: stub.js:619
+msgid "Helpmate cloud"
+msgstr ""
+
+#: stub.js:620
+msgid "Helpmate registers blocks in the WordPress block editor. Edit any page or post and insert Helpmate blocks from the block inserter."
+msgstr ""
+
+#: stub.js:621
+msgid "Hide After (seconds)"
+msgstr ""
+
+#: stub.js:622
+msgid "Hide HTML editor"
+msgstr ""
+
+#: stub.js:623
+msgid "Hide on Mobile"
+msgstr ""
+
+#: stub.js:624
+msgid "Hide on Selected"
+msgstr ""
+
+#: stub.js:625
+msgid "High"
+msgstr ""
+
+#: stub.js:626
+msgid "Horizontal rule"
+msgstr ""
+
+#: stub.js:627
+msgid "How to get 96% accurate answers with Helpmate AI Chatbot."
+msgstr ""
+
+#: stub.js:628
+msgid "How was your experience?"
+msgstr ""
+
+#: stub.js:629
+msgid "Human"
+msgstr ""
+
+#: stub.js:630
+msgid "Human Responses"
+msgstr ""
+
+#: stub.js:631
+msgid "I agree to the"
+msgstr ""
+
+#: stub.js:632
+msgid "I consent to receive emails about product updates, security notices, and account information, and to allow the chatbot to securely store and use the public data I provide to deliver more accurate and personalized responses."
+msgstr ""
+
+#: stub.js:633
+msgid "Icon Position"
+msgstr ""
+
+#: stub.js:634
+msgid "Icon Shape"
+msgstr ""
+
+#: stub.js:635
+msgid "Icon Size"
+msgstr ""
+
+#: stub.js:636
+msgid "If no agent replies within this time, the chat switches back to AI."
+msgstr ""
+
+#: stub.js:637
+msgid "If the new license has no documents in the cloud for this site, your knowledge base here will be empty until you train again."
+msgstr ""
+
+#: stub.js:638
+msgid "If the phone number you want to connect is already registered with WhatsApp or WhatsApp Business on another device or app, you must remove it from that app first. A phone number can only be linked to one WhatsApp account at a time."
+msgstr ""
+
+#: stub.js:639
+msgid "If you need more features or credits, consider upgrading your api key instead of changing it. This way you keep all your trained data and get better performance."
+msgstr ""
+
+#: stub.js:640
+msgid "If you run sync from another commerce provider later, that latest sync wins for matching emails."
+msgstr ""
+
+#: stub.js:641
+msgid "If you sync from different commerce providers, the most recent sync overwrites the same-email contact fields."
+msgstr ""
+
+#: stub.js:642
+msgid "If you think the answer is wrong or needs improvement, you can edit the response. It'll be saved in the knowledge base as Q&A."
+msgstr ""
+
+#: stub.js:643
+msgid "Image"
+msgstr ""
+
+#: stub.js:644
+msgid "Image search is not available on localhost. Please deploy to a live server to use image search features."
+msgstr ""
+
+#: stub.js:645
+msgid "Imagine your chatbot whispering 'Here's 10% off' right before they bounce. That's smart conversion."
+msgstr ""
+
+#: stub.js:646
+msgid "Import saved data"
+msgstr ""
+
+#: stub.js:647
+msgid "Important"
+msgstr ""
+
+#: stub.js:648
+msgid "Importing knowledge base..."
+msgstr ""
+
+#: stub.js:649
+msgid "Importing your trained documents..."
+msgstr ""
+
+#: stub.js:650
+msgid "In Progress"
+msgstr ""
+
+#: stub.js:651
+msgid "In Stock"
+msgstr ""
+
+#. translators: %d: In-progress course count
+#: stub.js:653
+#, js-format
+msgid "In progress courses: %d"
+msgstr ""
+
+#: stub.js:654
+msgid "Inactive"
+msgstr ""
+
+#: stub.js:655
+msgid "Inbound Messages"
+msgstr ""
+
+#: stub.js:656
+msgid "Inbox"
+msgstr ""
+
+#: stub.js:657
+msgid "Include password in email"
+msgstr ""
+
+#: stub.js:658
+msgid "Includes"
+msgstr ""
+
+#: stub.js:659
+msgid "Increase sales significantly"
+msgstr ""
+
+#: stub.js:660
+msgid "Info"
+msgstr ""
+
+#: stub.js:661
+msgid "Initial Delay (seconds)"
+msgstr ""
+
+#: stub.js:662
+msgid "Initializing Chatbot..."
+msgstr ""
+
+#: stub.js:663
+msgid "Initializing chatbot..."
+msgstr ""
+
+#: stub.js:664
+msgid "Insert Image"
+msgstr ""
+
+#: stub.js:665
+msgid "Insert link"
+msgstr ""
+
+#: stub.js:666
+msgid "Instagram"
+msgstr ""
+
+#: stub.js:667
+msgid "Instagram Comments"
+msgstr ""
+
+#: stub.js:668
+msgid "Instagram Messages"
+msgstr ""
+
+#: stub.js:669
+msgid "Install"
+msgstr ""
+
+#: stub.js:670
+msgid "Install and activate Dokan (Lite or Pro) to use multivendor features."
+msgstr ""
+
+#: stub.js:671
+msgid "Install and activate LearnPress to enable LMS integration."
+msgstr ""
+
+#: stub.js:672
+msgid "Install and activate LifterLMS to enable LMS integration."
+msgstr ""
+
+#: stub.js:673
+msgid "Install and activate Members to enable this integration."
+msgstr ""
+
+#: stub.js:674
+msgid "Install and activate Tutor LMS to enable LMS integration."
+msgstr ""
+
+#: stub.js:675
+msgid "Install and activate Ultimate Member to enable this integration."
+msgstr ""
+
+#: stub.js:676
+msgid "Install and activate User Registration & Membership to enable this integration."
+msgstr ""
+
+#: stub.js:677
+msgid "Install and activate WCFM Marketplace to use multivendor features."
+msgstr ""
+
+#: stub.js:678
+msgid "Installed but not active."
+msgstr ""
+
+#: stub.js:679
+msgid "Installing…"
+msgstr ""
+
+#: stub.js:680
+msgid "Integrations"
+msgstr ""
+
+#: stub.js:681
+msgid "Interval Unit"
+msgstr ""
+
+#: stub.js:682
+msgid "Interval Value"
+msgstr ""
+
+#: stub.js:683
+msgid "Invalid email address"
+msgstr ""
+
+#: stub.js:684
+msgid "It's like having a sales rep in every visitor's pocket, ready with the perfect pitch."
+msgstr ""
+
+#: stub.js:685
+msgid "It's not just a refund. It's your reputation. Offer seamless return experiences and build trust."
+msgstr ""
+
+#: stub.js:686
+msgid "Italic"
+msgstr ""
+
+#: stub.js:687
+msgid "Just now"
+msgstr ""
+
+#: stub.js:688
+msgid "Keep all your trained data"
+msgstr ""
+
+#: stub.js:689
+msgid "Keeps install ID and version options. Run “Sync from cloud” afterward to restore the admin knowledge base if needed."
+msgstr ""
+
+#: stub.js:690
+msgid "Key metrics and performance indicators"
+msgstr ""
+
+#: stub.js:691
+msgid "Keyword"
+msgstr ""
+
+#: stub.js:692
+msgid "Keywords"
+msgstr ""
+
+#: stub.js:693
+msgid "Knowledge Base"
+msgstr ""
+
+#: stub.js:694
+msgid "Knowledge Base Sources Used"
+msgstr ""
+
+#: stub.js:695
+msgid "Knowledge Bases"
+msgstr ""
+
+#: stub.js:696
+msgid "LMS"
+msgstr ""
+
+#: stub.js:697
+msgid "Label"
+msgstr ""
+
+#: stub.js:698
+msgid "Language"
+msgstr ""
+
+#: stub.js:699
+msgid "Last Month"
+msgstr ""
+
+#: stub.js:700
+msgid "Last Name"
+msgstr ""
+
+#: stub.js:701
+msgid "Last Updated"
+msgstr ""
+
+#: stub.js:702
+msgid "Last Week"
+msgstr ""
+
+#: stub.js:703
+msgid "Last Year"
+msgstr ""
+
+#: stub.js:704
+#, js-format
+msgid "Last saved %s"
+msgstr ""
+
+#: stub.js:705
+msgid "Last sync:"
+msgstr ""
+
+#: stub.js:706
+msgid "Last synced:"
+msgstr ""
+
+#. translators: %s: Last sync datetime
+#: stub.js:708
+#, js-format
+msgid "Last synced: %s"
+msgstr ""
+
+#: stub.js:709
+msgid "Layout"
+msgstr ""
+
+#: stub.js:710
+msgid "Layout 1"
+msgstr ""
+
+#: stub.js:711
+msgid "Layout 2"
+msgstr ""
+
+#: stub.js:712
+msgid "Layout 3"
+msgstr ""
+
+#: stub.js:713
+msgid "Lead"
+msgstr ""
+
+#: stub.js:714
+msgid "Lead Capture"
+msgstr ""
+
+#: stub.js:715
+msgid "Lead Form Fields"
+msgstr ""
+
+#: stub.js:716
+msgid "Lead created"
+msgstr ""
+
+#: stub.js:717
+msgid "Leads"
+msgstr ""
+
+#: stub.js:718
+msgid "Leads Converted"
+msgstr ""
+
+#: stub.js:719
+msgid "Leads Created"
+msgstr ""
+
+#: stub.js:720
+msgid "Learn How"
+msgstr ""
+
+#: stub.js:721
+msgid "Learn More"
+msgstr ""
+
+#: stub.js:722
+msgid "LearnPress"
+msgstr ""
+
+#: stub.js:723
+msgid "LearnPress LMS"
+msgstr ""
+
+#: stub.js:724
+msgid "LearnPress Progress (Live)"
+msgstr ""
+
+#: stub.js:725
+msgid "LearnPress integration is not active on this site."
+msgstr ""
+
+#: stub.js:726
+msgid "LearnPress plugin is active but runtime is not fully loaded yet. Refresh after LearnPress initializes."
+msgstr ""
+
+#: stub.js:727
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:54
+#: includes/integrations/elementor/class-helpmate-elementor-widget-scheduling.php:125
+#: blocks/build/index.js:35
+msgid "Left"
+msgstr ""
+
+#: stub.js:728
+msgid "Legacy"
+msgstr ""
+
+#: stub.js:729
+msgid "Lessons:"
+msgstr ""
+
+#: stub.js:730
+msgid "LifterLMS"
+msgstr ""
+
+#: stub.js:731
+msgid "LifterLMS plugin is active but runtime is not fully loaded yet. Refresh after LifterLMS initializes."
+msgstr ""
+
+#: stub.js:732
+msgid "Limit"
+msgstr ""
+
+#: stub.js:733
+msgid "Link Contact"
+msgstr ""
+
+#: stub.js:734
+msgid "Live Agents"
+msgstr ""
+
+#: stub.js:735
+msgid "Live Chat"
+msgstr ""
+
+#: stub.js:736
+msgid "Live Chat Agent"
+msgstr ""
+
+#: stub.js:737
+msgid "Live Chat Agents"
+msgstr ""
+
+#: stub.js:738
+msgid "Loading checklist..."
+msgstr ""
+
+#: stub.js:739
+msgid "Loading credits..."
+msgstr ""
+
+#: stub.js:740
+msgid "Loading forms…"
+msgstr ""
+
+#: stub.js:741
+msgid "Loading form…"
+msgstr ""
+
+#: stub.js:742
+msgid "Loading integrations…"
+msgstr ""
+
+#: stub.js:743
+msgid "Loading pages..."
+msgstr ""
+
+#: stub.js:744
+msgid "Loading..."
+msgstr ""
+
+#: stub.js:745
+#: public/js/helpmate-scheduling.js:219
+msgid "Loading…"
+msgstr ""
+
+#: stub.js:746
+msgid "Local knowledge base"
+msgstr ""
+
+#: stub.js:747
+msgid "Local test site"
+msgstr ""
+
+#: stub.js:748
+msgid "Local trained data is replaced"
+msgstr ""
+
+#: stub.js:749
+msgid "Log In to Get API Key"
+msgstr ""
+
+#: stub.js:750
+msgid "Log in to retrieve your existing API key and enter it above."
+msgstr ""
+
+#: stub.js:751
+msgid "Logged In Users"
+msgstr ""
+
+#: stub.js:752
+msgid "Logged Out Users"
+msgstr ""
+
+#: stub.js:753
+msgid "Logs"
+msgstr ""
+
+#: stub.js:754
+msgid "Low"
+msgstr ""
+
+#: stub.js:755
+msgid "Maintenance actions for Helpmate data. These operations cannot be undone easily."
+msgstr ""
+
+#: stub.js:756
+msgid "Make Shipping Transparent"
+msgstr ""
+
+#: stub.js:757
+#: includes/integrations/class-helpmate-form-integration-ui.php:29
+msgid "Make sure your form includes the fields this action needs. Then choose which form field fills each Helpmate field below."
+msgstr ""
+
+#: stub.js:758
+msgid "Manage API Key"
+msgstr ""
+
+#: stub.js:759
+msgid "Manage Accounts"
+msgstr ""
+
+#: stub.js:760
+msgid "Manage and track all your scheduled appointments. View, update, and organize schedules with ease."
+msgstr ""
+
+#: stub.js:761
+msgid "Manage customer refund and return requests."
+msgstr ""
+
+#: stub.js:762
+msgid "Manage the list of reasons customers can select for refund/return requests."
+msgstr ""
+
+#: stub.js:763
+msgid "Manager"
+msgstr ""
+
+#: stub.js:764
+msgid "Manual sync controls"
+msgstr ""
+
+#: stub.js:765
+msgid "Marketer"
+msgstr ""
+
+#: stub.js:766
+msgid "Marketing Automation"
+msgstr ""
+
+#: stub.js:767
+msgid "Match"
+msgstr ""
+
+#. translators: %s: Maximum upload size
+#: stub.js:769
+#, js-format
+msgid "Maximum file size: %s."
+msgstr ""
+
+#: stub.js:770
+msgid "Member"
+msgstr ""
+
+#: stub.js:771
+msgid "Members"
+msgstr ""
+
+#: stub.js:772
+msgid "Members is active but runtime is not fully loaded yet. Refresh after it initializes."
+msgstr ""
+
+#: stub.js:773
+msgid "Membership"
+msgstr ""
+
+#: stub.js:774
+msgid "Menu"
+msgstr ""
+
+#: stub.js:775
+msgid "Merge and copy"
+msgstr ""
+
+#: stub.js:776
+#: includes/integrations/class-helpmate-cf7-integration.php:234
+#: includes/integrations/class-helpmate-cf7-integration.php:246
+#: includes/integrations/class-helpmate-cf7-integration.php:263
+#: public/partials/helpmate-scheduling-form.php:73
+msgid "Message"
+msgstr ""
+
+#: stub.js:777
+msgid "Message is required"
+msgstr ""
+
+#: stub.js:778
+msgid "Messages"
+msgstr ""
+
+#: stub.js:779
+msgid "Meta WhatsApp registration docs"
+msgstr ""
+
+#: stub.js:780
+msgid "Metadata"
+msgstr ""
+
+#. translators: %s: Missing template name
+#: stub.js:782
+#, js-format
+msgid "Missing default template: %s"
+msgstr ""
+
+#: stub.js:783
+msgid "Missing metadata"
+msgstr ""
+
+#: stub.js:784
+msgid "Mobile Visibility"
+msgstr ""
+
+#: stub.js:785
+msgid "Mode"
+msgstr ""
+
+#: stub.js:786
+msgid "Module Settings"
+msgstr ""
+
+#: stub.js:787
+msgid "Modules"
+msgstr ""
+
+#: stub.js:788
+msgid "Months"
+msgstr ""
+
+#: stub.js:789
+msgid "Multi select"
+msgstr ""
+
+#: stub.js:790
+msgid "Multivendor"
+msgstr ""
+
+#: stub.js:791
+msgid "My Account"
+msgstr ""
+
+#: stub.js:792
+msgid "My Account Dashboard"
+msgstr ""
+
+#: stub.js:793
+msgid "My Tasks"
+msgstr ""
+
+#: stub.js:794
+msgid "N/A"
+msgstr ""
+
+#: stub.js:795
+#: includes/integrations/class-helpmate-cf7-integration.php:231
+#: includes/integrations/class-helpmate-cf7-integration.php:248
+#: includes/integrations/class-helpmate-cf7-integration.php:258
+#: public/partials/helpmate-scheduling-form.php:50
+msgid "Name"
+msgstr ""
+
+#. translators: %s: Customer name
+#: stub.js:797
+#, js-format
+msgid "Name: %s"
+msgstr ""
+
+#: stub.js:798
+msgid "Never"
+msgstr ""
+
+#: stub.js:799
+msgid "New Contact"
+msgstr ""
+
+#: stub.js:800
+msgid "New Reason"
+msgstr ""
+
+#: stub.js:801
+msgid "Next"
+msgstr ""
+
+#: stub.js:802
+msgid "No"
+msgstr ""
+
+#. translators: %s: Social network name (e.g. Facebook)
+#: stub.js:804
+#, js-format
+msgid "No %s account connected. Please connect an account first to select posts."
+msgstr ""
+
+#: stub.js:805
+msgid "No Contact custom fields yet"
+msgstr ""
+
+#: stub.js:806
+msgid "No Handoff"
+msgstr ""
+
+#: stub.js:807
+msgid "No Image"
+msgstr ""
+
+#: stub.js:808
+msgid "No LearnPress data available for this contact."
+msgstr ""
+
+#: stub.js:809
+msgid "No Status"
+msgstr ""
+
+#: stub.js:810
+msgid "No Task custom fields yet"
+msgstr ""
+
+#: stub.js:811
+msgid "No active commerce plugin. Install and activate WooCommerce, Easy Digital Downloads, or SureCart below."
+msgstr ""
+
+#: stub.js:812
+msgid "No active multivendor plugin. Install and activate Dokan or WCFM Marketplace below."
+msgstr ""
+
+#: stub.js:813
+msgid "No activity data available"
+msgstr ""
+
+#: stub.js:814
+msgid "No archived conversations"
+msgstr ""
+
+#: stub.js:815
+msgid "No automations yet. Create your first automation to start generating leads from comments."
+msgstr ""
+
+#: stub.js:816
+msgid "No automations yet. Create your first automation to start sending custom messages from comments."
+msgstr ""
+
+#: stub.js:817
+#: public/js/helpmate-scheduling.js:235
+msgid "No available slots"
+msgstr ""
+
+#: stub.js:818
+msgid "No contact"
+msgstr ""
+
+#: stub.js:819
+msgid "No contacts"
+msgstr ""
+
+#: stub.js:820
+#: includes/modules/class-helpmate-crm-order-metabox.php:428
+msgid "No contacts found"
+msgstr ""
+
+#: stub.js:821
+msgid "No contacts found."
+msgstr ""
+
+#: stub.js:822
+msgid "No conversations yet"
+msgstr ""
+
+#: stub.js:823
+msgid "No coupon"
+msgstr ""
+
+#: stub.js:824
+msgid "No coupon found."
+msgstr ""
+
+#: stub.js:825
+msgid "No credits available"
+msgstr ""
+
+#: stub.js:826
+msgid "No documents in cloud"
+msgstr ""
+
+#: stub.js:827
+msgid "No downtime or retraining"
+msgstr ""
+
+#: stub.js:828
+msgid "No email sequences yet."
+msgstr ""
+
+#: stub.js:829
+msgid "No enrolled courses found."
+msgstr ""
+
+#: stub.js:830
+msgid "No events recorded for this integration yet. Submit a mapped form to see entries here."
+msgstr ""
+
+#: stub.js:831
+msgid "No failure details."
+msgstr ""
+
+#: stub.js:832
+msgid "No file chosen"
+msgstr ""
+
+#: stub.js:833
+#: includes/integrations/class-helpmate-form-integration-ui.php:52
+msgid "No form fields were found yet. Add fields in your form builder, save the form, and reopen this screen."
+msgstr ""
+
+#: stub.js:834
+msgid "No forms yet"
+msgstr ""
+
+#: stub.js:835
+msgid "No items were moved for the selected sites."
+msgstr ""
+
+#: stub.js:836
+msgid "No knowledge base context was used for this response. The AI may have answered without needing to search your knowledge base."
+msgstr ""
+
+#: stub.js:837
+msgid "No leads available."
+msgstr ""
+
+#: stub.js:838
+msgid "No live chat agents yet"
+msgstr ""
+
+#: stub.js:839
+msgid "No message"
+msgstr ""
+
+#: stub.js:840
+msgid "No notifications"
+msgstr ""
+
+#: stub.js:841
+msgid "No pages found on this site"
+msgstr ""
+
+#: stub.js:842
+msgid "No pages found. Make sure you have admin access to at least one Facebook Page."
+msgstr ""
+
+#: stub.js:843
+msgid "No posts found on this site"
+msgstr ""
+
+#. translators: %s: Social network name (e.g. Facebook)
+#: stub.js:845
+#, js-format
+msgid "No posts found. Make sure your %s account has posts."
+msgstr ""
+
+#: stub.js:846
+msgid "No products found on this site"
+msgstr ""
+
+#: stub.js:847
+msgid "No results."
+msgstr ""
+
+#: stub.js:848
+msgid "No revenue data available"
+msgstr ""
+
+#: stub.js:849
+msgid "No reviews found for this period"
+msgstr ""
+
+#: stub.js:850
+msgid "No saved test-site data found."
+msgstr ""
+
+#: stub.js:851
+msgid "No schedule date has been set. This campaign will be sent immediately to all contacts in the selected segment. Are you sure you want to proceed?"
+msgstr ""
+
+#: stub.js:852
+msgid "No schedules found"
+msgstr ""
+
+#: stub.js:853
+msgid "No status field configured for tasks"
+msgstr ""
+
+#: stub.js:854
+msgid "No tasks"
+msgstr ""
+
+#: stub.js:855
+msgid "No team members"
+msgstr ""
+
+#: stub.js:856
+msgid "No team performance data available"
+msgstr ""
+
+#: stub.js:857
+msgid "No user"
+msgstr ""
+
+#: stub.js:858
+msgid "No user found."
+msgstr ""
+
+#: stub.js:859
+msgid "Non-Pro users are limited to 50 contacts. Upgrade to Pro for unlimited contacts."
+msgstr ""
+
+#: stub.js:860
+msgid "None"
+msgstr ""
+
+#: stub.js:861
+msgid "Normal"
+msgstr ""
+
+#: stub.js:862
+msgid "Not installed."
+msgstr ""
+
+#: stub.js:863
+msgid "Note:"
+msgstr ""
+
+#: stub.js:864
+msgid "Notes"
+msgstr ""
+
+#. translators: %d: Notification sound index
+#: stub.js:866
+#, js-format
+msgid "Notification %d"
+msgstr ""
+
+#: stub.js:867
+msgid "Notifications"
+msgstr ""
+
+#: stub.js:868
+msgid "Number"
+msgstr ""
+
+#: stub.js:869
+msgid "Offset"
+msgstr ""
+
+#: stub.js:870
+msgid "One-Time Campaign"
+msgstr ""
+
+#. translators: 1: Commerce provider name, 2: Commerce provider name
+#: stub.js:872
+#, js-format
+msgid "One-way import from %1$s: customers are matched by email and CRM contact fields are overwritten from %2$s data."
+msgstr ""
+
+#: stub.js:873
+msgid "One-way import from LearnPress: students are matched by email and contact profile fields are overwritten with LearnPress user data."
+msgstr ""
+
+#: stub.js:874
+msgid "One-way import from LifterLMS: students are matched by email and contact profile fields are overwritten with LifterLMS user data."
+msgstr ""
+
+#: stub.js:875
+msgid "One-way import from Members. Contacts are matched by email and member profile fields may be overwritten by Members values."
+msgstr ""
+
+#: stub.js:876
+msgid "One-way import from Tutor LMS: students are matched by email and contact profile fields are overwritten with Tutor user data."
+msgstr ""
+
+#: stub.js:877
+msgid "One-way import from Ultimate Member. Contacts are matched by email and profile fields may be overwritten by UM values."
+msgstr ""
+
+#: stub.js:878
+msgid "One-way import from User Registration. Contacts are matched by email and profile fields may be overwritten by User Registration values."
+msgstr ""
+
+#: stub.js:879
+msgid "One-way import: Dokan sellers become CRM contacts. Matching email addresses are overwritten with Dokan store profile data."
+msgstr ""
+
+#: stub.js:880
+msgid "One-way import: WCFM sellers become CRM contacts. Matching email addresses are overwritten with WCFM store profile data."
+msgstr ""
+
+#. translators: %s: Required WordPress role slug
+#: stub.js:882
+#, js-format
+msgid "Only %s role users can access this page."
+msgstr ""
+
+#: stub.js:883
+msgid "Only administrators and managers can access this page."
+msgstr ""
+
+#: stub.js:884
+msgid "Only collect order ID. No email or phone verification. Anyone with the order ID can view status."
+msgstr ""
+
+#: stub.js:885
+msgid "Open Link in New Tab"
+msgstr ""
+
+#: stub.js:886
+msgid "Open Tickets"
+msgstr ""
+
+#: stub.js:887
+msgid "Open block editor"
+msgstr ""
+
+#: stub.js:888
+msgid "OpenAI API Key"
+msgstr ""
+
+#: stub.js:889
+msgid "OpenAI API keys"
+msgstr ""
+
+#: stub.js:890
+msgid "OpenAI Key (Optional)"
+msgstr ""
+
+#: stub.js:891
+msgid "Optional vendor display in CRM, product training, and proactive sales. Sync Dokan sellers to CRM contacts on demand."
+msgstr ""
+
+#: stub.js:892
+msgid "Optional vendor display in CRM, product training, and proactive sales. Sync WCFM sellers to CRM contacts on demand."
+msgstr ""
+
+#: stub.js:893
+msgid "Optional: Reply to the comment before sending DM. Leave empty to skip comment reply."
+msgstr ""
+
+#: stub.js:894
+msgid "Options (one per line)"
+msgstr ""
+
+#: stub.js:895
+#: includes/integrations/class-helpmate-cf7-integration.php:691
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:337
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:778
+#: includes/integrations/class-helpmate-forminator-integration.php:286
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:307
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:794
+#: includes/integrations/class-helpmate-wpforms-integration.php:297
+#: includes/integrations/class-helpmate-wpforms-integration.php:771
+msgid "Order"
+msgstr ""
+
+#: stub.js:896
+msgid "Order Details"
+msgstr ""
+
+#: stub.js:897
+#: includes/integrations/class-helpmate-cf7-integration.php:274
+#: includes/integrations/class-helpmate-cf7-integration.php:285
+msgid "Order ID"
+msgstr ""
+
+#: stub.js:898
+msgid "Order ID Only"
+msgstr ""
+
+#. translators: %s: Order ID
+#: stub.js:900
+#, js-format
+msgid "Order ID: %s"
+msgstr ""
+
+#: stub.js:901
+msgid "Order Management"
+msgstr ""
+
+#: stub.js:902
+msgid "Order Status Tracking"
+msgstr ""
+
+#: stub.js:903
+msgid "Order Tracker"
+msgstr ""
+
+#: stub.js:904
+msgid "Order tracker could not load — check that Helpmate Pro is activated in Plugins."
+msgstr ""
+
+#: stub.js:905
+#: includes/integrations/class-helpmate-cf7-integration.php:1053
+msgid "Order tracker verification is on: map at least one of Email or Phone so customers can confirm the order."
+msgstr ""
+
+#: stub.js:906
+msgid "Ordered list"
+msgstr ""
+
+#: stub.js:907
+msgid "Orders"
+msgstr ""
+
+#: stub.js:908
+msgid "Organize your contacts into segments for targeted messaging and outreach."
+msgstr ""
+
+#: stub.js:909
+msgid "Our top features that driving revenue and elevating the customer experience."
+msgstr ""
+
+#: stub.js:910
+msgid "Out of Stock"
+msgstr ""
+
+#: stub.js:911
+msgid "Outbound Messages"
+msgstr ""
+
+#: stub.js:912
+msgid "Overdue"
+msgstr ""
+
+#: stub.js:913
+msgid "Overdue Only"
+msgstr ""
+
+#: stub.js:914
+msgid "Overdue Tasks"
+msgstr ""
+
+#: stub.js:915
+msgid "Overdue only"
+msgstr ""
+
+#: stub.js:916
+msgid "Overview"
+msgstr ""
+
+#. translators: %s: WhatsApp PIN code
+#: stub.js:918
+#, js-format
+msgid "PIN: %s"
+msgstr ""
+
+#. translators: %s: Comma-separated PIN codes
+#: stub.js:920
+#, js-format
+msgid "PINs: %s"
+msgstr ""
+
+#. translators: 1: Current page, 2: Total pages
+#: stub.js:922
+#, js-format
+msgid "Page %1$d of %2$d"
+msgstr ""
+
+#. translators: %s: Page ID
+#: stub.js:924
+#, js-format
+msgid "Page %s"
+msgstr ""
+
+#: stub.js:925
+msgid "Page builders"
+msgstr ""
+
+#: stub.js:926
+msgid "Pages"
+msgstr ""
+
+#: stub.js:927
+msgid "Partial"
+msgstr ""
+
+#: stub.js:928
+msgid "Password"
+msgstr ""
+
+#: stub.js:929
+msgid "Password will be included in the welcome email (less secure)"
+msgstr ""
+
+#: stub.js:930
+msgid "Payload hash"
+msgstr ""
+
+#: stub.js:931
+msgid "Pending"
+msgstr ""
+
+#: stub.js:932
+msgid "Performance Metrics"
+msgstr ""
+
+#: stub.js:933
+msgid "Permanent Close"
+msgstr ""
+
+#: stub.js:934
+#: includes/integrations/class-helpmate-cf7-integration.php:233
+#: includes/integrations/class-helpmate-cf7-integration.php:262
+#: includes/integrations/class-helpmate-cf7-integration.php:276
+#: public/partials/helpmate-scheduling-form.php:66
+msgid "Phone"
+msgstr ""
+
+#: stub.js:935
+msgid "Phone Required"
+msgstr ""
+
+#: stub.js:936
+msgid "Platform"
+msgstr ""
+
+#: stub.js:937
+msgid "Please activate your API key to continue."
+msgstr ""
+
+#: stub.js:938
+msgid "Please connect a Facebook or Instagram account first to create automations."
+msgstr ""
+
+#: stub.js:939
+#: public/js/helpmate-scheduling.js:332
+msgid "Please enter a valid email address"
+msgstr ""
+
+#: stub.js:940
+msgid "Please enter a valid phone number"
+msgstr ""
+
+#: stub.js:941
+msgid "Please enter an OpenAI API key"
+msgstr ""
+
+#: stub.js:942
+msgid "Please fill in all fields for each condition in this group"
+msgstr ""
+
+#: stub.js:943
+msgid "Please fill out the form to continue."
+msgstr ""
+
+#: stub.js:944
+msgid "Please rate your chat session"
+msgstr ""
+
+#: stub.js:945
+#: public/js/helpmate-scheduling.js:342
+msgid "Please select a future date"
+msgstr ""
+
+#: stub.js:946
+msgid "Please select one Facebook Page to connect. You can only connect one page per platform at a time."
+msgstr ""
+
+#: stub.js:947
+msgid "Please select one Instagram account to connect. You can only connect one Instagram account per platform at a time."
+msgstr ""
+
+#: stub.js:948
+msgid "Policy URL"
+msgstr ""
+
+#: stub.js:949
+msgid "Position"
+msgstr ""
+
+#: stub.js:950
+msgid "Post ID"
+msgstr ""
+
+#: stub.js:951
+msgid "Posts"
+msgstr ""
+
+#: stub.js:952
+msgid "Posts & Pages"
+msgstr ""
+
+#: stub.js:953
+msgid "Prefix"
+msgstr ""
+
+#: stub.js:954
+msgid "Preparing chatbot..."
+msgstr ""
+
+#: stub.js:955
+msgid "Preview"
+msgstr ""
+
+#: stub.js:956
+msgid "Preview sync"
+msgstr ""
+
+#: stub.js:957
+msgid "Previous"
+msgstr ""
+
+#: stub.js:958
+msgid "Previous license data stays in the cloud"
+msgstr ""
+
+#: stub.js:959
+msgid "Primary Color"
+msgstr ""
+
+#: stub.js:960
+msgid "Primary Gradient"
+msgstr ""
+
+#: stub.js:961
+msgid "Primary multivendor provider"
+msgstr ""
+
+#: stub.js:962
+#: includes/integrations/class-helpmate-cf7-integration.php:249
+msgid "Priority"
+msgstr ""
+
+#: stub.js:963
+msgid "Privacy Policy"
+msgstr ""
+
+#: stub.js:964
+#: includes/integrations/class-helpmate-cf7-integration.php:1042
+msgid "Pro"
+msgstr ""
+
+#: stub.js:965
+msgid "Pro Only"
+msgstr ""
+
+#: stub.js:966
+msgid "Proactive Sales"
+msgstr ""
+
+#: stub.js:967
+msgid "Processed"
+msgstr ""
+
+#. translators: 1: Processed count, 2: Created count, 3: Updated count, 4: Skipped count
+#: stub.js:969
+#, js-format
+msgid "Processed %1$d | Created %2$d | Updated %3$d | Skipped (no email) %4$d"
+msgstr ""
+
+#: stub.js:970
+msgid "Processing stopped due to insufficient embedding credits. Please try again later or contact support."
+msgstr ""
+
+#: stub.js:971
+#: public/class-helpmate-public.php:470
+msgid "Processing..."
+msgstr ""
+
+#: stub.js:972
+msgid "Product ID"
+msgstr ""
+
+#: stub.js:973
+msgid "Product Search by Image"
+msgstr ""
+
+#: stub.js:974
+msgid "Products"
+msgstr ""
+
+#: stub.js:975
+msgid "Products and checkout workflows used by Helpmate when SureCart is the selected commerce platform."
+msgstr ""
+
+#: stub.js:976
+msgid "Products, cart context, and order workflows used by Helpmate when WooCommerce is the selected commerce platform."
+msgstr ""
+
+#: stub.js:977
+msgid "Progress"
+msgstr ""
+
+#: stub.js:978
+msgid "Promo Bar"
+msgstr ""
+
+#: stub.js:979
+msgid "Protected"
+msgstr ""
+
+#: stub.js:980
+msgid "Purpose"
+msgstr ""
+
+#: stub.js:981
+msgid "QnA Details"
+msgstr ""
+
+#: stub.js:982
+msgid "Question"
+msgstr ""
+
+#: stub.js:983
+msgid "Quick Messages"
+msgstr ""
+
+#: stub.js:984
+msgid "Quick Option"
+msgstr ""
+
+#: stub.js:985
+msgid "ROI"
+msgstr ""
+
+#: stub.js:986
+msgid "Radio"
+msgstr ""
+
+#: stub.js:987
+msgid "Ready to configure."
+msgstr ""
+
+#: stub.js:988
+msgid "Ready to sync"
+msgstr ""
+
+#: stub.js:989
+#: includes/integrations/class-helpmate-cf7-integration.php:287
+msgid "Reason"
+msgstr ""
+
+#: stub.js:990
+msgid "Rebuilds the local knowledge base table from documents stored in your Helpmate cloud. Chat RAG is not affected; only admin KB data in WordPress is replaced."
+msgstr ""
+
+#: stub.js:991
+msgid "Recent Activity"
+msgstr ""
+
+#: stub.js:992
+msgid "Recommendation:"
+msgstr ""
+
+#: stub.js:993
+msgid "Recover Lost Carts Now"
+msgstr ""
+
+#: stub.js:994
+msgid "Recovered Carts"
+msgstr ""
+
+#: stub.js:995
+msgid "Recovered Value"
+msgstr ""
+
+#: stub.js:996
+msgid "Recovery Rate"
+msgstr ""
+
+#: stub.js:997
+msgid "Recreate Missing Template"
+msgstr ""
+
+#: stub.js:998
+msgid "Rectangle"
+msgstr ""
+
+#: stub.js:999
+msgid "Recurring Campaign"
+msgstr ""
+
+#: stub.js:1000
+msgid "Refresh the activity list"
+msgstr ""
+
+#: stub.js:1001
+msgid "Refund & Return"
+msgstr ""
+
+#: stub.js:1002
+msgid "Refund & Return Details"
+msgstr ""
+
+#: stub.js:1003
+msgid "Refund & Return Requests"
+msgstr ""
+
+#: stub.js:1004
+msgid "Refund & return could not load — check that Helpmate Pro is activated in Plugins."
+msgstr ""
+
+#: stub.js:1005
+msgid "Refund/Return Reasons"
+msgstr ""
+
+#: stub.js:1006
+msgid "Registration failed. Please try again later."
+msgstr ""
+
+#: stub.js:1007
+msgid "Regular Price"
+msgstr ""
+
+#: stub.js:1008
+msgid "Rejected"
+msgstr ""
+
+#: stub.js:1009
+msgid "Rejected (validation)"
+msgstr ""
+
+#: stub.js:1010
+msgid "Remaining"
+msgstr ""
+
+#: stub.js:1011
+msgid "Remove"
+msgstr ""
+
+#: stub.js:1012
+msgid "Remove your saved OpenAI API key? You can add it again later."
+msgstr ""
+
+#: stub.js:1013
+msgid "Removing..."
+msgstr ""
+
+#: stub.js:1014
+msgid "Required"
+msgstr ""
+
+#: stub.js:1015
+msgid "Required Field"
+msgstr ""
+
+#: stub.js:1016
+msgid "Required field"
+msgstr ""
+
+#. translators: %s: Comma-separated list of required Helpmate field labels for the selected action.
+#: stub.js:1017
+#: includes/integrations/class-helpmate-form-integration-ui.php:45
+#, js-format,php-format
+msgid "Required for this action: %s."
+msgstr ""
+
+#: stub.js:1018
+msgid "Reset"
+msgstr ""
+
+#: stub.js:1019
+msgid "Reset all Helpmate data"
+msgstr ""
+
+#: stub.js:1020
+msgid "Reset all Helpmate data?"
+msgstr ""
+
+#: stub.js:1021
+msgid "Reset default email templates"
+msgstr ""
+
+#: stub.js:1022
+msgid "Reset default email templates?"
+msgstr ""
+
+#: stub.js:1023
+msgid "Reset default templates"
+msgstr ""
+
+#: stub.js:1024
+msgid "Reset everything"
+msgstr ""
+
+#. translators: %s: Template family name
+#: stub.js:1026
+#, js-format
+msgid "Reset to %s Defaults"
+msgstr ""
+
+#: stub.js:1027
+msgid "Resource Link"
+msgstr ""
+
+#: stub.js:1028
+msgid "Response"
+msgstr ""
+
+#: stub.js:1029
+msgid "Response Types"
+msgstr ""
+
+#: stub.js:1030
+msgid "Restoring knowledge base..."
+msgstr ""
+
+#: stub.js:1031
+msgid "Retry"
+msgstr ""
+
+#: stub.js:1032
+msgid "Retry commerce settings"
+msgstr ""
+
+#: stub.js:1033
+msgid "Retry status"
+msgstr ""
+
+#: stub.js:1034
+msgid "Revenue"
+msgstr ""
+
+#: stub.js:1035
+msgid "Revenue Over Time"
+msgstr ""
+
+#: stub.js:1036
+msgid "Revenue Overview"
+msgstr ""
+
+#: stub.js:1037
+msgid "Review"
+msgstr ""
+
+#: stub.js:1038
+msgid "Reviews"
+msgstr ""
+
+#: stub.js:1039
+msgid "Rich text"
+msgstr ""
+
+#: stub.js:1040
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:56
+#: includes/integrations/elementor/class-helpmate-elementor-widget-scheduling.php:133
+#: blocks/build/index.js:37
+msgid "Right"
+msgstr ""
+
+#: stub.js:1041
+msgid "Roles"
+msgstr ""
+
+#: stub.js:1042
+msgid "Rounded"
+msgstr ""
+
+#: stub.js:1043
+msgid "Sale Price"
+msgstr ""
+
+#: stub.js:1044
+msgid "Sales Automation"
+msgstr ""
+
+#: stub.js:1045
+msgid "Sales Notifications"
+msgstr ""
+
+#: stub.js:1046
+msgid "Salesperson"
+msgstr ""
+
+#: stub.js:1047
+msgid "Save"
+msgstr ""
+
+#: stub.js:1048
+msgid "Save & Continue"
+msgstr ""
+
+#: stub.js:1049
+msgid "Save Key"
+msgstr ""
+
+#: stub.js:1050
+msgid "Save Settings"
+msgstr ""
+
+#: stub.js:1051
+msgid "Save Starters"
+msgstr ""
+
+#: stub.js:1052
+msgid "Save mapping"
+msgstr ""
+
+#: stub.js:1053
+msgid "Save settings"
+msgstr ""
+
+#: stub.js:1054
+#, js-format
+msgid "Saved %1$s – %2$s"
+msgstr ""
+
+#: stub.js:1055
+msgid "Saved File Sources"
+msgstr ""
+
+#: stub.js:1056
+msgid "Saved QnA Sources"
+msgstr ""
+
+#: stub.js:1057
+msgid "Saved Text Sources"
+msgstr ""
+
+#: stub.js:1058
+msgid "Saved URL Sources"
+msgstr ""
+
+#: stub.js:1059
+msgid "Saved for Coupon Delivery"
+msgstr ""
+
+#: stub.js:1060
+msgid "Saved for Proactive Sales"
+msgstr ""
+
+#: stub.js:1061
+#, js-format
+msgid "Saved since %s"
+msgstr ""
+
+#: stub.js:1062
+msgid "Saving settings..."
+msgstr ""
+
+#: stub.js:1063
+msgid "Saving..."
+msgstr ""
+
+#: stub.js:1064
+msgid "Saving…"
+msgstr ""
+
+#: stub.js:1065
+msgid "Schedule (Optional)"
+msgstr ""
+
+#: stub.js:1066
+msgid "Schedule an appointment"
+msgstr ""
+
+#: stub.js:1067
+msgid "Schedule appointment"
+msgstr ""
+
+#: stub.js:1068
+msgid "Scheduled"
+msgstr ""
+
+#: stub.js:1069
+msgid "Schedules"
+msgstr ""
+
+#. translators: %d: Schedule count
+#: stub.js:1071
+#, js-format
+msgid "Schedules (%d)"
+msgstr ""
+
+#: stub.js:1072
+msgid "Scheduling…"
+msgstr ""
+
+#: stub.js:1073
+msgid "Search"
+msgstr ""
+
+#: stub.js:1074
+msgid "Search and select user..."
+msgstr ""
+
+#: stub.js:1075
+msgid "Search for products, ask about availability, pricing, and specifications"
+msgstr ""
+
+#: stub.js:1076
+msgid "Secondary Color"
+msgstr ""
+
+#: stub.js:1077
+msgid "Secondary Gradient"
+msgstr ""
+
+#: stub.js:1078
+msgid "See Knowledge Base Used"
+msgstr ""
+
+#: stub.js:1079
+msgid "See Trained Data"
+msgstr ""
+
+#: stub.js:1080
+msgid "Segment"
+msgstr ""
+
+#: stub.js:1081
+msgid "Segment Name"
+msgstr ""
+
+#: stub.js:1082
+msgid "Segments"
+msgstr ""
+
+#: stub.js:1083
+msgid "Select"
+msgstr ""
+
+#: stub.js:1084
+msgid "Select All"
+msgstr ""
+
+#: stub.js:1085
+msgid "Select Existing"
+msgstr ""
+
+#: stub.js:1086
+msgid "Select Existing User"
+msgstr ""
+
+#: stub.js:1087
+msgid "Select Items"
+msgstr ""
+
+#: stub.js:1088
+msgid "Select Pages"
+msgstr ""
+
+#: stub.js:1089
+msgid "Select Post"
+msgstr ""
+
+#: stub.js:1090
+msgid "Select Posts"
+msgstr ""
+
+#: stub.js:1091
+msgid "Select Products"
+msgstr ""
+
+#: stub.js:1092
+msgid "Select WordPress user..."
+msgstr ""
+
+#: stub.js:1093
+msgid "Select a Page to Connect"
+msgstr ""
+
+#: stub.js:1094
+msgid "Select a conversation to view messages"
+msgstr ""
+
+#: stub.js:1095
+msgid "Select a different contact to link to this conversation, or create a new one."
+msgstr ""
+
+#: stub.js:1096
+msgid "Select a specific post to trigger the automation only on comments from that post."
+msgstr ""
+
+#: stub.js:1097
+msgid "Select a template to automatically apply its default styles. You can customize any settings after selection."
+msgstr ""
+
+#: stub.js:1098
+#: public/partials/helpmate-scheduling-form.php:92
+#: public/js/helpmate-scheduling.js:140
+#: public/js/helpmate-scheduling.js:228
+#: public/js/helpmate-scheduling.js:295
+msgid "Select a time"
+msgstr ""
+
+#: stub.js:1099
+msgid "Select all"
+msgstr ""
+
+#: stub.js:1100
+msgid "Select an email template from CRM. Available variables: {customer_name}, {order_number}, {return_refund_type}, {return_refund_status}, {return_refund_reason}, {return_refund_amount}, {return_refund_items}, {shop_name}, {status}, {order_id}"
+msgstr ""
+
+#: stub.js:1101
+msgid "Select at least one field to collect from users:"
+msgstr ""
+
+#: stub.js:1102
+msgid "Select at least one saved copy to continue."
+msgstr ""
+
+#: stub.js:1103
+msgid "Select contact..."
+msgstr ""
+
+#: stub.js:1104
+msgid "Select contacts"
+msgstr ""
+
+#: stub.js:1105
+msgid "Select content to train your chatbot. Minimum 3 items recommended."
+msgstr ""
+
+#: stub.js:1106
+msgid "Select coupon"
+msgstr ""
+
+#: stub.js:1107
+msgid "Select one or more roles for this team member"
+msgstr ""
+
+#: stub.js:1108
+msgid "Select or Upload Image"
+msgstr ""
+
+#: stub.js:1109
+msgid "Select the language for AI responses."
+msgstr ""
+
+#: stub.js:1110
+msgid "Select which platform this automation will work on."
+msgstr ""
+
+#: stub.js:1111
+msgid "Selected primary provider is inactive. Multivendor enrichment is disabled until you activate it or switch primary provider."
+msgstr ""
+
+#: stub.js:1112
+msgid "Send Campaign Immediately?"
+msgstr ""
+
+#: stub.js:1113
+msgid "Send Time (Optional)"
+msgstr ""
+
+#: stub.js:1114
+msgid "Send a message to start testing"
+msgstr ""
+
+#: stub.js:1115
+msgid "Send a message to start the conversation"
+msgstr ""
+
+#: stub.js:1116
+msgid "Send password reset link (recommended)"
+msgstr ""
+
+#: stub.js:1117
+msgid "Sent"
+msgstr ""
+
+#: stub.js:1118
+msgid "Sequence Name"
+msgstr ""
+
+#: stub.js:1119
+msgid "Sequence Steps"
+msgstr ""
+
+#: stub.js:1120
+msgid "Session expired"
+msgstr ""
+
+#: stub.js:1121
+msgid "Settings"
+msgstr ""
+
+#: stub.js:1122
+msgid "Settings for the AI Behavior."
+msgstr ""
+
+#: stub.js:1123
+msgid "Settings for the AI model."
+msgstr ""
+
+#: stub.js:1124
+msgid "Settings for the Helpmate chatbot widget."
+msgstr ""
+
+#: stub.js:1125
+msgid "Share your feedback (optional)"
+msgstr ""
+
+#: stub.js:1126
+msgid "Shortcode"
+msgstr ""
+
+#: stub.js:1127
+msgid "Show Everywhere"
+msgstr ""
+
+#: stub.js:1128
+msgid "Show Frequency"
+msgstr ""
+
+#: stub.js:1129
+msgid "Show HTML editor"
+msgstr ""
+
+#: stub.js:1130
+msgid "Show More Posts"
+msgstr ""
+
+#: stub.js:1131
+msgid "Show On"
+msgstr ""
+
+#: stub.js:1132
+msgid "Show as Quick Option"
+msgstr ""
+
+#: stub.js:1133
+msgid "Show on Selected"
+msgstr ""
+
+#: stub.js:1134
+msgid "Show vendor summary per WooCommerce order when Dokan is active."
+msgstr ""
+
+#: stub.js:1135
+msgid "Show vendor summary per WooCommerce order when WCFM is active."
+msgstr ""
+
+#: stub.js:1136
+msgid "Showing analytics for selected team member. Orders, Revenue, and some social metrics remain system-wide."
+msgstr ""
+
+#: stub.js:1137
+msgid "Showing system-wide analytics for all teams."
+msgstr ""
+
+#: stub.js:1138
+msgid "Site domain is missing. Copying is unavailable until the site URL is configured."
+msgstr ""
+
+#: stub.js:1139
+msgid "Site domain is not configured. Cannot migrate."
+msgstr ""
+
+#: stub.js:1140
+msgid "Skip"
+msgstr ""
+
+#: stub.js:1141
+msgid "Skip This Step"
+msgstr ""
+
+#: stub.js:1142
+msgid "Skip for now"
+msgstr ""
+
+#. translators: %d: Snapshot completed course count
+#: stub.js:1144
+#, js-format
+msgid "Snapshot completed courses: %d"
+msgstr ""
+
+#. translators: %d: Snapshot completed lesson count
+#: stub.js:1146
+#, js-format
+msgid "Snapshot completed lessons: %d"
+msgstr ""
+
+#. translators: %d: Snapshot enrolled course count
+#: stub.js:1148
+#, js-format
+msgid "Snapshot enrolled: %d"
+msgstr ""
+
+#: stub.js:1149
+msgid "Social"
+msgstr ""
+
+#: stub.js:1150
+msgid "Social & Live Chat Analytics"
+msgstr ""
+
+#: stub.js:1151
+msgid "Social Chat Platforms"
+msgstr ""
+
+#: stub.js:1152
+msgid "Social Chat Settings"
+msgstr ""
+
+#: stub.js:1153
+msgid "Social Messages"
+msgstr ""
+
+#: stub.js:1154
+msgid "Social platforms"
+msgstr ""
+
+#: stub.js:1155
+msgid "Sorry, I encountered an error processing your request. Please try again or contact support if the issue persists."
+msgstr ""
+
+#: stub.js:1156
+msgid "Sorry, I encountered an error. Please try again."
+msgstr ""
+
+#: stub.js:1157
+msgid "Sound"
+msgstr ""
+
+#: stub.js:1158
+msgid "Sound Effect"
+msgstr ""
+
+#: stub.js:1159
+msgid "Special Offer"
+msgstr ""
+
+#: stub.js:1160
+msgid "Specific Product Query Coupon"
+msgstr ""
+
+#: stub.js:1161
+msgid "Square"
+msgstr ""
+
+#: stub.js:1162
+msgid "Start Date"
+msgstr ""
+
+#: stub.js:1163
+msgid "Start Date/Time"
+msgstr ""
+
+#: stub.js:1164
+msgid "Start Training"
+msgstr ""
+
+#: stub.js:1165
+msgid "Start a new test session? This will clear the current conversation."
+msgstr ""
+
+#: stub.js:1166
+msgid "Started:"
+msgstr ""
+
+#: stub.js:1167
+msgid "State"
+msgstr ""
+
+#: stub.js:1168
+msgid "Status"
+msgstr ""
+
+#. translators: %d: Step number
+#: stub.js:1170
+#, js-format
+msgid "Step %d"
+msgstr ""
+
+#: stub.js:1171
+msgid "Step 1: Activate API Key"
+msgstr ""
+
+#: stub.js:1172
+msgid "Step 2: Add Your OpenAI API Key (Optional)"
+msgstr ""
+
+#: stub.js:1173
+msgid "Step 4: Train Your Data (Optional)"
+msgstr ""
+
+#: stub.js:1174
+msgid "Steps"
+msgstr ""
+
+#: stub.js:1175
+msgid "Sticky Bar"
+msgstr ""
+
+#: stub.js:1176
+msgid "Stock Status"
+msgstr ""
+
+#: stub.js:1177
+msgid "Strikethrough"
+msgstr ""
+
+#: stub.js:1178
+msgid "Students:"
+msgstr ""
+
+#: stub.js:1179
+#: includes/integrations/class-helpmate-cf7-integration.php:245
+msgid "Subject"
+msgstr ""
+
+#: stub.js:1180
+msgid "Subject is required"
+msgstr ""
+
+#: stub.js:1181
+msgid "Submit"
+msgstr ""
+
+#: stub.js:1182
+msgid "Submit Review"
+msgstr ""
+
+#: stub.js:1183
+msgid "Submit Ticket"
+msgstr ""
+
+#: stub.js:1184
+msgid "Submitting…"
+msgstr ""
+
+#: stub.js:1185
+msgid "Successful"
+msgstr ""
+
+#: stub.js:1186
+msgid "Summary"
+msgstr ""
+
+#: stub.js:1187
+msgid "Support"
+msgstr ""
+
+#: stub.js:1188
+msgid "Support Automation"
+msgstr ""
+
+#: stub.js:1189
+msgid "SureCart"
+msgstr ""
+
+#: stub.js:1190
+msgid "Switch to AI when no human reply for"
+msgstr ""
+
+#: stub.js:1191
+msgid "Sync Credits"
+msgstr ""
+
+#: stub.js:1192
+msgid "Sync LearnPress students into CRM and use lesson/course progress data in contact details and segmentation."
+msgstr ""
+
+#: stub.js:1193
+msgid "Sync LearnPress students to CRM?"
+msgstr ""
+
+#: stub.js:1194
+msgid "Sync LifterLMS students into CRM and use lesson/course progress data in contact details and segmentation."
+msgstr ""
+
+#: stub.js:1195
+msgid "Sync LifterLMS students to CRM?"
+msgstr ""
+
+#: stub.js:1196
+msgid "Sync Members users to CRM?"
+msgstr ""
+
+#: stub.js:1197
+msgid "Sync Tutor LMS students into CRM and use lesson/course progress data in contact details and segmentation."
+msgstr ""
+
+#: stub.js:1198
+msgid "Sync Tutor LMS students to CRM?"
+msgstr ""
+
+#: stub.js:1199
+msgid "Sync Ultimate Member members to CRM?"
+msgstr ""
+
+#: stub.js:1200
+msgid "Sync User Registration members to CRM?"
+msgstr ""
+
+#: stub.js:1201
+msgid "Sync customers to CRM"
+msgstr ""
+
+#: stub.js:1202
+msgid "Sync customers to CRM?"
+msgstr ""
+
+#: stub.js:1203
+msgid "Sync from cloud"
+msgstr ""
+
+#: stub.js:1204
+msgid "Sync from cloud?"
+msgstr ""
+
+#: stub.js:1205
+msgid "Sync knowledge base from cloud"
+msgstr ""
+
+#: stub.js:1206
+msgid "Sync members to CRM"
+msgstr ""
+
+#: stub.js:1207
+msgid "Sync members to CRM, enable member lifecycle event tracking, and review activity logs."
+msgstr ""
+
+#: stub.js:1208
+msgid "Sync members to CRM, track registration/profile lifecycle events, and review User Registration integration logs."
+msgstr ""
+
+#: stub.js:1209
+msgid "Sync members to CRM, track role lifecycle events, and review Members integration logs."
+msgstr ""
+
+#: stub.js:1210
+msgid "Sync preview"
+msgstr ""
+
+#: stub.js:1211
+msgid "Sync students to CRM"
+msgstr ""
+
+#: stub.js:1212
+msgid "Sync vendors to CRM"
+msgstr ""
+
+#: stub.js:1213
+msgid "Sync vendors to CRM?"
+msgstr ""
+
+#: stub.js:1214
+msgid "Sync-ready"
+msgstr ""
+
+#: stub.js:1215
+msgid "Syncing..."
+msgstr ""
+
+#: stub.js:1216
+msgid "Syncing…"
+msgstr ""
+
+#: stub.js:1217
+msgid "Task"
+msgstr ""
+
+#. translators: (%) is a literal percent sign for the rate label
+#: stub.js:1219
+msgid "Task Completion Rate (%)"
+msgstr ""
+
+#: stub.js:1220
+#: includes/modules/class-helpmate-tasks.php:928
+#: includes/modules/class-helpmate-tasks.php:999
+#: includes/modules/class-helpmate-tasks.php:1200
+msgid "Task Details"
+msgstr ""
+
+#: stub.js:1221
+msgid "Task created"
+msgstr ""
+
+#: stub.js:1222
+msgid "Task fields"
+msgstr ""
+
+#: stub.js:1223
+msgid "Tasks"
+msgstr ""
+
+#: stub.js:1224
+msgid "Tasks Completed"
+msgstr ""
+
+#: stub.js:1225
+msgid "Tasks Created"
+msgstr ""
+
+#: stub.js:1226
+msgid "Team"
+msgstr ""
+
+#: stub.js:1227
+msgid "Team Management"
+msgstr ""
+
+#: stub.js:1228
+msgid "Team Performance"
+msgstr ""
+
+#: stub.js:1229
+#: includes/chat/class-helpmate-chat.php:428
+#: includes/social/class-helpmate-social-message-processor.php:1428
+msgid "Team member"
+msgstr ""
+
+#: stub.js:1230
+msgid "Teams & Roles"
+msgstr ""
+
+#: stub.js:1231
+msgid "Template"
+msgstr ""
+
+#: stub.js:1232
+msgid "Template 1"
+msgstr ""
+
+#: stub.js:1233
+msgid "Template 2"
+msgstr ""
+
+#: stub.js:1234
+msgid "Template 3"
+msgstr ""
+
+#: stub.js:1235
+msgid "Terms of Service"
+msgstr ""
+
+#: stub.js:1236
+msgid "Test Chat"
+msgstr ""
+
+#: stub.js:1237
+msgid "Test Chatbot"
+msgstr ""
+
+#: stub.js:1238
+#, js-format
+msgid "Test address: %s"
+msgstr ""
+
+#: stub.js:1239
+msgid "Test chatbot"
+msgstr ""
+
+#: stub.js:1240
+msgid "Test image search, order tracking, and other enabled modules"
+msgstr ""
+
+#: stub.js:1241
+msgid "Test multi-turn conversations to ensure context is maintained"
+msgstr ""
+
+#: stub.js:1242
+msgid "Test with unusual or complex queries to see how the AI handles them"
+msgstr ""
+
+#: stub.js:1243
+msgid "Test your AI chatbot responses in a safe environment before your customers interact with it."
+msgstr ""
+
+#: stub.js:1244
+msgid "Testing Tips"
+msgstr ""
+
+#: stub.js:1245
+msgid "Text"
+msgstr ""
+
+#: stub.js:1246
+msgid "Text Color"
+msgstr ""
+
+#: stub.js:1247
+msgid "Text Details"
+msgstr ""
+
+#: stub.js:1248
+msgid "Text Font Size"
+msgstr ""
+
+#: stub.js:1249
+msgid "Textarea"
+msgstr ""
+
+#: stub.js:1250
+msgid "Thank you for contacting us!"
+msgstr ""
+
+#: stub.js:1251
+msgid "The account connection from Helpmate"
+msgstr ""
+
+#: stub.js:1252
+msgid "The chatbot will be hidden on screen under 600px."
+msgstr ""
+
+#: stub.js:1253
+msgid "The conversation will be moved to Archived."
+msgstr ""
+
+#: stub.js:1254
+msgid "The local knowledge base table will be emptied and rebuilt from the cloud. Your cloud-stored documents are not changed."
+msgstr ""
+
+#: stub.js:1255
+msgid "The promo bar allows you to display ongoing deals, free shipping offers, or announcements at the top or bottom of your site. You can drive more clicks and sales by highlighting limited-time offers or coupons."
+msgstr ""
+
+#: stub.js:1256
+msgid "The right tone builds connection, makes your AI feel like part of your team."
+msgstr ""
+
+#: stub.js:1257
+msgid "The user will be asked to rate their experience."
+msgstr ""
+
+#: stub.js:1258
+msgid "The welcome messages that will be shown to the user when they first enter the chat."
+msgstr ""
+
+#: stub.js:1259
+msgid "This action cannot be undone. All data related to this account will be permanently removed from Helpmate."
+msgstr ""
+
+#: stub.js:1260
+msgid "This bulk update cannot be undone automatically. Export or back up CRM data first if unsure."
+msgstr ""
+
+#: stub.js:1261
+msgid "This bulk update cannot be undone automatically. Export or back up CRM data if unsure."
+msgstr ""
+
+#: stub.js:1262
+msgid "This content is not available. It may have been deleted or is only visible to a limited audience."
+msgstr ""
+
+#: stub.js:1263
+msgid "This conversation is not linked to a contact. Select an existing contact or create a new one to view details and manage interactions."
+msgstr ""
+
+#: stub.js:1264
+msgid "This feature lets the chatbot automatically suggest discounted products on the Chat window. It increases conversion rates and average order value."
+msgstr ""
+
+#: stub.js:1265
+#: public/js/helpmate-scheduling.js:325
+msgid "This field is required"
+msgstr ""
+
+#: stub.js:1266
+msgid "This is the context retrieved from your knowledge base that was used to generate the AI response."
+msgstr ""
+
+#: stub.js:1267
+msgid "This item will show as quick question before the chat input field."
+msgstr ""
+
+#: stub.js:1268
+msgid "This link will be sent to users after they complete the information collection."
+msgstr ""
+
+#: stub.js:1269
+msgid "This message will be sent directly to the user via DM when the keyword is detected."
+msgstr ""
+
+#: stub.js:1270
+msgid "This number already has two-step verification. Enter your existing 6-digit PIN to register with Cloud API."
+msgstr ""
+
+#: stub.js:1271
+msgid "This site"
+msgstr ""
+
+#: stub.js:1272
+msgid "This site already has knowledge saved. Click copy again to merge."
+msgstr ""
+
+#: stub.js:1273
+msgid "This site already has knowledge saved. Copy again to merge — duplicate pages are skipped automatically."
+msgstr ""
+
+#. translators: 1: local document count, 2: cloud document count
+#: stub.js:1275
+#, js-format
+msgid "This site has %1$d document(s) but the cloud has %2$d. Sync will align the local table to the cloud."
+msgstr ""
+
+#: stub.js:1276
+#: public/js/helpmate-scheduling.js:109
+#: public/js/helpmate-scheduling.js:120
+msgid "This slot is no longer available. Please choose another time."
+msgstr ""
+
+#: stub.js:1277
+msgid "This tab reads live LearnPress data. You do not need to run sync to see latest course progress here."
+msgstr ""
+
+#: stub.js:1278
+msgid "This test environment allows you to evaluate your AI chatbot's responses, test different scenarios, and ensure it's working as expected before going live. All conversations here are marked as debug sessions and won't affect your analytics."
+msgstr ""
+
+#: stub.js:1279
+msgid "This tool lets users initiate refund or return requests directly through chat. Makes your store more trustworthy by offering an easy and transparent return experience."
+msgstr ""
+
+#: stub.js:1280
+msgid "This uses the OpenAI API (pay-as-you-go), not a ChatGPT Plus subscription."
+msgstr ""
+
+#: stub.js:1281
+msgid "This was helpful"
+msgstr ""
+
+#: stub.js:1282
+msgid "This was not helpful"
+msgstr ""
+
+#: stub.js:1283
+msgid "This will permanently remove:"
+msgstr ""
+
+#: stub.js:1284
+msgid "Ticket created"
+msgstr ""
+
+#: stub.js:1285
+msgid "Ticket submitted"
+msgstr ""
+
+#: stub.js:1286
+msgid "Tickets"
+msgstr ""
+
+#: stub.js:1287
+msgid "Tickets Created"
+msgstr ""
+
+#: stub.js:1288
+msgid "Tickets Resolved"
+msgstr ""
+
+#: stub.js:1289
+msgid "TikTok"
+msgstr ""
+
+#: stub.js:1290
+msgid "TikTok (coming soon)"
+msgstr ""
+
+#: stub.js:1291
+#: public/partials/helpmate-scheduling-form.php:88
+msgid "Time"
+msgstr ""
+
+#: stub.js:1292
+msgid "Timezone for business hours"
+msgstr ""
+
+#: stub.js:1293
+msgid "Title"
+msgstr ""
+
+#: stub.js:1294
+msgid "Title *"
+msgstr ""
+
+#: stub.js:1295
+msgid "To Do"
+msgstr ""
+
+#: stub.js:1296
+msgid "To get your coupon, please fill out the form below."
+msgstr ""
+
+#: stub.js:1297
+msgid "Today"
+msgstr ""
+
+#: stub.js:1298
+msgid "Tone"
+msgstr ""
+
+#: stub.js:1299
+msgid "Tools"
+msgstr ""
+
+#: stub.js:1300
+msgid "Top"
+msgstr ""
+
+#: stub.js:1301
+msgid "Total"
+msgstr ""
+
+#: stub.js:1302
+msgid "Total Abandoned"
+msgstr ""
+
+#: stub.js:1303
+msgid "Total Chats"
+msgstr ""
+
+#: stub.js:1304
+msgid "Total Contacts"
+msgstr ""
+
+#: stub.js:1305
+msgid "Total Leads"
+msgstr ""
+
+#: stub.js:1306
+msgid "Total Messages"
+msgstr ""
+
+#: stub.js:1307
+msgid "Total Orders"
+msgstr ""
+
+#: stub.js:1308
+msgid "Total Revenue"
+msgstr ""
+
+#: stub.js:1309
+msgid "Total Reviews"
+msgstr ""
+
+#: stub.js:1310
+msgid "Total Tickets"
+msgstr ""
+
+#: stub.js:1311
+msgid "Total Value"
+msgstr ""
+
+#: stub.js:1312
+msgid "Train"
+msgstr ""
+
+#: stub.js:1313
+msgid "Train Selected"
+msgstr ""
+
+#: stub.js:1314
+msgid "Train your post and page data to Chatbot for better reply"
+msgstr ""
+
+#: stub.js:1315
+msgid "Train your product data to Chatbot for better product recommendations and support"
+msgstr ""
+
+#: stub.js:1316
+msgid "Trained Data Sources"
+msgstr ""
+
+#: stub.js:1317
+msgid "Trained Product Sources"
+msgstr ""
+
+#: stub.js:1318
+msgid "Trained Sources:"
+msgstr ""
+
+#: stub.js:1319
+msgid "Training in progress..."
+msgstr ""
+
+#: stub.js:1320
+msgid "Training..."
+msgstr ""
+
+#: stub.js:1321
+msgid "Transform Your WooCommerce Store Into a 24/7 Sales Machine"
+msgstr ""
+
+#: stub.js:1322
+msgid "True"
+msgstr ""
+
+#: stub.js:1323
+msgid "Truncates all Helpmate database tables and resets plugin settings to factory defaults. Cloud-stored documents are not deleted."
+msgstr ""
+
+#: stub.js:1324
+msgid "Try again"
+msgstr ""
+
+#: stub.js:1325
+msgid "Turn Photos into Purchases"
+msgstr ""
+
+#: stub.js:1326
+msgid "Tutor LMS"
+msgstr ""
+
+#: stub.js:1327
+msgid "Tutor plugin is active but runtime is not fully loaded yet. Refresh after Tutor initializes."
+msgstr ""
+
+#: stub.js:1328
+#: includes/integrations/class-helpmate-cf7-integration.php:286
+msgid "Type"
+msgstr ""
+
+#: stub.js:1329
+msgid "Type RESET below to confirm. This action cannot be undone."
+msgstr ""
+
+#: stub.js:1330
+msgid "Type your message..."
+msgstr ""
+
+#: stub.js:1331
+msgid "URL"
+msgstr ""
+
+#: stub.js:1332
+msgid "URL Content"
+msgstr ""
+
+#: stub.js:1333
+msgid "Ultimate Member"
+msgstr ""
+
+#: stub.js:1334
+msgid "Ultimate Member is active but runtime is not fully loaded yet. Refresh after it initializes."
+msgstr ""
+
+#: stub.js:1335
+msgid "Unassigned"
+msgstr ""
+
+#: stub.js:1336
+#: includes/modules/class-helpmate-crm-order-metabox.php:317
+#: includes/social/class-helpmate-social-message-processor.php:831
+msgid "Unknown"
+msgstr ""
+
+#: stub.js:1337
+msgid "Unknown local site"
+msgstr ""
+
+#: stub.js:1338
+msgid "Unlimited"
+msgstr ""
+
+#: stub.js:1339
+msgid "Unlimited (BYOK)"
+msgstr ""
+
+#: stub.js:1340
+msgid "Unlimited Chat Usage (via Your OpenAI API Key)"
+msgstr ""
+
+#: stub.js:1341
+msgid "Unlink Contact"
+msgstr ""
+
+#: stub.js:1342
+msgid "Unlock Custom Fields"
+msgstr ""
+
+#: stub.js:1343
+msgid "Unlock Email Sequences"
+msgstr ""
+
+#: stub.js:1344
+msgid "Unlock Live Chat Settings"
+msgstr ""
+
+#: stub.js:1345
+msgid "Unlock Scheduling"
+msgstr ""
+
+#: stub.js:1346
+msgid "Unlock Segments"
+msgstr ""
+
+#: stub.js:1347
+msgid "Unlock Social Connections"
+msgstr ""
+
+#: stub.js:1348
+msgid "Unlock Tasks"
+msgstr ""
+
+#: stub.js:1349
+msgid "Unlock advanced features and higher usage limits."
+msgstr ""
+
+#: stub.js:1350
+msgid "Up to 3 quick reply buttons shown below each AI response when customers message you. Unlike Messenger/Instagram, these appear as tappable buttons with your AI reply rather than before the user types."
+msgstr ""
+
+#: stub.js:1351
+msgid "Update"
+msgstr ""
+
+#: stub.js:1352
+msgid "Update Automation"
+msgstr ""
+
+#: stub.js:1353
+msgid "Update Campaign"
+msgstr ""
+
+#: stub.js:1354
+msgid "Update Contact"
+msgstr ""
+
+#: stub.js:1355
+msgid "Update Key"
+msgstr ""
+
+#: stub.js:1356
+msgid "Update Segment"
+msgstr ""
+
+#: stub.js:1357
+msgid "Update Sequence"
+msgstr ""
+
+#: stub.js:1358
+msgid "Update Task"
+msgstr ""
+
+#: stub.js:1359
+msgid "Updated At"
+msgstr ""
+
+#: stub.js:1360
+msgid "Upgrade ApiKey"
+msgstr ""
+
+#: stub.js:1361
+msgid "Upgrade Now"
+msgstr ""
+
+#: stub.js:1362
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: stub.js:1363
+msgid "Upgrade to Pro to Add More Team Members"
+msgstr ""
+
+#: stub.js:1364
+msgid "Upgrade to Pro to reply manually."
+msgstr ""
+
+#: stub.js:1365
+msgid "Uploaded image"
+msgstr ""
+
+#: stub.js:1366
+msgid "Urgent"
+msgstr ""
+
+#: stub.js:1367
+msgid "Usage Count"
+msgstr ""
+
+#: stub.js:1368
+msgid "Use Helpmate modules in Beaver Builder layouts. After activating Beaver Builder, find Helpmate modules in the module list when editing a layout."
+msgstr ""
+
+#: stub.js:1369
+msgid "Use Helpmate widgets in Elementor (e.g. scheduling, promo banner). After activating Elementor, add widgets from the Helpmate category in the editor."
+msgstr ""
+
+#: stub.js:1370
+msgid "Use Only Shortcode"
+msgstr ""
+
+#: stub.js:1371
+msgid "Use business hours"
+msgstr ""
+
+#: stub.js:1372
+msgid "Use this image"
+msgstr ""
+
+#: stub.js:1373
+msgid "Use this shortcode to display the promo bar on any page or post."
+msgstr ""
+
+#: stub.js:1374
+msgid "User"
+msgstr ""
+
+#: stub.js:1375
+msgid "User Registration & Membership"
+msgstr ""
+
+#: stub.js:1376
+msgid "User Registration is active but runtime is not fully loaded yet. Refresh after it initializes."
+msgstr ""
+
+#: stub.js:1377
+msgid "User not found"
+msgstr ""
+
+#: stub.js:1378
+msgid "User will receive a secure link to set their password"
+msgstr ""
+
+#: stub.js:1379
+msgid "User's Message:"
+msgstr ""
+
+#: stub.js:1380
+msgid "Username"
+msgstr ""
+
+#: stub.js:1381
+msgid "Users will see these options when starting a conversation (max 4, 20 characters each)"
+msgstr ""
+
+#: stub.js:1382
+msgid "Users will see these options when starting a conversation (max 4, 20 characters each). Only visible in the Instagram mobile app, not on instagram.com."
+msgstr ""
+
+#. translators: %s: Coupon expiry date
+#: stub.js:1384
+#, js-format
+msgid "Valid until %s"
+msgstr ""
+
+#: stub.js:1385
+msgid "Validated"
+msgstr ""
+
+#: stub.js:1386
+msgid "Vectors for your old API key remain on the server; only this site switches to the new license catalog."
+msgstr ""
+
+#: stub.js:1387
+msgid "Vendor"
+msgstr ""
+
+#: stub.js:1388
+msgid "Vendor column and filter on Data source → Products."
+msgstr ""
+
+#: stub.js:1389
+msgid "Vendors detected:"
+msgstr ""
+
+#: stub.js:1390
+msgid "Vendors in product training"
+msgstr ""
+
+#: stub.js:1391
+msgid "Vendors on contact Orders tab"
+msgstr ""
+
+#: stub.js:1392
+msgid "Vendors on product lists"
+msgstr ""
+
+#: stub.js:1393
+msgid "View"
+msgstr ""
+
+#: stub.js:1394
+msgid "View Contact"
+msgstr ""
+
+#: stub.js:1395
+msgid "View and manage customer leads."
+msgstr ""
+
+#: stub.js:1396
+msgid "View and manage refund/return request details"
+msgstr ""
+
+#: stub.js:1397
+msgid "View details"
+msgstr ""
+
+#: stub.js:1398
+msgid "View failures"
+msgstr ""
+
+#: stub.js:1399
+msgid "Visit Page"
+msgstr ""
+
+#: stub.js:1400
+msgid "WCFM Marketplace"
+msgstr ""
+
+#: stub.js:1401
+msgid "WCFM plugin is active but the marketplace runtime is not loaded yet. Refresh after WCFM finishes loading."
+msgstr ""
+
+#: stub.js:1402
+msgid "Warning: This will delete:"
+msgstr ""
+
+#: stub.js:1403
+msgid "We found knowledge you saved while testing on your computer. Choose what to copy to this live site."
+msgstr ""
+
+#: stub.js:1404
+#: includes/class-helpmate.php:1448
+msgid "We're sorry — this feature isn't available right now due to a technical issue on our site. Please try again later or contact us directly."
+msgstr ""
+
+#: stub.js:1405
+msgid "We've received your information and will get back to you shortly."
+msgstr ""
+
+#: stub.js:1406
+msgid "Webhook subscriptions will be removed from Meta app"
+msgstr ""
+
+#: stub.js:1407
+msgid "Webhook verify token is regenerated — update Meta app webhooks after reconnecting"
+msgstr ""
+
+#: stub.js:1408
+#: includes/integrations/class-helpmate-cf7-integration.php:236
+msgid "Website"
+msgstr ""
+
+#: stub.js:1409
+msgid "Weeks"
+msgstr ""
+
+#: stub.js:1410
+msgid "Welcome Email Options"
+msgstr ""
+
+#: stub.js:1411
+msgid "Welcome Messages"
+msgstr ""
+
+#: stub.js:1412
+msgid "What happens when you change your api key:"
+msgstr ""
+
+#: stub.js:1413
+msgid "WhatsApp"
+msgstr ""
+
+#: stub.js:1414
+msgid "WhatsApp registered with META Cloud API"
+msgstr ""
+
+#: stub.js:1415
+msgid "WhatsApp registration issue"
+msgstr ""
+
+#: stub.js:1416
+msgid "When Use business hours is OFF, live agents are always available. When ON, the chat widget uses these hours to show availability."
+msgstr ""
+
+#: stub.js:1417
+msgid "When Use business hours is OFF, live agents are always available. When ON, users can be connected during these hours; outside these hours they will be offered a support ticket."
+msgstr ""
+
+#: stub.js:1418
+msgid "When disabled, the chatbot will remain visible but AI will not respond to any messages. Messages will still be stored for admin review."
+msgstr ""
+
+#: stub.js:1419
+msgid "When enabled, Helpmate records Members lifecycle events and syncs role data to CRM."
+msgstr ""
+
+#: stub.js:1420
+msgid "When enabled, Helpmate records UM lifecycle events and syncs member profile data to CRM."
+msgstr ""
+
+#: stub.js:1421
+msgid "When enabled, Helpmate records User Registration lifecycle events and syncs member profile data to CRM."
+msgstr ""
+
+#: stub.js:1422
+msgid "When enabled, the chatbot will collect lead information at the start of the conversation."
+msgstr ""
+
+#: stub.js:1423
+msgid "Whether to play a sound when the welcome message is shown."
+msgstr ""
+
+#: stub.js:1424
+msgid "While this test environment mirrors the live chatbot, it also displays training instructions when the AI doesn't have enough information to answer the question. You can use this to train the AI to answer the question better. Your customers will not see these instructions or context in the live chatbot."
+msgstr ""
+
+#: stub.js:1425
+msgid "Why upgrade to pro?"
+msgstr ""
+
+#: stub.js:1426
+msgid "Will be generated after saving"
+msgstr ""
+
+#: stub.js:1427
+msgid "WooCommerce"
+msgstr ""
+
+#: stub.js:1428
+msgid "WordPress User"
+msgstr ""
+
+#: stub.js:1429
+msgid "Yes"
+msgstr ""
+
+#: stub.js:1430
+msgid "Yes, Send Now"
+msgstr ""
+
+#: stub.js:1431
+msgid "Yes, sync now"
+msgstr ""
+
+#: stub.js:1432
+msgid "Yesterday"
+msgstr ""
+
+#: stub.js:1433
+msgid "You can add your own OpenAI API key for additional credits"
+msgstr ""
+
+#: stub.js:1434
+msgid "You don't have permission to access this page."
+msgstr ""
+
+#. translators: %d: Number of registered phone numbers
+#: stub.js:1436
+#, js-format
+msgid "You have %d number(s)."
+msgstr ""
+
+#. translators: %s: Remaining time (mm:ss) to complete booking
+#: stub.js:1438
+#: public/js/helpmate-scheduling.js:77
+#, js-format
+msgid "You have %s to complete your booking."
+msgstr ""
+
+#: stub.js:1439
+msgid "You must add credit in your OpenAI account for the API to work without issues:"
+msgstr ""
+
+#: stub.js:1440
+msgid "You paid for the click. Don't lose the cart. Recover sales automatically."
+msgstr ""
+
+#: stub.js:1441
+msgid "You'll be asked to rate your experience."
+msgstr ""
+
+#: stub.js:1442
+msgid "You'll still get free credits even if you don't add your OpenAI API key. This step is completely optional."
+msgstr ""
+
+#: stub.js:1443
+msgid "Your chatbot keeps working without any interruption."
+msgstr ""
+
+#: stub.js:1444
+msgid "Your chatbot retains all its knowledge and continues working seamlessly."
+msgstr ""
+
+#: stub.js:1445
+#: public/js/helpmate-scheduling.js:69
+msgid "Your hold expired. Please select a time again."
+msgstr ""
+
+#: stub.js:1446
+msgid "Your key will be encrypted and stored securely"
+msgstr ""
+
+#: stub.js:1447
+msgid "Your key will be encrypted and stored securely. It will only be used when your license credits are exhausted."
+msgstr ""
+
+#: stub.js:1448
+msgid "Your number is now registered with WhatsApp Business Cloud API."
+msgstr ""
+
+#: stub.js:1449
+msgid "Your two-step verification PIN is:"
+msgstr ""
+
+#: stub.js:1450
+msgid "ZIP Code"
+msgstr ""
+
+#. translators: %1$s: Message type label
+#: stub.js:1452
+#, js-format
+msgid "[%1$s would be displayed here in live chat]"
+msgstr ""
+
+#: stub.js:1453
+msgid "[Coupon would be displayed here in live chat]"
+msgstr ""
+
+#: stub.js:1454
+msgid "[Order tracker would be displayed here in live chat]"
+msgstr ""
+
+#: stub.js:1455
+msgid "[Product carousel would be displayed here in live chat]"
+msgstr ""
+
+#: stub.js:1456
+msgid "[Refund/return form would be displayed here in live chat]"
+msgstr ""
+
+#: stub.js:1457
+msgid "[Ticket form would be displayed here in live chat]"
+msgstr ""
+
+#: stub.js:1458
+msgid "and"
+msgstr ""
+
+#: stub.js:1459
+msgid "as a LearnPress student will be updated from that student profile."
+msgstr ""
+
+#: stub.js:1460
+msgid "bought"
+msgstr ""
+
+#: stub.js:1461
+msgid "downloaded"
+msgstr ""
+
+#: stub.js:1462
+msgid "e.g. discounted products for proactive sales and product name lookups."
+msgstr ""
+
+#: stub.js:1463
+msgid "hi"
+msgstr ""
+
+#: stub.js:1464
+msgid "just bought"
+msgstr ""
+
+#: stub.js:1465
+msgid "just downloaded"
+msgstr ""
+
+#: stub.js:1466
+msgid "just reviewed"
+msgstr ""
+
+#: stub.js:1467
+msgid "reviewed"
+msgstr ""
+
+#: stub.js:1468
+msgid "same email"
+msgstr ""
+
+#: stub.js:1469
+msgid "sign in at platform.openai.com → API keys →"
+msgstr ""
+
+#: stub.js:1470
+msgid "your site"
+msgstr ""
+
+#: stub.js:1471
+msgid "“I saw it, I want it.” Let customers upload a photo and find the exact product instantly."
+msgstr ""
+
+#: stub.js:1472
+msgid "⚠️ Image search is not available on localhost. Please deploy to a live server to use image search features."
+msgstr ""
+
+#: stub.js:1473
+msgid "⚠️ Social platform connections are not available on localhost. Please deploy to a live server to connect social platforms."
+msgstr ""
+
+#. Plugin Name of the plugin
+#: helpmate-ai-chatbot.php
+msgid "Helpmate – Support Automation, AI Chatbot, Live Chat, Social Automation, Booking & CRM Solution"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: helpmate-ai-chatbot.php
+msgid "https://rhapsodyplugins.com/helpmate"
+msgstr ""
+
+#. Description of the plugin
+#: helpmate-ai-chatbot.php
+msgid "Reduce 97% of support queries and 70% of workload with AI Chatbot, Live Chat, CRM, Booking and WhatsApp automation."
+msgstr ""
+
+#. Author of the plugin
+#: helpmate-ai-chatbot.php
+msgid "Rhapsody Plugins"
+msgstr ""
+
+#. Author URI of the plugin
+#: helpmate-ai-chatbot.php
+msgid "https://rhapsodyplugins.com/"
+msgstr ""
+
+#: helpmate-ai-chatbot.php:149
+msgid "Train Chatbot"
+msgstr ""
+
+#: helpmate-ai-chatbot.php:150
+msgid "Upgrade"
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-database.php:205
+msgid "ID, key, and value are required"
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-database.php:221
+msgid "Chat message not found"
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-database.php:250
+msgid "Failed to update chat metadata"
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-helpers.php:69
+#: includes/chat/class-helpmate-chat-helpers.php:264
+msgid "URL is required"
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-helpers.php:96
+#: includes/chat/class-helpmate-chat-helpers.php:291
+msgid "Error fetching URL: "
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-helpers.php:104
+#: includes/chat/class-helpmate-chat-helpers.php:299
+msgid "Failed to fetch URL. Response code: "
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-helpers.php:112
+#: includes/chat/class-helpmate-chat-helpers.php:307
+msgid "Could not fetch URL content"
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-helpers.php:162
+msgid "Could not find main content area"
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-helpers.php:246
+#: includes/chat/class-helpmate-chat-helpers.php:418
+msgid "Error processing content: "
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-helpers.php:397
+msgid "Timeout! The request took too long to complete. Try Again."
+msgstr ""
+
+#: includes/chat/class-helpmate-chat-helpers.php:793
+#: includes/class-helpmate-api.php:743
+#: includes/class-helpmate-api.php:800
+msgid "Request failed."
+msgstr ""
+
+#: includes/chat/class-helpmate-chat.php:307
+#: includes/chat/class-helpmate-chat.php:340
+#: includes/class-helpmate-frontend-routes.php:233
+#: includes/class-helpmate-frontend-routes.php:258
+#: includes/class-helpmate-frontend-routes.php:284
+#: includes/class-helpmate-frontend-routes.php:312
+#: includes/class-helpmate-frontend-routes.php:387
+#: includes/class-helpmate-frontend-routes.php:411
+#: includes/class-helpmate-realtime.php:388
+msgid "Session ID is required"
+msgstr ""
+
+#: includes/chat/class-helpmate-chat.php:399
+msgid "Message cannot be empty"
+msgstr ""
+
+#: includes/chat/class-helpmate-chat.php:471
+msgid "Failed to store message"
+msgstr ""
+
+#: includes/chat/class-helpmate-general-tools.php:129
+msgid "Live chat is a Pro feature. Would you like me to help you create a support ticket instead?"
+msgstr ""
+
+#: includes/chat/class-helpmate-general-tools.php:155
+msgid "Visitor requested live agent"
+msgstr ""
+
+#: includes/chat/class-helpmate-general-tools.php:167
+msgid "I've asked our live agents to respond to this chat. They will get back to you shortly."
+msgstr ""
+
+#: includes/chat/class-helpmate-general-tools.php:173
+msgid "No live agents are available right now. Would you like me to help you create a support ticket?"
+msgstr ""
+
+#: includes/class-helpmate-api.php:334
+msgid "Free api key registered successfully"
+msgstr ""
+
+#: includes/class-helpmate-api.php:341
+msgid "Failed to register free api key"
+msgstr ""
+
+#: includes/class-helpmate-api.php:421
+msgid "Api key activated successfully"
+msgstr ""
+
+#: includes/class-helpmate-api.php:427
+msgid "Failed to activate api key"
+msgstr ""
+
+#: includes/class-helpmate-api.php:516
+msgid "Api key is not activated. Please contact support."
+msgstr ""
+
+#: includes/class-helpmate-api.php:524
+msgid "Invalid response from api server"
+msgstr ""
+
+#: includes/class-helpmate-api.php:560
+msgid "Feedback sent"
+msgstr ""
+
+#: includes/class-helpmate-api.php:589
+msgid "Activation feedback sent"
+msgstr ""
+
+#: includes/class-helpmate-api.php:597
+#: includes/class-helpmate-api.php:615
+#: includes/class-helpmate-api.php:714
+#: includes/class-helpmate-api.php:769
+msgid "API key not found"
+msgstr ""
+
+#: includes/class-helpmate-api.php:642
+msgid "Invalid response from license server"
+msgstr ""
+
+#: includes/class-helpmate-api.php:648
+msgid "Promotion failed"
+msgstr ""
+
+#: includes/class-helpmate-api.php:717
+#: includes/class-helpmate-api.php:772
+msgid "API validation key not found. Re-save your API key in Helpmate."
+msgstr ""
+
+#: includes/class-helpmate-api.php:738
+#: includes/class-helpmate-api.php:793
+msgid "Invalid response from license server."
+msgstr ""
+
+#: includes/class-helpmate-api.php:748
+msgid "Sync-list API not found. Deploy the latest rag-ai-server and restart the AI service."
+msgstr ""
+
+#: includes/class-helpmate-api.php:819
+msgid "OpenAI API key is required"
+msgstr ""
+
+#: includes/class-helpmate-api.php:827
+msgid "Invalid OpenAI API key format. Key must start with \"sk-\""
+msgstr ""
+
+#: includes/class-helpmate-api.php:837
+msgid "OpenAI API key saved successfully"
+msgstr ""
+
+#: includes/class-helpmate-api.php:867
+msgid "OpenAI API key removed successfully"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:858
+msgid "Live Chat settings require a Pro license."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1148
+msgid "Dokan is not active."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1205
+msgid "WCFM Marketplace is not active."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1279
+msgid "LearnPress is not active."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1353
+msgid "Tutor LMS is not active."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1427
+msgid "LifterLMS is not active."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1451
+msgid "WooCommerce is not active."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1475
+msgid "Easy Digital Downloads is not active."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1499
+msgid "SureCart is not active."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1831
+#: includes/class-helpmate-backend-routes.php:1950
+msgid "Contact assigned successfully"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1831
+#: includes/class-helpmate-backend-routes.php:1950
+msgid "Failed to assign contact"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1847
+msgid "Contact created successfully"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1847
+msgid "Failed to create contact"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1863
+#: includes/class-helpmate-backend-routes.php:1966
+msgid "Task created successfully"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1863
+#: includes/class-helpmate-backend-routes.php:1966
+msgid "Failed to create task"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1878
+msgid "Invalid lead IDs"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:1981
+msgid "Invalid ticket IDs"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:2252
+msgid "Live Chat manual reply requires a Pro license."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:2806
+msgid "Type RESET to confirm database reset."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:2879
+msgid "Live Chat handoff requires a Pro license."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:5761
+msgid "Contact ID is required"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:5770
+msgid "Failed to resubscribe"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:5776
+msgid "Successfully resubscribed"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:6659
+msgid "No file uploaded"
+msgstr ""
+
+#. translators: %s: maximum file size (e.g., 300KB or 500KB)
+#: includes/class-helpmate-backend-routes.php:6674
+#, php-format
+msgid "File size exceeds %s limit"
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:6685
+msgid "Invalid file type. Only PDF, DOC, DOCX, XLS, and XLSX files are supported."
+msgstr ""
+
+#: includes/class-helpmate-backend-routes.php:6732
+msgid "Failed to extract text from file"
+msgstr ""
+
+#. translators: %d is the number of successfully processed documents
+#: includes/class-helpmate-background-processor.php:570
+#: includes/class-helpmate-document-handler.php:429
+#, php-format
+msgid "Successfully processed %d documents."
+msgstr ""
+
+#. translators: %d is the number of failed documents
+#: includes/class-helpmate-background-processor.php:576
+#, php-format
+msgid "Failed to process all %d documents."
+msgstr ""
+
+#. translators: %1$d is the number of successfully processed documents, %2$d is the total number of documents, %3$d is the number of failed documents
+#: includes/class-helpmate-background-processor.php:582
+#: includes/class-helpmate-document-handler.php:431
+#, php-format
+msgid "Processed %1$d of %2$d documents successfully. %3$d failed."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:57
+msgid "Every 5 Minutes"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:216
+msgid "Document type is required"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:304
+msgid "Failed to store data. Please try again."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:316
+msgid "Documents stored successfully"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:316
+msgid "Failed to store some documents. Contact support if the issue persists."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:351
+msgid "Failed to schedule background processing. Please try again."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:358
+msgid "Bulk document processing started in the background."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:499
+msgid "Failed to update data. Try again."
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:506
+msgid "Document updated successfully"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:506
+msgid "Failed to update document"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:535
+msgid "No document IDs provided"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:556
+#: includes/class-helpmate-document-handler.php:562
+#: includes/class-helpmate-document-handler.php:573
+msgid "Failed to remove documents"
+msgstr ""
+
+#: includes/class-helpmate-document-handler.php:573
+msgid "Documents removed successfully"
+msgstr ""
+
+#: includes/class-helpmate-frontend-routes.php:294
+msgid "Chat ended successfully"
+msgstr ""
+
+#: includes/class-helpmate-frontend-routes.php:319
+msgid "Rating must be between 1 and 5"
+msgstr ""
+
+#: includes/class-helpmate-frontend-routes.php:371
+msgid "Review submitted successfully"
+msgstr ""
+
+#: includes/class-helpmate-frontend-routes.php:395
+msgid "Review request dismissed"
+msgstr ""
+
+#: includes/class-helpmate-tools.php:66
+msgid "Helpmate data and settings have been reset to defaults."
+msgstr ""
+
+#: includes/class-helpmate-tools.php:79
+msgid "CRM module is not available."
+msgstr ""
+
+#: includes/class-helpmate-tools.php:121
+#: includes/class-helpmate-tools.php:277
+msgid "API key is required to access the cloud."
+msgstr ""
+
+#: includes/class-helpmate-tools.php:156
+msgid "API key is required."
+msgstr ""
+
+#: includes/class-helpmate-tools.php:210
+msgid "API key is required to sync from the cloud."
+msgstr ""
+
+#: includes/class-helpmate-tools.php:214
+msgid "A bulk knowledge-base job is still running. Please wait and try again."
+msgstr ""
+
+#. translators: %d: number of documents imported
+#: includes/class-helpmate-tools.php:262
+#, php-format
+msgid "%d documents imported from the cloud."
+msgstr ""
+
+#: includes/class-helpmate-tools.php:288
+msgid "Failed to fetch cloud documents."
+msgstr ""
+
+#: includes/class-helpmate-tools.php:375
+msgid "Some cloud documents are missing sync metadata. Run Backfill before sync for best results."
+msgstr ""
+
+#: includes/class-helpmate-tools.php:377
+msgid "Some cloud documents are legacy entries; they will import as general type with reconstructed content."
+msgstr ""
+
+#: includes/class-helpmate.php:497
+msgid "Helpmate Pro Api key requires the Pro version of the plugin to be installed. Please install the Pro version of the plugin to continue."
+msgstr ""
+
+#. translators: 1: File name
+#: includes/class-helpmate.php:641
+#, php-format
+msgid "Required file %s not found."
+msgstr ""
+
+#: includes/class-helpmate.php:1462
+msgid "Helpmate Pro license is active, but the Helpmate Pro plugin is not activated. Activate it under Plugins."
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:23
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:32
+msgid "Helpmate Promo Bar"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:24
+msgid "Display a Helpmate promo banner with optional style overrides."
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:25
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:25
+#: includes/integrations/class-helpmate-blocks.php:105
+#: includes/integrations/class-helpmate-cf7-integration.php:760
+#: includes/integrations/class-helpmate-cf7-integration.php:999
+#: includes/integrations/class-helpmate-elementor.php:99
+#: includes/modules/class-helpmate-post-meta-box.php:64
+msgid "Helpmate"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:46
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:101
+#: blocks/build/index.js:188
+msgid "Promo banner"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:55
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:113
+#: blocks/build/index.js:205
+msgid "Style overrides"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:62
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:135
+#: blocks/build/index.js:103
+msgid "Bar background"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:67
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:146
+#: blocks/build/index.js:107
+msgid "Text color"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:72
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:157
+#: blocks/build/index.js:111
+msgid "Text font size"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:78
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:168
+#: blocks/build/index.js:115
+msgid "Button background"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:83
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:179
+#: blocks/build/index.js:119
+msgid "Button text color"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:88
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:190
+#: blocks/build/index.js:123
+msgid "Button font size"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:94
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:201
+#: blocks/build/index.js:127
+msgid "Countdown background"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/helpmate-promo-banner.php:99
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:213
+#: blocks/build/index.js:131
+msgid "Countdown text"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/includes/frontend.php:18
+msgid "Helpmate is not available."
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/includes/frontend.php:28
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:258
+#: blocks/build/index.js:225
+msgid "Promo Bar is disabled in Helpmate module settings."
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/includes/frontend.php:38
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:270
+#: blocks/build/index.js:236
+msgid "Select a promo banner."
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-promo-banner/includes/frontend.php:58
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:290
+msgid "This banner was not found or is inactive."
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:23
+#: includes/integrations/elementor/class-helpmate-elementor-widget-scheduling.php:32
+msgid "Helpmate Scheduling"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:24
+msgid "Display the Helpmate Smart Schedules appointment form."
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:44
+#: includes/integrations/elementor/class-helpmate-elementor-widget-scheduling.php:111
+#: blocks/build/index.js:62
+msgid "Heading"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:46
+#: includes/integrations/elementor/class-helpmate-elementor-widget-scheduling.php:114
+#: public/partials/helpmate-scheduling-form.php:29
+#: blocks/build/index.js:67
+msgid "Schedule an Appointment"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:50
+#: includes/integrations/elementor/class-helpmate-elementor-widget-scheduling.php:121
+msgid "Alignment"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/helpmate-scheduling.php:55
+#: includes/integrations/elementor/class-helpmate-elementor-widget-scheduling.php:129
+#: blocks/build/index.js:36
+msgid "Center"
+msgstr ""
+
+#: includes/integrations/beaver-builder/modules/helpmate-scheduling/includes/frontend.php:42
+#: includes/integrations/elementor/class-helpmate-elementor-widget-scheduling.php:177
+msgid "Smart Schedules is disabled or unavailable. Enable it in Helpmate settings."
+msgstr ""
+
+#: includes/integrations/class-helpmate-beaver-builder.php:101
+#: includes/integrations/class-helpmate-cf7-integration.php:1026
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:86
+#: blocks/build/index.js:148
+msgid "— Select —"
+msgstr ""
+
+#. translators: 1: Banner title, 2: Banner database ID
+#: includes/integrations/class-helpmate-beaver-builder.php:110
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:92
+#, php-format
+msgid "%1$s (ID %2$d)"
+msgstr ""
+
+#: includes/integrations/class-helpmate-beaver-builder.php:111
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:93
+msgid "(No title)"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:105
+msgid "This integration action requires a Pro license."
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:108
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:203
+#: includes/integrations/class-helpmate-forminator-integration.php:153
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:148
+#: includes/integrations/class-helpmate-wpforms-integration.php:142
+msgid "This form action requires Helpmate Pro."
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:115
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:215
+#: includes/integrations/class-helpmate-forminator-integration.php:166
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:160
+#: includes/integrations/class-helpmate-wpforms-integration.php:155
+msgid "This submission was already received. Please wait a moment before trying again."
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:146
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:245
+#: includes/integrations/class-helpmate-forminator-integration.php:196
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:188
+#: includes/integrations/class-helpmate-wpforms-integration.php:185
+msgid "Integration failed."
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:176
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:270
+#: includes/integrations/class-helpmate-forminator-integration.php:222
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:212
+#: includes/integrations/class-helpmate-wpforms-integration.php:210
+msgid "Submission failed due to an integration error."
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:227
+msgid "Lead Collection"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:235
+msgid "Company"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:241
+msgid "Ticket Creation"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:254
+msgid "Appointment Creation"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:260
+msgid "Scheduled date"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:261
+msgid "Scheduled time"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:264
+msgid "Reservation token"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:269
+msgid "Order Status Checking"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:281
+msgid "Refund Return"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:347
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:499
+#: includes/integrations/class-helpmate-forminator-integration.php:574
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:475
+#: includes/integrations/class-helpmate-wpforms-integration.php:495
+msgid "Pro integration handler is not available."
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:352
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:503
+#: includes/integrations/class-helpmate-forminator-integration.php:579
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:479
+#: includes/integrations/class-helpmate-wpforms-integration.php:500
+msgid "Unknown integration action."
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:409
+#: includes/integrations/class-helpmate-cf7-integration.php:432
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:593
+#: includes/integrations/class-helpmate-forminator-integration.php:681
+#: includes/integrations/class-helpmate-forminator-integration.php:704
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:569
+#: includes/integrations/class-helpmate-wpforms-integration.php:602
+#: includes/integrations/class-helpmate-wpforms-integration.php:625
+msgid "Please check the form and try again."
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:417
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:600
+#: includes/integrations/class-helpmate-forminator-integration.php:689
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:576
+#: includes/integrations/class-helpmate-wpforms-integration.php:610
+msgid "email or phone number (required to verify your order)"
+msgstr ""
+
+#. translators: %s: Comma-separated list of field labels the visitor should complete.
+#: includes/integrations/class-helpmate-cf7-integration.php:438
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:614
+#: includes/integrations/class-helpmate-forminator-integration.php:710
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:590
+#: includes/integrations/class-helpmate-wpforms-integration.php:631
+#, php-format
+msgid "Please complete or correct the following: %s."
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:692
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:338
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:785
+#: includes/integrations/class-helpmate-forminator-integration.php:287
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:308
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:801
+#: includes/integrations/class-helpmate-wpforms-integration.php:298
+#: includes/integrations/class-helpmate-wpforms-integration.php:778
+msgid "Order date"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:693
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:339
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:788
+#: includes/integrations/class-helpmate-forminator-integration.php:288
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:309
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:804
+#: includes/integrations/class-helpmate-wpforms-integration.php:299
+#: includes/integrations/class-helpmate-wpforms-integration.php:781
+msgid "Tracking"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:694
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:340
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:791
+#: includes/integrations/class-helpmate-forminator-integration.php:289
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:310
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:807
+#: includes/integrations/class-helpmate-wpforms-integration.php:300
+#: includes/integrations/class-helpmate-wpforms-integration.php:784
+msgid "Estimated delivery"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:695
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:341
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:794
+#: includes/integrations/class-helpmate-forminator-integration.php:290
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:311
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:810
+#: includes/integrations/class-helpmate-wpforms-integration.php:301
+#: includes/integrations/class-helpmate-wpforms-integration.php:787
+msgid "Items"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:696
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:342
+#: includes/integrations/class-helpmate-formidable-forms-integration.php:807
+#: includes/integrations/class-helpmate-forminator-integration.php:291
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:312
+#: includes/integrations/class-helpmate-ninja-forms-integration.php:823
+#: includes/integrations/class-helpmate-wpforms-integration.php:302
+#: includes/integrations/class-helpmate-wpforms-integration.php:800
+msgid "Shipping address"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:1001
+msgid "Route this form’s submissions to a Helpmate workflow. Settings are stored with your Helpmate integration and match the Contact Form 7 section in Helpmate Control Center."
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:1007
+msgid "Open Helpmate Integrations"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:1013
+msgid "Helpmate integration"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:1020
+msgid "Send submissions to Helpmate when this form is submitted"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:1046
+msgid "Choose what Helpmate should do with validated submission data."
+msgstr ""
+
+#. translators: %s: Integration action label (e.g. "Lead Collection").
+#: includes/integrations/class-helpmate-cf7-integration.php:1073
+#, php-format
+msgid "Field mapping: %s"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:1099
+msgid "required for this action"
+msgstr ""
+
+#: includes/integrations/class-helpmate-cf7-integration.php:1103
+msgid "— Not mapped —"
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:451
+msgid "Multiple Helpmate Scheduling widgets are on this layout. Use only one unless you have a reason to duplicate the form."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:466
+msgid "Multiple Helpmate Scheduling modules are on this Beaver Builder layout. Use only one unless you have a reason to duplicate the form."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:475
+msgid "This page contains more than one Helpmate Scheduling block. Use only one unless you have a reason to duplicate the form."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:478
+msgid "This page contains both the [helpmate_scheduling] shortcode and the Helpmate Scheduling widget. Remove one to avoid duplicate forms."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:481
+msgid "This page contains both the [helpmate_scheduling] shortcode and the Helpmate Scheduling block. Remove one to avoid duplicate forms."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:484
+msgid "This page contains both the Helpmate Scheduling block and the Helpmate Scheduling Elementor widget. Remove one to avoid duplicate forms."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:487
+msgid "This page contains both the [helpmate_scheduling] shortcode and the Helpmate Scheduling Beaver Builder module. Remove one to avoid duplicate forms."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:490
+msgid "This page contains both the Helpmate Scheduling block and the Helpmate Scheduling Beaver Builder module. Remove one to avoid duplicate forms."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:493
+msgid "This page contains both the Helpmate Scheduling Elementor widget and the Helpmate Scheduling Beaver Builder module. Remove one to avoid duplicate forms."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:503
+msgid "Scheduling is embedded via shortcode on at least one page and via the Elementor widget on another. Helpmate works best with a single scheduling landing page—remove the extra placement."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:506
+msgid "Scheduling is embedded via shortcode on at least one page and via the Helpmate Scheduling block on another. Helpmate works best with a single scheduling landing page—remove the extra placement."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:509
+msgid "Scheduling is embedded via the Elementor widget on at least one page and via the Helpmate Scheduling block on another. Helpmate works best with a single scheduling landing page—remove the extra placement."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:512
+msgid "Scheduling is embedded via shortcode on at least one page and via the Helpmate Scheduling Beaver Builder module on another. Helpmate works best with a single scheduling landing page—remove the extra placement."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:515
+msgid "Scheduling is embedded via the Elementor widget on at least one page and via the Helpmate Scheduling Beaver Builder module on another. Helpmate works best with a single scheduling landing page—remove the extra placement."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:518
+msgid "Scheduling is embedded via the Helpmate Scheduling block on at least one page and via the Beaver Builder module on another. Helpmate works best with a single scheduling landing page—remove the extra placement."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:522
+msgid "More than one published page contains the [helpmate_scheduling] shortcode. Only the newest page is used for chat links; remove extras to avoid confusion."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:525
+msgid "More than one published page contains the Helpmate Scheduling block. Only the newest page is used for chat links; remove extras to avoid confusion."
+msgstr ""
+
+#: includes/integrations/class-helpmate-elementor-utils.php:528
+msgid "More than one published layout contains the Helpmate Scheduling Beaver Builder module. Only the newest page is used for chat links; remove extras to avoid confusion."
+msgstr ""
+
+#: includes/integrations/class-helpmate-form-integration-ui.php:50
+msgid "No form fields were found yet. Add fields on the Form tab, save the form, then map them below."
+msgstr ""
+
+#: includes/integrations/class-helpmate-form-integration-ui.php:55
+msgid "Add or edit fields on the Form tab, save the form, then map them below."
+msgstr ""
+
+#: includes/integrations/class-helpmate-integration-plugins.php:245
+#: includes/integrations/class-helpmate-integration-plugins.php:248
+#: includes/integrations/class-helpmate-integration-plugins.php:251
+msgid "Invalid plugin."
+msgstr ""
+
+#: includes/integrations/class-helpmate-integration-plugins.php:255
+msgid "This plugin cannot be activated from Helpmate."
+msgstr ""
+
+#: includes/integrations/class-helpmate-integration-plugins.php:260
+msgid "Plugin is not installed."
+msgstr ""
+
+#: includes/integrations/class-helpmate-integration-plugins.php:277
+msgid "You are not allowed to activate plugins."
+msgstr ""
+
+#: includes/integrations/class-helpmate-integration-plugins.php:342
+msgid "You are not allowed to install plugins."
+msgstr ""
+
+#: includes/integrations/class-helpmate-integration-plugins.php:352
+msgid "Invalid slug."
+msgstr ""
+
+#: includes/integrations/class-helpmate-integration-plugins.php:362
+msgid "Unknown plugin slug."
+msgstr ""
+
+#: includes/integrations/class-helpmate-integration-plugins.php:371
+msgid "File modifications are disabled on this site."
+msgstr ""
+
+#: includes/integrations/class-helpmate-integration-plugins.php:405
+msgid "No download URL for this plugin."
+msgstr ""
+
+#: includes/integrations/class-helpmate-integration-plugins.php:428
+msgid "Installation failed."
+msgstr ""
+
+#: includes/integrations/class-helpmate-members.php:118
+msgid "Members plugin is not active."
+msgstr ""
+
+#: includes/integrations/class-helpmate-members.php:199
+#: includes/integrations/class-helpmate-ultimate-member.php:201
+#: includes/integrations/class-helpmate-user-registration.php:201
+msgid "A valid user is required."
+msgstr ""
+
+#: includes/integrations/class-helpmate-members.php:206
+#: includes/integrations/class-helpmate-ultimate-member.php:208
+#: includes/integrations/class-helpmate-user-registration.php:208
+msgid "You are not allowed to view this profile support data."
+msgstr ""
+
+#: includes/integrations/class-helpmate-members.php:214
+#: includes/integrations/class-helpmate-ultimate-member.php:216
+#: includes/integrations/class-helpmate-user-registration.php:216
+msgid "User not found."
+msgstr ""
+
+#: includes/integrations/class-helpmate-members.php:404
+msgid "User not found for Members sync."
+msgstr ""
+
+#: includes/integrations/class-helpmate-members.php:432
+#: includes/integrations/class-helpmate-ultimate-member.php:408
+msgid "Failed to sync member to CRM."
+msgstr ""
+
+#: includes/integrations/class-helpmate-ultimate-member.php:122
+msgid "Ultimate Member is not active."
+msgstr ""
+
+#: includes/integrations/class-helpmate-ultimate-member.php:381
+msgid "User not found for Ultimate Member sync."
+msgstr ""
+
+#: includes/integrations/class-helpmate-user-registration.php:120
+msgid "User Registration plugin is not active."
+msgstr ""
+
+#: includes/integrations/class-helpmate-user-registration.php:384
+msgid "User not found for User Registration sync."
+msgstr ""
+
+#: includes/integrations/class-helpmate-user-registration.php:412
+msgid "Failed to sync user registration member to CRM."
+msgstr ""
+
+#: includes/integrations/elementor/class-helpmate-elementor-widget-promo-banner.php:127
+#: blocks/build/index.js:211
+msgid "Leave empty to use colors and sizes from the Helpmate admin promo settings."
+msgstr ""
+
+#: includes/integrations/elementor/class-helpmate-elementor-widget-scheduling.php:82
+msgid "Helpmate notices"
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:108
+#: includes/modules/class-helpmate-crm-order-metabox.php:135
+msgid "Helpmate CRM Contact"
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:230
+#: includes/modules/class-helpmate-crm-order-metabox.php:312
+msgid "Contact:"
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:234
+#: includes/modules/class-helpmate-crm-order-metabox.php:329
+msgid "View Contact Details"
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:240
+msgid "No CRM contact found for this EDD payment."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:250
+msgid "Create Contact from Payment"
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:254
+msgid "No customer email found on this payment."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:289
+msgid "Select Contact"
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:291
+msgid "Search for a contact..."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:293
+msgid "Select a contact to populate billing information."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:335
+msgid "No CRM contact found for this order."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:341
+msgid "Create Contact from Order"
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:345
+msgid "Add billing email to create a contact."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:427
+msgid "Searching..."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:429
+msgid "An error occurred. Please try again."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:430
+#: includes/modules/class-helpmate-crm-order-metabox.php:519
+#: includes/modules/class-helpmate-crm-order-metabox.php:561
+msgid "Contact created successfully!"
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:431
+#: includes/modules/class-helpmate-crm-order-metabox.php:515
+#: includes/modules/class-helpmate-crm-order-metabox.php:557
+msgid "Failed to create contact."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:432
+msgid "Billing information already exists. Do you want to overwrite it with the selected contact information?"
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:447
+#: includes/modules/class-helpmate-crm-order-metabox.php:473
+#: includes/modules/class-helpmate-crm-order-metabox.php:532
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:452
+msgid "Invalid contact ID."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:457
+#: includes/modules/class-helpmate-crm.php:3745
+#: public/class-helpmate-public.php:441
+msgid "Contact not found."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:478
+msgid "Invalid order ID."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:483
+msgid "Order not found."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:505
+#: includes/modules/class-helpmate-crm-order-metabox.php:542
+msgid "A contact with this email already exists."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm-order-metabox.php:537
+msgid "Invalid payment email."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:485
+msgid "Could not update contact from vendor data."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:516
+msgid "Could not update contact from imported data."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:531
+msgid "Could not update contact from LMS student data."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:546
+msgid "Could not update contact from Ultimate Member data."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:561
+msgid "Could not update contact from Members data."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:576
+msgid "Could not update contact from User Registration data."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:829
+msgid "A valid email is required."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:865
+msgid "Could not create contact."
+msgstr ""
+
+#. translators: %d: number of line items in the order
+#: includes/modules/class-helpmate-crm.php:1951
+#, php-format
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/modules/class-helpmate-crm.php:1965
+msgid "Product"
+msgstr ""
+
+#. translators: 1: product name, 2: quantity
+#: includes/modules/class-helpmate-crm.php:1968
+#, php-format
+msgid "%1$s × %2$d"
+msgstr ""
+
+#. translators: 1: number of distinct line items, 2: sum of quantities
+#: includes/modules/class-helpmate-crm.php:1993
+#, php-format
+msgid "%1$d products, %2$d total qty"
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:2890
+msgid "Default email templates have been reset."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:3750
+msgid "Contact does not have a valid email address."
+msgstr ""
+
+#. translators: %s: List of variable names that cannot be replaced
+#: includes/modules/class-helpmate-crm.php:3779
+#, php-format
+msgid "Cannot send email - the following variables are not available in this context: %s. These variables are only available for Smart Schedule emails."
+msgstr ""
+
+#. translators: %s: List of variable names that have empty values
+#: includes/modules/class-helpmate-crm.php:3817
+#, php-format
+msgid "Cannot send email - the following variables have empty values for this contact: %s. Please update the contact information or use a different template."
+msgstr ""
+
+#: includes/modules/class-helpmate-crm.php:3909
+#: includes/modules/class-helpmate-crm.php:3923
+msgid "Email sending failed"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:93
+msgid "Name is required"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:117
+#: includes/modules/class-helpmate-leads.php:149
+msgid "Failed to create lead"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:131
+msgid "New lead"
+msgstr ""
+
+#. translators: %s: Lead name
+#: includes/modules/class-helpmate-leads.php:486
+#, php-format
+msgid "Follow up with %s"
+msgstr ""
+
+#. translators: %s: Recipient's name
+#: includes/modules/class-helpmate-leads.php:518
+#: includes/modules/class-helpmate-tasks.php:841
+#: includes/modules/class-helpmate-team.php:480
+#: includes/modules/class-helpmate-ticket.php:541
+#, php-format
+msgid "Hello %s,"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:532
+#: includes/modules/class-helpmate-tasks.php:855
+#: includes/modules/class-helpmate-team.php:494
+#: includes/modules/class-helpmate-ticket.php:555
+msgid "Best regards,"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:588
+msgid "A new lead has been created in the CRM system."
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:591
+#: includes/modules/class-helpmate-team.php:539
+#: includes/modules/class-helpmate-team.php:631
+msgid "Email:"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:592
+msgid "Phone:"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:593
+#: includes/modules/class-helpmate-ticket.php:622
+#: includes/modules/class-helpmate-ticket.php:678
+msgid "Message:"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:596
+msgid "Lead Details"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:598
+msgid "Name:"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:599
+msgid "Source:"
+msgstr ""
+
+#: includes/modules/class-helpmate-leads.php:608
+msgid "View Leads"
+msgstr ""
+
+#. translators: %s: Lead name
+#: includes/modules/class-helpmate-leads.php:612
+#, php-format
+msgid "New Lead: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-post-meta-box.php:87
+#: includes/modules/class-helpmate-post-meta-box.php:114
+#: includes/modules/class-helpmate-post-meta-box.php:289
+msgid "Remove from Knowledge Base"
+msgstr ""
+
+#: includes/modules/class-helpmate-post-meta-box.php:87
+#: includes/modules/class-helpmate-post-meta-box.php:114
+#: includes/modules/class-helpmate-post-meta-box.php:290
+msgid "Add to Knowledge Base"
+msgstr ""
+
+#: includes/modules/class-helpmate-post-meta-box.php:204
+msgid "Pro license and Pro plugin must be active to remove from knowledge base."
+msgstr ""
+
+#: includes/modules/class-helpmate-post-meta-box.php:291
+msgid "An error occurred"
+msgstr ""
+
+#: includes/modules/class-helpmate-promo-banner.php:83
+msgid "Every 5 minutes"
+msgstr ""
+
+#: includes/modules/class-helpmate-social-chat.php:646
+msgid "Website Visitor"
+msgstr ""
+
+#: includes/modules/class-helpmate-social-chat.php:804
+msgid "Ticket User"
+msgstr ""
+
+#: includes/modules/class-helpmate-social-chat.php:1365
+msgid "New comment"
+msgstr ""
+
+#: includes/modules/class-helpmate-social-chat.php:1366
+msgid "New message"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:380
+msgid "New task assigned"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:884
+#: includes/modules/class-helpmate-tasks.php:983
+msgid "System"
+msgstr ""
+
+#. translators: %s: Name of the person who assigned the task
+#: includes/modules/class-helpmate-tasks.php:918
+#, php-format
+msgid "A new task has been assigned to you by %s."
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:923
+#: includes/modules/class-helpmate-tasks.php:1198
+#: includes/modules/class-helpmate-ticket.php:620
+#: includes/modules/class-helpmate-ticket.php:677
+#: includes/modules/class-helpmate-ticket.php:1173
+msgid "Priority:"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:924
+#: includes/modules/class-helpmate-tasks.php:1203
+msgid "Due Date:"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:925
+msgid "Description:"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:930
+#: includes/modules/class-helpmate-tasks.php:1001
+#: includes/modules/class-helpmate-tasks.php:1202
+msgid "Title:"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:931
+#: includes/modules/class-helpmate-ticket.php:621
+#: includes/modules/class-helpmate-ticket.php:801
+#: includes/modules/class-helpmate-ticket.php:1172
+msgid "Status:"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:940
+#: includes/modules/class-helpmate-tasks.php:1006
+#: includes/modules/class-helpmate-tasks.php:1041
+#: includes/modules/class-helpmate-tasks.php:1109
+#: includes/modules/class-helpmate-tasks.php:1211
+msgid "View Task"
+msgstr ""
+
+#. translators: %s: Task title
+#: includes/modules/class-helpmate-tasks.php:944
+#: includes/modules/class-helpmate-tasks.php:956
+#: includes/modules/class-helpmate-tasks.php:1010
+#: includes/modules/class-helpmate-tasks.php:1021
+#, php-format
+msgid "New Task Assigned: %s"
+msgstr ""
+
+#. translators: %s: Name of the person who reassigned the task
+#: includes/modules/class-helpmate-tasks.php:994
+#, php-format
+msgid "This task has been reassigned to you by %s."
+msgstr ""
+
+#. translators: 1: Task title, 2: Name of the person who reassigned the task
+#: includes/modules/class-helpmate-tasks.php:1035
+#, php-format
+msgid "The task \"%1$s\" has been reassigned to another team member by %2$s."
+msgstr ""
+
+#. translators: %s: Task title
+#: includes/modules/class-helpmate-tasks.php:1045
+#: includes/modules/class-helpmate-tasks.php:1056
+#, php-format
+msgid "Task Reassigned: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:1091
+#: includes/modules/class-helpmate-tasks.php:1092
+msgid "Not set"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:1095
+msgid "The due date for your assigned task has been updated."
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:1099
+msgid "Due Date Change"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:1101
+msgid "Task:"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:1102
+msgid "Previous Due Date:"
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:1103
+msgid "New Due Date:"
+msgstr ""
+
+#. translators: %s: Task title
+#: includes/modules/class-helpmate-tasks.php:1113
+#: includes/modules/class-helpmate-tasks.php:1125
+#, php-format
+msgid "Task Due Date Updated: %s"
+msgstr ""
+
+#. translators: %d: Number of days
+#: includes/modules/class-helpmate-tasks.php:1190
+msgid "1 day"
+msgstr ""
+
+#. translators: %d: Number of days
+#: includes/modules/class-helpmate-tasks.php:1190
+#, php-format
+msgid "%d days"
+msgstr ""
+
+#. translators: %s: Number of days overdue
+#: includes/modules/class-helpmate-tasks.php:1193
+#, php-format
+msgid "This task is overdue by %s. Please review and update the status."
+msgstr ""
+
+#: includes/modules/class-helpmate-tasks.php:1204
+msgid "Days Overdue:"
+msgstr ""
+
+#. translators: %s: Task title
+#: includes/modules/class-helpmate-tasks.php:1215
+#: includes/modules/class-helpmate-tasks.php:1229
+#, php-format
+msgid "Overdue Task Reminder: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:259
+msgid "Roles must be a non-empty array."
+msgstr ""
+
+#. translators: %s: Role name
+#: includes/modules/class-helpmate-team.php:266
+#: includes/modules/class-helpmate-team.php:297
+#, php-format
+msgid "Invalid role: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:346
+msgid "Failed to add role."
+msgstr ""
+
+#. translators: %s: List of assigned roles
+#: includes/modules/class-helpmate-team.php:531
+#, php-format
+msgid "We're excited to have you join our team! You've been granted access to our Helpmate system with the following roles: %s."
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:537
+#: includes/modules/class-helpmate-team.php:629
+msgid "Your Account Details"
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:540
+#: includes/modules/class-helpmate-team.php:632
+msgid "Roles:"
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:550
+msgid "Set Your Password"
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:552
+msgid "Click the link below to set your password and access your account:"
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:555
+msgid "Set Password"
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:561
+msgid "Your Login Credentials"
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:563
+msgid "Username:"
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:564
+msgid "Password:"
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:565
+msgid "Please change your password after first login for security."
+msgstr ""
+
+#: includes/modules/class-helpmate-team.php:572
+#: includes/modules/class-helpmate-team.php:638
+msgid "Access Dashboard"
+msgstr ""
+
+#. translators: %s: Shop/site name
+#: includes/modules/class-helpmate-team.php:577
+#: includes/modules/class-helpmate-team.php:588
+#, php-format
+msgid "Welcome to %s Team"
+msgstr ""
+
+#. translators: %s: List of assigned roles
+#: includes/modules/class-helpmate-team.php:623
+#, php-format
+msgid "You've been granted access to our Helpmate system with the following roles: %s."
+msgstr ""
+
+#. translators: %s: Shop/site name
+#: includes/modules/class-helpmate-team.php:643
+#: includes/modules/class-helpmate-team.php:654
+#, php-format
+msgid "You've been added to %s Team"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:167
+msgid "New ticket"
+msgstr ""
+
+#. translators: %s: The name of the required field that is missing
+#: includes/modules/class-helpmate-ticket.php:469
+#: includes/modules/class-helpmate-ticket.php:712
+#, php-format
+msgid "Missing required field: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:499
+msgid "Failed to create ticket"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:511
+msgid "Ticket created successfully"
+msgstr ""
+
+#. translators: 1: Site name, 2: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:608
+#, php-format
+msgid "[%1$s] New Support Ticket: %2$s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:611
+msgid "A new support ticket has been created and requires your attention."
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:616
+#: includes/modules/class-helpmate-ticket.php:1169
+msgid "Ticket Details"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:618
+#: includes/modules/class-helpmate-ticket.php:676
+#: includes/modules/class-helpmate-ticket.php:1171
+msgid "Subject:"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:619
+#: includes/modules/class-helpmate-ticket.php:800
+msgid "From:"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:628
+#: includes/modules/class-helpmate-ticket.php:808
+#: includes/modules/class-helpmate-ticket.php:1070
+#: includes/modules/class-helpmate-ticket.php:1124
+#: includes/modules/class-helpmate-ticket.php:1178
+msgid "View Ticket"
+msgstr ""
+
+#. translators: %s: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:638
+#, php-format
+msgid "New Support Ticket: %s"
+msgstr ""
+
+#. translators: 1: Site name, 2: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:666
+#, php-format
+msgid "[%1$s] Ticket Received: %2$s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:669
+msgid "Thank you for contacting us. We have received your support ticket and will get back to you as soon as possible."
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:674
+msgid "Your Ticket Details"
+msgstr ""
+
+#. translators: %s: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:686
+#, php-format
+msgid "Ticket Received: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:726
+msgid "Failed to add reply"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:741
+msgid "Reply added successfully"
+msgstr ""
+
+#. translators: 1: Site name, 2: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:779
+#, php-format
+msgid "[%1$s] Reply to your ticket: %2$s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:782
+msgid "A new reply has been added to your support ticket."
+msgstr ""
+
+#. translators: 1: Site name, 2: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:788
+#, php-format
+msgid "[%1$s] New reply to ticket: %2$s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:790
+msgid "A new reply has been added to a support ticket."
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:797
+msgid "Reply Details"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:799
+#: includes/modules/class-helpmate-ticket.php:1063
+#: includes/modules/class-helpmate-ticket.php:1117
+msgid "Ticket:"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:802
+msgid "Reply:"
+msgstr ""
+
+#. translators: %s: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:816
+#, php-format
+msgid "Reply to your ticket: %s"
+msgstr ""
+
+#. translators: %s: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:816
+#, php-format
+msgid "New reply to ticket: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:843
+msgid "Ticket not found"
+msgstr ""
+
+#. translators: %s: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:1020
+#, php-format
+msgid "Ticket: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:1058
+msgid "The status of a support ticket has been updated."
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:1061
+msgid "Status Change"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:1064
+msgid "Previous Status:"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:1065
+msgid "New Status:"
+msgstr ""
+
+#. translators: %s: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:1074
+#, php-format
+msgid "Ticket Status Updated: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:1112
+msgid "The priority of a support ticket has been updated."
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:1115
+msgid "Priority Change"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:1118
+msgid "Previous Priority:"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:1119
+msgid "New Priority:"
+msgstr ""
+
+#. translators: %s: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:1128
+#, php-format
+msgid "Ticket Priority Updated: %s"
+msgstr ""
+
+#: includes/modules/class-helpmate-ticket.php:1165
+msgid "A support ticket has been assigned to you."
+msgstr ""
+
+#. translators: %s: Ticket subject
+#: includes/modules/class-helpmate-ticket.php:1182
+#, php-format
+msgid "Ticket Assigned: %s"
+msgstr ""
+
+#. translators: 1: chatbot name, 2: platform name
+#: includes/social/class-helpmate-social-message-processor.php:1063
+#, php-format
+msgid "You are responding to a customer via %2$s. Keep responses concise and friendly. Do not use markdown formatting as it won't render properly on social media platforms."
+msgstr ""
+
+#: includes/social/class-helpmate-social-message-processor.php:1405
+msgid "Conversation not found."
+msgstr ""
+
+#: includes/social/class-helpmate-social-message-processor.php:1448
+msgid "Failed to send message."
+msgstr ""
+
+#: public/class-helpmate-public.php:438
+msgid "Failed to unsubscribe. Please try again later."
+msgstr ""
+
+#: public/class-helpmate-public.php:444
+msgid "Invalid unsubscribe link."
+msgstr ""
+
+#: public/class-helpmate-public.php:471
+msgid "Failed to resubscribe. Please try again."
+msgstr ""
+
+#: public/partials/helpmate-scheduling-form.php:99
+msgid "Schedule Appointment"
+msgstr ""
+
+#: public/partials/helpmate-unsubscribe-page.php:26
+msgid "Email Preferences"
+msgstr ""
+
+#: public/partials/helpmate-unsubscribe-page.php:37
+msgid "Something went wrong"
+msgstr ""
+
+#: public/partials/helpmate-unsubscribe-page.php:40
+#: public/partials/helpmate-unsubscribe-page.php:62
+#: public/partials/helpmate-unsubscribe-page.php:77
+msgid "Return to site"
+msgstr ""
+
+#: public/partials/helpmate-unsubscribe-page.php:51
+msgid "Already Unsubscribed"
+msgstr ""
+
+#: public/partials/helpmate-unsubscribe-page.php:52
+msgid "Successfully Unsubscribed"
+msgstr ""
+
+#: public/partials/helpmate-unsubscribe-page.php:55
+msgid "You will no longer receive marketing emails from us. If you change your mind, you can resubscribe below."
+msgstr ""
+
+#: public/partials/helpmate-unsubscribe-page.php:58
+msgid "Resubscribe"
+msgstr ""
+
+#: public/partials/helpmate-unsubscribe-page.php:72
+msgid "Welcome Back!"
+msgstr ""
+
+#: public/partials/helpmate-unsubscribe-page.php:74
+msgid "You have been successfully resubscribed. You will now receive our emails again."
+msgstr ""
+
+#: blocks/build/index.js:29
+msgid "Save the page and view on the front end to see this block."
+msgstr ""
+
+#: blocks/build/index.js:73
+msgid "Text alignment"
+msgstr ""
+
+#. translators: %d: Banner database ID
+#: blocks/build/index.js:159
+#, js-format
+msgid "Banner (ID %d)"
+msgstr ""
+
+#: blocks/build/index.js:192
+msgid "Banner"
+msgstr ""
+
+#: public/js/helpmate-scheduling.js:134
+msgid "Failed to load form settings. Please refresh the page."
+msgstr ""
+
+#: public/js/helpmate-scheduling.js:238
+msgid "Error loading slots"
+msgstr ""
+
+#: public/js/helpmate-scheduling.js:239
+msgid "Failed to load available time slots. Please try again."
+msgstr ""
+
+#: blocks/promo-banner/block.json
+msgctxt "block title"
+msgid "Helpmate Promo Bar"
+msgstr ""
+
+#: blocks/promo-banner/block.json
+msgctxt "block description"
+msgid "Display a Helpmate promo banner with optional style overrides."
+msgstr ""
+
+#: blocks/scheduling/block.json
+msgctxt "block title"
+msgid "Helpmate Scheduling"
+msgstr ""
+
+#: blocks/scheduling/block.json
+msgctxt "block description"
+msgid "Display the Smart Schedules appointment form."
+msgstr ""

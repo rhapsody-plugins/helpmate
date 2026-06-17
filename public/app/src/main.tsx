@@ -45,6 +45,7 @@ declare global {
     helpmateApiSettings: {
       nonce: string;
       site_url: string;
+      current_product_id?: number;
     };
     Helpmate: HelpmateWindowType;
     HelpmatePro: HelpmateProWindowType;

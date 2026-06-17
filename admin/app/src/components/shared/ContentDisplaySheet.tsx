@@ -1,5 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { __ } from '@/lib/utils';
 
 interface ContentDisplaySheetProps {
   isOpen: boolean;
@@ -30,7 +31,7 @@ export function ContentDisplaySheet({
           {isDynamicContent(content) && (
             <div className="p-3 mb-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-800">
-                <strong>Dynamic Content Detected:</strong>{' '}
+                <strong>{__('Dynamic Content Detected:')}</strong>{' '}
                 {getDynamicContentExplanation(content)}
               </p>
             </div>
@@ -43,7 +44,7 @@ export function ContentDisplaySheet({
             variant="outline"
             onClick={onClose}
           >
-            Close
+            {__('Close')}
           </Button>
         </div>
       </SheetContent>

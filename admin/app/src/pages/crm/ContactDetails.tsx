@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useMain } from '@/contexts/MainContext';
 import { useCrm } from '@/hooks/useCrm';
-import { Contact } from '@/types/crm';
+import { __ } from '@/lib/utils';
+import type { Contact } from '@/types/crm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ArrowLeft,
   Calendar,
   ClipboardList,
   FileText,
+  GraduationCap,
   Mail,
   MessageCircle,
   ShoppingBag,
@@ -32,6 +34,7 @@ import { OverviewTab } from './contacts/tabs/OverviewTab';
 import { SchedulesTab } from './contacts/tabs/SchedulesTab';
 import { TasksTab } from './contacts/tabs/TasksTab';
 import { TicketsTab } from './contacts/tabs/TicketsTab';
+import { LmsTab } from './contacts/tabs/LmsTab';
 
 export default function ContactDetails() {
   const { setPage } = useMain();
@@ -256,10 +259,10 @@ export default function ContactDetails() {
 
   const formValues = form.watch();
   const displayName = isNew
-    ? 'New Contact'
+    ? __('New Contact')
     : [formValues.first_name, formValues.last_name].filter(Boolean).join(' ') ||
       formValues.email ||
-      'Contact';
+      __('Contact');
 
   return (
     <PageGuard page="crm-contact-details">
@@ -270,7 +273,7 @@ export default function ContactDetails() {
             <div className="flex gap-2">
               <Button onClick={handleBack} variant="outline" size="sm">
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                {__('Back')}
               </Button>
               {!isNew && contactId && (
                 <Button
@@ -283,7 +286,7 @@ export default function ContactDetails() {
                 </Button>
               )}
               <Button onClick={form.handleSubmit(handleSave)} size="sm">
-                {isNew ? 'Create Contact' : 'Update Contact'}
+                {isNew ? __('Create Contact') : __('Update Contact')}
               </Button>
             </div>
           }
@@ -298,39 +301,43 @@ export default function ContactDetails() {
             <TabsList className="flex flex-wrap gap-1 w-full h-auto p-1">
               <TabsTrigger value="overview" className="!text-xs">
                 <User className="!w-3 !h-3" />
-                Overview
+                {__('Overview')}
               </TabsTrigger>
               <TabsTrigger value="emails" className="!text-xs">
                 <Mail className="!w-3 !h-3" />
-                Emails
+                {__('Emails')}
               </TabsTrigger>
               <TabsTrigger value="orders" className="!text-xs">
                 <ShoppingBag className="!w-3 !h-3" />
-                Orders
+                {__('Orders')}
               </TabsTrigger>
               <TabsTrigger value="abandoned-carts" className="!text-xs">
                 <ShoppingCart className="!w-3 !h-3" />
-                Abandoned Carts
+                {__('Abandoned Carts')}
               </TabsTrigger>
               <TabsTrigger value="conversations" className="!text-xs">
                 <MessageCircle className="!w-3 !h-3" />
-                Conversations
+                {__('Conversations')}
               </TabsTrigger>
               <TabsTrigger value="tickets" className="!text-xs">
                 <TicketPercent className="!w-3 !h-3" />
-                Tickets
+                {__('Tickets')}
               </TabsTrigger>
               <TabsTrigger value="tasks" className="!text-xs">
                 <ClipboardList className="!w-3 !h-3" />
-                Tasks
+                {__('Tasks')}
               </TabsTrigger>
               <TabsTrigger value="schedules" className="!text-xs">
                 <Calendar className="!w-3 !h-3" />
-                Schedules
+                {__('Schedules')}
               </TabsTrigger>
               <TabsTrigger value="notes" className="!text-xs">
                 <FileText className="!w-3 !h-3" />
-                Notes
+                {__('Notes')}
+              </TabsTrigger>
+              <TabsTrigger value="lms" className="!text-xs">
+                <GraduationCap className="!w-3 !h-3" />
+                {__('LMS')}
               </TabsTrigger>
             </TabsList>
 
@@ -372,6 +379,10 @@ export default function ContactDetails() {
 
             <TabsContent value="notes" className="mt-4">
               <NotesTab contactId={contactId} />
+            </TabsContent>
+
+            <TabsContent value="lms" className="mt-4">
+              <LmsTab contactId={contactId} />
             </TabsContent>
           </Tabs>
         </div>

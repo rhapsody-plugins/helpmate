@@ -54,6 +54,11 @@ function useSidebar() {
   return context;
 }
 
+/** Same context as useSidebar but returns null when no provider (e.g. PageHeader outside Layout). */
+function useSidebarOptional(): SidebarContextProps | null {
+  return React.useContext(SidebarContext);
+}
+
 function SidebarProvider({
   defaultOpen = true,
   open: openProp,
@@ -318,7 +323,11 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { isMobile, toggleSidebar, submenuOpen, setSubmenuOpen } = useSidebar();
+  const ctx = useSidebarOptional();
+  if (!ctx) {
+    return null;
+  }
+  const { isMobile, toggleSidebar, submenuOpen, setSubmenuOpen } = ctx;
 
   return (
     <Button
@@ -789,4 +798,5 @@ export {
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
+  useSidebarOptional,
 };

@@ -1235,11 +1235,15 @@ class Helpmate_Social_Chat
 
             // Parse message content (can be JSON string for assistant messages)
             $content = $msg['message'];
+            $error_message = null;
             if ($msg['role'] === 'assistant') {
                 $parsed = json_decode($content, true);
+                $is_legacy_null = ($content === 'null' || $parsed === null);
                 if (is_array($parsed)) {
-                    if (isset($parsed['text'])) {
+                    if (isset($parsed['text']) && is_string($parsed['text']) && $parsed['text'] !== '') {
                         $content = $parsed['text'];
+                    } elseif ($is_legacy_null) {
+                        $content = $this->helpmate->get_pro_tool_customer_unavailable_message();
                     }
                     if (!empty($parsed['type'])) {
                         $metadata['tool_type'] = $parsed['type'];
@@ -1247,6 +1251,22 @@ class Helpmate_Social_Chat
                     if (!empty($parsed['data'])) {
                         $metadata['tool_data'] = $parsed['data'];
                     }
+                    if (!empty($parsed['feature_error']) && is_array($parsed['feature_error'])) {
+                        $metadata['feature_error'] = $parsed['feature_error'];
+                        if (!empty($parsed['feature_error']['admin_message'])) {
+                            $error_message = sanitize_text_field((string) $parsed['feature_error']['admin_message']);
+                        }
+                    }
+                } elseif ($is_legacy_null) {
+                    $content = $this->helpmate->get_pro_tool_customer_unavailable_message();
+                }
+
+                if ($is_legacy_null && $this->helpmate->is_pro_license_plugin_mismatch()) {
+                    $metadata['feature_error'] = [
+                        'code' => 'pro_plugin_inactive',
+                        'admin_message' => $this->helpmate->get_pro_plugin_inactive_admin_message(),
+                    ];
+                    $error_message = $this->helpmate->get_pro_plugin_inactive_admin_message();
                 }
             }
 
@@ -1259,7 +1279,7 @@ class Helpmate_Social_Chat
                 'message_type' => 'text',
                 'sent_by' => $sent_by,
                 'user_id' => isset($metadata['user_id']) ? (int) $metadata['user_id'] : null,
-                'error_message' => null,
+                'error_message' => $error_message,
                 'meta_data' => $metadata,
                 'created_at' => gmdate('Y-m-d H:i:s', (int) $msg['timestamp']),
             ];

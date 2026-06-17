@@ -168,7 +168,7 @@ class Helpmate_Notifications
         }
 
         $offset = max(0, ((int) $page) - 1) * max(1, (int) $per_page);
-        $per_page = max(1, min(100, (int) $per_page));
+        $per_page = max(1, min(500, (int) $per_page));
 
         $count_sql = "SELECT COUNT(*) FROM {$table} WHERE {$where}";
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Count query; WHERE/params from same build and prepare(); get_visible_where() returns safe format

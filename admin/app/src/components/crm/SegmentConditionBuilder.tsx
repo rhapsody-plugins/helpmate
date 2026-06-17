@@ -20,6 +20,7 @@ import {
   SegmentCondition,
   SegmentConditionGroup,
 } from '@/types/crm';
+import { __, sprintf } from '@/lib/utils';
 import { Plus, Trash, X } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 
@@ -39,6 +40,37 @@ const STANDARD_FIELDS = [
   { value: 'zip_code', label: 'Zip Code' },
   { value: 'status', label: 'Status' },
   { value: 'date_of_birth', label: 'Date of Birth' },
+  { value: 'integration_source', label: 'Integration Source' },
+  { value: 'um_account_status', label: 'Ultimate Member: Account Status' },
+  { value: 'um_primary_role', label: 'Ultimate Member: Primary Role' },
+  { value: 'um_registered_at', label: 'Ultimate Member: Registered At' },
+  { value: 'um_last_login_at', label: 'Ultimate Member: Last Login At' },
+  { value: 'um_registration_form', label: 'Ultimate Member: Registration Form' },
+  { value: 'um_profile_completed', label: 'Ultimate Member: Profile Completed (0/1)' },
+  { value: 'members_primary_role', label: 'Members: Primary Role' },
+  { value: 'members_all_roles', label: 'Members: All Roles' },
+  { value: 'members_registered_at', label: 'Members: Registered At' },
+  { value: 'members_last_login_at', label: 'Members: Last Login At' },
+  { value: 'members_profile_completed', label: 'Members: Profile Completed (0/1)' },
+  { value: 'ur_account_status', label: 'User Registration: Account Status' },
+  { value: 'ur_primary_role', label: 'User Registration: Primary Role' },
+  { value: 'ur_all_roles', label: 'User Registration: All Roles' },
+  { value: 'ur_registered_at', label: 'User Registration: Registered At' },
+  { value: 'ur_last_login_at', label: 'User Registration: Last Login At' },
+  { value: 'ur_registration_form', label: 'User Registration: Registration Form' },
+  { value: 'ur_profile_completed', label: 'User Registration: Profile Completed (0/1)' },
+  { value: 'lp_enrolled_course_ids', label: 'LearnPress: Enrolled Course ID' },
+  { value: 'lp_completed_course_ids', label: 'LearnPress: Completed Course ID' },
+  { value: 'lp_in_progress_course_ids', label: 'LearnPress: In Progress Course ID' },
+  { value: 'lp_completed_lesson_ids', label: 'LearnPress: Completed Lesson ID' },
+  { value: 'tutor_enrolled_course_ids', label: 'Tutor LMS: Enrolled Course ID' },
+  { value: 'tutor_completed_course_ids', label: 'Tutor LMS: Completed Course ID' },
+  { value: 'tutor_in_progress_course_ids', label: 'Tutor LMS: In Progress Course ID' },
+  { value: 'tutor_completed_lesson_ids', label: 'Tutor LMS: Completed Lesson ID' },
+  { value: 'lifter_enrolled_course_ids', label: 'LifterLMS: Enrolled Course ID' },
+  { value: 'lifter_completed_course_ids', label: 'LifterLMS: Completed Course ID' },
+  { value: 'lifter_in_progress_course_ids', label: 'LifterLMS: In Progress Course ID' },
+  { value: 'lifter_completed_lesson_ids', label: 'LifterLMS: Completed Lesson ID' },
 ];
 
 const OPERATORS = [
@@ -56,6 +88,46 @@ const OPERATORS = [
   { value: 'is_not_empty', label: 'Is Not Empty' },
 ];
 
+const LEARNPRESS_TOKEN_FIELDS = new Set([
+  'lp_enrolled_course_ids',
+  'lp_completed_course_ids',
+  'lp_in_progress_course_ids',
+  'lp_completed_lesson_ids',
+  'tutor_enrolled_course_ids',
+  'tutor_completed_course_ids',
+  'tutor_in_progress_course_ids',
+  'tutor_completed_lesson_ids',
+  'lifter_enrolled_course_ids',
+  'lifter_completed_course_ids',
+  'lifter_in_progress_course_ids',
+  'lifter_completed_lesson_ids',
+]);
+
+const SOURCE_TOKEN_FIELDS = new Set(['integration_source', 'ur_all_roles']);
+const UM_BOOLEAN_FIELDS = new Set([
+  'um_profile_completed',
+  'members_profile_completed',
+  'ur_profile_completed',
+]);
+
+const INTERNAL_LMS_FIELDS = new Set([
+  'lp_enrolled_course_ids',
+  'lp_completed_course_ids',
+  'lp_in_progress_course_ids',
+  'lp_completed_lesson_ids',
+  'lp_last_synced_at',
+  'tutor_enrolled_course_ids',
+  'tutor_completed_course_ids',
+  'tutor_in_progress_course_ids',
+  'tutor_completed_lesson_ids',
+  'tutor_last_synced_at',
+  'lifter_enrolled_course_ids',
+  'lifter_completed_course_ids',
+  'lifter_in_progress_course_ids',
+  'lifter_completed_lesson_ids',
+  'lifter_last_synced_at',
+]);
+
 export default function SegmentConditionBuilder({
   form,
   customFields,
@@ -65,11 +137,15 @@ export default function SegmentConditionBuilder({
 
   const allFields = [
     ...STANDARD_FIELDS,
-    ...customFields.map((cf) => ({
-      value: cf.field_name,
-      label: cf.field_label,
-    })),
-  ];
+    ...customFields
+      .filter((cf) => !INTERNAL_LMS_FIELDS.has(cf.field_name))
+      .map((cf) => ({
+        value: cf.field_name,
+        label: cf.field_label,
+      })),
+  ].filter(
+    (field, index, arr) => arr.findIndex((f) => f.value === field.value) === index
+  );
 
   const addGroup = () => {
     const currentGroups = form.getValues('conditions.groups') || [];
@@ -120,12 +196,33 @@ export default function SegmentConditionBuilder({
     return !['is_empty', 'is_not_empty'].includes(operator);
   };
 
+  const getOperatorsForField = (fieldName: string) => {
+    if (LEARNPRESS_TOKEN_FIELDS.has(fieldName)) {
+      return OPERATORS.filter((op) =>
+        ['contains', 'not_contains', 'is_empty', 'is_not_empty'].includes(op.value)
+      );
+    }
+    if (SOURCE_TOKEN_FIELDS.has(fieldName)) {
+      return OPERATORS.filter((op) =>
+        ['equals', 'not_equals', 'contains', 'not_contains', 'is_empty', 'is_not_empty'].includes(
+          op.value
+        )
+      );
+    }
+    if (UM_BOOLEAN_FIELDS.has(fieldName)) {
+      return OPERATORS.filter((op) =>
+        ['equals', 'not_equals', 'is_empty', 'is_not_empty'].includes(op.value)
+      );
+    }
+    return OPERATORS;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <FormLabel>Conditions</FormLabel>
+        <FormLabel>{__('Conditions')}</FormLabel>
         <div className="flex gap-2 items-center">
-          <span className="text-sm text-muted-foreground">Match</span>
+          <span className="text-sm text-muted-foreground">{__('Match')}</span>
           <Select
             value={topLevelLogic}
             onValueChange={(value) => form.setValue('conditions.logic', value as 'AND' | 'OR')}
@@ -134,8 +231,8 @@ export default function SegmentConditionBuilder({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="AND">All Groups</SelectItem>
-              <SelectItem value="OR">Any Group</SelectItem>
+              <SelectItem value="AND">{__('All Groups')}</SelectItem>
+              <SelectItem value="OR">{__('Any Group')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -156,7 +253,7 @@ export default function SegmentConditionBuilder({
           } else if (Array.isArray(groupErrors.conditions) && groupErrors.conditions.some(error => error)) {
             // Individual condition errors
             hasConditionErrors = true;
-            errorMessage = 'Please fill in all fields for each condition in this group';
+            errorMessage = __('Please fill in all fields for each condition in this group');
           }
         }
 
@@ -168,7 +265,11 @@ export default function SegmentConditionBuilder({
             <div className="flex justify-between items-center">
               <div className="flex gap-2 items-center">
                 <span className="text-sm font-medium">
-                  Group {groupIndex + 1}
+                  {sprintf(
+                    /* translators: %d: Condition group number */
+                    __('Group %d'),
+                    groupIndex + 1
+                  )}
                 </span>
                 <Select
                   value={group.logic || 'AND'}
@@ -180,8 +281,8 @@ export default function SegmentConditionBuilder({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="AND">All</SelectItem>
-                    <SelectItem value="OR">Any</SelectItem>
+                    <SelectItem value="AND">{__('All')}</SelectItem>
+                    <SelectItem value="OR">{__('Any')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -229,7 +330,7 @@ export default function SegmentConditionBuilder({
                                   key={field.value}
                                   value={field.value}
                                 >
-                                  {field.label}
+                                  {__(field.label)}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -245,6 +346,13 @@ export default function SegmentConditionBuilder({
                     name={`conditions.groups.${groupIndex}.conditions.${conditionIndex}.operator`}
                     render={({ field }) => (
                       <FormItem className="w-40">
+                        {(() => {
+                          const selectedField =
+                            form.watch(
+                              `conditions.groups.${groupIndex}.conditions.${conditionIndex}.field`
+                            ) || '';
+                          const allowedOperators = getOperatorsForField(selectedField);
+                          return (
                         <FormControl>
                           <Select
                             value={field.value || undefined}
@@ -254,14 +362,16 @@ export default function SegmentConditionBuilder({
                               <SelectValue placeholder="Operator" />
                             </SelectTrigger>
                             <SelectContent>
-                              {OPERATORS.map((op) => (
+                              {allowedOperators.map((op) => (
                                 <SelectItem key={op.value} value={op.value}>
-                                  {op.label}
+                                  {__(op.label)}
                                 </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         </FormControl>
+                          );
+                        })()}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -310,7 +420,7 @@ export default function SegmentConditionBuilder({
               className="w-full"
             >
               <Plus className="mr-2 w-4 h-4" />
-              Add Condition
+              {__('Add Condition')}
             </Button>
           </div>
         </div>
@@ -330,7 +440,7 @@ export default function SegmentConditionBuilder({
         className="w-full"
       >
         <Plus className="mr-2 w-4 h-4" />
-        Add Group
+        {__('Add Group')}
       </Button>
     </div>
   );

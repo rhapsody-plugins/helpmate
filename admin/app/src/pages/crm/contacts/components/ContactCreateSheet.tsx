@@ -25,6 +25,7 @@ import {
 import { useCrm } from '@/hooks/useCrm';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
+import { __ } from '@/lib/utils';
 import { Contact } from '@/types/crm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
@@ -135,6 +136,23 @@ export function ContactCreateSheet({
       return;
     }
 
+    if (customFields) {
+      const requiredFields = customFields.filter((f) => f.is_required);
+      for (const field of requiredFields) {
+        const fieldValue = data.custom_fields?.[String(field.id)];
+        if (
+          !fieldValue ||
+          (typeof fieldValue === 'string' && fieldValue.trim() === '')
+        ) {
+          form.setError(`custom_fields.${field.id}`, {
+            type: 'required',
+            message: `${field.field_label} is required`,
+          });
+          return;
+        }
+      }
+    }
+
     // Prepare custom fields data for API (convert string keys to numbers)
     const customFieldsData: Record<number, string | number | string[] | null> =
       {};
@@ -180,7 +198,7 @@ export function ContactCreateSheet({
       <SheetContent className="sm:!max-w-2xl flex flex-col h-full gap-0 overflow-hidden">
         <SheetHeader className="pb-4 mt-6 border-b">
           <SheetTitle className="text-lg font-bold !my-0">
-            Create Contact
+            {__('Create Contact')}
           </SheetTitle>
         </SheetHeader>
 
@@ -190,7 +208,7 @@ export function ContactCreateSheet({
               {/* Basic Info */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Basic Information</CardTitle>
+                  <CardTitle>{__('Basic Information')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -199,7 +217,7 @@ export function ContactCreateSheet({
                       name="prefix"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Prefix</FormLabel>
+                          <FormLabel>{__('Prefix')}</FormLabel>
                           <Select
                             value={field.value || 'none'}
                             onValueChange={(value) =>
@@ -216,7 +234,7 @@ export function ContactCreateSheet({
                             <SelectContent>
                               {PREFIX_OPTIONS.map((prefix) => (
                                 <SelectItem key={prefix} value={prefix}>
-                                  {prefix === 'none' ? 'None' : prefix}
+                                  {prefix === 'none' ? __('None') : prefix}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -230,7 +248,7 @@ export function ContactCreateSheet({
                       name="status"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Status</FormLabel>
+                          <FormLabel>{__('Status')}</FormLabel>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
@@ -257,7 +275,7 @@ export function ContactCreateSheet({
                       name="first_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>First Name</FormLabel>
+                          <FormLabel>{__('First Name')}</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -270,7 +288,7 @@ export function ContactCreateSheet({
                       name="last_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Last Name</FormLabel>
+                          <FormLabel>{__('Last Name')}</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -284,7 +302,7 @@ export function ContactCreateSheet({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
-                            Email <span className="text-red-500">*</span>
+                            {__('Email')} <span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
                             <Input type="email" {...field} />
@@ -298,7 +316,7 @@ export function ContactCreateSheet({
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone</FormLabel>
+                          <FormLabel>{__('Phone')}</FormLabel>
                           <FormControl>
                             <Input type="tel" {...field} />
                           </FormControl>
@@ -311,7 +329,7 @@ export function ContactCreateSheet({
                       name="date_of_birth"
                       render={({ field }) => (
                         <FormItem className="col-span-2">
-                          <FormLabel>Date of Birth</FormLabel>
+                          <FormLabel>{__('Date of Birth')}</FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
                           </FormControl>
@@ -327,7 +345,7 @@ export function ContactCreateSheet({
               {/* Address Info */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Address Information</CardTitle>
+                  <CardTitle>{__('Address Information')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <FormField
@@ -335,7 +353,7 @@ export function ContactCreateSheet({
                     name="address_line_1"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address Line 1</FormLabel>
+                        <FormLabel>{__('Address Line 1')}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -348,7 +366,7 @@ export function ContactCreateSheet({
                     name="address_line_2"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address Line 2</FormLabel>
+                        <FormLabel>{__('Address Line 2')}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -362,7 +380,7 @@ export function ContactCreateSheet({
                       name="city"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>City</FormLabel>
+                          <FormLabel>{__('City')}</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -375,7 +393,7 @@ export function ContactCreateSheet({
                       name="state"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>State</FormLabel>
+                          <FormLabel>{__('State')}</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -388,7 +406,7 @@ export function ContactCreateSheet({
                       name="zip_code"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>ZIP Code</FormLabel>
+                          <FormLabel>{__('ZIP Code')}</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -402,7 +420,7 @@ export function ContactCreateSheet({
                     name="country"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country</FormLabel>
+                        <FormLabel>{__('Country')}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -417,7 +435,7 @@ export function ContactCreateSheet({
               {customFields.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Custom Fields</CardTitle>
+                    <CardTitle>{__('Custom Fields')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {customFields.map((field) => (
@@ -439,13 +457,13 @@ export function ContactCreateSheet({
                   onClick={() => onOpenChange(false)}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {__('Cancel')}
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting && (
                     <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                   )}
-                  Create Contact
+                  {__('Create Contact')}
                 </Button>
               </div>
             </form>

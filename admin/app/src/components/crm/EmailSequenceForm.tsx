@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import { useMain } from '@/contexts/MainContext';
 import { useCrm } from '@/hooks/useCrm';
+import { __, sprintf } from '@/lib/utils';
 import { EmailSequence } from '@/types/crm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash } from 'lucide-react';
@@ -231,7 +232,7 @@ export default function EmailSequenceForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Sequence Name</FormLabel>
+              <FormLabel>{__('Sequence Name')}</FormLabel>
               <FormControl>
                 <Input {...field} placeholder="e.g., Welcome Sequence" />
               </FormControl>
@@ -246,7 +247,7 @@ export default function EmailSequenceForm({
           render={({ field }) => (
             <FormItem>
               <div className="flex justify-between items-center">
-                <FormLabel>Segment</FormLabel>
+                <FormLabel>{__('Segment')}</FormLabel>
                 <Button
                   type="button"
                   variant="link"
@@ -257,7 +258,7 @@ export default function EmailSequenceForm({
                   }}
                 >
                   <Plus className="w-4 h-4" />
-                  Create Segment
+                  {__('Create Segment')}
                 </Button>
               </div>
               <FormControl>
@@ -278,7 +279,12 @@ export default function EmailSequenceForm({
                         key={segment.id}
                         value={segment.id.toString()}
                       >
-                        {segment.name} ({segment.contact_count} contacts)
+                        {sprintf(
+                          /* translators: 1: Segment name, 2: Contact count */
+                          __('%1$s (%2$d contacts)'),
+                          segment.name,
+                          segment.contact_count
+                        )}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -291,10 +297,10 @@ export default function EmailSequenceForm({
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <FormLabel>Sequence Steps</FormLabel>
+            <FormLabel>{__('Sequence Steps')}</FormLabel>
             <Button type="button" variant="outline" size="sm" onClick={addStep}>
               <Plus className="mr-2 w-4 h-4" />
-              Add Step
+              {__('Add Step')}
             </Button>
           </div>
 
@@ -304,7 +310,13 @@ export default function EmailSequenceForm({
               className="p-4 space-y-3 rounded-lg border bg-muted/50"
             >
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Step {index + 1}</span>
+                <span className="text-sm font-medium">
+                  {sprintf(
+                    /* translators: %d: Step number */
+                    __('Step %d'),
+                    index + 1
+                  )}
+                </span>
                 {steps.length > 1 && (
                   <Button
                     type="button"
@@ -323,7 +335,7 @@ export default function EmailSequenceForm({
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex justify-between items-center">
-                      <FormLabel>Email Template</FormLabel>
+                      <FormLabel>{__('Email Template')}</FormLabel>
                       <Button
                         type="button"
                         variant="link"
@@ -334,7 +346,7 @@ export default function EmailSequenceForm({
                         }}
                       >
                         <Plus className="w-4 h-4" />
-                        Create Template
+                        {__('Create Template')}
                       </Button>
                     </div>
                     <FormControl>
@@ -374,7 +386,7 @@ export default function EmailSequenceForm({
                   name={`steps.${index}.delay_days`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Delay (Days)</FormLabel>
+                      <FormLabel>{__('Delay (Days)')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -395,7 +407,7 @@ export default function EmailSequenceForm({
                   name={`steps.${index}.delay_hours`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Delay (Hours)</FormLabel>
+                      <FormLabel>{__('Delay (Hours)')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -417,7 +429,7 @@ export default function EmailSequenceForm({
 
         <div className="flex gap-2 justify-end pt-4 border-t">
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {__('Cancel')}
           </Button>
           <Button
             type="submit"
@@ -426,7 +438,7 @@ export default function EmailSequenceForm({
               updateEmailSequenceMutation.isPending
             }
           >
-            {sequence ? 'Update' : 'Create'} Sequence
+            {sequence ? __('Update Sequence') : __('Create Sequence')}
           </Button>
         </div>
       </form>

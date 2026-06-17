@@ -29,6 +29,7 @@ import { Switch } from '@/components/ui/switch';
 import { useMain } from '@/contexts/MainContext';
 import { useCrm } from '@/hooks/useCrm';
 import { utcToDatetimeLocal } from '@/pages/crm/contacts/utils';
+import { __, sprintf } from '@/lib/utils';
 import { Campaign } from '@/types/crm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus } from 'lucide-react';
@@ -268,7 +269,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
           name="type"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>Campaign Type</FormLabel>
+              <FormLabel>{__('Campaign Type')}</FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -278,13 +279,13 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="one_time" id="one_time" />
                     <Label htmlFor="one_time" className="font-normal cursor-pointer">
-                      One-Time Campaign
+                      {__('One-Time Campaign')}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="recurring" id="recurring" />
                     <Label htmlFor="recurring" className="font-normal cursor-pointer">
-                      Recurring Campaign
+                      {__('Recurring Campaign')}
                     </Label>
                   </div>
                 </RadioGroup>
@@ -299,7 +300,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Campaign Name</FormLabel>
+              <FormLabel>{__('Campaign Name')}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -321,7 +322,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
           render={({ field }) => (
             <FormItem>
               <div className="flex justify-between items-center">
-                <FormLabel>Email Template</FormLabel>
+                <FormLabel>{__('Email Template')}</FormLabel>
                 <Button
                   type="button"
                   variant="link"
@@ -332,7 +333,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
                   }}
                 >
                   <Plus className="w-4 h-4" />
-                  Create Template
+                  {__('Create Template')}
                 </Button>
               </div>
               <FormControl>
@@ -366,7 +367,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
           render={({ field }) => (
             <FormItem>
               <div className="flex justify-between items-center">
-                <FormLabel>Segment</FormLabel>
+                <FormLabel>{__('Segment')}</FormLabel>
                 <Button
                   type="button"
                   variant="link"
@@ -377,7 +378,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
                   }}
                 >
                   <Plus className="w-4 h-4" />
-                  Create Segment
+                  {__('Create Segment')}
                 </Button>
               </div>
               <FormControl>
@@ -394,7 +395,12 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
                         key={segment.id}
                         value={segment.id.toString()}
                       >
-                        {segment.name} ({segment.contact_count} contacts)
+                        {sprintf(
+                          /* translators: 1: Segment name, 2: Contact count */
+                          __('%1$s (%2$d contacts)'),
+                          segment.name,
+                          segment.contact_count
+                        )}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -411,7 +417,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
             name="scheduled_at"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Schedule (Optional)</FormLabel>
+                <FormLabel>{__('Schedule (Optional)')}</FormLabel>
                 <FormControl>
                   <Input
                     type="datetime-local"
@@ -433,7 +439,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
                 name="interval_value"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Interval Value</FormLabel>
+                    <FormLabel>{__('Interval Value')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -452,7 +458,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
                 name="interval_unit"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Interval Unit</FormLabel>
+                    <FormLabel>{__('Interval Unit')}</FormLabel>
                     <FormControl>
                       <Select
                         value={field.value}
@@ -462,9 +468,9 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="days">Days</SelectItem>
-                          <SelectItem value="weeks">Weeks</SelectItem>
-                          <SelectItem value="months">Months</SelectItem>
+                          <SelectItem value="days">{__('Days')}</SelectItem>
+                          <SelectItem value="weeks">{__('Weeks')}</SelectItem>
+                          <SelectItem value="months">{__('Months')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -479,7 +485,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
               name="send_time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Send Time (Optional)</FormLabel>
+                  <FormLabel>{__('Send Time (Optional)')}</FormLabel>
                   <FormControl>
                     <Input type="time" {...field} value={field.value || ''} />
                   </FormControl>
@@ -494,9 +500,9 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
               render={({ field }) => (
                 <FormItem className="flex flex-row justify-between items-center p-3 rounded-lg border">
                   <div className="space-y-0.5">
-                    <FormLabel>Active</FormLabel>
+                    <FormLabel>{__('Active')}</FormLabel>
                     <div className="text-sm text-muted-foreground">
-                      Enable or disable this recurring campaign
+                      {__('Enable or disable this recurring campaign')}
                     </div>
                   </div>
                   <FormControl>
@@ -513,7 +519,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
 
         <div className="flex gap-2 justify-end pt-4 border-t">
           <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
+            {__('Cancel')}
           </Button>
           <Button
             type="submit"
@@ -522,7 +528,7 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
               updateCampaignMutation.isPending
             }
           >
-            {campaign ? 'Update' : 'Create'} Campaign
+            {campaign ? __('Update Campaign') : __('Create Campaign')}
           </Button>
         </div>
       </form>
@@ -530,17 +536,19 @@ export default function CampaignForm({ campaign, onClose, defaultType = 'one_tim
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Send Campaign Immediately?</DialogTitle>
+            <DialogTitle>{__('Send Campaign Immediately?')}</DialogTitle>
             <DialogDescription>
-              No schedule date has been set. This campaign will be sent immediately to all contacts in the selected segment. Are you sure you want to proceed?
+              {__(
+                'No schedule date has been set. This campaign will be sent immediately to all contacts in the selected segment. Are you sure you want to proceed?'
+              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={handleCancelSend}>
-              Cancel
+              {__('Cancel')}
             </Button>
             <Button onClick={handleConfirmSend}>
-              Yes, Send Now
+              {__('Yes, Send Now')}
             </Button>
           </DialogFooter>
         </DialogContent>

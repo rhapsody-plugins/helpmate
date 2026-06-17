@@ -11,6 +11,7 @@ import { ContactPills } from './components/ContactPills';
 import { Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { defaultLocale } from '@/pages/crm/contacts/utils';
+import { __ } from '@/lib/utils';
 
 interface TasksListViewProps {
   filters: TaskFilters;
@@ -64,7 +65,7 @@ export function TasksListView({ filters, onTaskClick }: TasksListViewProps) {
   const columns: ColumnDef<Task>[] = [
     {
       accessorKey: 'title',
-      header: 'Task',
+      header: __('Task'),
       cell: ({ row }) => (
         <div className="flex gap-2 items-center">
           {row.original.is_overdue && <OverdueIndicator />}
@@ -74,21 +75,21 @@ export function TasksListView({ filters, onTaskClick }: TasksListViewProps) {
     },
     {
       id: 'status',
-      header: 'Status',
+      header: __('Status'),
       cell: ({ row }) => {
         const statusField = Object.values(row.original.custom_fields || {}).find(
           (f) => f.field_name === 'status'
         );
         return (
           <Badge variant="default">
-            {statusField?.value as string || 'No Status'}
+            {statusField?.value as string || __('No Status')}
           </Badge>
         );
       },
     },
     {
       id: 'priority',
-      header: 'Priority',
+      header: __('Priority'),
       cell: ({ row }) => {
         const priorityField = Object.values(row.original.custom_fields || {}).find(
           (f) => f.field_name === 'priority'
@@ -106,7 +107,7 @@ export function TasksListView({ filters, onTaskClick }: TasksListViewProps) {
     },
     {
       id: 'type',
-      header: 'Type',
+      header: __('Type'),
       cell: ({ row }) => {
         const typeField = Object.values(row.original.custom_fields || {}).find(
           (f) => f.field_name === 'task_type'
@@ -120,15 +121,15 @@ export function TasksListView({ filters, onTaskClick }: TasksListViewProps) {
     },
     {
       accessorKey: 'assigned_to_name',
-      header: 'Assigned To',
+      header: __('Assigned To'),
       cell: ({ row }) =>
         row.original.assigned_to_name || (
-          <span className="text-sm text-muted-foreground">Unassigned</span>
+          <span className="text-sm text-muted-foreground">{__('Unassigned')}</span>
         ),
     },
     {
       accessorKey: 'due_date',
-      header: 'Due Date',
+      header: __('Due Date'),
       cell: ({ row }) =>
         row.original.due_date ? (
           <span className={row.original.is_overdue ? 'text-destructive font-medium' : ''}>
@@ -142,7 +143,7 @@ export function TasksListView({ filters, onTaskClick }: TasksListViewProps) {
     },
     {
       id: 'contacts',
-      header: 'Contacts',
+      header: __('Contacts'),
       cell: ({ row }) => <ContactPills contacts={row.original.contacts} maxDisplay={2} />,
     },
     {

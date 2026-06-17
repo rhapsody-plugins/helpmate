@@ -5,6 +5,7 @@ import { TestChatInput } from './TestChatInput';
 import { RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '@/lib/axios';
+import { __ } from '@/lib/utils';
 import { useSettings } from '@/hooks/useSettings';
 import HelpmateIcon from '@/assets/helpmate-logo-icon.svg';
 import { ChangeSvgColor } from 'svg-color-tools';
@@ -142,7 +143,9 @@ export function TestChatWidget() {
         const errorMessage: TestMessage = {
           id: `error_${Date.now()}`,
           role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again.',
+          content: __(
+            'Sorry, I encountered an error. Please try again.'
+          ),
           type: 'text',
           timestamp: new Date(),
         };
@@ -192,7 +195,7 @@ export function TestChatWidget() {
   );
 
   const handleNewChat = useCallback(() => {
-    if (confirm('Start a new test session? This will clear the current conversation.')) {
+    if (confirm(__('Start a new test session? This will clear the current conversation.'))) {
       setMessages([]);
       clearTestSession();
       // Generate new session ID
@@ -229,9 +232,9 @@ export function TestChatWidget() {
           </div>
           <div>
             <h1 className="!text-lg !font-semibold !text-white !m-0 !p-0">
-              Test Chat
+              {__('Test Chat')}
             </h1>
-            <p className="!text-sm !text-white/80 !m-0 !mt-0.5">Debug</p>
+            <p className="!text-sm !text-white/80 !m-0 !mt-0.5">{__('Debug')}</p>
           </div>
         </div>
         <Button

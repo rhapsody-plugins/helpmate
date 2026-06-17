@@ -4,7 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { useMain } from '@/contexts/MainContext';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __ } from '@/lib/utils';
 import { MenuItem } from '@/types';
 import { Suspense, lazy, useCallback, useMemo, useState } from 'react';
 
@@ -57,10 +57,10 @@ export default function RefundReturn() {
       <Tabs className="gap-0" value={tab} onValueChange={setTab}>
         <PageHeader
           menuItems={MENU_ITEMS}
-          title="Refund & Return"
+          title={__('Refund & Return')}
           rightActions={
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Enable Module</span>
+              <span className="text-sm text-muted-foreground">{__('Enable Module')}</span>
               <Switch
                 checked={isModuleEnabled}
                 onCheckedChange={handleModuleToggle}
@@ -76,7 +76,7 @@ export default function RefundReturn() {
             !isModuleEnabled && 'opacity-50 pointer-events-none cursor-not-allowed'
           )}
         >
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div>{__('Loading...')}</div>}>
             {tab === 'Settings' && <TabSettings />}
             {tab === 'Requests' && <TabRequests />}
           </Suspense>

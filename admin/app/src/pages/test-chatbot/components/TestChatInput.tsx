@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useMain } from '@/contexts/MainContext';
 import { useSettings } from '@/hooks/useSettings';
+import { __ } from '@/lib/utils';
 import { ImageIcon, Send, X } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 
@@ -159,8 +160,9 @@ export function TestChatInput({
         <div className="px-4 pb-2">
           <div className="p-2 bg-yellow-50 rounded-md border border-yellow-200">
             <p className="text-xs text-yellow-800 !m-0 !p-0">
-              ⚠️ Image search is not available on localhost. Please deploy to a
-              live server to use image search features.
+              {__(
+                '⚠️ Image search is not available on localhost. Please deploy to a live server to use image search features.'
+              )}
             </p>
           </div>
         </div>

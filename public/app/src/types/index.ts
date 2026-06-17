@@ -255,6 +255,11 @@ export interface OrderDetails {
   shippingAddress: string;
   trackingNumber?: string;
   estimatedDelivery?: string;
+  fulfillmentStatus?: string;
+  shippingStatus?: string;
+  orderTotal?: string;
+  currency?: string;
+  provider?: string;
 }
 
 export interface OrderItem {
@@ -267,6 +272,10 @@ export interface BotSettings {
   api: boolean;
   is_pro: boolean;
   is_woocommerce_active: boolean;
+  /** True when image-search module, primary commerce, and that plugin are all OK (Pro). */
+  image_search_operational?: boolean;
+  /** True when primary commerce is set and its plugin is active (sales toasts). */
+  sales_notification_commerce_active?: boolean;
   modules: Record<string, boolean>;
   customization: Record<string, unknown>;
   proactive_sales_products: Product[];

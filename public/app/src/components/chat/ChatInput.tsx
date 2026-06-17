@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useTheme } from '@/context/ThemeContext';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { __, cn, sprintf } from '@/lib/utils';
 import { Send, X } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useMemo, useRef } from 'react';
@@ -74,10 +74,20 @@ export function ChatInput({
   const { data: settings } = getSettingsQuery;
 
   // Memoize expensive computations
-  const imageSearch = useMemo(
-    () => settings?.modules?.['image-search'] ?? false,
-    [settings?.modules]
-  );
+  const imageSearch = useMemo(() => {
+    const moduleOn = Boolean(settings?.modules?.['image-search']);
+    if (!moduleOn) {
+      return false;
+    }
+    if (settings?.image_search_operational !== undefined) {
+      return Boolean(settings.image_search_operational);
+    }
+    return Boolean(settings?.is_woocommerce_active);
+  }, [
+    settings?.modules,
+    settings?.image_search_operational,
+    settings?.is_woocommerce_active,
+  ]);
   const products = useMemo(
     () => settings?.proactive_sales_products ?? [],
     [settings?.proactive_sales_products]
@@ -217,19 +227,19 @@ export function ChatInput({
       {isChatOpen && !hasStartedConversation && (
         <QuickOptions onOptionClick={handleQuickOptionClick} />
       )}
-      {productId && (
+      {product && (
         <div className="flex relative gap-2 items-center mb-3 w-full">
           <img
-            src={product?.image}
-            alt={product?.name}
+            src={product.image}
+            alt={product.name}
             className="w-10 h-10 rounded-full"
           />
           <div className="flex flex-col">
-            <h3 className="!text-sm !font-medium">{product?.name}</h3>
+            <h3 className="!text-sm !font-medium">{product.name}</h3>
             <div
               className="text-sm text-gray-500"
               dangerouslySetInnerHTML={{
-                __html: product?.price ?? '',
+                __html: product.price ?? '',
               }}
             />
           </div>
@@ -259,7 +269,7 @@ export function ChatInput({
           value={input}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder="Type your message..."
+          placeholder={__('Type your message...')}
           rows={3}
           className="flex-grow bg-white resize-none min-h-[100px] !pb-15 shadow-none !border-none focus-visible:ring-0 focus-visible:ring-offset-0"
           disabled={isLoading}
@@ -291,13 +301,19 @@ export function ChatInput({
                 {liveAgents.length > 1 && (
                   <div
                     className="size-5 min-w-5 min-h-5 max-w-5 max-h-5 rounded-full border-2 border-white bg-white text-primary flex items-center justify-center text-[10px] font-medium flex-shrink-0 -ml-1.5 ring-1 ring-border box-border relative z-[3]"
-                    title={`+${liveAgents.length - 1} more`}
+                    title={sprintf(
+                      /* translators: %s: Number of additional live agents beyond the first */
+                      __('+%s more'),
+                      String(liveAgents.length - 1)
+                    )}
                   >
                     +{liveAgents.length - 1}
                   </div>
                 )}
               </div>
-            <span className="text-xs text-muted-foreground">Live Agents</span>
+            <span className="text-xs text-muted-foreground">
+              {__('Live Agents')}
+            </span>
           </div>
         )}
         <div className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5">
@@ -327,8 +343,9 @@ export function ChatInput({
       {isLocalhost && image && (
         <div className="p-2 mt-2 bg-yellow-50 rounded-md border border-yellow-200">
           <p className="text-xs text-yellow-800">
-            ⚠️ Image search is not available on localhost. Please deploy to a
-            live server to use image search features.
+            {__(
+              'Image search is not available on localhost. Please deploy to a live server to use image search features.'
+            )}
           </p>
         </div>
       )}

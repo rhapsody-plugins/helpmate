@@ -28,6 +28,7 @@ import {
   TextQuote,
 } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { __ } from '@/lib/utils';
 
 export interface VariableGroup {
   label: string;
@@ -184,7 +185,7 @@ export default function EmailTemplateEditor({
   );
 
   const handleFormatLink = useCallback(() => {
-    const url = window.prompt('Enter URL:', 'https://');
+    const url = window.prompt(__('Enter URL:'), 'https://');
     if (url) {
       applyFormatCommand('createLink', url);
     }
@@ -248,8 +249,8 @@ export default function EmailTemplateEditor({
     }
 
     const frame = window.wp.media({
-      title: 'Select or Upload Image',
-      button: { text: 'Use this image' },
+      title: __('Select or Upload Image'),
+      button: { text: __('Use this image') },
       multiple: false,
     });
 
@@ -338,7 +339,7 @@ export default function EmailTemplateEditor({
                     <div className="my-1 border-t border-border" />
                   )}
                   <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground pointer-events-none">
-                    {group.label}
+                    {__(group.label)}
                   </div>
                   {group.variables.map((variable, varIndex) => (
                     <SelectItem key={`${groupIndex}-${varIndex}`} value={variable}>
@@ -362,7 +363,7 @@ export default function EmailTemplateEditor({
           <SelectContent>
             {EMAIL_BLOCK_SNIPPETS.map((snippet) => (
               <SelectItem key={snippet.id} value={snippet.id}>
-                {snippet.label}
+                {__(snippet.label)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -380,7 +381,7 @@ export default function EmailTemplateEditor({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <span>Insert Image</span>
+            <span>{__('Insert Image')}</span>
           </TooltipContent>
         </Tooltip>
         <div className="ml-auto">
@@ -394,11 +395,11 @@ export default function EmailTemplateEditor({
                 onClick={() => setShowHtmlEditor((v) => !v)}
               >
                 <Code2 className="h-4 w-4" />
-                HTML
+                {__('HTML')}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <span>{showHtmlEditor ? 'Hide' : 'Show'} HTML editor</span>
+              <span>{showHtmlEditor ? __('Hide HTML editor') : __('Show HTML editor')}</span>
             </TooltipContent>
           </Tooltip>
         </div>
@@ -416,7 +417,7 @@ export default function EmailTemplateEditor({
               <Bold className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Bold</TooltipContent>
+          <TooltipContent>{__('Bold')}</TooltipContent>
         </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -430,7 +431,7 @@ export default function EmailTemplateEditor({
             <Italic className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Italic</TooltipContent>
+        <TooltipContent>{__('Italic')}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -444,7 +445,7 @@ export default function EmailTemplateEditor({
             <Strikethrough className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Strikethrough</TooltipContent>
+        <TooltipContent>{__('Strikethrough')}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -458,7 +459,7 @@ export default function EmailTemplateEditor({
             <Link2 className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Insert link</TooltipContent>
+        <TooltipContent>{__('Insert link')}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -472,7 +473,7 @@ export default function EmailTemplateEditor({
             <List className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Bullet list</TooltipContent>
+        <TooltipContent>{__('Bullet list')}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -486,7 +487,7 @@ export default function EmailTemplateEditor({
             <ListOrdered className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Ordered list</TooltipContent>
+        <TooltipContent>{__('Ordered list')}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -500,7 +501,7 @@ export default function EmailTemplateEditor({
             <TextQuote className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Blockquote</TooltipContent>
+        <TooltipContent>{__('Blockquote')}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -514,7 +515,7 @@ export default function EmailTemplateEditor({
             <SeparatorHorizontal className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Horizontal rule</TooltipContent>
+        <TooltipContent>{__('Horizontal rule')}</TooltipContent>
       </Tooltip>
       </div>
     </div>
@@ -554,7 +555,7 @@ export default function EmailTemplateEditor({
     </div>
   ) : (
     <div className="flex justify-center items-center min-h-[400px] text-muted-foreground text-sm border rounded bg-muted/20">
-      Add content to see preview
+      {__('Add content to see preview')}
     </div>
   );
 
@@ -570,7 +571,8 @@ export default function EmailTemplateEditor({
               className={`flex flex-col ${showHtmlEditor ? 'flex-1 min-w-0' : 'flex-1 min-w-0 w-full'}`}
             >
               <div className="text-xs font-medium text-muted-foreground mb-2">
-                Preview <span className="font-normal">(click to edit)</span>
+                {__('Preview')}{' '}
+                <span className="font-normal">{__('(click to edit)')}</span>
               </div>
               {previewArea}
             </div>
@@ -585,10 +587,10 @@ export default function EmailTemplateEditor({
           >
             <TabsList className="w-full">
               <TabsTrigger value="edit" className="flex-1">
-                Edit
+                {__('Edit')}
               </TabsTrigger>
               <TabsTrigger value="preview" className="flex-1">
-                Preview
+                {__('Preview')}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="edit" className="mt-2">

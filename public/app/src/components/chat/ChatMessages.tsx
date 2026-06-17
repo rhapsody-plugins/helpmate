@@ -3,6 +3,7 @@
 import { Avatar } from '@/components/chat/Avatar';
 import { MessageBubble } from '@/components/chat/MessageBubble';
 import { TypingIndicator } from '@/components/chat/TypingIndicator';
+import { __, sprintf } from '@/lib/utils';
 import type { ChatMessage } from '@/types';
 import { useEffect, useRef } from 'react';
 
@@ -30,21 +31,28 @@ export function ChatMessages({
     <div className="overflow-y-auto p-4 pb-0 space-y-4 h-full">
       {messages.length === 0 ? (
         <div className="flex justify-center items-center pb-4 h-full text-center text-gray-500">
-          <p className="text-base">Send a message to start the conversation</p>
+          <p className="text-base">
+            {__('Send a message to start the conversation')}
+          </p>
         </div>
       ) : (
         <>
           {messages.map((message) => {
             // Render system messages (join notifications, etc.)
             if (message.role === 'system' || message.type === 'system') {
-              const firstName = message.systemData?.first_name || 'Team member';
+              const firstName =
+                message.systemData?.first_name || __('Team member');
               return (
                 <div
                   key={message.id}
                   className="flex justify-center items-center py-2"
                 >
                   <div className="px-3 py-1.5 rounded-full bg-primary/10 text-xs text-gray-600">
-                    {firstName} joined the conversation
+                    {sprintf(
+                      /* translators: %s: User's first name or display name */
+                      __('%s joined the conversation'),
+                      firstName
+                    )}
                   </div>
                 </div>
               );

@@ -7,9 +7,10 @@
   text-align: center;
 }
 
-.toplevel_page_helpmate .wp-menu-image img {
+#toplevel_page_helpmate .wp-menu-image img {
   padding: 0 !important;
   opacity: 1 !important;
+  width: 36px !important;
 }
 
 .helpmate-spinner {
@@ -47,6 +48,7 @@
 .helpmate-inbox-tab #adminmenu .wp-submenu a,
 .helpmate-channels-tab #adminmenu .wp-submenu a,
 .helpmate-crm-tab #adminmenu .wp-submenu a,
+.helpmate-integrations-tab #adminmenu .wp-submenu a,
 .helpmate-admin-hub-tab #adminmenu .wp-submenu a {
   color: rgba(240, 246, 252, 0.7) !important;
   font-weight: 400 !important;
@@ -63,6 +65,7 @@
 .helpmate-channels-tab #adminmenu .wp-submenu a[href*='helpmate&tab=social-chat&subtab=tiktok'],
 .helpmate-channels-tab #adminmenu .wp-submenu a[href*='helpmate&tab=live-chat'],
 .helpmate-crm-tab #adminmenu .wp-submenu a[href*='helpmate&tab=crm'],
+.helpmate-integrations-tab #adminmenu .wp-submenu a[href*='helpmate&tab=integrations'],
 .helpmate-admin-hub-tab #adminmenu .wp-submenu a[href*='helpmate&tab=control-center'] {
   color: #ffffff !important;
   font-weight: 600 !important;

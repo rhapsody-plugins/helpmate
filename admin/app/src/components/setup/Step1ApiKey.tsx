@@ -10,16 +10,20 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useApi } from '@/hooks/useApi';
-import { useDataSource } from '@/hooks/useDataSource';
-import api from '@/lib/axios';
+import { ApiKeyActivationResponse, useApi } from '@/hooks/useApi';
+import {
+  fetchLocalhostSources,
+  shouldShowLocalhostMigrationStep,
+} from '@/hooks/useLocalhostMigration';
+import { useSetupQuickTrain } from '@/hooks/useSetupQuickTrain';
 import {
   HelpmateLoginURL,
   HelpmatePrivacyPolicyURL,
   HelpmateTermsOfServiceURL,
 } from '@/lib/constants';
+import { __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AxiosError } from 'axios';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -52,16 +56,13 @@ interface Step1ApiKeyProps {
 export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
   const { activateApiKeyMutation, getFreeApiKeyMutation, apiKeyQuery } =
     useApi();
-  const { getSourcesMutation, addSourceMutation, updateSourceMutation } =
-    useDataSource();
-  const [isLoading, setIsLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [autoTrainError, setAutoTrainError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { runQuickTrain, isLoading, progress, error, setError } =
+    useSetupQuickTrain();
+  const [isRestoringKb, setIsRestoringKb] = useState(false);
+  const [restoreProgress, setRestoreProgress] = useState(0);
   const hasTrainedRef = useRef(false);
 
-  const { mutate: fetchMutate } = getSourcesMutation;
-  const { mutate: addMutate } = addSourceMutation;
-  const { mutate: updateMutate } = updateSourceMutation;
   const { refetch: refetchApiKey } = apiKeyQuery;
 
   const signupForm = useForm<SignupFormData>({
@@ -81,159 +82,54 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
     resolver: zodResolver(activateSchema),
   });
 
-  const quickTrainInternal = useCallback(async () => {
-    setIsLoading(true);
-    setProgress(0);
-    setAutoTrainError(null);
-    let data: { title: string; content: string } | undefined;
+  const completeKbRestore = useCallback(() => {
+    setIsRestoringKb(true);
+    setRestoreProgress(20);
+    const interval = setInterval(() => {
+      setRestoreProgress((prev) => (prev >= 95 ? prev : prev + 12));
+    }, 120);
+    setTimeout(() => {
+      clearInterval(interval);
+      setRestoreProgress(100);
+      setTimeout(() => {
+        setIsRestoringKb(false);
+        setRestoreProgress(0);
+        hasTrainedRef.current = true;
+        onComplete();
+      }, 400);
+    }, 900);
+  }, [onComplete]);
 
-    // Phase 1: Getting content (0% to 50%)
-    setProgress(10);
-    const contentProgressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 45) return prev;
-        return prev + Math.random() * 8;
+  const handleActivationSuccess = useCallback(
+    async (data: ApiKeyActivationResponse) => {
+      await refetchApiKey();
+
+      const migrationPayload = await queryClient.fetchQuery({
+        queryKey: ['localhost-migration-sources'],
+        queryFn: fetchLocalhostSources,
       });
-    }, 150);
 
-    try {
-      const response = await api.post('/quick-train-homepage');
-
-      if (response.data.error) {
-        throw new Error(response.data.message);
+      if (shouldShowLocalhostMigrationStep(migrationPayload)) {
+        onComplete();
+        return;
       }
-      data = response.data;
-    } catch (error) {
-      console.error('Error fetching URL:', error);
-      const errorMessage =
-        (error as AxiosError<{ message: string }>).response?.data?.message ??
-        'Failed to fetch URL content';
-      setAutoTrainError(errorMessage);
-      clearInterval(contentProgressInterval);
-      setIsLoading(false);
-      setProgress(0);
-      return;
-    } finally {
-      clearInterval(contentProgressInterval);
-      setProgress(50);
-    }
 
-    // Phase 2: Saving content (50% to 100%)
-    setProgress(55);
-    const saveProgressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 95) return prev;
-        return prev + Math.random() * 8;
-      });
-    }, 150);
+      if (data.documents?.skipped_quick_train) {
+        completeKbRestore();
+        return;
+      }
 
-    if (!data?.title || !data?.content) {
-      setAutoTrainError('Failed to fetch homepage content. Try Again.');
-      clearInterval(saveProgressInterval);
-      setIsLoading(false);
-      setProgress(0);
-      return;
-    }
-
-    // Fetch existing data to check if we need to update or add
-    fetchMutate('general', {
-      onSuccess: (existingData) => {
-        if (existingData?.[0]?.id) {
-          updateMutate(
-            {
-              id: existingData[0].id,
-              document_type: 'general',
-              title: data.title,
-              content: data.content,
-              vector: existingData[0].vector,
-              metadata: {},
-              last_updated: Math.floor(Date.now() / 1000),
-            },
-            {
-              onSuccess: () => {
-                clearInterval(saveProgressInterval);
-                setProgress(100);
-                setTimeout(() => {
-                  setIsLoading(false);
-                  setProgress(0);
-                  hasTrainedRef.current = true;
-                  onComplete();
-                }, 500);
-              },
-              onError: (error) => {
-                clearInterval(saveProgressInterval);
-                setIsLoading(false);
-                setProgress(0);
-                setAutoTrainError(
-                  error.message || 'Failed to save content. Try again.'
-                );
-              },
-            }
-          );
-        } else {
-          addMutate(
-            {
-              document_type: 'general',
-              title: data.title,
-              content: data.content,
-              metadata: {},
-            },
-            {
-              onSuccess: () => {
-                clearInterval(saveProgressInterval);
-                setProgress(100);
-                setTimeout(() => {
-                  setIsLoading(false);
-                  setProgress(0);
-                  hasTrainedRef.current = true;
-                  onComplete();
-                }, 500);
-              },
-              onError: (error) => {
-                clearInterval(saveProgressInterval);
-                setIsLoading(false);
-                setProgress(0);
-                setAutoTrainError(
-                  error.message || 'Failed to save content. Try again.'
-                );
-              },
-            }
-          );
+      const delay = data.documents?.error ? 0 : 1000;
+      setTimeout(async () => {
+        const ok = await runQuickTrain();
+        if (ok) {
+          hasTrainedRef.current = true;
+          onComplete();
         }
-      },
-      onError: () => {
-        // If fetch fails, try to add anyway
-        addMutate(
-          {
-            document_type: 'general',
-            title: data.title,
-            content: data.content,
-            metadata: {},
-          },
-          {
-            onSuccess: () => {
-              clearInterval(saveProgressInterval);
-              setProgress(100);
-              setTimeout(() => {
-                setIsLoading(false);
-                setProgress(0);
-                hasTrainedRef.current = true;
-                onComplete();
-              }, 500);
-            },
-            onError: (error) => {
-              clearInterval(saveProgressInterval);
-              setIsLoading(false);
-              setProgress(0);
-              setAutoTrainError(
-                error.message || 'Failed to save content. Try again.'
-              );
-            },
-          }
-        );
-      },
-    });
-  }, [addMutate, fetchMutate, updateMutate, onComplete]);
+      }, delay);
+    },
+    [completeKbRestore, onComplete, queryClient, refetchApiKey, runQuickTrain]
+  );
 
   const handleSignupSubmit = (data: SignupFormData) => {
     getFreeApiKeyMutation.mutate(
@@ -242,13 +138,8 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
         password: data.password,
       },
       {
-        onSuccess: () => {
-          refetchApiKey().then(() => {
-            // Wait a bit for the API key to be available, then trigger quick train
-            setTimeout(() => {
-              quickTrainInternal();
-            }, 1000);
-          });
+        onSuccess: (response) => {
+          void handleActivationSuccess(response);
         },
       }
     );
@@ -256,30 +147,37 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
 
   const handleActivateSubmit = (data: ActivateFormData) => {
     activateApiKeyMutation.mutate(data.apiKey, {
-      onSuccess: () => {
-        refetchApiKey().then(() => {
-          // Wait a bit for the API key to be available, then trigger quick train
-          setTimeout(() => {
-            quickTrainInternal();
-          }, 1000);
-        });
+      onSuccess: (response) => {
+        void handleActivationSuccess(response);
       },
+    });
+  };
+
+  const displayProgress = isRestoringKb ? restoreProgress : progress;
+  const showLoading = isLoading || isRestoringKb;
+
+  const handleRetryQuickTrain = () => {
+    setError(null);
+    void runQuickTrain().then((ok) => {
+      if (ok) {
+        hasTrainedRef.current = true;
+        onComplete();
+      }
     });
   };
 
   return (
     <div className="space-y-6">
       <div className="mb-6 text-center">
-        <h2 className="!mb-2 !mt-0 !text-2xl !font-bold">Step 1: Activate API Key</h2>
+        <h2 className="!mb-2 !mt-0 !text-2xl !font-bold">{__('Step 1: Activate API Key')}</h2>
         <p className="text-muted-foreground !my-0">
-          Create a free API key or use an existing one to get started
+          {__('Create a free API key or use an existing one to get started')}
         </p>
       </div>
 
-      {isLoading && (
+      {showLoading && (
         <div className="space-y-4">
-          <div className="flex gap-2 justify-center items-center">
-            <svg
+          <div className="flex gap-2 justify-center items-center">            <svg
               className="w-6 h-6 animate-spin"
               fill="none"
               viewBox="0 0 24 24"
@@ -299,50 +197,53 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
               ></path>
             </svg>
             <span className="text-lg font-semibold">
-              Initializing Chatbot...
+              {isRestoringKb
+                ? __('Restoring knowledge base...')
+                : __('Initializing Chatbot...')}
             </span>
           </div>
           <div className="w-full">
             <div className="flex justify-between items-center mb-2 text-sm text-gray-600">
               <span>
-                {progress < 50
-                  ? 'Preparing chatbot...'
-                  : 'Finishing up...'}
+                {isRestoringKb
+                  ? __('Importing your trained documents...')
+                  : displayProgress < 50
+                    ? __('Preparing chatbot...')
+                    : __('Finishing up...')}
               </span>
-              <span>{Math.round(progress)}%</span>
+              <span>{Math.round(displayProgress)}%</span>
             </div>
             <div className="overflow-hidden w-full h-2 bg-gray-200 rounded-full">
               <div
                 className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${progress}%` }}
+                style={{ width: `${displayProgress}%` }}
               />
             </div>
           </div>
         </div>
       )}
 
-      {autoTrainError && !isLoading && (
+      {error && !showLoading && (
         <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-          <p className="font-medium text-red-600">{autoTrainError}</p>
+          <p className="font-medium text-red-600">{error}</p>
           <Button
-            onClick={quickTrainInternal}
+            onClick={handleRetryQuickTrain}
             size="sm"
             className="mt-2"
             variant="outline"
           >
-            Retry
+            {__('Retry')}
           </Button>
         </div>
       )}
 
-      {!isLoading && !autoTrainError && (
+      {!showLoading && !error && (
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-          {/* Left column - Signup form for new users */}
           <div className="flex flex-col gap-6 pr-8 border-r border-gray-200 max-md:border-none max-md:pr-0">
             <div>
               <CardHeader className="px-0 pb-4">
                 <CardTitle className="text-xl">
-                  Get Your Free Forever API Key
+                  {__('Get Your Free Forever API Key')}
                 </CardTitle>
               </CardHeader>
               <Form {...signupForm}>
@@ -355,7 +256,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>{__('Email')}</FormLabel>
                         <FormControl>
                           <Input
                             type="email"
@@ -372,7 +273,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Password</FormLabel>
+                        <FormLabel>{__('Password')}</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
@@ -389,7 +290,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
+                        <FormLabel>{__('Confirm Password')}</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
@@ -401,8 +302,6 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                       </FormItem>
                     )}
                   />
-
-                  {/* Combined Consent */}
                   <FormField
                     control={signupForm.control}
                     name="consentToTerms"
@@ -417,32 +316,29 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                           </FormControl>
                           <div className="grid gap-1.5 leading-none">
                             <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                              I agree to the{' '}
+                              {__('I agree to the')}{' '}
                               <a
                                 href={HelpmateTermsOfServiceURL}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-blue-600 underline hover:text-blue-800"
                               >
-                                Terms of Service
+                                {__('Terms of Service')}
                               </a>{' '}
-                              and{' '}
+                              {__('and')}{' '}
                               <a
                                 href={HelpmatePrivacyPolicyURL}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-blue-600 underline hover:text-blue-800"
                               >
-                                Privacy Policy
+                                {__('Privacy Policy')}
                               </a>
                             </FormLabel>
                             <p className="text-xs text-muted-foreground !my-0">
-                              I consent to receive emails about product
-                              updates, security notices, and account
-                              information, and to allow the chatbot to
-                              securely store and use the public data I provide
-                              to deliver more accurate and personalized
-                              responses.
+                              {__(
+                                'I consent to receive emails about product updates, security notices, and account information, and to allow the chatbot to securely store and use the public data I provide to deliver more accurate and personalized responses.'
+                              )}
                             </p>
                           </div>
                         </div>
@@ -450,25 +346,23 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                       </FormItem>
                     )}
                   />
-
                   <Button
                     type="submit"
                     className="w-full"
                     disabled={getFreeApiKeyMutation.isPending}
                     loading={getFreeApiKeyMutation.isPending}
                   >
-                    Get Free Forever API Key
+                    {__('Get Free Forever API Key')}
                   </Button>
                 </form>
               </Form>
             </div>
           </div>
 
-          {/* Right column - Activate API key for existing users */}
           <div className="flex flex-col gap-6">
             <div>
               <CardHeader className="px-0 pb-4">
-                <CardTitle className="text-xl">Activate Your API Key</CardTitle>
+                <CardTitle className="text-xl">{__('Activate Your API Key')}</CardTitle>
               </CardHeader>
               <Form {...activateForm}>
                 <form
@@ -480,7 +374,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     name="apiKey"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>API Key</FormLabel>
+                        <FormLabel>{__('API Key')}</FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -499,17 +393,17 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                     disabled={activateApiKeyMutation.isPending}
                     loading={activateApiKeyMutation.isPending}
                   >
-                    Activate API Key
+                    {__('Activate API Key')}
                   </Button>
                 </form>
               </Form>
             </div>
             <div className="pt-6 mt-6 border-t border-gray-200">
               <h3 className="mb-4 text-lg font-semibold">
-                Already have an API key?
+                {__('Already have an API key?')}
               </h3>
               <p className="mb-4 text-sm text-muted-foreground">
-                Log in to retrieve your existing API key and enter it above.
+                {__('Log in to retrieve your existing API key and enter it above.')}
               </p>
               <Button
                 className="w-full"
@@ -517,7 +411,7 @@ export default function Step1ApiKey({ onComplete }: Step1ApiKeyProps) {
                 size="lg"
                 onClick={() => window.open(HelpmateLoginURL, '_blank', 'noopener,noreferrer')}
               >
-                Log In to Get API Key
+                {__('Log In to Get API Key')}
               </Button>
             </div>
           </div>

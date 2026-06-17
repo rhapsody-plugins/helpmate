@@ -137,6 +137,96 @@ class Helpmate_Backend_Routes
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
 
+        register_rest_route('helpmate/v1', '/check-easy-digital-downloads', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WordPress core filter
+                $active_plugins = apply_filters('active_plugins', get_option('active_plugins'));
+                $is_installed = in_array('easy-digital-downloads/easy-digital-downloads.php', $active_plugins, true);
+                try {
+                    return new WP_REST_Response([
+                        'error' => false,
+                        'installed' => $is_installed
+                    ], 200);
+                } catch (Exception $e) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/check-surecart', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WordPress core filter
+                $active_plugins = apply_filters('active_plugins', get_option('active_plugins'));
+                $is_installed = in_array('surecart/surecart.php', $active_plugins, true);
+                try {
+                    return new WP_REST_Response([
+                        'error' => false,
+                        'installed' => $is_installed
+                    ], 200);
+                } catch (Exception $e) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/check-dokan', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WordPress core filter
+                $active_plugins = apply_filters('active_plugins', get_option('active_plugins'));
+                $lite = in_array('dokan-lite/dokan.php', $active_plugins, true);
+                $pro = in_array('dokan-pro/dokan-pro.php', $active_plugins, true);
+                $installed = $lite || $pro;
+                $active = method_exists($this->helpmate, 'get_dokan') && $this->helpmate->get_dokan()->is_active();
+                try {
+                    return new WP_REST_Response([
+                        'error' => false,
+                        'installed' => $installed,
+                        'active' => $active,
+                    ], 200);
+                } catch (Exception $e) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/check-wcfm', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Using WordPress core filter
+                $active_plugins = apply_filters('active_plugins', get_option('active_plugins'));
+                $installed = in_array('wc-multivendor-marketplace/wc-multivendor-marketplace.php', $active_plugins, true);
+                $active = method_exists($this->helpmate, 'get_wcfm') && $this->helpmate->get_wcfm()->is_active();
+                try {
+                    return new WP_REST_Response([
+                        'error' => false,
+                        'installed' => $installed,
+                        'active' => $active,
+                    ], 200);
+                } catch (Exception $e) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => $e->getMessage()
+                    ], 500);
+                }
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
         /* --------------------------------------- */
         /*                   API                   */
         /* --------------------------------------- */
@@ -219,6 +309,53 @@ class Helpmate_Backend_Routes
             'callback' => function () {
                 $result = $this->helpmate->get_api()->delete_openai_key();
                 return new WP_REST_Response($result, $result['success'] ? 200 : 400);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/localhost-sources', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $is_localhost = helpmate_is_localhost_site();
+                $status = $this->helpmate->get_api()->get_localhost_migration_status();
+                $sources = $this->helpmate->get_api()->get_localhost_sources();
+                return new WP_REST_Response([
+                    'is_localhost_site' => $is_localhost,
+                    'migration_status' => $status,
+                    'install_id' => $this->helpmate->get_api()->get_install_id(),
+                    'target_domain' => helpmate_get_site_domain(),
+                    'has_qdrant_general' => $this->helpmate->get_tools()->has_qdrant_general_document(),
+                    'data' => $sources,
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/promote-localhost', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                $target_domain = sanitize_text_field($request->get_param('target_domain'));
+                $install_ids = $request->get_param('install_ids');
+                $force_merge = (bool) $request->get_param('force_merge');
+                $result = $this->helpmate->get_api()->promote_localhost($target_domain, $install_ids, $force_merge);
+                if (!empty($result['error'])) {
+                    $http_status = isset($result['http_status']) ? (int) $result['http_status'] : 400;
+                    if ($http_status < 400 || $http_status > 599) {
+                        $http_status = 400;
+                    }
+                    return new WP_REST_Response($result, $http_status);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/localhost-migration-status', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                $status = sanitize_text_field($request->get_param('status'));
+                $this->helpmate->get_api()->set_localhost_migration_status($status);
+                return new WP_REST_Response(['success' => true], 200);
             },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
@@ -763,6 +900,619 @@ class Helpmate_Backend_Routes
             )
         ));
 
+        register_rest_route('helpmate/v1', '/integrations/forminator/forms', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return $this->helpmate->get_forminator_integration()->get_admin_forms_payload();
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+        register_rest_route('helpmate/v1', '/integrations/wpforms/forms', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return $this->helpmate->get_wpforms_integration()->get_admin_forms_payload();
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+        register_rest_route('helpmate/v1', '/integrations/ninja-forms/forms', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return $this->helpmate->get_ninja_forms_integration()->get_admin_forms_payload();
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+        register_rest_route('helpmate/v1', '/integrations/formidable/forms', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return $this->helpmate->get_formidable_forms_integration()->get_admin_forms_payload();
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+        register_rest_route('helpmate/v1', '/integrations/events', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                return $this->helpmate->get_integration_events()->get_events($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/cf7/forms', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return $this->helpmate->get_cf7_integration()->get_admin_forms_payload();
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/plugin-overview', array(
+            'methods' => 'GET',
+            'callback' => fn() => $this->helpmate->get_integration_plugins()->rest_plugin_overview(),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/plugins/install', array(
+            'methods' => 'POST',
+            'callback' => fn($request) => $this->helpmate->get_integration_plugins()->rest_install_plugin($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('install_plugins'),
+            'args' => array(
+                'slug' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_key',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/plugins/activate', array(
+            'methods' => 'POST',
+            'callback' => fn($request) => $this->helpmate->get_integration_plugins()->rest_activate_plugin($request),
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('activate_plugins'),
+            'args' => array(
+                'plugin' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_text_field',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/ultimate-member', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $this->helpmate->get_ultimate_member()->get_rest_status(),
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/ultimate-member/sync-members', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                return $this->helpmate->get_ultimate_member()->rest_sync_members($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+            'args' => array(
+                'limit' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+                'offset' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/ultimate-member/profile-support', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                return $this->helpmate->get_ultimate_member()->rest_profile_support($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in(),
+            'args' => array(
+                'user_id' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/members', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $this->helpmate->get_members()->get_rest_status(),
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/members/sync-members', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                return $this->helpmate->get_members()->rest_sync_members($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+            'args' => array(
+                'limit' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+                'offset' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/members/profile-support', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                return $this->helpmate->get_members()->rest_profile_support($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in(),
+            'args' => array(
+                'user_id' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/user-registration', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $this->helpmate->get_user_registration()->get_rest_status(),
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/user-registration/sync-members', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                return $this->helpmate->get_user_registration()->rest_sync_members($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+            'args' => array(
+                'limit' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+                'offset' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/user-registration/profile-support', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                return $this->helpmate->get_user_registration()->rest_profile_support($request);
+            },
+            'permission_callback' => fn() => is_user_logged_in(),
+            'args' => array(
+                'user_id' => array(
+                    'required' => false,
+                    'sanitize_callback' => 'absint',
+                ),
+            ),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/dokan', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $dokan = $this->helpmate->get_dokan();
+                $status = $dokan->get_rest_status();
+                return new WP_REST_Response(
+                    array(
+                        'error'  => false,
+                        'active' => $status['active'],
+                        'vendor_count' => $status['vendor_count'],
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/dokan/vendors', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $dokan = $this->helpmate->get_dokan();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'vendors' => $dokan->get_vendors_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/dokan/sync-vendors', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $dokan = $this->helpmate->get_dokan();
+                if (!$dokan->is_active()) {
+                    return new WP_REST_Response(
+                        array(
+                            'error'   => true,
+                            'message' => __('Dokan is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $dokan->sync_all_vendors_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/wcfm', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $wcfm = $this->helpmate->get_wcfm();
+                $status = $wcfm->get_rest_status();
+                return new WP_REST_Response(
+                    array(
+                        'error'  => false,
+                        'active' => $status['active'],
+                        'vendor_count' => $status['vendor_count'],
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/wcfm/vendors', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $wcfm = $this->helpmate->get_wcfm();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'vendors' => $wcfm->get_vendors_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/wcfm/sync-vendors', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $wcfm = $this->helpmate->get_wcfm();
+                if (!$wcfm->is_active()) {
+                    return new WP_REST_Response(
+                        array(
+                            'error'   => true,
+                            'message' => __('WCFM Marketplace is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $wcfm->sync_all_vendors_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/learnpress', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $learnpress = $this->helpmate->get_learnpress();
+                $status = $learnpress->get_rest_status();
+                return new WP_REST_Response(
+                    array(
+                        'error'         => false,
+                        'active'        => $status['active'],
+                        'student_count' => $status['student_count'],
+                        'course_count'  => $status['course_count'],
+                        'lesson_count'  => $status['lesson_count'],
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/learnpress/courses', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $learnpress = $this->helpmate->get_learnpress();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'courses' => $learnpress->get_courses_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/learnpress/lessons', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $learnpress = $this->helpmate->get_learnpress();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'lessons' => $learnpress->get_lessons_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/learnpress/sync-students', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $learnpress = $this->helpmate->get_learnpress();
+                if (!$learnpress->is_active()) {
+                    return new WP_REST_Response(
+                        array(
+                            'error'   => true,
+                            'message' => __('LearnPress is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $learnpress->sync_all_students_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/tutor', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $tutor = $this->helpmate->get_tutor();
+                $status = $tutor->get_rest_status();
+                return new WP_REST_Response(
+                    array(
+                        'error'         => false,
+                        'active'        => $status['active'],
+                        'student_count' => $status['student_count'],
+                        'course_count'  => $status['course_count'],
+                        'lesson_count'  => $status['lesson_count'],
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/tutor/courses', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $tutor = $this->helpmate->get_tutor();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'courses' => $tutor->get_courses_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/tutor/lessons', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $tutor = $this->helpmate->get_tutor();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'lessons' => $tutor->get_lessons_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/tutor/sync-students', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $tutor = $this->helpmate->get_tutor();
+                if (!$tutor->is_active()) {
+                    return new WP_REST_Response(
+                        array(
+                            'error'   => true,
+                            'message' => __('Tutor LMS is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $tutor->sync_all_students_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error'   => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/lifterlms', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $lifter = $this->helpmate->get_lifterlms();
+                $status = $lifter->get_rest_status();
+                return new WP_REST_Response(
+                    array(
+                        'error' => false,
+                        'active' => $status['active'],
+                        'student_count' => $status['student_count'],
+                        'course_count' => $status['course_count'],
+                        'lesson_count' => $status['lesson_count'],
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/lifterlms/courses', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $lifter = $this->helpmate->get_lifterlms();
+                return new WP_REST_Response(
+                    array(
+                        'error' => false,
+                        'courses' => $lifter->get_courses_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/lifterlms/lessons', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $lifter = $this->helpmate->get_lifterlms();
+                return new WP_REST_Response(
+                    array(
+                        'error' => false,
+                        'lessons' => $lifter->get_lessons_for_rest(),
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/lifterlms/sync-students', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $lifter = $this->helpmate->get_lifterlms();
+                if (!$lifter->is_active()) {
+                    return new WP_REST_Response(
+                        array(
+                            'error' => true,
+                            'message' => __('LifterLMS is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $lifter->sync_all_students_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error' => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/woocommerce/sync-customers', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                if (!class_exists('WooCommerce')) {
+                    return new WP_REST_Response(
+                        array(
+                            'error' => true,
+                            'message' => __('WooCommerce is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $this->helpmate->get_woocommerce()->sync_all_customers_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error' => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/edd/sync-customers', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                if (!function_exists('edd_get_customers')) {
+                    return new WP_REST_Response(
+                        array(
+                            'error' => true,
+                            'message' => __('Easy Digital Downloads is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $this->helpmate->get_edd()->sync_all_customers_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error' => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
+        register_rest_route('helpmate/v1', '/integrations/surecart/sync-customers', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                if (!class_exists('\SureCart\Models\Customer')) {
+                    return new WP_REST_Response(
+                        array(
+                            'error' => true,
+                            'message' => __('SureCart is not active.', 'helpmate-ai-chatbot'),
+                        ),
+                        400
+                    );
+                }
+                $summary = $this->helpmate->get_surecart()->sync_all_customers_to_crm();
+                return new WP_REST_Response(
+                    array(
+                        'error' => false,
+                        'summary' => $summary,
+                    ),
+                    200
+                );
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+        ));
+
         // Create default abandoned cart follow-up email templates
         register_rest_route('helpmate/v1', '/crm/abandoned-cart/create-default-followup-templates', array(
             'methods' => 'POST',
@@ -938,20 +1688,20 @@ class Helpmate_Backend_Routes
 
         register_rest_route('helpmate/v1', '/discounted-products', array(
             'methods' => 'GET',
-            'callback' => fn() => $this->helpmate->is_woocommerce_active() ? $this->get_discounted_products() : new WP_REST_Response([
-                'error' => true,
-                'message' => 'WooCommerce is not active.'
-            ], 200),
+            'callback' => fn() => $this->get_discounted_products(),
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
         ));
 
         register_rest_route('helpmate/v1', '/products/names', array(
             'methods' => 'GET',
             'callback' => function ($request) {
-                if (!$this->helpmate->is_woocommerce_active()) {
+                $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+                    ? $this->helpmate->get_primary_commerce_provider()
+                    : '';
+                if (empty($provider)) {
                     return new WP_REST_Response([
                         'error' => true,
-                        'message' => 'WooCommerce is not active.'
+                        'message' => 'Select a commerce provider in Integrations first.'
                     ], 400);
                 }
 
@@ -973,11 +1723,15 @@ class Helpmate_Backend_Routes
                 }
 
                 $names = array();
-                $woocommerce = $this->helpmate->get_woocommerce();
-
                 foreach ($product_ids as $product_id) {
                     if ($product_id > 0) {
-                        $product_info = $woocommerce->get_product_info($product_id);
+                        if ($provider === 'easy_digital_downloads' && method_exists($this->helpmate, 'get_edd')) {
+                            $product_info = $this->helpmate->get_edd()->get_product_info($product_id);
+                        } elseif ($provider === 'surecart' && method_exists($this->helpmate, 'get_surecart')) {
+                            $product_info = $this->helpmate->get_surecart()->get_product_info($product_id);
+                        } else {
+                            $product_info = $this->helpmate->get_woocommerce()->get_product_info($product_id);
+                        }
                         if ($product_info && isset($product_info['name'])) {
                             $names[$product_id] = $product_info['name'];
                         } else {
@@ -986,10 +1740,44 @@ class Helpmate_Backend_Routes
                     }
                 }
 
-                return new WP_REST_Response([
+                $response = array(
                     'error' => false,
-                    'data' => $names
-                ], 200);
+                    'data'  => $names,
+                );
+
+                $vendor_helper = null;
+                if ('woocommerce' === $provider) {
+                    $primary = method_exists($this->helpmate, 'get_primary_multivendor_provider')
+                        ? $this->helpmate->get_primary_multivendor_provider()
+                        : '';
+
+                    if ('wcfm' === $primary && method_exists($this->helpmate, 'get_wcfm') && $this->helpmate->get_wcfm()->should_enrich_product_lists()) {
+                        $vendor_helper = $this->helpmate->get_wcfm();
+                    } elseif ('dokan' === $primary && method_exists($this->helpmate, 'get_dokan') && $this->helpmate->get_dokan()->should_enrich_product_lists()) {
+                        $vendor_helper = $this->helpmate->get_dokan();
+                    }
+                }
+
+                if ($vendor_helper) {
+                    $vendors = array();
+                    foreach ($product_ids as $product_id) {
+                        if ($product_id <= 0) {
+                            continue;
+                        }
+                        if (method_exists($vendor_helper, 'resolve_vendor_id_for_product')) {
+                            $author_id = (int) $vendor_helper->resolve_vendor_id_for_product($product_id);
+                        } else {
+                            $author_id = (int) get_post_field('post_author', $product_id);
+                        }
+                        $vendors[ $product_id ] = array(
+                            'vendor_id'         => $author_id,
+                            'vendor_store_name' => $author_id > 0 ? $vendor_helper->get_store_name_for_vendor($author_id) : '',
+                        );
+                    }
+                    $response['vendors'] = $vendors;
+                }
+
+                return new WP_REST_Response($response, 200);
             },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
             'args' => array(
@@ -1999,6 +2787,80 @@ class Helpmate_Backend_Routes
                 return new WP_REST_Response(array('error' => true, 'message' => 'Invalid action'), 400);
             },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        /* --------------------------------------- */
+        /*              Admin Hub Tools            */
+        /* --------------------------------------- */
+        $tools_permission = function () {
+            return Helpmate_Tools::current_user_can_run_tools();
+        };
+
+        register_rest_route('helpmate/v1', '/tools/reset-database', array(
+            'methods' => 'POST',
+            'callback' => function ($request) {
+                $body = json_decode($request->get_body(), true);
+                if (($body['confirmation'] ?? '') !== 'RESET') {
+                    return new WP_REST_Response(array(
+                        'error' => true,
+                        'message' => __('Type RESET to confirm database reset.', 'helpmate-ai-chatbot'),
+                    ), 400);
+                }
+                $result = $this->helpmate->get_tools()->reset_database_and_settings();
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(array('error' => true, 'message' => $result->get_error_message()), 400);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => $tools_permission,
+        ));
+
+        register_rest_route('helpmate/v1', '/tools/reset-default-email-templates', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $result = $this->helpmate->get_tools()->reset_default_email_templates();
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(array('error' => true, 'message' => $result->get_error_message()), 400);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => $tools_permission,
+        ));
+
+        register_rest_route('helpmate/v1', '/tools/documents/qdrant-preview', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                $result = $this->helpmate->get_tools()->preview_qdrant_documents_sync();
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(array('error' => true, 'message' => $result->get_error_message()), 400);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => $tools_permission,
+        ));
+
+        register_rest_route('helpmate/v1', '/tools/documents/backfill-qdrant', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $result = $this->helpmate->get_tools()->backfill_qdrant_from_mysql();
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(array('error' => true, 'message' => $result->get_error_message()), 400);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => $tools_permission,
+        ));
+
+        register_rest_route('helpmate/v1', '/tools/documents/sync-from-qdrant', array(
+            'methods' => 'POST',
+            'callback' => function () {
+                $result = $this->helpmate->get_tools()->sync_documents_from_qdrant();
+                if (is_wp_error($result)) {
+                    return new WP_REST_Response(array('error' => true, 'message' => $result->get_error_message()), 400);
+                }
+                return new WP_REST_Response($result, 200);
+            },
+            'permission_callback' => $tools_permission,
         ));
 
         // Toggle human handoff (supports both numeric IDs and website virtual IDs)
@@ -3131,38 +3993,15 @@ class Helpmate_Backend_Routes
                     'whatsapp' => []
                 ];
 
-                // Get smart schedules settings for default appointment starter
+                // Get smart schedules settings for default appointment starter (requires Pro plugin active)
                 $smart_scheduling = $this->helpmate->get_settings()->get_setting('smart_schedules') ?? [];
-                $smart_scheduling_enabled = !empty($smart_scheduling['enabled']);
+                $smart_scheduling_enabled = !empty($smart_scheduling['enabled']) && $this->helpmate->is_pro_available();
                 $smart_scheduling_button_text = $smart_scheduling['buttonText'] ?? 'Get Appointment';
 
-                // Find page with shortcode
+                // Find page with scheduling shortcode or Elementor widget.
                 $scheduling_page_url = null;
-                if ($smart_scheduling_enabled) {
-                    global $wpdb;
-                    $shortcode_pattern = '%[helpmate_scheduling]%';
-                    $cache_key = 'helpmate_scheduling_page_' . md5($shortcode_pattern);
-                    $results = wp_cache_get($cache_key, 'helpmate');
-
-                    if (false === $results) {
-                        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Direct query necessary for custom shortcode search
-                        $results = $wpdb->get_results($wpdb->prepare(
-                            "SELECT ID, post_type FROM {$wpdb->posts}
-                            WHERE post_status = 'publish'
-                            AND (post_type = 'post' OR post_type = 'page')
-                            AND post_content LIKE %s
-                            ORDER BY post_date DESC
-                            LIMIT 1",
-                            $shortcode_pattern
-                        ));
-                        // Cache for 1 hour
-                        wp_cache_set($cache_key, $results, 'helpmate', HOUR_IN_SECONDS);
-                    }
-
-                    if (!empty($results)) {
-                        $post_id = $results[0]->ID;
-                        $scheduling_page_url = get_permalink($post_id);
-                    }
+                if ($smart_scheduling_enabled && class_exists('Helpmate_Elementor_Utils')) {
+                    $scheduling_page_url = Helpmate_Elementor_Utils::get_scheduling_landing_permalink();
                 }
 
                 // Add default appointment starter if smart schedules is enabled
@@ -3385,6 +4224,7 @@ class Helpmate_Backend_Routes
                     'city' => $request->get_param('city'),
                     'state' => $request->get_param('state'),
                     'country' => $request->get_param('country'),
+                    'integration_source' => $request->get_param('integration_source'),
                 ];
                 $filters = array_filter($filters, fn($v) => $v !== null && $v !== '');
 
@@ -3406,8 +4246,21 @@ class Helpmate_Backend_Routes
                 'date_to' => array('sanitize_callback' => 'sanitize_text_field'),
                 'city' => array('sanitize_callback' => 'sanitize_text_field'),
                 'state' => array('sanitize_callback' => 'sanitize_text_field'),
-                'country' => array('sanitize_callback' => 'sanitize_text_field')
+                'country' => array('sanitize_callback' => 'sanitize_text_field'),
+                'integration_source' => array('sanitize_callback' => 'sanitize_key'),
             )
+        ));
+
+        // Get available CRM integration source filter options.
+        register_rest_route('helpmate/v1', '/crm/contacts/filter-options/integration-sources', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $this->helpmate->get_crm()->get_contact_sync_source_options(),
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
         ));
 
         // Create contact
@@ -3706,6 +4559,81 @@ class Helpmate_Backend_Routes
             )
         ));
 
+        // Get LearnPress progress payload for one contact.
+        register_rest_route('helpmate/v1', '/crm/contacts/(?P<id>\d+)/learnpress', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                $contact_id = (int) $request->get_param('id');
+                $contact = $this->helpmate->get_crm()->get_contact($contact_id);
+                if (!$contact) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => 'Contact not found',
+                    ], 404);
+                }
+
+                $data = $this->helpmate->get_learnpress()->get_contact_lms_details($contact);
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $data,
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+            'args' => array(
+                'id' => array('required' => true, 'validate_callback' => fn($param) => is_numeric($param) && $param > 0),
+            ),
+        ));
+
+        // Get Tutor LMS progress payload for one contact.
+        register_rest_route('helpmate/v1', '/crm/contacts/(?P<id>\d+)/tutor', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                $contact_id = (int) $request->get_param('id');
+                $contact = $this->helpmate->get_crm()->get_contact($contact_id);
+                if (!$contact) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => 'Contact not found',
+                    ], 404);
+                }
+
+                $data = $this->helpmate->get_tutor()->get_contact_lms_details($contact);
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $data,
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+            'args' => array(
+                'id' => array('required' => true, 'validate_callback' => fn($param) => is_numeric($param) && $param > 0),
+            ),
+        ));
+
+        // Get LifterLMS progress payload for one contact.
+        register_rest_route('helpmate/v1', '/crm/contacts/(?P<id>\d+)/lifterlms', array(
+            'methods' => 'GET',
+            'callback' => function ($request) {
+                $contact_id = (int) $request->get_param('id');
+                $contact = $this->helpmate->get_crm()->get_contact($contact_id);
+                if (!$contact) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => 'Contact not found',
+                    ], 404);
+                }
+
+                $data = $this->helpmate->get_lifterlms()->get_contact_lms_details($contact);
+                return new WP_REST_Response([
+                    'error' => false,
+                    'data' => $data,
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
+            'args' => array(
+                'id' => array('required' => true, 'validate_callback' => fn($param) => is_numeric($param) && $param > 0),
+            ),
+        ));
+
         // Create manual order
         register_rest_route('helpmate/v1', '/crm/contacts/(?P<id>\d+)/orders', array(
             'methods' => 'POST',
@@ -3809,6 +4737,51 @@ class Helpmate_Backend_Routes
                 ], 200);
             },
             'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        // Get EDD new order URL
+        register_rest_route('helpmate/v1', '/crm/edd/new-order-url', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                if (!function_exists('edd_get_admin_url')) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => 'Easy Digital Downloads is not installed'
+                    ], 404);
+                }
+
+                $url = edd_get_admin_url([
+                    'page' => 'edd-payment-history',
+                    'view' => 'add-order',
+                ]);
+
+                return new WP_REST_Response([
+                    'error' => false,
+                    'url' => $url
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts')
+        ));
+
+        // SureCart admin orders list (no dedicated "new order" screen; open orders hub).
+        register_rest_route('helpmate/v1', '/crm/surecart/new-order-url', array(
+            'methods' => 'GET',
+            'callback' => function () {
+                if (!class_exists('\SureCart\Models\Order')) {
+                    return new WP_REST_Response([
+                        'error' => true,
+                        'message' => 'SureCart is not installed',
+                    ], 404);
+                }
+
+                $url = admin_url('admin.php?page=sc-orders');
+
+                return new WP_REST_Response([
+                    'error' => false,
+                    'url' => $url,
+                ], 200);
+            },
+            'permission_callback' => fn() => is_user_logged_in() && current_user_can('edit_posts'),
         ));
 
         // Get contact statuses
@@ -5073,8 +6046,18 @@ class Helpmate_Backend_Routes
         $query = new WP_Query($args);
 
         $posts = [];
+        $product_payload = new Helpmate_Product_Training_Payload($this->helpmate);
+        $commerce_post_types = array('product', 'download', 'sc_product');
 
         foreach ($query->posts as $post) {
+            if (in_array($post->post_type, $commerce_post_types, true)) {
+                $entry = $product_payload->build_post_list_entry($post);
+                if ($entry) {
+                    $posts[] = $entry;
+                }
+                continue;
+            }
+
             $metadata = [
                 'featured_image' => get_the_post_thumbnail_url($post->ID, 'full'),
                 'excerpt' => get_the_excerpt($post),
@@ -5084,139 +6067,16 @@ class Helpmate_Backend_Routes
                 'tags' => wp_get_post_terms($post->ID, 'post_tag', ['fields' => 'names']),
             ];
 
-            // Add WooCommerce product data if post type is product
-            if ($post->post_type === 'product') {
-                $product = wc_get_product($post->ID);
-                if ($product) {
-                    // Get all product meta
-                    $product_meta = get_post_meta($post->ID);
-
-                    // Get product attributes
-                    $attributes = [];
-                    $product_attributes = $product->get_attributes();
-                    foreach ($product_attributes as $attribute) {
-                        $attributes[$attribute->get_name()] = [
-                            'name' => $attribute->get_name(),
-                            'options' => $attribute->get_options(),
-                            'visible' => $attribute->get_visible(),
-                            'variation' => $attribute->get_variation(),
-                        ];
-                    }
-
-                    // Get product gallery images
-                    $gallery_ids = $product->get_gallery_image_ids();
-                    $gallery_images = [];
-                    foreach ($gallery_ids as $gallery_id) {
-                        $gallery_images[] = wp_get_attachment_url($gallery_id);
-                    }
-
-                    // Get product tags
-                    $product_tags = wp_get_post_terms($post->ID, 'product_tag', ['fields' => 'names']);
-
-                    // Get product categories with full data
-                    $product_categories = wp_get_post_terms($post->ID, 'product_cat', ['fields' => 'all']);
-                    $categories_data = [];
-                    foreach ($product_categories as $category) {
-                        $categories_data[] = [
-                            'id' => $category->term_id,
-                            'name' => $category->name,
-                            'slug' => $category->slug,
-                            'description' => $category->description,
-                        ];
-                    }
-
-                    $metadata['product'] = [
-                        // Basic product info
-                        'name' => $product->get_name(),
-                        'description' => $product->get_description(),
-                        'short_description' => $product->get_short_description(),
-                        'sku' => $product->get_sku(),
-                        'type' => $product->get_type(),
-
-                        // Pricing
-                        'price' => $product->get_price(),
-                        'regular_price' => $product->get_regular_price(),
-                        'sale_price' => $product->get_sale_price(),
-                        'price_html' => $product->get_price_html(),
-
-                        // Stock
-                        'stock_status' => $product->get_stock_status(),
-                        'stock_quantity' => $product->get_stock_quantity(),
-                        'manage_stock' => $product->get_manage_stock(),
-                        'backorders' => $product->get_backorders(),
-
-                        // Status flags
-                        'is_on_sale' => $product->is_on_sale(),
-                        'is_featured' => $product->is_featured(),
-                        'is_visible' => $product->is_visible(),
-                        'is_purchasable' => $product->is_purchasable(),
-                        'is_in_stock' => $product->is_in_stock(),
-                        'is_virtual' => $product->is_virtual(),
-                        'is_downloadable' => $product->is_downloadable(),
-
-                        // Ratings
-                        'rating_count' => $product->get_rating_count(),
-                        'average_rating' => $product->get_average_rating(),
-
-                        // Categories and tags
-                        'categories' => $categories_data,
-                        'tags' => $product_tags,
-
-                        // Attributes
-                        'attributes' => $attributes,
-
-                        // Images
-                        'gallery_images' => $gallery_images,
-
-                        // Dimensions and weight
-                        'weight' => $product->get_weight(),
-                        'dimensions' => [
-                            'length' => $product->get_length(),
-                            'width' => $product->get_width(),
-                            'height' => $product->get_height(),
-                        ],
-
-                        // Shipping
-                        'shipping_class' => $product->get_shipping_class(),
-                        'shipping_class_id' => $product->get_shipping_class_id(),
-
-                        // Sales
-                        'total_sales' => $product->get_total_sales(),
-                        'date_on_sale_from' => $product->get_date_on_sale_from(),
-                        'date_on_sale_to' => $product->get_date_on_sale_to(),
-
-                        // All product meta
-                        'meta' => $product_meta,
-
-                        // Additional WooCommerce data
-                        'cross_sell_ids' => $product->get_cross_sell_ids(),
-                        'upsell_ids' => $product->get_upsell_ids(),
-                        'related_ids' => wc_get_related_products($product->get_id()),
-                        'downloads' => $product->get_downloads(),
-                        'download_limit' => $product->get_download_limit(),
-                        'download_expiry' => $product->get_download_expiry(),
-                    ];
-                }
-            }
-
-            // For products, use product name and description as title and content
-            if ($post->post_type === 'product' && isset($metadata['product'])) {
-                $title = $metadata['product']['name'];
-                $content = $metadata['product']['description'] ?: $post->post_content;
-            } else {
-                $title = get_the_title($post);
-                $content = $post->post_content;
-            }
-
             $posts[] = [
                 'id' => $post->ID,
-                'title' => $title,
+                'title' => get_the_title($post),
                 'type' => $post->post_type,
                 'status' => $post->post_status,
                 'date' => $post->post_date,
-                'content' => $content,
+                'content' => $post->post_content,
                 'author' => get_the_author_meta('display_name', $post->post_author),
-                'metadata' => $metadata
+                'author_id' => (int) $post->post_author,
+                'metadata' => $metadata,
             ];
         }
 
@@ -5303,6 +6163,25 @@ class Helpmate_Backend_Routes
     public function get_discounted_products()
     {
         try {
+            $provider = method_exists($this->helpmate, 'get_primary_commerce_provider')
+                ? $this->helpmate->get_primary_commerce_provider()
+                : '';
+            if (empty($provider)) {
+                return new WP_REST_Response([
+                    'error' => true,
+                    'message' => 'Select a commerce provider in Integrations first.'
+                ], 400);
+            }
+            if ($provider === 'easy_digital_downloads') {
+                return $this->get_edd_discounted_products();
+            }
+            if ($provider === 'surecart' && method_exists($this->helpmate, 'get_surecart')) {
+                return new WP_REST_Response([
+                    'error' => false,
+                    'products' => $this->helpmate->get_surecart()->get_discounted_products_for_admin()
+                ], 200);
+            }
+
             $args = array(
                 'status' => 'publish',
                 'limit' => -1,
@@ -5316,21 +6195,32 @@ class Helpmate_Backend_Routes
 
             foreach ($products as $product) {
                 if ($product->is_on_sale()) {
-                    $discounted_products[] = array(
-                        'id' => $product->get_id(),
+                    $pid = $product->get_id();
+                    $row = array(
+                        'id' => $pid,
                         'name' => $product->get_name(),
                         'regular_price' => wc_price($product->get_regular_price()),
                         'sale_price' => wc_price($product->get_sale_price()),
                         'discount_percentage' => $product->get_regular_price() ? round((($product->get_regular_price() - $product->get_sale_price()) / $product->get_regular_price()) * 100) : 0,
                         'stock_status' => $product->get_stock_status(),
                         'stock_quantity' => $product->get_stock_quantity(),
-                        'image_url' => get_the_post_thumbnail_url($product->get_id(), 'full'),
-                        'categories' => wp_get_post_terms($product->get_id(), 'product_cat', array('fields' => 'names')),
+                        'image_url' => get_the_post_thumbnail_url($pid, 'full'),
+                        'categories' => wp_get_post_terms($pid, 'product_cat', array('fields' => 'names')),
                         'date_on_sale_from' => $product->get_date_on_sale_from(),
                         'date_on_sale_to' => $product->get_date_on_sale_to(),
                         'type' => $product->get_type(),
-                        'sku' => $product->get_sku()
+                        'sku' => $product->get_sku(),
                     );
+                    $primary = method_exists($this->helpmate, 'get_primary_multivendor_provider')
+                        ? $this->helpmate->get_primary_multivendor_provider()
+                        : '';
+
+                    if ('wcfm' === $primary && method_exists($this->helpmate, 'get_wcfm')) {
+                        $row = $this->helpmate->get_wcfm()->maybe_enrich_product_row($row, $pid);
+                    } elseif ('dokan' === $primary && method_exists($this->helpmate, 'get_dokan')) {
+                        $row = $this->helpmate->get_dokan()->maybe_enrich_product_row($row, $pid);
+                    }
+                    $discounted_products[] = $row;
                 }
             }
 
@@ -5345,6 +6235,28 @@ class Helpmate_Backend_Routes
                 'message' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Get discounted EDD downloads (on-sale download posts, Woo-shaped payload).
+     *
+     * @since 2.0.3
+     */
+    private function get_edd_discounted_products()
+    {
+        if (!function_exists('edd_get_download_price') || !method_exists($this->helpmate, 'get_edd')) {
+            return new WP_REST_Response([
+                'error' => false,
+                'products' => [],
+            ], 200);
+        }
+
+        $products = $this->helpmate->get_edd()->get_discounted_downloads_for_admin();
+
+        return new WP_REST_Response([
+            'error' => false,
+            'products' => $products,
+        ], 200);
     }
 
     /**
@@ -6088,32 +7000,8 @@ class Helpmate_Backend_Routes
 
                     // Get scheduling page URL
                     $smart_scheduling = $this->helpmate->get_settings()->get_setting('smart_schedules') ?? [];
-                    if (!empty($smart_scheduling['enabled'])) {
-                        // Find page with shortcode
-                        global $wpdb;
-                        $shortcode_pattern = '%[helpmate_scheduling]%';
-                        $cache_key = 'helpmate_scheduling_page_' . md5($shortcode_pattern);
-                        $results = wp_cache_get($cache_key, 'helpmate');
-
-                        if (false === $results) {
-                            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Direct query necessary for custom shortcode search
-                            $results = $wpdb->get_results($wpdb->prepare(
-                                "SELECT ID, post_type FROM {$wpdb->posts}
-                                WHERE post_status = 'publish'
-                                AND (post_type = 'post' OR post_type = 'page')
-                                AND post_content LIKE %s
-                                ORDER BY post_date DESC
-                                LIMIT 1",
-                                $shortcode_pattern
-                            ));
-                            // Cache for 1 hour
-                            wp_cache_set($cache_key, $results, 'helpmate', HOUR_IN_SECONDS);
-                        }
-
-                        if (!empty($results)) {
-                            $post_id = $results[0]->ID;
-                            $scheduling_page_url = get_permalink($post_id);
-                        }
+                    if (!empty($smart_scheduling['enabled']) && class_exists('Helpmate_Elementor_Utils')) {
+                        $scheduling_page_url = Helpmate_Elementor_Utils::get_scheduling_landing_permalink();
                     }
                 } else {
                     // Not appointment - find the conversation starter text for this payload

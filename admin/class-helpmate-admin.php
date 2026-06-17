@@ -154,6 +154,7 @@ class Helpmate_Admin
 			'nonce' => wp_create_nonce('wp_rest'),
 			'site_url' => get_site_url(),
 			'rest_url' => rest_url('helpmate/v1'),
+			'plugin_url' => defined('HELPMATE_URL') ? HELPMATE_URL : '',
 		));
 
 
@@ -174,14 +175,17 @@ class Helpmate_Admin
 					wp_enqueue_script(
 						$vite_handle,
 						$vite_app_url . 'dist/assets/' . $latest_js,
-						array(),
+						array( 'wp-i18n' ),
 						$this->version,
 						false
 					);
+					// Must run after enqueue: wp_set_script_translations is a no-op if the handle is not registered yet.
+					wp_set_script_translations( $vite_handle, 'helpmate-ai-chatbot' );
 					wp_localize_script($vite_handle, 'helpmateApiSettings', array(
 						'nonce' => wp_create_nonce('wp_rest'),
 						'site_url' => get_site_url(),
 						'rest_url' => rest_url('helpmate/v1'),
+						'plugin_url' => defined('HELPMATE_URL') ? HELPMATE_URL : '',
 					));
 					add_filter('wp_script_attributes', array($this, 'add_type_attribute'), 10, 1);
 				}
@@ -348,6 +352,23 @@ class Helpmate_Admin
 			);
 		}
 
+		// Integrations - Helpmate admin or manager roles
+		$helpmate_roles = Helpmate_Permissions::get_user_roles($current_user_id);
+		if (
+			user_can($current_user_id, 'manage_options') ||
+			in_array('admin', $helpmate_roles, true) ||
+			in_array('manager', $helpmate_roles, true)
+		) {
+			add_submenu_page(
+				'helpmate',
+				'Integrations',
+				'Integrations',
+				'edit_posts',
+				'helpmate&tab=integrations',
+				array($this, 'display_plugin_setup_page')
+			);
+		}
+
 		// Admin Hub - show if user has team_management, analytics, or manage_options
 		if (
 			Helpmate_Permissions::can_access_feature($current_user_id, 'team_management') ||
@@ -373,14 +394,23 @@ class Helpmate_Admin
 			array($this, 'redirect_to_support')
 		);
 
-		add_submenu_page(
-			'helpmate',
-			'Upgrade',
-			'Upgrade',
-			'edit_posts',
-			'helpmate-upgrade',
-			array($this, 'redirect_to_pricing')
-		);
+		$helpmate = isset($GLOBALS['helpmate']) ? $GLOBALS['helpmate'] : null;
+		$has_pro_license = is_object($helpmate) && method_exists($helpmate, 'get_product_slug')
+			&& 'helpmate-free' !== (string) $helpmate->get_product_slug();
+		$is_pro_plugin_active = is_object($helpmate) && method_exists($helpmate, 'is_helpmate_pro_active')
+			&& true === (bool) $helpmate->is_helpmate_pro_active();
+
+		// Hide Upgrade when both license and Pro plugin are active.
+		if (!($has_pro_license && $is_pro_plugin_active)) {
+			add_submenu_page(
+				'helpmate',
+				'Upgrade',
+				'Upgrade',
+				'edit_posts',
+				'helpmate-upgrade',
+				array($this, 'redirect_to_pricing')
+			);
+		}
 	}
 
 	/**
@@ -511,7 +541,17 @@ class Helpmate_Admin
 				});
 			}
 
-			if ($tab === 'control-center' && $subtab !== 'dashboard') {
+			if ($tab === 'integrations') {
+				add_filter('admin_body_class', function ($classes) {
+					return $classes . ' helpmate-integrations-tab';
+				});
+			}
+
+			if (
+				$tab === 'control-center' &&
+				$subtab !== 'dashboard' &&
+				$subtab !== 'integrations'
+			) {
 				add_filter('admin_body_class', function ($classes) {
 					return $classes . ' helpmate-admin-hub-tab';
 				});

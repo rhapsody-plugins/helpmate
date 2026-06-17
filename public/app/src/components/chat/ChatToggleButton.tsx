@@ -6,6 +6,7 @@ import type { ChatMessage } from '@/types';
 import { ArrowDownRight } from 'lucide-react';
 import { ChangeSvgColor } from 'svg-color-tools';
 import HelpmateIcon from '@/assets/helpmate-logo-icon.svg';
+import { __ } from '@/lib/utils';
 
 interface ChatToggleButtonProps {
   toggleChat: () => void;
@@ -79,7 +80,7 @@ export function ChatToggleButton({
         ) : icon ? (
           <img
             src={icon}
-            alt="Icon"
+            alt={__('Chat button')}
             className={`${
               icon_shape === 'circle'
                 ? 'rounded-full'

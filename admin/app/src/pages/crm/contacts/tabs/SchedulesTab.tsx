@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ScheduleType, useSmartScheduling } from '@/hooks/useSmartScheduling';
+import { __, sprintf } from '@/lib/utils';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
@@ -47,14 +48,14 @@ export function SchedulesTab({ email }: SchedulesTabProps) {
   const columns: ColumnDef<ScheduleType>[] = [
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: __('Name'),
       cell: ({ row }) => (
         <span className="font-medium">{row.original.name}</span>
       ),
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: __('Status'),
       cell: ({ row }) => (
         <div onClick={(e) => e.stopPropagation()}>
           <Select
@@ -65,9 +66,9 @@ export function SchedulesTab({ email }: SchedulesTabProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="confirmed">Confirmed</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="pending">{__('Pending')}</SelectItem>
+              <SelectItem value="confirmed">{__('Confirmed')}</SelectItem>
+              <SelectItem value="cancelled">{__('Cancelled')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -75,18 +76,18 @@ export function SchedulesTab({ email }: SchedulesTabProps) {
     },
     {
       accessorKey: 'scheduled_date',
-      header: 'Date',
+      header: __('Date'),
       cell: ({ row }) =>
         format(new Date(row.original.scheduled_date), 'MMM dd, yyyy'),
     },
     {
       accessorKey: 'scheduled_time',
-      header: 'Time',
+      header: __('Time'),
       cell: ({ row }) => formatTime(row.original.scheduled_time),
     },
     {
       accessorKey: 'phone',
-      header: 'Phone',
+      header: __('Phone'),
       cell: ({ row }) =>
         row.original.phone || (
           <span className="text-sm text-muted-foreground">-</span>
@@ -94,7 +95,7 @@ export function SchedulesTab({ email }: SchedulesTabProps) {
     },
     {
       accessorKey: 'message',
-      header: 'Message',
+      header: __('Message'),
       cell: ({ row }) =>
         row.original.message ? (
           <div className="max-w-xs text-sm line-clamp-2">
@@ -110,7 +111,11 @@ export function SchedulesTab({ email }: SchedulesTabProps) {
     <Card>
       <CardHeader>
         <CardTitle className="!text-lg !my-0">
-          Schedules ({schedules?.length || 0})
+          {sprintf(
+            /* translators: %d: Schedule count */
+            __('Schedules (%d)'),
+            schedules?.length || 0
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>

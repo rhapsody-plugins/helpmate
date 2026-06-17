@@ -6,6 +6,10 @@ import {
   Contact,
   ContactEmail,
   ContactFilters,
+  ContactIntegrationSourceOption,
+  ContactLifterLmsData,
+  ContactLearnPressData,
+  ContactTutorData,
   ContactNote,
   CustomField,
   EmailSequence,
@@ -447,6 +451,92 @@ export function useCrm() {
     });
   };
 
+  // Get EDD new order URL
+  const useEddNewOrderUrl = () => {
+    return useQuery({
+      queryKey: ['edd-new-order-url'],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          url: string;
+        }>('/crm/edd/new-order-url');
+        if (response.data.error) {
+          throw new Error('Failed to get EDD new order URL');
+        }
+        return response.data.url;
+      },
+      enabled: false,
+      retry: false,
+    });
+  };
+
+  // SureCart: admin orders hub (no separate "new order" flow in WP admin).
+  const useSureCartNewOrderUrl = () => {
+    return useQuery({
+      queryKey: ['surecart-new-order-url'],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          url: string;
+        }>('/crm/surecart/new-order-url');
+        if (response.data.error) {
+          throw new Error('Failed to get SureCart orders URL');
+        }
+        return response.data.url;
+      },
+      enabled: false,
+      retry: false,
+    });
+  };
+
+  // Get LearnPress progress for a contact
+  const useContactLearnPress = (contactId: number | null, enabled = true) => {
+    return useQuery({
+      queryKey: ['crm-contact-learnpress', contactId],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          data: ContactLearnPressData;
+        }>(`/crm/contacts/${contactId}/learnpress`);
+        return response.data.data;
+      },
+      enabled: enabled && contactId !== null,
+      refetchOnWindowFocus: false,
+    });
+  };
+
+  // Get Tutor LMS progress for a contact
+  const useContactTutor = (contactId: number | null, enabled = true) => {
+    return useQuery({
+      queryKey: ['crm-contact-tutor', contactId],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          data: ContactTutorData;
+        }>(`/crm/contacts/${contactId}/tutor`);
+        return response.data.data;
+      },
+      enabled: enabled && contactId !== null,
+      refetchOnWindowFocus: false,
+    });
+  };
+
+  // Get LifterLMS progress for a contact
+  const useContactLifterLms = (contactId: number | null, enabled = true) => {
+    return useQuery({
+      queryKey: ['crm-contact-lifterlms', contactId],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          data: ContactLifterLmsData;
+        }>(`/crm/contacts/${contactId}/lifterlms`);
+        return response.data.data;
+      },
+      enabled: enabled && contactId !== null,
+      refetchOnWindowFocus: false,
+    });
+  };
+
   // Get contact statuses
   const useContactStatuses = () => {
     return useQuery({
@@ -456,6 +546,20 @@ export function useCrm() {
           error: boolean;
           data: string[];
         }>('/crm/statuses');
+        return response.data.data;
+      },
+      refetchOnWindowFocus: false,
+    });
+  };
+
+  const useContactIntegrationSourceOptions = () => {
+    return useQuery({
+      queryKey: ['crm-contact-integration-source-options'],
+      queryFn: async () => {
+        const response = await api.get<{
+          error: boolean;
+          data: ContactIntegrationSourceOption[];
+        }>('/crm/contacts/filter-options/integration-sources');
         return response.data.data;
       },
       refetchOnWindowFocus: false,
@@ -1147,8 +1251,14 @@ export function useCrm() {
     updateManualOrderMutation,
     deleteManualOrderMutation,
     useWooCommerceNewOrderUrl,
+    useEddNewOrderUrl,
+    useSureCartNewOrderUrl,
+    useContactLearnPress,
+    useContactTutor,
+    useContactLifterLms,
     // Statuses
     useContactStatuses,
+    useContactIntegrationSourceOptions,
     addStatusMutation,
     removeStatusMutation,
     // WordPress Users

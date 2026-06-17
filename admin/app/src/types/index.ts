@@ -30,7 +30,10 @@ export interface DocumentInput {
 }
 
 export interface MenuItem {
+  /** Used as Tabs value and React key — keep stable (English machine keys). */
   title: string;
+  /** Shown on the tab trigger when set — wrap with gettext for translation. */
+  displayTitle?: string;
   icon?: React.ReactNode;
   status: boolean;
   onClick?: () => void;
@@ -53,6 +56,9 @@ export interface DiscountedProduct {
   discount_percentage: number;
   stock_status: string;
   image_url: string;
+  /** Dokan optional fields when integration toggle is on. */
+  vendor_id?: number;
+  vendor_store_name?: string;
 }
 
 export interface Product {
@@ -144,6 +150,8 @@ export interface WordPressPost {
   status: string;
   date: string;
   author: string;
+  /** WP user ID of post author (from REST); optional for backward compatibility. */
+  author_id?: number;
   content?: string;
   metadata?: unknown;
 }

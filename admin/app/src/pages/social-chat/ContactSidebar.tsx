@@ -23,6 +23,7 @@ import {
   type ContactFormData,
 } from '@/pages/crm/contacts/schemas';
 import { Contact } from '@/types/crm';
+import { __ } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -177,7 +178,9 @@ export default function ContactSidebar({
     if (!contactId) return;
     if (
       confirm(
-        'Are you sure you want to delete this contact? This action cannot be undone.'
+        __(
+          'Are you sure you want to delete this contact? This action cannot be undone.'
+        )
       )
     ) {
       deleteContactMutation.mutate(contactId);
@@ -197,7 +200,13 @@ export default function ContactSidebar({
 
   // Handle unlinking contact
   const handleUnlinkContact = () => {
-    if (!confirm('Are you sure you want to unlink this contact from the conversation?')) {
+    if (
+      !confirm(
+        __(
+          'Are you sure you want to unlink this contact from the conversation?'
+        )
+      )
+    ) {
       return;
     }
     unlinkContactMutation.mutate(conversationId, {
@@ -217,7 +226,7 @@ export default function ContactSidebar({
     <div className="flex h-full flex-col w-[500px] border-l bg-background shadow-lg overflow-hidden">
       {/* Header */}
       <div className="flex flex-shrink-0 justify-between items-center p-4 border-b">
-        <h3 className="text-lg font-semibold !my-[11px]">Contact Details</h3>
+        <h3 className="text-lg font-semibold !my-[11px]">{__('Contact Details')}</h3>
         <div className="flex gap-2 items-center">
           {contactId && contact && !isEditMode && (
             <>
@@ -231,7 +240,7 @@ export default function ContactSidebar({
                     <Pencil className="w-4 h-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Change Contact</TooltipContent>
+                <TooltipContent>{__('Change Contact')}</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -244,14 +253,14 @@ export default function ContactSidebar({
                     <Unlink className="w-4 h-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Unlink Contact</TooltipContent>
+                <TooltipContent>{__('Unlink Contact')}</TooltipContent>
               </Tooltip>
               <Button
                 size="sm"
                 onClick={form.handleSubmit(handleSave)}
                 disabled={updateContactMutation.isPending}
               >
-                {updateContactMutation.isPending ? 'Saving...' : 'Save'}
+                {updateContactMutation.isPending ? __('Saving...') : __('Save')}
               </Button>
               <Button
                 variant="outline"
@@ -270,7 +279,7 @@ export default function ContactSidebar({
               size="sm"
               onClick={() => setIsEditMode(false)}
             >
-              Cancel
+              {__('Cancel')}
             </Button>
           )}
           <Button
@@ -461,26 +470,30 @@ function LinkContactForm({
     <div className="space-y-4">
       <div>
         <h4 className="mb-2 text-base font-semibold">
-          {isReassignment ? 'Change Contact' : 'Link Contact'}
+          {isReassignment ? __('Change Contact') : __('Link Contact')}
         </h4>
         <p className="mb-4 text-sm text-muted-foreground">
           {isReassignment
-            ? 'Select a different contact to link to this conversation, or create a new one.'
-            : 'This conversation is not linked to a contact. Select an existing contact or create a new one to view details and manage interactions.'}
+            ? __(
+                'Select a different contact to link to this conversation, or create a new one.'
+              )
+            : __(
+                'This conversation is not linked to a contact. Select an existing contact or create a new one to view details and manage interactions.'
+              )}
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
         <TabsList className="grid grid-cols-2 w-full">
-          <TabsTrigger value="select">Select Existing</TabsTrigger>
-          <TabsTrigger value="create">Create New</TabsTrigger>
+          <TabsTrigger value="select">{__('Select Existing')}</TabsTrigger>
+          <TabsTrigger value="create">{__('Create New')}</TabsTrigger>
         </TabsList>
 
         <div className="mt-4">
           {activeTab === 'select' ? (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="block text-sm font-medium">Contact</label>
+                <label className="block text-sm font-medium">{__('Contact')}</label>
                 <Popover
                   open={contactPopoverOpen}
                   onOpenChange={setContactPopoverOpen}
@@ -493,7 +506,7 @@ function LinkContactForm({
                     >
                       {selectedContact
                         ? `${selectedContact.email} (${selectedContact.first_name} ${selectedContact.last_name})`
-                        : 'Select contact...'}
+                        : __('Select contact...')}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="p-0 w-full">
@@ -503,7 +516,7 @@ function LinkContactForm({
                         value={contactSearch}
                         onValueChange={setContactSearch}
                       />
-                      <CommandEmpty>No contacts found.</CommandEmpty>
+                      <CommandEmpty>{__('No contacts found.')}</CommandEmpty>
                       <CommandGroup className="overflow-y-auto max-h-64">
                         {contacts.map((contact) => (
                           <CommandItem
@@ -528,7 +541,7 @@ function LinkContactForm({
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block mb-1 text-sm font-medium">
-                  First Name
+                  {__('First Name')}
                 </label>
                 <input
                   type="text"
@@ -542,7 +555,7 @@ function LinkContactForm({
 
               <div>
                 <label className="block mb-1 text-sm font-medium">
-                  Last Name
+                  {__('Last Name')}
                 </label>
                 <input
                   type="text"
@@ -556,7 +569,7 @@ function LinkContactForm({
 
               <div>
                 <label className="block mb-1 text-sm font-medium">
-                  Email <span className="text-red-500">*</span>
+                  {__('Email')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -570,7 +583,7 @@ function LinkContactForm({
               </div>
 
               <div>
-                <label className="block mb-1 text-sm font-medium">Phone</label>
+                <label className="block mb-1 text-sm font-medium">{__('Phone')}</label>
                 <input
                   type="tel"
                   value={formData.phone}
@@ -582,7 +595,7 @@ function LinkContactForm({
               </div>
 
               <div>
-                <label className="block mb-1 text-sm font-medium">Status</label>
+                <label className="block mb-1 text-sm font-medium">{__('Status')}</label>
                 <select
                   value={formData.status}
                   onChange={(e) =>
@@ -604,8 +617,8 @@ function LinkContactForm({
                 className="w-full"
               >
                 {createContactMutation.isPending
-                  ? 'Creating...'
-                  : 'Create Contact'}
+                  ? __('Creating...')
+                  : __('Create Contact')}
               </Button>
             </form>
           )}

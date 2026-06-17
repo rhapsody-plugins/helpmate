@@ -9,6 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { InfoTooltip } from '@/components/ui/info-tooltip';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Tooltip,
   TooltipContent,
@@ -18,12 +26,15 @@ import {
 import { useApi } from '@/hooks/useApi';
 import { useDataSource } from '@/hooks/useDataSource';
 import { useSettings } from '@/hooks/useSettings';
+import api from '@/lib/axios';
 import { DataSource, WordPressPost } from '@/types';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { toast } from 'sonner';
+import { __ } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
 
 export default function TabProducts() {
   const [products, setProducts] = useState<WordPressPost[]>([]);
@@ -38,6 +49,7 @@ export default function TabProducts() {
     useState<string>('');
   const [searchFilter, setSearchFilter] = useState<string>('');
   const [searchFilterSaved, setSearchFilterSaved] = useState<string>('');
+  const [vendorFilter, setVendorFilter] = useState<string>('all');
   const [activeBulkJobId, setActiveBulkJobId] = useState<string | null>(null);
   const refreshedJobsRef = useRef<Set<string>>(new Set());
 
@@ -69,9 +81,163 @@ export default function TabProducts() {
   const { data: bulkJobsData, refetch: refetchBulkJobs } = getBulkJobsQuery;
   const { mutate: cancelBulkJobMutate } = cancelBulkJobMutation;
   const { mutate: deleteBulkJobMutate } = deleteBulkJobMutation;
+  const commerceConfigQuery = useQuery<{ selected_provider?: string }, Error>({
+    queryKey: ['settings', 'commerce_integration', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/settings/commerce_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+  const selectedCommerceProvider =
+    commerceConfigQuery.data?.selected_provider ?? '';
+  const productPostType = useMemo(() => {
+    if (!selectedCommerceProvider) {
+      return null;
+    }
+    if (selectedCommerceProvider === 'easy_digital_downloads') {
+      return 'download';
+    }
+    if (selectedCommerceProvider === 'surecart') {
+      return 'sc_product';
+    }
+    if (selectedCommerceProvider === 'woocommerce') {
+      return 'product';
+    }
+    return null;
+  }, [selectedCommerceProvider]);
+
+  const dokanCheckQuery = useQuery<
+    { installed?: boolean; active?: boolean },
+    Error
+  >({
+    queryKey: ['check-dokan', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/check-dokan');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const wcfmCheckQuery = useQuery<
+    { installed?: boolean; active?: boolean },
+    Error
+  >({
+    queryKey: ['check-wcfm', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/check-wcfm');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const dokanIntegrationQuery = useQuery<
+    {
+      show_vendor_in_training_products?: boolean;
+    },
+    Error
+  >({
+    queryKey: ['settings', 'dokan_integration', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/settings/dokan_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const wcfmIntegrationQuery = useQuery<
+    {
+      show_vendor_in_training_products?: boolean;
+    },
+    Error
+  >({
+    queryKey: ['settings', 'wcfm_integration', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/settings/wcfm_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const multivendorConfigQuery = useQuery<{ selected_provider?: string }, Error>({
+    queryKey: ['settings', 'multivendor_integration', 'tab-products'],
+    queryFn: async () => {
+      const response = await api.get('/settings/multivendor_integration');
+      return response.data ?? {};
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const selectedMultivendorProvider =
+    multivendorConfigQuery.data?.selected_provider === 'wcfm'
+      ? 'wcfm'
+      : multivendorConfigQuery.data?.selected_provider === 'dokan'
+        ? 'dokan'
+        : 'dokan';
+
+  const activeMultivendorProvider =
+    productPostType === 'product' &&
+    selectedMultivendorProvider === 'wcfm' &&
+    wcfmCheckQuery.data?.active === true
+      ? 'wcfm'
+      : productPostType === 'product' &&
+          selectedMultivendorProvider === 'dokan' &&
+          dokanCheckQuery.data?.active === true
+        ? 'dokan'
+        : null;
+
+  const showVendorColumn =
+    activeMultivendorProvider === 'wcfm'
+      ? wcfmIntegrationQuery.data?.show_vendor_in_training_products === true
+      : activeMultivendorProvider === 'dokan'
+        ? dokanIntegrationQuery.data?.show_vendor_in_training_products === true
+        : false;
+
+  const multivendorVendorsQuery = useQuery<
+    { id: number; store_name: string; email: string }[],
+    Error
+  >({
+    queryKey: ['integrations-multivendor-vendors', activeMultivendorProvider, 'tab-products'],
+    queryFn: async () => {
+      const endpoint =
+        activeMultivendorProvider === 'wcfm'
+          ? '/integrations/wcfm/vendors'
+          : '/integrations/dokan/vendors';
+      const response = await api.get<{ vendors: { id: number; store_name: string; email: string }[] }>(
+        endpoint
+      );
+      return response.data?.vendors ?? [];
+    },
+    enabled: showVendorColumn && !!activeMultivendorProvider,
+    refetchOnWindowFocus: false,
+  });
+
+  const vendorNameByUserId = useMemo(() => {
+    const map: Record<number, string> = {};
+    (multivendorVendorsQuery.data ?? []).forEach((v) => {
+      map[v.id] = v.store_name;
+    });
+    return map;
+  }, [multivendorVendorsQuery.data]);
+
+  const authorByProductId = useMemo(() => {
+    const m: Record<number, number> = {};
+    products.forEach((p) => {
+      m[p.id] = typeof p.author_id === 'number' ? p.author_id : 0;
+    });
+    return m;
+  }, [products]);
 
   const fetchProducts = useCallback(() => {
-    getPostsMutate('product', {
+    if (commerceConfigQuery.isLoading) {
+      return;
+    }
+    if (!productPostType) {
+      setProducts([]);
+      return;
+    }
+
+    getPostsMutate(productPostType, {
       onSuccess: (data) => {
         if (!data) return;
         const formattedProducts = data.map((product: WordPressPost) => ({
@@ -84,13 +250,15 @@ export default function TabProducts() {
           status: product.status,
           date: new Date(product.date).toLocaleDateString(),
           author: product.author,
+          author_id:
+            typeof product.author_id === 'number' ? product.author_id : 0,
           content: product.content,
           metadata: product.metadata,
         }));
         setProducts(formattedProducts);
       },
     });
-  }, [getPostsMutate]);
+  }, [commerceConfigQuery.isLoading, getPostsMutate, productPostType]);
 
   useEffect(() => {
     fetchProducts();
@@ -355,11 +523,58 @@ export default function TabProducts() {
     }
   }, [activeBulkJobId, deleteBulkJobMutate]);
 
-  const columns = useMemo<ColumnDef<WordPressPost>[]>(
-    () => [
+  useEffect(() => {
+    if (!showVendorColumn) {
+      setVendorFilter('all');
+    }
+  }, [showVendorColumn]);
+
+  const productsForTable = useMemo(() => {
+    const rows = handleProducts(fetchData, products);
+    if (!showVendorColumn || vendorFilter === 'all') {
+      return rows;
+    }
+    const vid = parseInt(vendorFilter, 10);
+    if (Number.isNaN(vid)) {
+      return rows;
+    }
+    return rows.filter((r) => (r.author_id ?? 0) === vid);
+  }, [handleProducts, fetchData, products, showVendorColumn, vendorFilter]);
+
+  const savedProductsForTable = useMemo(() => {
+    const rows = fetchData ?? [];
+    if (!showVendorColumn || vendorFilter === 'all') {
+      return rows;
+    }
+    const vid = parseInt(vendorFilter, 10);
+    if (Number.isNaN(vid)) {
+      return rows;
+    }
+    return rows.filter((source) => {
+      const parsed = JSON.parse(source.metadata as unknown as string) as {
+        post_id?: number;
+      };
+      const postId = parsed.post_id ?? 0;
+      return (authorByProductId[postId] ?? 0) === vid;
+    });
+  }, [fetchData, showVendorColumn, vendorFilter, authorByProductId]);
+
+  const columns = useMemo<ColumnDef<WordPressPost>[]>(() => {
+    const vendorColumn: ColumnDef<WordPressPost> = {
+      id: 'vendor',
+      header: __('Vendor'),
+      cell: ({ row }) => {
+        const aid = row.original.author_id ?? 0;
+        const name =
+          aid > 0 ? (vendorNameByUserId[aid] ?? '—') : '—';
+        return <span className="text-sm text-muted-foreground">{name}</span>;
+      },
+    };
+
+    const cols: ColumnDef<WordPressPost>[] = [
       {
         accessorKey: 'image',
-        header: 'Image',
+        header: __('Image'),
         cell: ({ row }) => {
           const { metadata } = row.original;
           const { featured_image } = metadata as { featured_image: string };
@@ -370,13 +585,13 @@ export default function TabProducts() {
               className="w-10 h-10 rounded"
             />
           ) : (
-            'No Image'
+            __('No Image')
           );
         },
       },
       {
         accessorKey: 'title',
-        header: 'Title',
+        header: __('Title'),
         cell: ({ row }) => {
           const { title, content } = row.original;
           const titleText = typeof title === 'string' ? title : title.rendered;
@@ -385,7 +600,7 @@ export default function TabProducts() {
             <div className="flex gap-1 items-center max-w-[200px] truncate">
               {titleText}
               {isDynamic && (
-                <span className="text-xs text-muted-foreground">(Dynamic)</span>
+                <span className="text-xs text-muted-foreground">{__('(Dynamic)')}</span>
               )}
             </div>
           );
@@ -393,23 +608,28 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'type',
-        header: 'Type',
+        header: __('Type'),
       },
       {
         accessorKey: 'status',
-        header: 'Status',
+        header: __('Status'),
       },
       {
         accessorKey: 'date',
-        header: 'Date',
+        header: __('Date'),
       },
+    ];
+    if (showVendorColumn) {
+      cols.push(vendorColumn);
+    }
+    cols.push(
       {
         accessorKey: 'author',
-        header: 'Author',
+        header: __('Author'),
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => {
           const isAdding = addingProductId === row.original.id;
           return (
@@ -420,21 +640,42 @@ export default function TabProducts() {
                 disabled={addIsPending && !isAdding}
                 onClick={() => handleAdd(row.original.id)}
               >
-                {isAdding ? 'Training...' : 'Train'}
+                {isAdding ? __('Training...') : __('Train')}
               </Button>
             </div>
           );
         },
-      },
-    ],
-    [handleAdd, addIsPending, addingProductId]
-  );
+      }
+    );
+    return cols;
+  }, [
+    handleAdd,
+    addIsPending,
+    addingProductId,
+    showVendorColumn,
+    vendorNameByUserId,
+  ]);
 
-  const savedColumns = useMemo<ColumnDef<DataSource>[]>(
-    () => [
+  const savedColumns = useMemo<ColumnDef<DataSource>[]>(() => {
+    const vendorSavedColumn: ColumnDef<DataSource> = {
+      id: 'vendor_saved',
+      header: __('Vendor'),
+      cell: ({ row }) => {
+        const parsedMetadata = JSON.parse(
+          row.original.metadata as unknown as string
+        ) as { post_id?: number };
+        const pid = parsedMetadata.post_id ?? 0;
+        const aid = authorByProductId[pid] ?? 0;
+        const name =
+          aid > 0 ? (vendorNameByUserId[aid] ?? '—') : '—';
+        return <span className="text-sm text-muted-foreground">{name}</span>;
+      },
+    };
+
+    const cols: ColumnDef<DataSource>[] = [
       {
         accessorKey: 'title',
-        header: 'Title',
+        header: __('Title'),
         cell: ({ row }) => {
           const { title, content } = row.original;
           const isDynamic = isDynamicContent(content || '');
@@ -442,7 +683,7 @@ export default function TabProducts() {
             <div className="flex gap-1 items-center">
               {title}
               {isDynamic && (
-                <span className="text-xs text-muted-foreground">(Dynamic)</span>
+                <span className="text-xs text-muted-foreground">{__('(Dynamic)')}</span>
               )}
             </div>
           );
@@ -450,7 +691,7 @@ export default function TabProducts() {
       },
       {
         accessorKey: 'metadata.post_id',
-        header: 'Product ID',
+        header: __('Product ID'),
         cell: ({ row }) => {
           const { metadata } = row.original;
           const parsedMetadata = JSON.parse(metadata as unknown as string);
@@ -464,9 +705,14 @@ export default function TabProducts() {
           );
         },
       },
+    ];
+    if (showVendorColumn) {
+      cols.push(vendorSavedColumn);
+    }
+    cols.push(
       {
         accessorKey: 'last_updated',
-        header: 'Last Updated',
+        header: __('Last Updated'),
         cell: ({ row }) => {
           const timestamp = row.getValue('last_updated') as number;
           return format(parseUTCTimestamp(timestamp), 'PPpp', {
@@ -476,7 +722,7 @@ export default function TabProducts() {
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => {
           const { metadata } = row.original;
           const parsedMetadata = JSON.parse(metadata as unknown as string);
@@ -488,7 +734,7 @@ export default function TabProducts() {
                 size="sm"
                 onClick={() => handleContentDisplay(row.original.id)}
               >
-                See Trained Data
+                {__('See Trained Data')}
               </Button>
               {canEditOrDelete ? (
                 <Button
@@ -498,35 +744,40 @@ export default function TabProducts() {
                   disabled={removeIsPending && isRemoving}
                   onClick={() => handleRemove(parsedMetadata.post_id)}
                 >
-                  {isRemoving ? 'Deleting...' : 'Delete'}
+                  {isRemoving ? __('Deleting...') : __('Delete')}
                 </Button>
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-block">
                       <Button variant="destructive" size="sm" disabled>
-                        Delete
+                        {__('Delete')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               )}
             </div>
           );
         },
-      },
-    ],
-    [
-      handleRemove,
-      removeIsPending,
-      removingProductId,
-      handleContentDisplay,
-      canEditOrDelete,
-    ]
-  );
+      }
+    );
+    return cols;
+  }, [
+    handleRemove,
+    removeIsPending,
+    removingProductId,
+    handleContentDisplay,
+    canEditOrDelete,
+    showVendorColumn,
+    authorByProductId,
+    vendorNameByUserId,
+  ]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -542,14 +793,35 @@ export default function TabProducts() {
           <div className="flex justify-between items-center">
             <div>
               <CardTitle className="flex gap-1 items-center text-xl font-bold">
-                Products{' '}
+                {__('Products')}{' '}
                 <InfoTooltip
-                  message="Train your product data to Chatbot for better
-                product recommendations and support"
+                  message={__(
+                    'Train your product data to Chatbot for better product recommendations and support'
+                  )}
                 />
               </CardTitle>
             </div>
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-wrap gap-2 items-center justify-end">
+              {showVendorColumn ? (
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="vendor-filter-products" className="sr-only">
+                    {__('Vendor')}
+                  </Label>
+                  <Select value={vendorFilter} onValueChange={setVendorFilter}>
+                    <SelectTrigger id="vendor-filter-products" className="w-[200px]">
+                      <SelectValue placeholder="All vendors" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{__('All vendors')}</SelectItem>
+                      {(multivendorVendorsQuery.data ?? []).map((v) => (
+                        <SelectItem key={v.id} value={String(v.id)}>
+                          {v.store_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
               <Input
                 placeholder="Search products..."
                 value={searchFilter}
@@ -562,7 +834,7 @@ export default function TabProducts() {
         <CardContent>
           <ReusableTable
             columns={columns}
-            data={handleProducts(fetchData, products)}
+            data={productsForTable}
             className="w-full"
             loading={getPostsIsPending}
             onSelectionChange={setSelectedRows}
@@ -581,7 +853,7 @@ export default function TabProducts() {
                     setSelectedRows([]);
                   }}
                 >
-                  {addIsPending ? 'Training...' : 'Train Selected'}
+                  {addIsPending ? __('Training...') : __('Train Selected')}
                 </Button>
               </>
             }
@@ -593,7 +865,7 @@ export default function TabProducts() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl font-bold">
-              Trained Product Sources
+              {__('Trained Product Sources')}
             </CardTitle>
             <Input
               placeholder="Search saved products..."
@@ -606,7 +878,7 @@ export default function TabProducts() {
         <CardContent>
           <ReusableTable
             columns={savedColumns}
-            data={fetchData || []}
+            data={savedProductsForTable}
             loading={fetchIsPending}
             className="w-full"
             onSelectionChange={setSelectedRowsSaved}
@@ -630,19 +902,21 @@ export default function TabProducts() {
                     setSelectedRowsSaved([]);
                   }}
                 >
-                  {removeIsPending ? 'Deleting...' : 'Delete Selected'}
+                  {removeIsPending ? __('Deleting...') : __('Delete Selected')}
                 </Button>
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-block">
                       <Button size="sm" variant="destructive" disabled>
-                        Delete Selected
+                        {__('Delete Selected')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               )

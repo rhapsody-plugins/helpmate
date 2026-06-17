@@ -23,7 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import { RefreshCw } from 'lucide-react';
 import { ReactNode } from 'react';
 
@@ -198,7 +198,7 @@ export function ActivityLayout({
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
-                Refresh the activity list
+                {__('Refresh the activity list')}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

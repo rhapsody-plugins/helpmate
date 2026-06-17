@@ -33,6 +33,14 @@ class Helpmate_Activator
 	{
 		global $wpdb;
 
+		// Stable install fingerprint used for localhost->domain promotion attribution.
+		if (!get_option('helpmate_install_id')) {
+			add_option('helpmate_install_id', wp_generate_uuid4());
+		}
+		if (!get_option('helpmate_localhost_migration_status')) {
+			add_option('helpmate_localhost_migration_status', 'pending');
+		}
+
 		// Check if plugin was previously deactivated
 		$was_deactivated = $wpdb->get_var($wpdb->prepare( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			"SELECT setting_value FROM {$wpdb->prefix}helpmate_settings WHERE setting_key = %s",

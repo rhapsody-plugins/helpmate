@@ -3,7 +3,7 @@ import { FailedEmailsSheet } from '@/components/crm/FailedEmailsSheet';
 import { ReusableTable } from '@/components/ReusableTable';
 import { ProBadge } from '@/components/ProBadge';
 import { useSettings } from '@/hooks/useSettings';
-import { cn } from '@/lib/utils';
+import { cn, __, sprintf } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -44,22 +44,40 @@ export default function TabSequences() {
   const columns: ColumnDef<EmailSequence>[] = [
     {
       accessorKey: 'name',
-      header: 'Name',
+      header: __('Name'),
     },
     {
       accessorKey: 'steps',
-      header: 'Steps',
-      cell: ({ row }) => <span>{row.original.steps?.length || 0} steps</span>,
+      header: __('Steps'),
+      cell: ({ row }) => (
+        <span>
+          {sprintf(
+            /* translators: %d: Number of steps */
+            __('%d steps'),
+            row.original.steps?.length || 0
+          )}
+        </span>
+      ),
     },
     {
       accessorKey: 'sent_count',
-      header: 'Sent',
+      header: __('Sent'),
       cell: ({ row }) => (
         <div className="flex flex-col">
-          <span>{row.original.sent_count ?? 0} sent</span>
+          <span>
+            {sprintf(
+              /* translators: %d: Sent count */
+              __('%d sent'),
+              row.original.sent_count ?? 0
+            )}
+          </span>
           {(row.original.failed_count ?? 0) > 0 && (
             <span className="text-xs text-destructive">
-              {row.original.failed_count} failed
+              {sprintf(
+                /* translators: %d: Failed count */
+                __('%d failed'),
+                row.original.failed_count ?? 0
+              )}
             </span>
           )}
         </div>
@@ -67,14 +85,14 @@ export default function TabSequences() {
     },
     {
       accessorKey: 'is_active',
-      header: 'Status',
+      header: __('Status'),
       cell: ({ row }) => (
-        <span>{row.original.is_active ? 'Active' : 'Inactive'}</span>
+        <span>{row.original.is_active ? __('Active') : __('Inactive')}</span>
       ),
     },
     {
       accessorKey: 'created_at',
-      header: 'Created',
+      header: __('Created'),
       cell: ({ row }) =>
         formatDistanceToNow(parseUTCDate(row.original.created_at), {
           addSuffix: true,
@@ -83,7 +101,7 @@ export default function TabSequences() {
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: __('Actions'),
       cell: ({ row }) => (
         <div className="flex gap-2 justify-end items-center">
           {(row.original.failed_count ?? 0) > 0 && (
@@ -92,7 +110,7 @@ export default function TabSequences() {
               size="sm"
               onClick={() => setFailuresSequenceId(row.original.id)}
             >
-              View failures
+              {__('View failures')}
             </Button>
           )}
           <Button
@@ -111,7 +129,7 @@ export default function TabSequences() {
             size="sm"
             onClick={() => {
               if (
-                confirm('Are you sure you want to delete this email sequence?')
+                confirm(__('Are you sure you want to delete this email sequence?'))
               ) {
                 deleteEmailSequenceMutation.mutate(row.original.id);
               }
@@ -130,8 +148,10 @@ export default function TabSequences() {
       <div className="relative p-6 space-y-6">
         {!isPro && (
           <ProBadge
-            topMessage="Create email sequences that automatically send emails over time."
-            buttonText="Unlock Email Sequences"
+            topMessage={__(
+              'Create email sequences that automatically send emails over time.'
+            )}
+            buttonText={__('Unlock Email Sequences')}
             tooltipMessage={null}
           />
         )}
@@ -142,7 +162,7 @@ export default function TabSequences() {
         >
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle>Email Sequences</CardTitle>
+              <CardTitle>{__('Email Sequences')}</CardTitle>
               <Button
                 onClick={() => {
                   setEditingSequence(null);
@@ -151,7 +171,7 @@ export default function TabSequences() {
                 disabled={!isPro}
               >
                 <Plus className="mr-2 w-4 h-4" />
-                Create Sequence
+                {__('Create Sequence')}
               </Button>
             </div>
           </CardHeader>
@@ -166,14 +186,16 @@ export default function TabSequences() {
               />
             ) : (
               <div className="py-12 text-center">
-                <p className="text-muted-foreground">No email sequences yet.</p>
+                <p className="text-muted-foreground">
+                  {__('No email sequences yet.')}
+                </p>
                 <Button
                   onClick={() => setIsFormOpen(true)}
                   className="mt-4"
                   disabled={!isPro}
                 >
                   <Plus className="mr-2 w-4 h-4" />
-                  Create Sequence
+                  {__('Create Sequence')}
                 </Button>
               </div>
             )}
@@ -184,7 +206,7 @@ export default function TabSequences() {
       <FailedEmailsSheet
         open={failuresSequenceId !== null}
         onOpenChange={(open) => !open && setFailuresSequenceId(null)}
-        title="Failed emails"
+        title={__('Failed emails')}
         failures={failedEmails}
         isLoading={failedEmailsLoading}
         failedCount={
@@ -203,8 +225,8 @@ export default function TabSequences() {
           <SheetHeader>
             <SheetTitle>
               {editingSequence
-                ? 'Edit Email Sequence'
-                : 'Create Email Sequence'}
+                ? __('Edit Email Sequence')
+                : __('Create Email Sequence')}
             </SheetTitle>
           </SheetHeader>
           <div className="overflow-y-auto flex-1 p-4 pt-6">

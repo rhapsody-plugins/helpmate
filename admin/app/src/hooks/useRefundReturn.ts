@@ -28,7 +28,12 @@ export default function useRefundReturn() {
   });
 
   const updateRefundReturn = useMutation<
-    { error: boolean; message: string },
+    {
+      error: boolean;
+      message?: string;
+      item?: RefundReturnType;
+      commerce_notice?: string;
+    },
     Error,
     { id: string; status: string; template_id?: number }
   >({

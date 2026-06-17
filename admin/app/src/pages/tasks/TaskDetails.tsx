@@ -49,6 +49,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { CustomFieldFormInput } from '@/pages/crm/contacts/components/CustomFieldFormInput';
 import { siteToDatetimeLocal } from '@/pages/crm/contacts/utils';
+import { __, sprintf } from '@/lib/utils';
 
 const taskFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
@@ -351,7 +352,7 @@ export function TaskDetails({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:!max-w-2xl">
         <SheetHeader>
-          <SheetTitle>{taskId ? 'Edit Task' : 'Create Task'}</SheetTitle>
+          <SheetTitle>{taskId ? __('Edit Task') : __('Create Task')}</SheetTitle>
         </SheetHeader>
 
         {taskLoading ? (
@@ -369,7 +370,7 @@ export function TaskDetails({
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title *</FormLabel>
+                      <FormLabel>{__('Title *')}</FormLabel>
                       <FormControl>
                         <Input placeholder="Task title" {...field} />
                       </FormControl>
@@ -384,7 +385,7 @@ export function TaskDetails({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{__('Description')}</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Task description"
@@ -404,7 +405,7 @@ export function TaskDetails({
                     name="due_date"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Due Date</FormLabel>
+                        <FormLabel>{__('Due Date')}</FormLabel>
                         <FormControl>
                           <Input type="datetime-local" {...field} />
                         </FormControl>
@@ -419,7 +420,7 @@ export function TaskDetails({
                     name="assigned_to"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Assigned To</FormLabel>
+                        <FormLabel>{__('Assigned To')}</FormLabel>
                         <Select
                           value={
                             field.value !== null && field.value !== undefined
@@ -442,7 +443,7 @@ export function TaskDetails({
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="unassigned">
-                              Unassigned
+                              {__('Unassigned')}
                             </SelectItem>
                             {users?.map((user) => (
                               <SelectItem key={user.id} value={String(user.id)}>
@@ -460,7 +461,7 @@ export function TaskDetails({
                 {/* Custom Fields */}
                 {customFields && customFields.length > 0 && (
                   <div className="space-y-4">
-                    <h3 className="text-sm font-medium">Task Details</h3>
+                    <h3 className="text-sm font-medium">{__('Task Details')}</h3>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       {customFields.map((field) => (
                         <CustomFieldFormInput
@@ -475,7 +476,7 @@ export function TaskDetails({
 
                 {/* Associated Contacts */}
                 <div className="space-y-2">
-                  <FormLabel>Associated Contacts</FormLabel>
+                  <FormLabel>{__('Associated Contacts')}</FormLabel>
                   <Popover
                     open={contactPopoverOpen}
                     onOpenChange={setContactPopoverOpen}
@@ -487,8 +488,12 @@ export function TaskDetails({
                         className="justify-between w-full"
                       >
                         {selectedContactIds.length > 0
-                          ? `${selectedContactIds.length} contact(s) selected`
-                          : 'Select contacts'}
+                          ? sprintf(
+                              /* translators: %d: Number of selected contacts */
+                              __('%d contact(s) selected'),
+                              selectedContactIds.length
+                            )
+                          : __('Select contacts')}
                         <ChevronsUpDown className="ml-2 w-4 h-4 opacity-50 shrink-0" />
                       </Button>
                     </PopoverTrigger>
@@ -499,7 +504,7 @@ export function TaskDetails({
                           value={contactSearch}
                           onValueChange={setContactSearch}
                         />
-                        <CommandEmpty>No contacts found.</CommandEmpty>
+                        <CommandEmpty>{__('No contacts found.')}</CommandEmpty>
                         <CommandGroup className="overflow-y-auto max-h-64">
                           {contacts.map((contact) => (
                             <CommandItem
@@ -547,13 +552,13 @@ export function TaskDetails({
                     onClick={() => onOpenChange(false)}
                     disabled={isSubmitting}
                   >
-                    Cancel
+                    {__('Cancel')}
                   </Button>
                   <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting && (
                       <Loader2 className="mr-2 w-4 h-4 animate-spin" />
                     )}
-                    {taskId ? 'Update' : 'Create'} Task
+                    {taskId ? __('Update Task') : __('Create Task')}
                   </Button>
                 </div>
               </form>

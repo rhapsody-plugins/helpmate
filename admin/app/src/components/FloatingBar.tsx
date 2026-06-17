@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import usePersistedState from '@/hooks/usePersistedState';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 
@@ -20,9 +20,13 @@ interface FloatingBarProps {
 
 export function FloatingBar({
   className,
-  title = 'Helpmate Ai Chatbot is not just a chatbot, it helps you increase sales.',
-  buttonText = 'Learn How',
-  articleTitle = 'Helpmate Ai Chatbot is not just a chatbot, it helps you increase sales.',
+  title = __(
+    'Helpmate Ai Chatbot is not just a chatbot, it helps you increase sales.'
+  ),
+  buttonText = __('Learn How'),
+  articleTitle = __(
+    'Helpmate Ai Chatbot is not just a chatbot, it helps you increase sales.'
+  ),
   articleContent,
 }: FloatingBarProps) {
   const [isCollapsed, setIsCollapsed] = usePersistedState(

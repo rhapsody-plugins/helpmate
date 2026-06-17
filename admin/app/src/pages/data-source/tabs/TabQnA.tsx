@@ -33,6 +33,7 @@ import { format } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { parseUTCTimestamp, defaultLocale } from '@/pages/crm/contacts/utils';
 import { useForm } from 'react-hook-form';
+import { __ } from '@/lib/utils';
 import { z } from 'zod';
 
 const formSchema = z.object({
@@ -215,7 +216,7 @@ export default function TabQnA() {
     () => [
       {
         accessorKey: 'title',
-        header: 'Question',
+        header: __('Question'),
         cell: ({ row }) => {
           const title = row.getValue('title') as string;
           return <div className="max-w-[150px] truncate">{title}</div>;
@@ -223,7 +224,7 @@ export default function TabQnA() {
       },
       {
         accessorKey: 'content',
-        header: 'Answer',
+        header: __('Answer'),
         cell: ({ row }) => {
           const content = row.getValue('content') as string;
           return <div className="max-w-[150px] truncate">{content}</div>;
@@ -231,7 +232,7 @@ export default function TabQnA() {
       },
       {
         accessorKey: 'last_updated',
-        header: 'Last Updated',
+        header: __('Last Updated'),
         cell: ({ row }) => {
           const timestamp = row.getValue('last_updated') as number;
           return format(parseUTCTimestamp(timestamp), 'PPpp', {
@@ -242,7 +243,7 @@ export default function TabQnA() {
 
       {
         id: 'show_as_quick_option',
-        header: 'Quick Option',
+        header: __('Quick Option'),
         cell: ({ row }) => {
           const metadata = row.original.metadata
             ? JSON.parse(row.original.metadata as unknown as string)
@@ -255,14 +256,14 @@ export default function TabQnA() {
                   : 'text-red-600'
               }`}
             >
-              {metadata.show_as_quick_option ? 'True' : 'False'}
+              {metadata.show_as_quick_option ? __('True') : __('False')}
             </div>
           );
         },
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: __('Actions'),
         cell: ({ row }) => {
           const isRemoving = removingQnAId === row.original.id;
           return (
@@ -278,7 +279,7 @@ export default function TabQnA() {
                   setIsContentSheetOpen(true);
                 }}
               >
-                View
+                {__('View')}
               </Button>
               {canEditOrDelete ? (
                 <Button
@@ -286,19 +287,21 @@ export default function TabQnA() {
                   size="sm"
                   onClick={() => handleEdit(row.original.id)}
                 >
-                  Edit
+                  {__('Edit')}
                 </Button>
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-block">
                       <Button variant="outline" size="sm" disabled>
-                        Edit
+                        {__('Edit')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -310,19 +313,21 @@ export default function TabQnA() {
                   disabled={removeIsPending && isRemoving}
                   onClick={() => handleRemove(row.original.id)}
                 >
-                  {isRemoving ? 'Deleting...' : 'Delete'}
+                  {isRemoving ? __('Deleting...') : __('Delete')}
                 </Button>
               ) : (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="inline-block">
                       <Button variant="destructive" size="sm" disabled>
-                        Delete
+                        {__('Delete')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -345,8 +350,12 @@ export default function TabQnA() {
       <Card>
         <CardHeader>
           <CardTitle className="flex gap-1 items-center text-xl font-bold">
-            Create QnA Source{' '}
-            <InfoTooltip message="Add a question and answer source to your Helpmate." />
+            {__('Create QnA Source')}{' '}
+            <InfoTooltip
+              message={__(
+                'Add a question and answer source to your Helpmate.'
+              )}
+            />
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -360,7 +369,7 @@ export default function TabQnA() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Question</FormLabel>
+                    <FormLabel>{__('Question')}</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter text" {...field} />
                     </FormControl>
@@ -372,7 +381,7 @@ export default function TabQnA() {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Answer</FormLabel>
+                    <FormLabel>{__('Answer')}</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Enter text" {...field} />
                     </FormControl>
@@ -386,8 +395,12 @@ export default function TabQnA() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row justify-between items-center p-2 h-9 rounded-md border border-input">
                       <div className="flex gap-2 items-center">
-                        <FormLabel>Show as Quick Option</FormLabel>
-                        <InfoTooltip message="This item will show as quick question before the chat input field." />
+                        <FormLabel>{__('Show as Quick Option')}</FormLabel>
+                        <InfoTooltip
+                          message={__(
+                            'This item will show as quick question before the chat input field.'
+                          )}
+                        />
                       </div>
                       <FormControl>
                         <Switch
@@ -408,12 +421,16 @@ export default function TabQnA() {
                         loading={addIsPending || updateIsPending}
                         type="submit"
                       >
-                        {addIsPending || updateIsPending ? 'Saving...' : 'Save'}
+                        {addIsPending || updateIsPending
+                          ? __('Saving...')
+                          : __('Save')}
                       </Button>
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Add your OpenAI API key in Manage API to edit or delete
+                    {__(
+                      'Add your OpenAI API key in Manage API to edit or delete'
+                    )}
                   </TooltipContent>
                 </Tooltip>
               ) : (
@@ -422,7 +439,9 @@ export default function TabQnA() {
                   loading={addIsPending || updateIsPending}
                   type="submit"
                 >
-                  {addIsPending || updateIsPending ? 'Saving...' : 'Save'}
+                  {addIsPending || updateIsPending
+                    ? __('Saving...')
+                    : __('Save')}
                 </Button>
               )}
             </form>
@@ -433,7 +452,7 @@ export default function TabQnA() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl font-bold">
-              Saved QnA Sources
+              {__('Saved QnA Sources')}
             </CardTitle>
             <Input
               placeholder="Search saved QnA..."
@@ -460,14 +479,14 @@ export default function TabQnA() {
         <SheetContent className="sm:!max-w-2xl flex flex-col h-full gap-0">
           <SheetHeader className="mt-6">
             <SheetTitle className="text-lg font-bold !my-0">
-              QnA Details
+              {__('QnA Details')}
             </SheetTitle>
           </SheetHeader>
           <div className="overflow-y-auto flex-1 p-4 pt-0">
             <div className="space-y-6">
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground !mb-2 !mt-0">
-                  Question
+                  {__('Question')}
                 </h3>
                 <div className="p-4 rounded-lg bg-muted">
                   {selectedQnA?.title}
@@ -475,7 +494,7 @@ export default function TabQnA() {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground !mb-2 !mt-0">
-                  Answer
+                  {__('Answer')}
                 </h3>
                 <div className="p-4 whitespace-pre-wrap rounded-lg bg-muted">
                   {selectedQnA?.content}
@@ -487,7 +506,7 @@ export default function TabQnA() {
               variant="outline"
               onClick={() => setIsContentSheetOpen(false)}
             >
-              Close
+              {__('Close')}
             </Button>
           </div>
         </SheetContent>

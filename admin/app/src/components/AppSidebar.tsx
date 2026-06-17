@@ -1,4 +1,5 @@
 import adminHub from '@/assets/apps/admin-hub.svg';
+import integrationsIcon from '@/assets/apps/integrations.svg';
 import automation from '@/assets/apps/automation.svg';
 import comments from '@/assets/apps/comments.svg';
 import conversionAutomation from '@/assets/apps/conversion-automation.svg';
@@ -40,7 +41,7 @@ import { useUnreadCounts } from '@/hooks/useNotifications';
 import { usePermissions } from '@/hooks/usePermissions';
 import { useSettings } from '@/hooks/useSettings';
 import api from '@/lib/axios';
-import { cn } from '@/lib/utils';
+import { __, cn } from '@/lib/utils';
 import { SidebarMenuItemType } from '@/types';
 import { Icon } from '@iconify/react';
 import { useQuery } from '@tanstack/react-query';
@@ -75,7 +76,8 @@ import {
   TextCursorInput,
   TicketPercent,
   UserRoundSearch,
-  UserSearch
+  UserSearch,
+  Wrench
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChangeSvgColor } from 'svg-color-tools';
@@ -87,26 +89,17 @@ export type SectionId =
   | 'inbox'
   | 'channels'
   | 'crm'
+  | 'integrations'
   | 'control-center';
 
 const PAGE_TO_SECTION: Record<PageType, SectionId> = {
-  analytics: 'control-center',
-  activity: 'inbox',
   'data-source': 'helpmate-ai',
   settings: 'automations',
-  'proactive-sales': 'automations',
-  'abandoned-cart': 'crm',
-  'coupon-delivery': 'automations',
   'order-tracker': 'automations',
   'image-search': 'automations',
-  'ticket-system': 'automations',
   'refund-return': 'automations',
-  'app-center': 'automations',
-  'train-chatbot': 'helpmate-ai',
   'test-chatbot': 'automations',
-  'social-chat': 'channels',
   'social-chat-inbox': 'inbox',
-  'social-chat-campaigns': 'channels',
   'social-chat-facebook': 'channels',
   'social-chat-instagram': 'channels',
   'social-chat-whatsapp': 'channels',
@@ -117,12 +110,13 @@ const PAGE_TO_SECTION: Record<PageType, SectionId> = {
   'crm-leads': 'crm',
   'crm-emails': 'crm',
   'crm-segments': 'crm',
-  'crm-analytics': 'crm',
   'control-center-team': 'control-center',
   tasks: 'crm',
   'control-center-dashboard': 'dashboard',
   'control-center-analytics': 'control-center',
   'control-center-settings': 'control-center',
+  'control-center-tools': 'control-center',
+  integrations: 'integrations',
   'manage-api': 'control-center',
   setup: 'control-center',
   'inbox-all': 'inbox',
@@ -276,8 +270,14 @@ export function AppSidebar() {
   const {
     canAccess,
     hasRole,
+    hasAnyRole,
     isLoading: permissionsLoading,
   } = usePermissions();
+
+  const canAccessIntegrations = useMemo(
+    () => !permissionsLoading && hasAnyRole(['admin', 'manager']),
+    [permissionsLoading, hasAnyRole]
+  );
   const { isMobile, submenuOpen, setSubmenuOpen, openMobile, setOpenMobile } =
     useSidebar();
 
@@ -292,7 +292,9 @@ export function AppSidebar() {
     const section = PAGE_TO_SECTION[page];
     if (section) {
       setSelectedSection(section);
-      if (section !== 'dashboard') setSubmenuOpen(true);
+      if (section !== 'dashboard' && section !== 'integrations') {
+        setSubmenuOpen(true);
+      }
     }
   }, [page, setSubmenuOpen]);
 
@@ -301,6 +303,9 @@ export function AppSidebar() {
       setSelectedSection(section);
       if (section === 'dashboard') {
         setPage('control-center-dashboard');
+        setSubmenuOpen(false);
+      } else if (section === 'integrations') {
+        setPage('integrations');
         setSubmenuOpen(false);
       } else {
         setSubmenuOpen(true);
@@ -320,45 +325,45 @@ export function AppSidebar() {
       ) : undefined;
     return [
       {
-        label: 'All Conversations',
+        label: __('All Conversations'),
         page: 'inbox-all',
         icon: <Inbox className="w-4 h-4" strokeWidth={1.5} />,
         badge: badge(inboxUnread),
       },
       {
-        label: 'Chatbot',
+        label: __('Chatbot'),
         page: 'inbox-chatbot',
         icon: <Bot className="w-4 h-4" strokeWidth={1.5} />,
         badge: badge(byInbox?.chatbot ?? 0),
       },
       {
-        label: 'Live Chat',
+        label: __('Live Chat'),
         page: 'inbox-live-chat',
         icon: <ChangeSvgColor src={liveChat} strokeWidth="1.5px" className="w-4 h-4 stroke-current [&_path]:stroke-current" />,
         pro: !isPro,
       },
       {
-        label: 'Tickets',
+        label: __('Tickets'),
         page: 'inbox-tickets',
         icon: <ChangeSvgColor src={ticketSystem} strokeWidth="1.5px" className="w-4 h-4 stroke-current [&_path]:stroke-current" />,
         badge: badge(byInbox?.tickets ?? 0),
       },
       {
-        label: 'Social Messages',
+        label: __('Social Messages'),
         page: 'inbox-social-messages',
         icon: <Share2 className="w-4 h-4" strokeWidth={1.5} />,
         badge: badge(byInbox?.social_messages ?? 0),
         pro: !isPro,
       },
       {
-        label: 'Comments',
+        label: __('Comments'),
         page: 'inbox-comments',
         icon: <ChangeSvgColor src={comments} strokeWidth="1.5px" className="w-4 h-4" />,
         badge: badge(byInbox?.comments ?? 0),
         pro: !isPro,
       },
       {
-        label: 'Archived',
+        label: __('Archived'),
         page: 'inbox-archived',
         icon: <Archive className="w-4 h-4" strokeWidth={1.5} />,
       },
@@ -376,25 +381,25 @@ export function AppSidebar() {
   const channelsMenuItems: SidebarMenuItemType[] = useMemo(
     () => [
       {
-        label: 'Facebook',
+        label: __('Facebook'),
         page: 'social-chat-facebook' as PageType,
         icon: <Facebook className="w-4 h-4" strokeWidth={1.5} />,
         pro: !isPro,
       },
       {
-        label: 'Instagram',
+        label: __('Instagram'),
         page: 'social-chat-instagram' as PageType,
         icon: <Instagram className="w-4 h-4" strokeWidth={1.5} />,
         pro: !isPro,
       },
       {
-        label: 'WhatsApp',
+        label: __('WhatsApp'),
         page: 'social-chat-whatsapp' as PageType,
         icon: <Icon icon="mdi:whatsapp" className="w-4 h-4" />,
         pro: !isPro,
       },
       {
-        label: 'TikTok (coming soon)',
+        label: __('TikTok (coming soon)'),
         page: 'social-chat-tiktok' as PageType,
         icon: (
           <Icon
@@ -415,7 +420,7 @@ export function AppSidebar() {
 
   const liveChatMenuItem: SidebarMenuItemType = useMemo(
     () => ({
-      label: 'Live Chat',
+      label: __('Live Chat'),
       page: 'live-chat-settings' as PageType,
       icon: <ChangeSvgColor src={liveChat} strokeWidth="1.5px" className="w-4 h-4 stroke-current [&_path]:stroke-current" />,
       pro: !isPro,
@@ -426,12 +431,12 @@ export function AppSidebar() {
 
   const chatbotMenuItems: SidebarMenuItemType[] = [
     {
-      label: 'Test Chatbot',
+      label: __('Test Chatbot'),
       page: 'test-chatbot',
       icon: <FlaskConical className="w-4 h-4" strokeWidth={1.5} />,
     },
     {
-      label: 'Customization',
+      label: __('Customization'),
       page: 'settings',
       icon: <Settings2 className="w-4 h-4" strokeWidth={1.5} />,
     },
@@ -440,28 +445,33 @@ export function AppSidebar() {
   const controlCenterMenuItems: SidebarMenuItemType[] = useMemo(() => {
     const items: SidebarMenuItemType[] = [
       {
-        label: 'Teams & Roles',
+        label: __('Teams & Roles'),
         page: 'control-center-team',
         icon: <ChangeSvgColor src={teamManagement} strokeWidth="1.5px" className="w-4 h-4" />,
       },
     ];
     if (apiKey) {
       items.push({
-        label: 'Manage API Key',
+        label: __('Manage API Key'),
         page: 'manage-api',
         icon: <KeyRound className="w-4 h-4" strokeWidth={1.5} />,
       });
     }
     items.push(
       {
-        label: 'Analytics',
+        label: __('Analytics'),
         page: 'control-center-analytics',
         icon: <BarChart3 className="w-4 h-4" strokeWidth={1.5} />,
       },
       {
-        label: 'Modules',
+        label: __('Modules'),
         page: 'control-center-settings',
         icon: <Package className="w-4 h-4" strokeWidth={1.5} />,
+      },
+      {
+        label: __('Tools'),
+        page: 'control-center-tools',
+        icon: <Wrench className="w-4 h-4" strokeWidth={1.5} />,
       }
     );
     return items;
@@ -471,7 +481,7 @@ export function AppSidebar() {
     if (permissionsLoading || !canAccess('chat_settings')) return [];
     return [
       {
-        label: 'Knowledge Base',
+        label: __('Knowledge Base'),
         page: 'data-source',
         icon: <Database className="w-4 h-4" strokeWidth={1.5} />,
       },
@@ -484,12 +494,12 @@ export function AppSidebar() {
   const crmMenuItems: SidebarMenuItemType[] = useMemo(
     () => [
       {
-        label: 'Contacts',
+        label: __('Contacts'),
         page: 'crm-contacts',
         icon: <BookUser className="w-4 h-4" strokeWidth={1.5} />,
       },
       {
-        label: 'Leads',
+        label: __('Leads'),
         page: 'crm-leads',
         icon: <UserSearch className="w-4 h-4" strokeWidth={1.5} />,
         badge:
@@ -500,7 +510,7 @@ export function AppSidebar() {
           ) : undefined,
       },
       {
-        label: 'Appointments & Bookings',
+        label: __('Appointments & Bookings'),
         page: 'appointments-bookings',
         icon: <CalendarClock className="w-4 h-4" strokeWidth={1.5} />,
         pro: !isPro,
@@ -512,19 +522,19 @@ export function AppSidebar() {
           ) : undefined,
       },
       {
-        label: 'Segments',
+        label: __('Segments'),
         page: 'crm-segments',
         icon: <Layers className="w-4 h-4" strokeWidth={1.5} />,
         pro: !isPro,
       },
       {
-        label: 'Custom Fields',
+        label: __('Custom Fields'),
         page: 'crm-custom-fields',
         icon: <TextCursorInput className="w-4 h-4" strokeWidth={1.5} />,
         pro: !isPro,
       },
       {
-        label: 'Tasks',
+        label: __('Tasks'),
         page: 'tasks',
         icon: <ListChecks className="w-4 h-4" strokeWidth={1.5} />,
         pro: !isPro,
@@ -536,7 +546,7 @@ export function AppSidebar() {
           ) : undefined,
       },
       {
-        label: 'Email Templates',
+        label: __('Email Templates'),
         page: 'crm-emails',
         icon: <ChangeSvgColor src={emailTemplate} strokeWidth=".14px" className="w-4 h-4 stroke-white fill-current [&_path]:fill-current [&_path]:!stroke-white" />,
         pro: !isPro,
@@ -548,7 +558,7 @@ export function AppSidebar() {
   const moduleItems: SidebarMenuItemType[] = useMemo(
     () => [
       {
-        label: 'Order Status Tracking',
+        label: __('Order Status Tracking'),
         page: 'order-tracker',
         icon: (
           <ChangeSvgColor src={truckLocation} strokeWidth="2px" className="w-4 h-4 stroke-current [&_path]:stroke-current" />
@@ -557,14 +567,14 @@ export function AppSidebar() {
         pro: !isPro,
       },
       {
-        label: 'Product Search by Image',
+        label: __('Product Search by Image'),
         page: 'image-search',
         icon: <ScanSearch className="w-4 h-4" strokeWidth={1.5} />,
         status: modules['image-search'],
         pro: !isPro,
       },
       {
-        label: 'Refund & Return',
+        label: __('Refund & Return'),
         page: 'refund-return',
         icon: (
           <ChangeSvgColor src={rotateCCW} strokeWidth="2px" className="w-4 h-4 stroke-current [&_path]:stroke-current" />
@@ -579,7 +589,7 @@ export function AppSidebar() {
   const automationSupportMenuItems: SidebarMenuItemType[] = useMemo(
     () => [
       {
-        label: 'Auto DM & Comments',
+        label: __('Auto DM & Comments'),
         page: 'automation-support-auto-responses',
         icon: <MessageCircleReply className="w-4 h-4" strokeWidth={1.5} />,
         pro: !isPro,
@@ -591,25 +601,25 @@ export function AppSidebar() {
   const automationMarketingMenuItems: SidebarMenuItemType[] = useMemo(
     () => [
       {
-        label: 'Email Campaigns',
+        label: __('Email Campaigns'),
         page: 'automation-marketing-email-campaigns',
         icon: <Send className="w-4 h-4" strokeWidth={1.5} />,
         pro: !isPro,
       },
       {
-        label: 'Lead Capture',
+        label: __('Lead Capture'),
         page: 'automation-marketing-lead-capture',
         icon: <UserRoundSearch className="w-4 h-4" strokeWidth={1.5} />,
       },
       {
-        label: 'Coupon Delivery',
+        label: __('Coupon Delivery'),
         page: 'automation-marketing-coupon-delivery',
         icon: <TicketPercent className="w-4 h-4" strokeWidth={1.5} />,
         status: modules['coupon-delivery'],
         pro: !isPro,
       },
       {
-        label: 'Proactive Sales',
+        label: __('Proactive Sales'),
         page: 'automation-marketing-proactive-sales',
         icon: <Rocket className="w-4 h-4" strokeWidth={1.5} />,
         status: modules['proactive-sales'],
@@ -622,13 +632,13 @@ export function AppSidebar() {
   const automationSalesMenuItems: SidebarMenuItemType[] = useMemo(
     () => [
       {
-        label: 'Email Sequences',
+        label: __('Email Sequences'),
         page: 'automation-sales-email-sequences',
         icon: <Mails className="w-4 h-4" strokeWidth={1.5} />,
         pro: !isPro,
       },
       {
-        label: 'Abandoned Cart',
+        label: __('Abandoned Cart'),
         page: 'automation-sales-abandoned-cart',
         icon: (
           <ChangeSvgColor src={shoppingCartAbandoned} strokeWidth="2px" className="w-4 h-4 stroke-current [&_path]:stroke-current" />
@@ -642,13 +652,13 @@ export function AppSidebar() {
   const automationConversionMenuItems: SidebarMenuItemType[] = useMemo(
     () => [
       {
-        label: 'Promo Bar',
+        label: __('Promo Bar'),
         page: 'automation-sales-promo-banner',
         icon: <ChangeSvgColor src={promoMegaphone} strokeWidth="2px" className="w-4 h-4 stroke-current [&_path]:stroke-current" />,
         status: modules['promo-banner'],
       },
       {
-        label: 'Sales Notifications',
+        label: __('Sales Notifications'),
         page: 'automation-sales-sales-notifications',
         icon: <BellRing className="w-4 h-4" strokeWidth={1.5} />,
         status: modules['sales-notifications'],
@@ -742,6 +752,7 @@ export function AppSidebar() {
     return controlCenterMenuItems.filter((item) => {
       if (item.page === 'control-center-analytics') return canAccess('analytics');
       if (item.page === 'control-center-settings') return hasRole('admin');
+      if (item.page === 'control-center-tools') return hasRole('admin');
       if (item.page === 'control-center-team') return canAccess('team_management');
       if (item.page === 'manage-api') return hasRole('admin');
       return true;
@@ -789,7 +800,7 @@ export function AppSidebar() {
 
   const dashboardMenuItem = useMemo(
     () => ({
-      label: 'Dashboard',
+      label: __('Dashboard'),
       page: 'control-center-dashboard' as PageType,
       icon: <LayoutDashboard className="w-4 h-4" strokeWidth={1.5} />,
     }),
@@ -861,49 +872,62 @@ export function AppSidebar() {
     if (canAccess('analytics')) {
       sections.push({
         id: 'dashboard',
-        label: 'Dashboard',
+        label: __('Dashboard'),
         icon: <LayoutDashboard className="w-5 h-5" strokeWidth={1.5} />,
       });
     }
     if (helpmateAIMenuItems.length > 0) {
       sections.push({
         id: 'helpmate-ai',
-        label: 'Helpmate AI',
+        label: __('Helpmate AI'),
         icon: <Brain className="w-5 h-5" strokeWidth={1.5} />,
       });
     }
     if (hasAnyAutomationAccess) {
       sections.push({
         id: 'automations',
-        label: 'Automations',
+        label: __('Automations'),
         icon: <ChangeSvgColor src={automation} stroke="currentColor" className="w-5 h-5" />,
       });
     }
     if (filteredInboxMenuItems.length > 0) {
       sections.push({
         id: 'inbox',
-        label: 'Inbox',
+        label: __('Inbox'),
         icon: <Inbox className="w-5 h-5" strokeWidth={1.5} />,
         badgeCount: inboxSectionBadge,
       });
     }
     sections.push({
       id: 'channels',
-      label: 'Channels',
+      label: __('Channels'),
       icon: <Radio className="w-5 h-5" strokeWidth={1.5} />,
     });
     if (filteredCrmMenuItems.length > 0) {
       sections.push({
         id: 'crm',
-        label: 'CRM',
+        label: __('CRM'),
         icon: <ChangeSvgColor src={crm} strokeWidth="1.5px" className="w-5 h-5 stroke-current [&_path]:stroke-current" />,
         badgeCount: crmSectionBadge,
+      });
+    }
+    if (canAccessIntegrations) {
+      sections.push({
+        id: 'integrations',
+        label: __('Integrations'),
+        icon: (
+          <ChangeSvgColor
+            src={integrationsIcon}
+            stroke="currentColor"
+            className="w-5 h-5 stroke-current [&_path]:stroke-current"
+          />
+        ),
       });
     }
     if (filteredControlCenterMenuItems.length > 0) {
       sections.push({
         id: 'control-center',
-        label: 'Admin Hub',
+        label: __('Admin Hub'),
         icon: <ChangeSvgColor src={adminHub} strokeWidth="1.5px" className="w-5 h-5" />,
       });
     }
@@ -914,6 +938,7 @@ export function AppSidebar() {
     hasAnyAutomationAccess,
     filteredInboxMenuItems.length,
     filteredCrmMenuItems.length,
+    canAccessIntegrations,
     filteredControlCenterMenuItems.length,
     inboxSectionBadge,
     crmSectionBadge,
@@ -957,7 +982,7 @@ export function AppSidebar() {
       return (
         <div className="flex flex-col gap-2">
           {filteredAutomationSupportMenuItems.length > 0 && (
-            <AutomationGroup title="Support Automation" icon={<ChangeSvgColor
+            <AutomationGroup title={__('Support Automation')} icon={<ChangeSvgColor
               stroke='#6a7282'
               src={supportAutomation}
               className="w-4 h-4 stroke-current [&_path]:stroke-current"
@@ -982,14 +1007,14 @@ export function AppSidebar() {
                     <span className="text-foreground [&_svg]:w-4 [&_svg]:h-4">
                       <Bot className="w-4 h-4" strokeWidth={1.5} />
                     </span>
-                    Chatbot
+                    {__('Chatbot')}
                     <ChevronRight className="ml-auto w-4 h-4 shrink-0 transition-transform duration-200 group-data-[state=open]/cbot:rotate-90" />
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub className="border-0">
                       {!apiKey ? (
                         <SubmenuItem
-                          label="Chatbot"
+                          label={__('Chatbot')}
                           page="data-source"
                           currentPage={page}
                           onClick={setPage}
@@ -1033,7 +1058,7 @@ export function AppSidebar() {
             </AutomationGroup>
           )}
           {filteredAutomationSalesMenuItems.length > 0 && (
-            <AutomationGroup title="Sales Automation" icon={<ChangeSvgColor
+            <AutomationGroup title={__('Sales Automation')} icon={<ChangeSvgColor
               stroke='#6a7282'
               src={salesAutomation}
               className="w-4 h-4 stroke-current [&_path]:stroke-current"
@@ -1055,7 +1080,7 @@ export function AppSidebar() {
             </AutomationGroup>
           )}
           {filteredAutomationMarketingMenuItems.length > 0 && (
-            <AutomationGroup title="Marketing Automation" icon={<ChangeSvgColor
+            <AutomationGroup title={__('Marketing Automation')} icon={<ChangeSvgColor
               stroke='#6a7282'
               src={marketingAutomation}
               className="w-4 h-4 stroke-current [&_path]:stroke-current"
@@ -1077,7 +1102,7 @@ export function AppSidebar() {
             </AutomationGroup>
           )}
           {filteredAutomationConversionMenuItems.length > 0 && (
-            <AutomationGroup title="Conversion Automation" icon={<ChangeSvgColor
+            <AutomationGroup title={__('Conversion Automation')} icon={<ChangeSvgColor
               stroke='#6a7282'
               src={conversionAutomation}
               className="w-4 h-4 stroke-current [&_path]:stroke-current"
@@ -1125,7 +1150,7 @@ export function AppSidebar() {
         <div className="flex flex-col gap-2">
           {filteredChannelsMenuItems.length > 0 && (
             <AutomationGroup
-              title="Social platforms"
+              title={__('Social platforms')}
               icon={<Share2 className="w-4 h-4" strokeWidth={1.5} />}
             >
               <SidebarMenuSub className="border-0">
@@ -1235,7 +1260,7 @@ export function AppSidebar() {
           className="w-[18rem] p-0 bg-sidebar text-sidebar-foreground [&>button]:hidden"
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>Menu</SheetTitle>
+            <SheetTitle>{__('Menu')}</SheetTitle>
           </SheetHeader>
           <div className="flex overflow-auto flex-col gap-2 py-4">
             {topLevelSections.map((section) => (
@@ -1258,7 +1283,7 @@ export function AppSidebar() {
                       )}
                     >
                       <LayoutDashboard className="w-4 h-4" />
-                      Dashboard
+                      {__('Dashboard')}
                     </button>
                   )}
                   {section.id === 'helpmate-ai' &&
@@ -1283,7 +1308,7 @@ export function AppSidebar() {
                   {section.id === 'automations' && (
                     <div className="flex flex-col gap-2">
                       {filteredAutomationSupportMenuItems.length > 0 && (
-                        <AutomationGroup title="Support Automation" icon={<ChangeSvgColor
+                        <AutomationGroup title={__('Support Automation')} icon={<ChangeSvgColor
                           stroke='#6a7282'
                           src={supportAutomation}
                           className="w-4 h-4"
@@ -1311,7 +1336,7 @@ export function AppSidebar() {
                               <Collapsible defaultOpen className="group/cbot">
                                 <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs font-semibold text-foreground hover:!bg-none">
                                   <Bot className="w-4 h-4 shrink-0" strokeWidth={1.5} />
-                                  Chatbot
+                                  {__('Chatbot')}
                                   <ChevronRight className="ml-auto w-4 h-4 shrink-0 transition-transform duration-200 group-data-[state=open]/cbot:rotate-90" />
                                 </CollapsibleTrigger>
                                 <CollapsibleContent>
@@ -1330,7 +1355,7 @@ export function AppSidebar() {
                                         )}
                                       >
                                         <Bot className="w-4 h-4" strokeWidth={1.5} />
-                                        Chatbot
+                                        {__('Chatbot')}
                                       </button>
                                     ) : (
                                       <>
@@ -1380,7 +1405,7 @@ export function AppSidebar() {
                         </AutomationGroup>
                       )}
                       {filteredAutomationSalesMenuItems.length > 0 && (
-                        <AutomationGroup title="Sales Automation" icon={<ChangeSvgColor
+                        <AutomationGroup title={__('Sales Automation')} icon={<ChangeSvgColor
                           stroke='#6a7282'
                           src={salesAutomation}
                           className="w-4 h-4"
@@ -1408,7 +1433,7 @@ export function AppSidebar() {
                         </AutomationGroup>
                       )}
                       {filteredAutomationMarketingMenuItems.length > 0 && (
-                        <AutomationGroup title="Marketing Automation" icon={<ChangeSvgColor
+                        <AutomationGroup title={__('Marketing Automation')} icon={<ChangeSvgColor
                           stroke='#6a7282'
                           src={marketingAutomation}
                           className="w-4 h-4"
@@ -1436,7 +1461,7 @@ export function AppSidebar() {
                         </AutomationGroup>
                       )}
                       {filteredAutomationConversionMenuItems.length > 0 && (
-                        <AutomationGroup title="Conversion Automation" icon={<ChangeSvgColor
+                        <AutomationGroup title={__('Conversion Automation')} icon={<ChangeSvgColor
                           stroke='#6a7282'
                           src={conversionAutomation}
                           className="w-4 h-4"
@@ -1491,7 +1516,7 @@ export function AppSidebar() {
                         <div className="p-1 rounded-md border border-border">
                           <div className="flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-foreground rounded-t-md bg-border/25 mb-1">
                             <Share2 className="w-4 h-4" strokeWidth={1.5} />
-                            Social platforms
+                            {__('Social platforms')}
                           </div>
                           {filteredChannelsMenuItems.map((item) => (
                             <button
@@ -1531,7 +1556,7 @@ export function AppSidebar() {
                           )}
                         >
                           <ChangeSvgColor src={liveChat} strokeWidth="1.5px" className="w-4 h-4 stroke-current [&_path]:stroke-current" />
-                          Live Chat
+                          {__('Live Chat')}
                           {!isPro && (
                             <Crown className="w-4 h-4 shrink-0 text-primary" strokeWidth={1.5} />
                           )}
@@ -1562,6 +1587,27 @@ export function AppSidebar() {
                         )}
                       </button>
                     ))}
+                  {section.id === 'integrations' && canAccessIntegrations && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPage('integrations');
+                        setOpenMobile(false);
+                      }}
+                      className={cn(
+                        'flex items-center gap-2 w-full rounded-md px-2 py-1.5 text-sm',
+                        page === 'integrations' &&
+                          'bg-sidebar-primary text-sidebar-primary-foreground'
+                      )}
+                    >
+                      <ChangeSvgColor
+                        src={integrationsIcon}
+                        stroke="currentColor"
+                        className="w-4 h-4 stroke-current [&_path]:stroke-current"
+                      />
+                      {__('Integrations')}
+                    </button>
+                  )}
                   {section.id === 'control-center' && (
                     <>
                       {filteredControlCenterMenuItems.map((item) => (
@@ -1594,10 +1640,10 @@ export function AppSidebar() {
   }
 
   const showSubmenuPanel =
-    submenuOpen && activeSection !== 'dashboard';
+    submenuOpen && activeSection !== 'dashboard' && activeSection !== 'integrations';
 
   const sidebarWidth =
-    activeSection === 'dashboard'
+    activeSection === 'dashboard' || activeSection === 'integrations'
       ? ICON_BAR_WIDTH
       : showSubmenuPanel
         ? `calc(${ICON_BAR_WIDTH} + ${SUBMENU_PANEL_WIDTH})`

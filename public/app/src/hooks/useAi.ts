@@ -1,7 +1,13 @@
 import api from '@/lib/axios';
+import { __ } from '@/lib/utils';
 import { AiResponse } from '@/types';
 import { useMutation } from '@tanstack/react-query';
 import { clearStoredMessages } from '@/utils/message-storage';
+
+const getParseErrorMessage = () =>
+  __(
+    'Sorry, I encountered an error processing your request. Please try again or contact support if the issue persists.'
+  );
 
 export const useAi = () => {
   const getResponseMutation = useMutation<
@@ -41,7 +47,7 @@ export const useAi = () => {
             console.error('Failed to parse reply:', error);
             reply = {
               type: 'text',
-              text: 'Sorry, I encountered an error processing your request. Please try again or contact support if the issue persists.',
+              text: getParseErrorMessage(),
             };
           }
         }
@@ -57,7 +63,7 @@ export const useAi = () => {
           error: true,
           reply: {
             type: 'text',
-            text: 'Sorry, I encountered an error processing your request. Please try again or contact support if the issue persists.',
+            text: getParseErrorMessage(),
           },
         };
       }
@@ -97,6 +103,23 @@ export const useAi = () => {
         rating,
         message: message || '',
       });
+      if (res.data?.error) {
+        throw new Error(res.data.message || 'Failed to submit review');
+      }
+      return res.data;
+    },
+  });
+
+  const dismissReviewMutation = useMutation<
+    { error: boolean; message: string },
+    Error,
+    { session_id: string }
+  >({
+    mutationFn: async ({ session_id }) => {
+      const res = await api.post('/chat/review/dismiss', { session_id });
+      if (res.data?.error) {
+        throw new Error(res.data.message || 'Failed to dismiss review');
+      }
       return res.data;
     },
   });
@@ -106,5 +129,6 @@ export const useAi = () => {
     updateChatMetadataMutation,
     endChatMutation,
     submitReviewMutation,
+    dismissReviewMutation,
   };
 };

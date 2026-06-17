@@ -6,6 +6,7 @@ import {
 } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FailedEmail } from '@/types/crm';
+import { __, sprintf } from '@/lib/utils';
 
 type FailedEmailsSheetProps = {
   open: boolean;
@@ -38,8 +39,10 @@ export function FailedEmailsSheet({
           ) : isEmpty ? (
             <p className="text-muted-foreground text-sm">
               {failedCount > 0
-                ? 'Failure details not available for campaigns/sequences sent before this feature was added.'
-                : 'No failure details.'}
+                ? __(
+                    'Failure details not available for campaigns/sequences sent before this feature was added.'
+                  )
+                : __('No failure details.')}
             </p>
           ) : (
             (failures ?? []).map((f, i) => (
@@ -50,8 +53,12 @@ export function FailedEmailsSheet({
                 <div className="font-medium">
                   {f.contact_name ||
                     f.contact_email ||
-                    `Contact #${f.contact_id}` ||
-                    'Deleted contact'}
+                    sprintf(
+                      /* translators: %d: Contact ID */
+                      __('Contact #%d'),
+                      f.contact_id
+                    ) ||
+                    __('Deleted contact')}
                 </div>
                 <div className="text-muted-foreground text-xs break-words">
                   {f.error_message}

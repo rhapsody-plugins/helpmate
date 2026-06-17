@@ -98,6 +98,15 @@ class Helpmate
 	private $document_handler;
 
 	/**
+	 * Admin maintenance tools.
+	 *
+	 * @since 1.0.0
+	 * @access private
+	 * @var Helpmate_Tools $tools
+	 */
+	private $tools;
+
+	/**
 	 * The backend routes instance.
 	 *
 	 * @since    1.0.0
@@ -177,6 +186,59 @@ class Helpmate
 	 * @var      Helpmate_WooCommerce    $woocommerce    The woocommerce instance.
 	 */
 	private $woocommerce;
+
+	/**
+	 * Dokan integration helper (optional multivendor).
+	 *
+	 * @var Helpmate_Dokan
+	 */
+	private $dokan;
+
+	/**
+	 * WCFM integration helper (optional multivendor).
+	 *
+	 * @var Helpmate_WCFM
+	 */
+	private $wcfm;
+
+	/**
+	 * LearnPress integration helper (optional LMS).
+	 *
+	 * @var Helpmate_LearnPress
+	 */
+	private $learnpress;
+
+	/**
+	 * Tutor LMS integration helper (optional LMS).
+	 *
+	 * @var Helpmate_Tutor
+	 */
+	private $tutor;
+
+	/**
+	 * LifterLMS integration helper (optional LMS).
+	 *
+	 * @var Helpmate_LifterLMS
+	 */
+	private $lifterlms;
+
+	/**
+	 * The Easy Digital Downloads instance.
+	 *
+	 * @since    2.0.3
+	 * @access   private
+	 * @var      Helpmate_EDD    $edd    The EDD instance.
+	 */
+	private $edd;
+
+	/**
+	 * The SureCart instance.
+	 *
+	 * @since    2.0.4
+	 * @access   private
+	 * @var      Helpmate_SureCart    $surecart    The SureCart instance.
+	 */
+	private $surecart;
 
 	/**
 	 * The general tools instance.
@@ -277,12 +339,91 @@ class Helpmate
 	 */
 	private $post_meta_box;
 
+	/**
+	 * Shared integration event service.
+	 *
+	 * @var Helpmate_Integration_Events
+	 */
+	private $integration_events;
+
+	/**
+	 * Contact Form 7 integration handler.
+	 *
+	 * @var Helpmate_CF7_Integration
+	 */
+	private $cf7_integration;
+
+
+	/**
+	 * Forminator custom forms integration handler.
+	 *
+	 * @var Helpmate_Forminator_Integration
+	 */
+	private $forminator_integration;
+
+	/**
+	 * WPForms integration handler.
+	 *
+	 * @var Helpmate_WPForms_Integration
+	 */
+	private $wpforms_integration;
+
+	/**
+	 * Ninja Forms integration handler.
+	 *
+	 * @var Helpmate_Ninja_Forms_Integration
+	 */
+	private $ninja_forms_integration;
+
+	/**
+	 * Formidable Forms integration handler.
+	 *
+	 * @var Helpmate_Formidable_Forms_Integration
+	 */
+	private $formidable_forms_integration;
+
+	/**
+	 * Integration plugin overview / install / activate (REST).
+	 *
+	 * @var Helpmate_Integration_Plugins
+	 */
+	private $integration_plugins;
+
+	/**
+	 * Ultimate Member integration helper (optional membership/community).
+	 *
+	 * @var Helpmate_Ultimate_Member
+	 */
+	private $ultimate_member;
+
+	/**
+	 * Members integration helper (optional membership/roles).
+	 *
+	 * @var Helpmate_Members
+	 */
+	private $members;
+
+	/**
+	 * User Registration integration helper (optional membership/forms).
+	 *
+	 * @var Helpmate_User_Registration
+	 */
+	private $user_registration;
+
+	/**
+	 * Public-facing plugin instance (shortcodes, front assets).
+	 *
+	 * @since 1.4.0
+	 * @var Helpmate_Public|null
+	 */
+	private $plugin_public;
+
 
 	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
-	 * Load the dependencies, define the locale, and set the hooks for the admin area and
+	 * Load the dependencies and set the hooks for the admin area and
 	 * the public-facing side of the site.
 	 *
 	 * @since    1.0.0
@@ -297,7 +438,6 @@ class Helpmate
 		$this->plugin_name = 'helpmate';
 
 		$this->load_dependencies();
-		$this->set_locale();
 
 		$this->database = new Helpmate_Database();
 		$this->settings = new Helpmate_Settings;
@@ -313,14 +453,32 @@ class Helpmate
 		$this->ticket = new Helpmate_Ticket($this->settings);
 
 		$this->document_handler = new Helpmate_Document_Handler($this->api, $this->chat);
-		$this->woocommerce = new Helpmate_WooCommerce($this->settings);
+		$this->woocommerce = new Helpmate_WooCommerce($this->settings, $this);
+		$this->edd = new Helpmate_EDD($this->settings, $this);
+		$this->surecart = new Helpmate_SureCart($this->settings, $this);
 		$this->social_chat = new Helpmate_Social_Chat($this);
+		$this->dokan = new Helpmate_Dokan($this);
+		$this->wcfm = new Helpmate_WCFM($this);
+		$this->learnpress = new Helpmate_LearnPress($this);
+		$this->tutor = new Helpmate_Tutor($this);
+		$this->lifterlms = new Helpmate_LifterLMS($this);
 		$this->crm = new Helpmate_CRM($this);
+		$this->tools = new Helpmate_Tools($this);
 		$this->crm_order_metabox = new Helpmate_Crm_Order_Metabox($this->crm);
 		$this->team = new Helpmate_Team($this);
 		$this->notifications = new Helpmate_Notifications($this);
 		$this->tasks = new Helpmate_Tasks($this);
 		$this->crm_analytics = new Helpmate_Crm_Analytics($this);
+		$this->integration_events = new Helpmate_Integration_Events($this);
+		$this->cf7_integration = new Helpmate_CF7_Integration($this, $this->integration_events);
+		$this->forminator_integration = new Helpmate_Forminator_Integration($this, $this->integration_events);
+		$this->wpforms_integration = new Helpmate_WPForms_Integration($this, $this->integration_events);
+		$this->ninja_forms_integration = new Helpmate_Ninja_Forms_Integration($this, $this->integration_events);
+		$this->formidable_forms_integration = new Helpmate_Formidable_Forms_Integration($this, $this->integration_events);
+		$this->integration_plugins = new Helpmate_Integration_Plugins();
+		$this->ultimate_member = new Helpmate_Ultimate_Member($this, $this->integration_events);
+		$this->members = new Helpmate_Members($this, $this->integration_events);
+		$this->user_registration = new Helpmate_User_Registration($this, $this->integration_events);
 
 		// Initialize post/page meta box for knowledge base
 		if (is_admin()) {
@@ -342,6 +500,45 @@ class Helpmate
 
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
+
+		// Elementor loads before this plugin (typical alphabetical order), so elementor/loaded may have already fired.
+		if ( did_action( 'elementor/loaded' ) ) {
+			$this->init_elementor_integration();
+		} else {
+			add_action( 'elementor/loaded', array( $this, 'init_elementor_integration' ) );
+		}
+
+		if ( function_exists( 'register_block_type' ) ) {
+			Helpmate_Blocks::run( $this );
+		}
+
+		add_action( 'plugins_loaded', array( $this, 'init_beaver_integration' ), 20 );
+	}
+
+	/**
+	 * Load Beaver Builder modules when the builder is active.
+	 *
+	 * @return void
+	 */
+	public function init_beaver_integration() {
+		if ( ! class_exists( 'FLBuilder' ) ) {
+			return;
+		}
+		require_once HELPMATE_DIR . 'includes/integrations/class-helpmate-beaver-builder.php';
+		Helpmate_Beaver_Builder::instance()->run( $this );
+	}
+
+	/**
+	 * Load Elementor widgets when Elementor is active.
+	 *
+	 * @return void
+	 */
+	public function init_elementor_integration() {
+		if ( ! class_exists( '\Elementor\Plugin' ) ) {
+			return;
+		}
+		require_once HELPMATE_DIR . 'includes/integrations/class-helpmate-elementor.php';
+		Helpmate_Elementor::instance()->run( $this );
 	}
 
 	/**
@@ -350,7 +547,6 @@ class Helpmate
 	 * Include the following files that make up the plugin:
 	 *
 	 * - Helpmate_Loader. Orchestrates the hooks of the plugin.
-	 * - Helpmate_i18n. Defines internationalization functionality.
 	 * - Helpmate_Admin. Defines all hooks for the admin area.
 	 * - Helpmate_Public. Defines all hooks for the public side of the site.
 	 * - Helpmate_Database. Defines the database functionality.
@@ -375,7 +571,6 @@ class Helpmate
 	{
 		$required_files = array(
 			'includes/class-helpmate-loader.php',
-			'includes/class-helpmate-i18n.php',
 			'admin/class-helpmate-admin.php',
 			'public/class-helpmate-public.php',
 			'includes/class-helpmate-database.php',
@@ -384,6 +579,7 @@ class Helpmate
 			'includes/class-helpmate-dashboard.php',
 			'includes/class-helpmate-analytics.php',
 			'includes/class-helpmate-document-handler.php',
+			'includes/class-helpmate-tools.php',
 			'includes/class-helpmate-backend-routes.php',
 			'includes/class-helpmate-frontend-routes.php',
 			'includes/chat/class-helpmate-chat.php',
@@ -393,6 +589,8 @@ class Helpmate
 			'includes/modules/class-helpmate-sales-notification.php',
 			'includes/modules/class-helpmate-ticket.php',
 			'includes/modules/class-helpmate-woocommerce.php',
+			'includes/modules/class-helpmate-edd.php',
+			'includes/modules/class-helpmate-surecart.php',
 			'includes/modules/class-helpmate-social-chat.php',
 			'includes/modules/class-helpmate-crm.php',
 			'includes/modules/class-helpmate-crm-order-metabox.php',
@@ -405,7 +603,32 @@ class Helpmate
 			'includes/class-helpmate-permissions.php',
 			'includes/social/class-helpmate-social-message-processor.php',
 			'includes/class-helpmate-background-processor.php',
+			'includes/class-helpmate-product-variant-normalizer.php',
+			'includes/class-helpmate-product-training-payload.php',
 			'includes/class-helpmate-job-tracker.php',
+			'includes/commerce/interface-commerce-provider-adapter.php',
+			'includes/commerce/class-helpmate-commerce-woocommerce-adapter.php',
+			'includes/commerce/class-helpmate-commerce-edd-adapter.php',
+			'includes/commerce/class-helpmate-commerce-surecart-adapter.php',
+			'includes/commerce/class-helpmate-commerce-adapter-registry.php',
+			'includes/integrations/class-helpmate-integration-events.php',
+			'includes/integrations/class-helpmate-form-integration-ui.php',
+			'includes/integrations/class-helpmate-cf7-integration.php',
+			'includes/integrations/class-helpmate-forminator-integration.php',
+			'includes/integrations/class-helpmate-wpforms-integration.php',
+			'includes/integrations/class-helpmate-ninja-forms-integration.php',
+			'includes/integrations/class-helpmate-formidable-forms-integration.php',
+			'includes/integrations/class-helpmate-integration-plugins.php',
+			'includes/integrations/class-helpmate-dokan.php',
+			'includes/integrations/class-helpmate-wcfm.php',
+			'includes/integrations/class-helpmate-learnpress.php',
+			'includes/integrations/class-helpmate-tutor.php',
+			'includes/integrations/class-helpmate-lifterlms.php',
+			'includes/integrations/class-helpmate-ultimate-member.php',
+			'includes/integrations/class-helpmate-members.php',
+			'includes/integrations/class-helpmate-user-registration.php',
+			'includes/integrations/class-helpmate-elementor-utils.php',
+			'includes/integrations/class-helpmate-blocks.php',
 		);
 
 		foreach ($required_files as $file) {
@@ -425,22 +648,6 @@ class Helpmate
 		}
 
 		$this->loader = new Helpmate_Loader();
-	}
-
-	/**
-	 * Define the locale for this plugin for internationalization.
-	 *
-	 * Uses the Helpmate_i18n class in order to set the domain and to register the hook
-	 * with WordPress.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function set_locale()
-	{
-		$plugin_i18n = new Helpmate_i18n();
-
-		$this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
 	}
 
 	/**
@@ -471,10 +678,10 @@ class Helpmate
 	 */
 	private function define_public_hooks()
 	{
-		$plugin_public = new Helpmate_Public($this->get_plugin_name(), $this->get_version(), $this->promo_banner, $this->sales_notification);
+		$this->plugin_public = new Helpmate_Public($this->get_plugin_name(), $this->get_version(), $this->promo_banner, $this->sales_notification);
 
-		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
-		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+		$this->loader->add_action('wp_enqueue_scripts', $this->plugin_public, 'enqueue_styles');
+		$this->loader->add_action('wp_enqueue_scripts', $this->plugin_public, 'enqueue_scripts');
 		$this->loader->add_action('rest_api_init', $this->frontend_routes, 'register_routes');
 		// Register backend routes with priority 20 to ensure custom fields route runs after pro plugin
 		// This allows our route to take precedence when pro route blocks access
@@ -522,6 +729,17 @@ class Helpmate
 	public function get_document_handler()
 	{
 		return $this->document_handler;
+	}
+
+	/**
+	 * Get the admin tools instance.
+	 *
+	 * @since 1.0.0
+	 * @return Helpmate_Tools
+	 */
+	public function get_tools()
+	{
+		return $this->tools;
 	}
 
 	/**
@@ -679,6 +897,27 @@ class Helpmate
 			// Create default email templates
 			$this->create_default_email_templates();
 
+			$commerce_settings = $this->settings->get_setting('commerce_integration');
+			$detected_providers = $this->get_detected_commerce_providers();
+			$default_selected_provider = '';
+			if (count($detected_providers) === 1) {
+				$default_selected_provider = $detected_providers[0];
+			}
+
+			if (!is_array($commerce_settings) || empty($commerce_settings)) {
+				$this->settings->set_setting('commerce_integration', [
+					'enabled' => true,
+					'selected_provider' => $default_selected_provider,
+				]);
+			} else {
+				$selected_provider = isset($commerce_settings['selected_provider']) ? (string) $commerce_settings['selected_provider'] : '';
+				if (empty($selected_provider) && count($detected_providers) === 1) {
+					$commerce_settings['selected_provider'] = $default_selected_provider;
+					$commerce_settings['enabled'] = true;
+					$this->settings->set_setting('commerce_integration', $commerce_settings);
+				}
+			}
+
 			// Update stored version
 			update_option('helpmate_version', $current_version);
 		}
@@ -715,6 +954,245 @@ class Helpmate
 	public function is_woocommerce_active()
 	{
 		return is_plugin_active('woocommerce/woocommerce.php');
+	}
+
+	/**
+	 * Check if Easy Digital Downloads is active.
+	 *
+	 * @since 2.0.3
+	 * @return bool Whether Easy Digital Downloads is active.
+	 */
+	public function is_edd_active()
+	{
+		return is_plugin_active('easy-digital-downloads/easy-digital-downloads.php');
+	}
+
+	/**
+	 * Check if SureCart is active.
+	 *
+	 * @since 2.0.4
+	 * @return bool Whether SureCart is active.
+	 */
+	public function is_surecart_active()
+	{
+		return is_plugin_active('surecart/surecart.php');
+	}
+
+	/**
+	 * Get multivendor integration settings.
+	 *
+	 * @return array{selected_provider:string}
+	 */
+	public function get_multivendor_integration_settings(): array
+	{
+		$settings = $this->settings->get_setting('multivendor_integration');
+		if (!is_array($settings)) {
+			$settings = [];
+		}
+
+		return [
+			'selected_provider' => isset($settings['selected_provider']) ? (string) $settings['selected_provider'] : '',
+		];
+	}
+
+	/**
+	 * Get active multivendor providers by runtime readiness.
+	 *
+	 * @return string[]
+	 */
+	public function get_detected_multivendor_providers(): array
+	{
+		$providers = [];
+		if (method_exists($this, 'get_dokan') && $this->get_dokan()->is_active()) {
+			$providers[] = 'dokan';
+		}
+		if (method_exists($this, 'get_wcfm') && $this->get_wcfm()->is_active()) {
+			$providers[] = 'wcfm';
+		}
+		return $providers;
+	}
+
+	/**
+	 * Smart default provider for initial persistence.
+	 *
+	 * @return string
+	 */
+	public function get_multivendor_default_provider_for_persist(): string
+	{
+		$detected = $this->get_detected_multivendor_providers();
+		if (in_array('dokan', $detected, true)) {
+			return 'dokan';
+		}
+		if (in_array('wcfm', $detected, true)) {
+			return 'wcfm';
+		}
+		return 'dokan';
+	}
+
+	/**
+	 * Get selected primary multivendor provider.
+	 *
+	 * Strict mode: no cross-provider fallback when selected provider is inactive.
+	 *
+	 * @return string
+	 */
+	public function get_primary_multivendor_provider(): string
+	{
+		$settings = $this->get_multivendor_integration_settings();
+		$selected = isset($settings['selected_provider']) ? (string) $settings['selected_provider'] : '';
+		$detected = $this->get_detected_multivendor_providers();
+		if (!empty($selected) && in_array($selected, ['dokan', 'wcfm'], true) && in_array($selected, $detected, true)) {
+			return $selected;
+		}
+		return '';
+	}
+
+	/**
+	 * Get commerce integration settings.
+	 *
+	 * @since 2.0.3
+	 * @return array Commerce integration settings.
+	 */
+	public function get_commerce_integration_settings(): array
+	{
+		$settings = $this->settings->get_setting('commerce_integration');
+		if (!is_array($settings)) {
+			$settings = [];
+		}
+
+		return [
+			'enabled' => !array_key_exists('enabled', $settings) || !empty($settings['enabled']),
+			'selected_provider' => isset($settings['selected_provider']) ? (string) $settings['selected_provider'] : '',
+			'provider_selection_required' => count($this->get_detected_commerce_providers()) > 1 && empty($settings['selected_provider']),
+		];
+	}
+
+	/**
+	 * Get detected commerce providers by plugin activation only.
+	 *
+	 * @since 2.0.3
+	 * @return array
+	 */
+	public function get_detected_commerce_providers(): array
+	{
+		$providers = [];
+		if ($this->is_woocommerce_active()) {
+			$providers[] = 'woocommerce';
+		}
+		if ($this->is_edd_active()) {
+			$providers[] = 'easy_digital_downloads';
+		}
+		if ($this->is_surecart_active()) {
+			$providers[] = 'surecart';
+		}
+		return $providers;
+	}
+
+	/**
+	 * Get active commerce providers.
+	 *
+	 * @since 2.0.3
+	 * @return array Active commerce provider keys.
+	 */
+	public function get_active_commerce_providers(): array
+	{
+		$selected = $this->get_primary_commerce_provider();
+		if (!empty($selected)) {
+			return [$selected];
+		}
+		return [];
+	}
+
+	/**
+	 * Get the primary commerce provider key.
+	 *
+	 * @since 2.0.3
+	 * @return string Primary commerce provider.
+	 */
+	public function get_primary_commerce_provider(): string
+	{
+		$settings = $this->get_commerce_integration_settings();
+		$detected = $this->get_detected_commerce_providers();
+		$selected = isset($settings['selected_provider']) ? (string) $settings['selected_provider'] : '';
+		if (!empty($selected) && in_array($selected, $detected, true)) {
+			return $selected;
+		}
+		if (count($detected) === 1) {
+			return $detected[0];
+		}
+		return '';
+	}
+
+	/**
+	 * Whether the primary commerce plugin is installed and active.
+	 *
+	 * @since 2.0.5
+	 * @return bool
+	 */
+	public function is_primary_commerce_plugin_active(): bool
+	{
+		$primary = $this->get_primary_commerce_provider();
+		if ('' === $primary) {
+			return false;
+		}
+		if ('woocommerce' === $primary) {
+			return $this->is_woocommerce_active();
+		}
+		if ('easy_digital_downloads' === $primary) {
+			return $this->is_edd_active();
+		}
+		if ('surecart' === $primary) {
+			return $this->is_surecart_active();
+		}
+		return false;
+	}
+
+	/**
+	 * Image search is allowed (module on, Pro, primary set, primary plugin active).
+	 *
+	 * @since 2.0.5
+	 * @return bool
+	 */
+	public function is_image_search_operational(): bool
+	{
+		if ($this->get_product_slug() === 'helpmate-free' || !$this->is_helpmate_pro_active()) {
+			return false;
+		}
+		$modules = $this->settings->get_setting('modules');
+		if (!is_array($modules) || empty($modules[HELPMATE_MODULE_IMAGE_SEARCH])) {
+			return false;
+		}
+		$primary = $this->get_primary_commerce_provider();
+		if ('' === $primary) {
+			return false;
+		}
+		$detected = $this->get_detected_commerce_providers();
+		if (!in_array($primary, $detected, true)) {
+			return false;
+		}
+		return $this->is_primary_commerce_plugin_active();
+	}
+
+	/**
+	 * Commerce catalog is usable for the current primary (provider set + plugin active).
+	 *
+	 * @since 2.0.5
+	 * @return bool
+	 */
+	public function is_commerce_catalog_operational(): bool
+	{
+		return '' !== $this->get_primary_commerce_provider() && $this->is_primary_commerce_plugin_active();
+	}
+
+	/**
+	 * Whether sales-notification toasts should run for the current commerce setup.
+	 *
+	 * @since 2.0.5
+	 * @return bool
+	 */
+	public function is_sales_notification_commerce_active(): bool
+	{
+		return $this->is_commerce_catalog_operational();
 	}
 
 	/**
@@ -795,6 +1273,94 @@ class Helpmate
 	}
 
 	/**
+	 * Dokan integration helper.
+	 *
+	 * @return Helpmate_Dokan
+	 */
+	public function get_dokan()
+	{
+		return $this->dokan;
+	}
+
+	/**
+	 * WCFM integration helper.
+	 *
+	 * @return Helpmate_WCFM
+	 */
+	public function get_wcfm()
+	{
+		return $this->wcfm;
+	}
+
+	/**
+	 * LearnPress integration helper.
+	 *
+	 * @return Helpmate_LearnPress
+	 */
+	public function get_learnpress()
+	{
+		return $this->learnpress;
+	}
+
+	/**
+	 * Tutor LMS integration helper.
+	 *
+	 * @return Helpmate_Tutor
+	 */
+	public function get_tutor()
+	{
+		return $this->tutor;
+	}
+
+	/**
+	 * LifterLMS integration helper.
+	 *
+	 * @return Helpmate_LifterLMS
+	 */
+	public function get_lifterlms()
+	{
+		return $this->lifterlms;
+	}
+
+	/**
+	 * Get the EDD instance.
+	 *
+	 * @since 2.0.3
+	 * @return Helpmate_EDD The EDD instance.
+	 */
+	public function get_edd()
+	{
+		return $this->edd;
+	}
+
+	/**
+	 * Get the SureCart instance.
+	 *
+	 * @since 2.0.4
+	 * @return Helpmate_SureCart The SureCart instance.
+	 */
+	public function get_surecart()
+	{
+		return $this->surecart;
+	}
+
+	/**
+	 * Get selected commerce adapter instance.
+	 *
+	 * @since 2.0.3
+	 * @return CommerceProviderAdapter|null
+	 */
+	public function get_commerce_adapter()
+	{
+		$provider = $this->get_primary_commerce_provider();
+		if (empty($provider)) {
+			return null;
+		}
+		$registry = new Helpmate_Commerce_Adapter_Registry($this);
+		return $registry->get_adapter($provider);
+	}
+
+	/**
 	 * Get the general tools instance.
 	 *
 	 * @since 1.0.0
@@ -847,6 +1413,56 @@ class Helpmate
 	public function is_helpmate_pro_active()
 	{
 		return is_plugin_active('helpmate-pro/helpmate-pro.php');
+	}
+
+	/**
+	 * Whether Pro license and Helpmate Pro plugin are both active.
+	 *
+	 * @since 1.0.0
+	 * @return bool
+	 */
+	public function is_pro_available()
+	{
+		return $this->get_product_slug() !== 'helpmate-free' && $this->is_helpmate_pro_active();
+	}
+
+	/**
+	 * Pro license is active but the Helpmate Pro plugin is not activated.
+	 *
+	 * @since 1.0.0
+	 * @return bool
+	 */
+	public function is_pro_license_plugin_mismatch()
+	{
+		return $this->get_product_slug() !== 'helpmate-free' && ! $this->is_helpmate_pro_active();
+	}
+
+	/**
+	 * Customer-facing message when a Pro tool cannot run (license/plugin mismatch).
+	 *
+	 * @since 1.0.0
+	 * @return string
+	 */
+	public function get_pro_tool_customer_unavailable_message()
+	{
+		return __(
+			'We\'re sorry — this feature isn\'t available right now due to a technical issue on our site. Please try again later or contact us directly.',
+			'helpmate-ai-chatbot'
+		);
+	}
+
+	/**
+	 * Admin-facing message when Pro license is active but the Pro plugin is inactive.
+	 *
+	 * @since 1.0.0
+	 * @return string
+	 */
+	public function get_pro_plugin_inactive_admin_message()
+	{
+		return __(
+			'Helpmate Pro license is active, but the Helpmate Pro plugin is not activated. Activate it under Plugins.',
+			'helpmate-ai-chatbot'
+		);
 	}
 
 	/**
@@ -938,6 +1554,17 @@ class Helpmate
 	}
 
 	/**
+	 * Public class instance (shortcodes, scheduling, front hooks).
+	 *
+	 * @since 1.4.0
+	 * @return Helpmate_Public|null
+	 */
+	public function get_plugin_public()
+	{
+		return $this->plugin_public;
+	}
+
+	/**
 	 * Get the sales notification instance.
 	 *
 	 * @since    1.0.0
@@ -948,5 +1575,104 @@ class Helpmate
 		return $this->sales_notification;
 	}
 
+	/**
+	 * Get the integration events service instance.
+	 *
+	 * @return Helpmate_Integration_Events
+	 */
+	public function get_integration_events()
+	{
+		return $this->integration_events;
+	}
+
+	/**
+	 * Get the Contact Form 7 integration instance.
+	 *
+	 * @return Helpmate_CF7_Integration
+	 */
+	public function get_cf7_integration()
+	{
+		return $this->cf7_integration;
+	}
+
+	/**
+	 * Get the Forminator integration instance.
+	 *
+	 * @return Helpmate_Forminator_Integration
+	 */
+	public function get_forminator_integration()
+	{
+		return $this->forminator_integration;
+	}
+
+	/**
+	 * Get the WPForms integration instance.
+	 *
+	 * @return Helpmate_WPForms_Integration
+	 */
+	public function get_wpforms_integration()
+	{
+		return $this->wpforms_integration;
+	}
+
+	/**
+	 * Get the Ninja Forms integration instance.
+	 *
+	 * @return Helpmate_Ninja_Forms_Integration
+	 */
+	public function get_ninja_forms_integration()
+	{
+		return $this->ninja_forms_integration;
+	}
+
+	/**
+	 * Get the Formidable Forms integration instance.
+	 *
+	 * @return Helpmate_Formidable_Forms_Integration
+	 */
+	public function get_formidable_forms_integration()
+	{
+		return $this->formidable_forms_integration;
+	}
+
+	/**
+	 * Integration plugins helper (overview / install / activate).
+	 *
+	 * @return Helpmate_Integration_Plugins
+	 */
+	public function get_integration_plugins()
+	{
+		return $this->integration_plugins;
+	}
+
+	/**
+	 * Ultimate Member integration helper.
+	 *
+	 * @return Helpmate_Ultimate_Member
+	 */
+	public function get_ultimate_member()
+	{
+		return $this->ultimate_member;
+	}
+
+	/**
+	 * Members integration helper.
+	 *
+	 * @return Helpmate_Members
+	 */
+	public function get_members()
+	{
+		return $this->members;
+	}
+
+	/**
+	 * User Registration integration helper.
+	 *
+	 * @return Helpmate_User_Registration
+	 */
+	public function get_user_registration()
+	{
+		return $this->user_registration;
+	}
 
 }

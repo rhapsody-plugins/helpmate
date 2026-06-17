@@ -5,3 +5,10 @@ vendor
 data
 data.first
 data.test
+
+# Compiled locale files (POT-only in repo; installs go to wp-content/languages/plugins/)
+languages/*.po
+languages/*.mo
+languages/helpmate-ai-chatbot-*.json
+languages/_ts_i18n_stub.pot
+.tmp-ts-i18n-stub/

@@ -13,18 +13,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useTickets } from '@/hooks/useTickets';
+import { __ } from '@/lib/utils';
 import type { ContactFormData } from '../../types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Send } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-
-const formSchema = z.object({
-  subject: z.string().min(1, 'Subject is required'),
-  email: z.string().email('Invalid email address'),
-  message: z.string().min(1, 'Message is required'),
-});
 
 export function Ticket({
   data,
@@ -40,6 +35,16 @@ export function Ticket({
 }) {
   const { createTicket } = useTickets();
   const [isSubmitted, setIsSubmitted] = useState(data.submitted || false);
+
+  const formSchema = useMemo(
+    () =>
+      z.object({
+        subject: z.string().min(1, __('Subject is required')),
+        email: z.string().email(__('Invalid email address')),
+        message: z.string().min(1, __('Message is required')),
+      }),
+    []
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,7 +72,7 @@ export function Ticket({
       {isSubmitted ? (
         <div className="overflow-hidden my-3 rounded-lg border">
           <div className="flex justify-between items-center p-3 border-b bg-slate-50">
-            <div className="flex items-center text-lg">Ticket submitted</div>
+            <div className="flex items-center text-lg">{__('Ticket submitted')}</div>
           </div>
         </div>
       ) : (
@@ -82,9 +87,9 @@ export function Ticket({
                 name="subject"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Subject</FormLabel>
+                    <FormLabel>{__('Subject')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter subject" {...field} disabled={displayOnly} />
+                      <Input placeholder={__('Enter subject')} {...field} disabled={displayOnly} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -95,10 +100,10 @@ export function Ticket({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{__('Email')}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your email"
+                        placeholder={__('Enter your email')}
                         type="email"
                         {...field}
                         disabled={displayOnly}
@@ -113,10 +118,10 @@ export function Ticket({
                 name="message"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Message</FormLabel>
+                    <FormLabel>{__('Message')}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Enter your message"
+                        placeholder={__('Enter your message')}
                         rows={4}
                         {...field}
                         disabled={displayOnly}
@@ -128,7 +133,8 @@ export function Ticket({
               />
               {!displayOnly && (
                 <Button type="submit" disabled={createTicket.isPending}>
-                  <Send /> {createTicket.isPending ? 'Submitting...' : 'Submit Ticket'}
+                  <Send />{' '}
+                  {createTicket.isPending ? __('Submitting…') : __('Submit Ticket')}
                 </Button>
               )}
             </form>
